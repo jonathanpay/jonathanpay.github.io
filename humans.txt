@@ -3,16 +3,13 @@
 
 # TEAM
 
-    Jonathan -- creator -- @jonathanpay
+    Jonathan Pay -- creator -- @jonathanpay
 
 # THANKS
 
+    to Tom Gillett ( http://www.twitter.com/tomgillett ) for hosting my site.
+    to the Twitter Bootstrap ( http://www.getbootstrap.com ) team for the foundations of my site.
 
-# IMAGES
-
-    ( img/anvil.svg ) by Jason Dilworth from the Noun Project (https://thenounproject.com )
-    ( img/mine.svg ) by Edward Boatman from the Noun Project (https://thenounproject.com )
-    ( img/tongs.svg ) by Karthik M from the Noun Project ( https://thenounproject.com)
 
 # TECHNOLOGY COLOPHON
 
