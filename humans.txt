@@ -1,0 +1,20 @@
+# humanstxt.org/
+# The humans responsible & technology colophon
+
+# TEAM
+
+    Jonathan -- creator -- @jonathanpay
+
+# THANKS
+
+
+# IMAGES
+
+    ( img/anvil.svg ) by Jason Dilworth from the Noun Project (https://thenounproject.com )
+    ( img/mine.svg ) by Edward Boatman from the Noun Project (https://thenounproject.com )
+    ( img/tongs.svg ) by Karthik M from the Noun Project ( https://thenounproject.com)
+
+# TECHNOLOGY COLOPHON
+
+    HTML5, CSS3
+    jQuery, Modernizr
