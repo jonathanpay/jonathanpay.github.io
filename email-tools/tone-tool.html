@@ -1,0 +1,318 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Email Tone Analyzer — Holistic Email Marketing — Jonathan Pay</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="tool-page.css">
+  <style>
+    body { background: var(--hea-bg-alt); }
+
+    /* ---- Dominant tone badge ---- */
+    .dominant-wrap {
+      text-align: center;
+      padding: var(--hea-s-5) var(--hea-s-5) var(--hea-s-4);
+    }
+    .dominant-label {
+      font-size: var(--hea-text-xs);
+      font-weight: var(--hea-w-bold);
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--hea-fg-3);
+      margin: 0 0 var(--hea-s-3);
+    }
+    .dominant-badge {
+      display: inline-block;
+      background: var(--hea-purple);
+      color: #fff;
+      font-size: var(--hea-text-base);
+      font-weight: var(--hea-w-semibold);
+      padding: var(--hea-s-2) var(--hea-s-5);
+      border-radius: 999px;
+    }
+    .dominant-note {
+      font-size: var(--hea-text-sm);
+      color: var(--hea-fg-3);
+      font-style: italic;
+      margin: var(--hea-s-3) 0 0;
+    }
+
+    /* ---- Tone bars ---- */
+    .tone-bars {
+      display: flex;
+      flex-direction: column;
+      gap: var(--hea-s-3);
+      margin-bottom: var(--hea-s-5);
+    }
+    .tone-row {
+      display: grid;
+      grid-template-columns: 110px 1fr 36px;
+      align-items: center;
+      gap: var(--hea-s-3);
+    }
+    .tone-name {
+      font-size: var(--hea-text-sm);
+      font-weight: var(--hea-w-semibold);
+      color: var(--hea-fg-1);
+    }
+    .tone-bar-track {
+      height: 8px;
+      background: var(--hea-divider);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .tone-bar-fill {
+      height: 100%;
+      border-radius: 4px;
+      width: 0;
+      transition: width 0.6s var(--hea-ease);
+      background: var(--hea-purple);
+      opacity: 0.4;
+    }
+    .tone-row.is-dominant .tone-bar-fill { opacity: 1; }
+    .tone-row.is-dominant .tone-name     { color: var(--hea-purple); }
+    .tone-pct {
+      font-size: var(--hea-text-xs);
+      font-weight: var(--hea-w-semibold);
+      color: var(--hea-fg-3);
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+    }
+    .tone-row.is-dominant .tone-pct { color: var(--hea-purple); }
+
+    /* ---- Tone tip cards ---- */
+    .tone-tips {
+      display: flex;
+      flex-direction: column;
+      gap: var(--hea-s-3);
+      margin-top: var(--hea-s-5);
+    }
+    .tone-tip-card {
+      background: var(--hea-bg-warm);
+      border-radius: var(--hea-r-md);
+      padding: var(--hea-s-4) var(--hea-s-5);
+    }
+    .tone-tip-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: var(--hea-s-3);
+    }
+    .tone-tip-name {
+      font-size: var(--hea-text-sm);
+      font-weight: var(--hea-w-bold);
+      color: var(--hea-fg-1);
+    }
+    .tone-tip-tag {
+      font-size: var(--hea-text-xs);
+      color: var(--hea-fg-3);
+      font-style: italic;
+    }
+    .tone-tip-desc {
+      font-size: var(--hea-text-sm);
+      color: var(--hea-fg-2);
+      line-height: var(--hea-lh-normal);
+      margin: 0 0 var(--hea-s-3);
+    }
+    .tone-tip-phrases {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--hea-s-2);
+    }
+    .phrase-chip {
+      font-size: var(--hea-text-xs);
+      background: var(--hea-purple-tint);
+      color: var(--hea-purple);
+      border-radius: 999px;
+      padding: 2px var(--hea-s-3);
+      font-weight: var(--hea-w-semibold);
+    }
+
+    /* no-signal state */
+    .no-signal {
+      text-align: center;
+      padding: var(--hea-s-5);
+      font-size: var(--hea-text-sm);
+      color: var(--hea-fg-3);
+      font-style: italic;
+    }
+  </style>
+</head>
+<body class="hea">
+
+    <header class="site-header">
+    <a href="/" class="site-name">Jonathan Pay</a>
+    <nav>
+      <a href="/email-tools/" class="nav-active">Email Tools</a>
+      <a href="https://jonathanpay.com/blog/">Blog</a>
+      <a href="https://jonathanpay.com/holistic-email-marketing/">HEM</a>
+      <a href="https://holisticemailacademy.com">HEA</a>
+    </nav>
+  </header>
+
+  <main>
+    <div class="tool-page">
+
+      <a href="/email-tools/" class="tool-back">← All tools</a>
+
+      <header class="tool-header">
+        <span class="hea-pill hea-pill--intermediate">● Intermediate</span>
+        <h1>Email Tone Analyzer</h1>
+        <p class="lead">Paste your email copy to see which tones are present — and get phrase suggestions for shifting toward the tone you want.</p>
+      </header>
+
+      <div class="tool-card">
+        <div class="field-group">
+          <label class="field-label" for="tone-input">Your email copy</label>
+          <textarea class="hea-textarea" id="tone-input" placeholder="Paste your email copy here…" rows="8"></textarea>
+          <p class="error-msg" id="tone-error">Please paste some email copy before analysing.</p>
+        </div>
+        <button class="hea-btn hea-btn--primary" id="tone-btn">Analyse Tone →</button>
+
+        <div class="results" id="tone-results">
+          <hr class="results-divider">
+
+          <div class="dominant-wrap">
+            <p class="dominant-label">Dominant tone</p>
+            <span class="dominant-badge" id="dominant-badge">—</span>
+            <p class="dominant-note" id="dominant-note"></p>
+          </div>
+
+          <p class="results-label" style="margin-top:var(--hea-s-2)">Tone breakdown</p>
+          <div class="tone-bars" id="tone-bars"></div>
+
+          <hr class="results-divider">
+          <p class="results-label">How to strengthen each tone</p>
+          <div class="tone-tips" id="tone-tips"></div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+    <footer class="site-footer">
+    <p>&copy; Jonathan Pay 2025 &nbsp;&middot;&nbsp; <a href="/email-tools/">Email Tools</a></p>
+  </footer>
+
+  <script>
+    const tones = [
+      {
+        id:      'friendly',
+        name:    'Friendly',
+        desc:    'Warm, conversational, and approachable. Reads like a message from someone you know.',
+        note:    'Works well for welcome sequences, nurture flows, and community-driven brands.',
+        phrases: ['"Hey [name],"', '"Hope you\'re well"', '"We love that"', '"Excited to share"', '"Feel free to"', '"Chat soon"'],
+        keywords: ['hey', 'hi there', 'hope', 'love', 'excited', 'thrilled', 'happy', 'glad', 'great to', 'good news', 'cheers', 'thanks', 'thank you', 'chat', 'feel free', 'warmly', 'take care', 'looking forward', 'can\'t wait', 'delighted']
+      },
+      {
+        id:      'persuasive',
+        name:    'Persuasive',
+        desc:    'Benefit-led and action-driving. Speaks directly to results and motivates a decision.',
+        note:    'Essential for promotional campaigns, product launches, and conversion-focused sequences.',
+        phrases: ['"You\'ll get"', '"Proven to"', '"Discover"', '"Transform"', '"Claim your"', '"Results speak"'],
+        keywords: ['you\'ll', 'you will', 'proven', 'results', 'guaranteed', 'discover', 'transform', 'imagine', 'benefit', 'gain', 'unlock', 'achieve', 'boost', 'grow', 'increase', 'improve', 'claim', 'get started', 'start today', 'here\'s why', 'what if', 'picture this', 'imagine']
+      },
+      {
+        id:      'professional',
+        name:    'Professional',
+        desc:    'Formal, structured, and authoritative. Establishes credibility and trust.',
+        note:    'Best suited for B2B, financial, legal, or enterprise audiences.',
+        phrases: ['"Please find"', '"I\'d like to"', '"As discussed"', '"With regard to"', '"I look forward"', '"Should you require"'],
+        keywords: ['please', 'kindly', 'regard', 'pursuant', 'therefore', 'however', 'furthermore', 'accordingly', 'as discussed', 'as per', 'i would like', 'we would like', 'enclosed', 'attached', 'look forward', 'should you', 'do not hesitate', 'at your earliest', 'sincerely', 'best regards', 'yours faithfully']
+      },
+      {
+        id:      'urgent',
+        name:    'Urgent',
+        desc:    'Deadline-driven and scarcity-focused. Creates FOMO and prompts immediate action.',
+        note:    'Use sparingly — effective for flash sales, event reminders, and expiring offers.',
+        phrases: ['"Limited time"', '"Ends tonight"', '"Last chance"', '"Today only"', '"Act now"', '"Only X left"'],
+        keywords: ['limited', 'expires', 'expiry', 'deadline', 'ends', 'last chance', 'hurry', 'now', 'today only', 'act now', 'don\'t miss', 'running out', 'selling fast', 'almost gone', 'final', 'urgent', 'immediately', 'right now', 'before it\'s too late', 'only', 'spots left', 'seats left']
+      },
+      {
+        id:      'empathetic',
+        name:    'Empathetic',
+        desc:    'Understanding, supportive, and reader-centric. Acknowledges challenges before offering solutions.',
+        note:    'Powerful in re-engagement flows, customer service emails, and sensitive subject matter.',
+        phrases: ['"We understand"', '"You\'re not alone"', '"We know how"', '"We\'re here for you"', '"That\'s why we"', '"It can be tough"'],
+        keywords: ['understand', 'know how', 'we know', 'you\'re not alone', 'we\'re here', 'we care', 'your concerns', 'your needs', 'it can be', 'it\'s not easy', 'that\'s why', 'for you', 'support', 'help you', 'here for you', 'on your side', 'we hear you', 'appreciate', 'acknowledge', 'feel']
+      }
+    ];
+
+    function scoreText(text) {
+      const lower = text.toLowerCase();
+      return tones.map(t => {
+        const count = t.keywords.reduce((n, kw) => {
+          let pos = 0, hits = 0;
+          while ((pos = lower.indexOf(kw, pos)) !== -1) { hits++; pos += kw.length; }
+          return n + hits;
+        }, 0);
+        return { ...t, count };
+      });
+    }
+
+    function analyse() {
+      const text    = document.getElementById('tone-input').value.trim();
+      const errorEl = document.getElementById('tone-error');
+      const results = document.getElementById('tone-results');
+
+      if (!text) {
+        errorEl.classList.add('visible');
+        results.classList.remove('visible');
+        return;
+      }
+      errorEl.classList.remove('visible');
+
+      const scored  = scoreText(text);
+      const total   = scored.reduce((n, t) => n + t.count, 0);
+      const sorted  = [...scored].sort((a, b) => b.count - a.count);
+      const topTone = sorted[0];
+
+      // Dominant badge
+      document.getElementById('dominant-badge').textContent = topTone.count > 0 ? topTone.name : 'Mixed / Neutral';
+      document.getElementById('dominant-note').textContent  = topTone.count > 0
+        ? topTone.note
+        : 'No single tone stands out strongly. This can work for purely informational emails, but adding intentional tone signals will improve engagement.';
+
+      // Tone bars
+      const barsEl = document.getElementById('tone-bars');
+      barsEl.innerHTML = scored.map(t => {
+        const pct = total > 0 ? Math.round(t.count / total * 100) : 0;
+        const isDom = t.id === topTone.id && topTone.count > 0;
+        return `<div class="tone-row${isDom ? ' is-dominant' : ''}">
+          <span class="tone-name">${t.name}</span>
+          <div class="tone-bar-track"><div class="tone-bar-fill" data-pct="${pct}"></div></div>
+          <span class="tone-pct">${pct}%</span>
+        </div>`;
+      }).join('');
+
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        barsEl.querySelectorAll('.tone-bar-fill').forEach(el => {
+          el.style.width = el.dataset.pct + '%';
+        });
+      }));
+
+      // Tip cards (all tones, dominant first)
+      const tipsEl = document.getElementById('tone-tips');
+      tipsEl.innerHTML = sorted.map(t => `
+        <div class="tone-tip-card">
+          <div class="tone-tip-head">
+            <span class="tone-tip-name">${t.name}</span>
+            <span class="tone-tip-tag">${t.desc}</span>
+          </div>
+          <p class="tone-tip-desc">${t.note}</p>
+          <div class="tone-tip-phrases">${t.phrases.map(p => `<span class="phrase-chip">${p}</span>`).join('')}</div>
+        </div>
+      `).join('');
+
+      results.classList.add('visible');
+    }
+
+    document.getElementById('tone-btn').addEventListener('click', analyse);
+    document.getElementById('tone-input').addEventListener('keydown', e => {
+      if (e.key === 'Enter' && e.ctrlKey) analyse();
+    });
+  </script>
+
+</body>
+</html>

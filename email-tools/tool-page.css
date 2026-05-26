@@ -1,0 +1,159 @@
+/* ============================================================
+   Email Tools — Page Layout
+   Adapted for jonathanpay.github.io (navy/gold).
+   Load after style.css on every tool page.
+   ============================================================ */
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ---- Header ---- */
+.site-header {
+  background: #2c3d50;
+  padding: 1.25rem 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+.site-name {
+  color: #8b7417;
+  font-size: 1.1rem;
+  font-weight: 700;
+  font-style: italic;
+  text-transform: uppercase;
+  text-decoration: none;
+  letter-spacing: 0.06em;
+  font-family: 'Open Sans', sans-serif;
+}
+.site-header nav a {
+  color: #dfb81f;
+  text-decoration: none;
+  font-size: 0.9rem;
+  margin-left: 1.5rem;
+  font-family: 'Open Sans', sans-serif;
+  font-weight: 600;
+  transition: color 0.15s;
+}
+.site-header nav a:hover   { color: #ffffff; }
+.site-header nav a.nav-active { color: #ffffff; }
+
+/* ---- Page layout ---- */
+.tool-page {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: var(--hea-s-9) var(--hea-s-6) var(--hea-s-9);
+}
+.tool-back {
+  display: block;
+  font-size: var(--hea-text-sm);
+  color: var(--hea-fg-3);
+  text-decoration: none;
+  margin-bottom: var(--hea-s-6);
+  font-weight: 600;
+  transition: color var(--hea-dur-fast) var(--hea-ease);
+}
+.tool-back:hover { color: var(--hea-purple-deep); }
+
+/* ---- Tool header ---- */
+.tool-header { margin-bottom: var(--hea-s-7); }
+.tool-header .hea-pill { margin-bottom: var(--hea-s-4); }
+.tool-header h1 { margin-bottom: var(--hea-s-3); }
+.tool-header .lead {
+  font-size: var(--hea-text-lg);
+  color: var(--hea-fg-2);
+  line-height: var(--hea-lh-normal);
+  margin: 0;
+}
+
+/* ---- Tool card ---- */
+.tool-card {
+  background: var(--hea-bg);
+  border-radius: var(--hea-r-lg);
+  border: 1px solid var(--hea-divider);
+  box-shadow: var(--hea-shadow-sm);
+  padding: var(--hea-s-7);
+}
+
+/* ---- Form elements ---- */
+.field-group { margin-bottom: var(--hea-s-5); }
+.field-label {
+  display: block;
+  font-size: var(--hea-text-sm);
+  font-weight: var(--hea-w-semibold);
+  color: var(--hea-fg-1);
+  margin-bottom: var(--hea-s-2);
+}
+.hea-textarea {
+  font-family: var(--hea-font-sans);
+  font-size: var(--hea-text-base);
+  padding: 14px 18px;
+  border-radius: var(--hea-r-md);
+  border: 1.5px solid var(--hea-divider);
+  background: var(--hea-bg);
+  color: var(--hea-fg-1);
+  width: 100%;
+  resize: vertical;
+  min-height: 160px;
+  line-height: var(--hea-lh-normal);
+  transition: border var(--hea-dur-base) var(--hea-ease),
+              box-shadow var(--hea-dur-base) var(--hea-ease);
+}
+.hea-textarea:focus {
+  outline: none;
+  border-color: var(--hea-purple);
+  box-shadow: var(--hea-ring-focus);
+}
+.hea-textarea::placeholder { color: var(--hea-fg-3); }
+
+/* ---- Validation ---- */
+.error-msg {
+  display: none;
+  margin-top: var(--hea-s-3);
+  font-size: var(--hea-text-sm);
+  color: var(--hea-danger);
+}
+.error-msg.visible { display: block; }
+
+/* ---- Results ---- */
+.results { margin-top: var(--hea-s-6); display: none; }
+.results.visible { display: block; }
+.results-divider {
+  border: none;
+  border-top: 1px solid var(--hea-divider);
+  margin: 0 0 var(--hea-s-5);
+}
+.results-label {
+  font-size: var(--hea-text-xs);
+  font-weight: var(--hea-w-bold);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--hea-fg-3);
+  margin: 0 0 var(--hea-s-5);
+}
+
+/* ---- Footer ---- */
+.site-footer {
+  background: #2c3d50;
+  color: #aab3bf;
+  text-align: center;
+  padding: 2rem;
+  font-size: 0.85rem;
+  margin-top: 4rem;
+  font-family: 'Open Sans', sans-serif;
+}
+.site-footer a {
+  color: #aab3bf;
+  text-decoration: none;
+}
+.site-footer a:hover { color: #dfb81f; }
+
+/* ---- Responsive ---- */
+@media (max-width: 600px) {
+  .site-header { padding: 1rem; }
+  .tool-page { padding: var(--hea-s-6) var(--hea-s-4) var(--hea-s-8); }
+  .tool-card { padding: var(--hea-s-5); }
+}

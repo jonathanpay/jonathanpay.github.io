@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>We-We Calculator — Holistic Email Marketing — Jonathan Pay</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="tool-page.css">
+  <style>
+    body { background: var(--hea-bg-alt); }
+
+    /* ---- Score display ---- */
+    .score-pair {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--hea-s-4);
+    }
+    .score-box {
+      background: var(--hea-bg-warm);
+      border-radius: var(--hea-r-md);
+      padding: var(--hea-s-5);
+      text-align: center;
+    }
+    .score-number {
+      font-size: clamp(40px, 7vw, 60px);
+      font-weight: var(--hea-w-bold);
+      color: var(--hea-plum);
+      line-height: 1;
+      font-variant-numeric: tabular-nums;
+    }
+    .score-name {
+      font-size: var(--hea-text-xs);
+      font-weight: var(--hea-w-bold);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--hea-fg-3);
+      margin-top: var(--hea-s-2);
+    }
+    .score-bar-wrap {
+      margin-top: var(--hea-s-3);
+      height: 5px;
+      background: var(--hea-divider);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+    .score-bar {
+      height: 100%;
+      border-radius: 3px;
+      width: 0;
+      transition: width 0.6s var(--hea-ease);
+    }
+    .score-bar--brand    { background: var(--hea-purple); }
+    .score-bar--customer { background: var(--hea-level-foundation); }
+
+    /* ---- Tip ---- */
+    .tip-box {
+      display: none;
+      margin-top: var(--hea-s-5);
+      background: rgba(223,184,31,0.12);
+      border-radius: var(--hea-r-md);
+      padding: var(--hea-s-4) var(--hea-s-5);
+      font-size: var(--hea-text-sm);
+      color: #8b7417;
+      gap: var(--hea-s-3);
+      align-items: flex-start;
+      line-height: var(--hea-lh-normal);
+      border-left: 3px solid var(--hea-purple);
+    }
+    .tip-box.visible { display: flex; }
+
+    /* ---- How it works note ---- */
+    .tool-note {
+      background: var(--hea-bg);
+      border: 1px solid var(--hea-divider);
+      border-radius: var(--hea-r-md);
+      padding: var(--hea-s-4) var(--hea-s-5);
+      margin-bottom: var(--hea-s-6);
+      font-size: var(--hea-text-sm);
+      color: var(--hea-fg-2);
+      line-height: var(--hea-lh-normal);
+    }
+    .tool-note strong {
+      color: var(--hea-fg-1);
+      font-weight: var(--hea-w-semibold);
+    }
+
+    @media (max-width: 480px) {
+      .score-pair { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body class="hea">
+
+    <header class="site-header">
+    <a href="/" class="site-name">Jonathan Pay</a>
+    <nav>
+      <a href="/email-tools/" class="nav-active">Email Tools</a>
+      <a href="https://jonathanpay.com/blog/">Blog</a>
+      <a href="https://jonathanpay.com/holistic-email-marketing/">HEM</a>
+      <a href="https://holisticemailacademy.com">HEA</a>
+    </nav>
+  </header>
+
+  <main>
+    <div class="tool-page">
+
+      <a href="/email-tools/" class="tool-back">← All tools</a>
+
+      <header class="tool-header">
+        <span class="hea-pill hea-pill--foundation">● Foundation</span>
+        <h1>We-We Calculator</h1>
+        <p class="lead">Is your copy talking about you, or to your reader? Paste your email below and see the brand vs. customer balance at a glance.</p>
+      </header>
+
+      <p class="tool-note">
+        <strong>How it works:</strong> The calculator counts brand-centric pronouns
+        (we, us, our, I, me, my) and customer-centric pronouns (you, your), then shows
+        you the split. Note that first-person <em>I</em> is included in the brand count —
+        so naturally conversational copy will score more brand-focused than it really is.
+        Treat the result as a directional guide, not a precise measure.
+      </p>
+
+      <div class="tool-card">
+        <div class="field-group">
+          <label class="field-label" for="wewe-input">Your email copy</label>
+          <textarea class="hea-textarea" id="wewe-input" placeholder="Paste your email copy here…" rows="8"></textarea>
+          <p class="error-msg" id="wewe-error">Please paste some email copy before analysing.</p>
+        </div>
+        <button class="hea-btn hea-btn--primary" id="wewe-btn">Analyse →</button>
+
+        <div class="results" id="wewe-results">
+          <hr class="results-divider">
+          <p class="results-label">Results</p>
+          <div class="score-pair">
+            <div class="score-box">
+              <div class="score-number" id="brand-pct">—</div>
+              <div class="score-name">Brand-Focused</div>
+              <div class="score-bar-wrap">
+                <div class="score-bar score-bar--brand" id="brand-bar"></div>
+              </div>
+            </div>
+            <div class="score-box">
+              <div class="score-number" id="customer-pct">—</div>
+              <div class="score-name">Customer-Focused</div>
+              <div class="score-bar-wrap">
+                <div class="score-bar score-bar--customer" id="customer-bar"></div>
+              </div>
+            </div>
+          </div>
+          <div class="tip-box" id="wewe-tip">
+            <span style="flex-shrink:0;font-weight:600">Tip</span>
+            <span>Your copy is heavily brand-focused. Try replacing "we", "us", and "our" with "you" and "your" to put your reader at the centre of the message.</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+    <footer class="site-footer">
+    <p>&copy; Jonathan Pay 2025 &nbsp;&middot;&nbsp; <a href="/email-tools/">Email Tools</a></p>
+  </footer>
+
+  <script>
+    function analyse() {
+      const text = document.getElementById('wewe-input').value.trim();
+      const errorEl = document.getElementById('wewe-error');
+      const resultsEl = document.getElementById('wewe-results');
+
+      if (!text) {
+        errorEl.classList.add('visible');
+        resultsEl.classList.remove('visible');
+        return;
+      }
+      errorEl.classList.remove('visible');
+
+      const words = text.toLowerCase().match(/\b(\w+)\b/g) || [];
+      let brand = 0, customer = 0;
+      words.forEach(w => {
+        if ('we us our my i me'.split(' ').includes(w)) brand++;
+        else if ('you your'.split(' ').includes(w)) customer++;
+      });
+
+      const total = brand + customer;
+      const brandPct = total > 0 ? Math.round(brand / total * 100) : 0;
+      const customerPct = total > 0 ? Math.round(customer / total * 100) : 0;
+
+      document.getElementById('brand-pct').textContent = brandPct + '%';
+      document.getElementById('customer-pct').textContent = customerPct + '%';
+      resultsEl.classList.add('visible');
+
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        document.getElementById('brand-bar').style.width = brandPct + '%';
+        document.getElementById('customer-bar').style.width = customerPct + '%';
+      }));
+
+      const tip = document.getElementById('wewe-tip');
+      brandPct > 60 ? tip.classList.add('visible') : tip.classList.remove('visible');
+    }
+
+    document.getElementById('wewe-btn').addEventListener('click', analyse);
+    document.getElementById('wewe-input').addEventListener('keydown', e => {
+      if (e.key === 'Enter' && e.ctrlKey) analyse();
+    });
+  </script>
+
+</body>
+</html>

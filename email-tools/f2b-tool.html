@@ -1,0 +1,746 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Feature-to-Benefit Converter — Holistic Email Marketing — Jonathan Pay</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="tool-page.css">
+  <style>
+    body { background: var(--hea-bg-alt); }
+
+    /* ---- How it works note ---- */
+    .tool-note {
+      background: var(--hea-bg);
+      border: 1px solid var(--hea-divider);
+      border-radius: var(--hea-r-md);
+      padding: var(--hea-s-4) var(--hea-s-5);
+      margin-bottom: var(--hea-s-6);
+      font-size: var(--hea-text-sm);
+      color: var(--hea-fg-2);
+      line-height: var(--hea-lh-normal);
+    }
+    .tool-note strong { color: var(--hea-fg-1); font-weight: var(--hea-w-semibold); }
+
+    /* ---- Select input ---- */
+    .hea-select {
+      font-family: var(--hea-font-sans);
+      font-size: var(--hea-text-base);
+      padding: 14px 44px 14px 18px;
+      border-radius: var(--hea-r-pill);
+      border: 1.5px solid var(--hea-divider);
+      background-color: var(--hea-bg);
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23897680' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 18px center;
+      color: var(--hea-fg-1);
+      width: 100%;
+      appearance: none;
+      -webkit-appearance: none;
+      cursor: pointer;
+      transition: border var(--hea-dur-base) var(--hea-ease),
+                  box-shadow var(--hea-dur-base) var(--hea-ease);
+    }
+    .hea-select:focus {
+      outline: none;
+      border-color: var(--hea-purple);
+      box-shadow: var(--hea-ring-focus);
+    }
+
+    /* ---- Benefit output ---- */
+    .benefit-quote {
+      position: relative;
+      background: var(--hea-bg-warm);
+      border-radius: var(--hea-r-lg);
+      padding: var(--hea-s-7) var(--hea-s-6) var(--hea-s-5);
+      font-size: var(--hea-text-lg);
+      line-height: var(--hea-lh-normal);
+      color: var(--hea-plum);
+      font-style: italic;
+    }
+    .benefit-quote::before {
+      content: '\201C';
+      position: absolute;
+      top: 0;
+      left: var(--hea-s-5);
+      font-size: 72px;
+      line-height: 1;
+      color: var(--hea-purple);
+      opacity: 0.2;
+      font-style: normal;
+      font-family: Georgia, serif;
+    }
+    .benefit-quote p { margin: 0; color: var(--hea-plum); font-size: var(--hea-text-lg); }
+
+    .try-again-row {
+      margin-top: var(--hea-s-4);
+      display: flex;
+      justify-content: flex-end;
+    }
+  </style>
+</head>
+<body class="hea">
+
+    <header class="site-header">
+    <a href="/" class="site-name">Jonathan Pay</a>
+    <nav>
+      <a href="/email-tools/" class="nav-active">Email Tools</a>
+      <a href="https://jonathanpay.com/blog/">Blog</a>
+      <a href="https://jonathanpay.com/holistic-email-marketing/">HEM</a>
+      <a href="https://holisticemailacademy.com">HEA</a>
+    </nav>
+  </header>
+
+  <main>
+    <div class="tool-page">
+
+      <a href="/email-tools/" class="tool-back">← All tools</a>
+
+      <header class="tool-header">
+        <span class="hea-pill hea-pill--intermediate">● Intermediate</span>
+        <h1>Feature-to-Benefit Converter</h1>
+        <p class="lead">Transform a product or service feature into a customer benefit statement your reader will actually care about.</p>
+      </header>
+
+      <p class="tool-note">
+        <strong>How it works:</strong> Enter a feature, choose your industry, and the converter generates
+        a customer-benefit statement drawn from a curated template library. Results are starting points —
+        adapt the language to fit your specific product, audience, and brand voice before using.
+      </p>
+
+      <div class="tool-card">
+        <div class="field-group">
+          <label class="field-label" for="vertical-select">Your industry <span style="font-weight:400;color:var(--hea-fg-3)">(optional)</span></label>
+          <select class="hea-select" id="vertical-select">
+            <option value="general">General</option>
+            <option value="ecommerce">E-commerce &amp; Retail</option>
+            <option value="saas">SaaS &amp; Technology</option>
+            <option value="professional">Professional Services / B2B</option>
+            <option value="financial">Financial Services</option>
+            <option value="healthcare">Healthcare &amp; Wellbeing</option>
+            <option value="education">Education &amp; Training</option>
+            <option value="nonprofit">Non-profit &amp; Charity</option>
+          </select>
+        </div>
+        <div class="field-group">
+          <label class="field-label" for="feature-input">Product or service feature</label>
+          <input type="text" class="hea-input" id="feature-input" placeholder="e.g. automated email scheduling">
+          <p class="error-msg" id="f2b-error">Please enter a feature to convert.</p>
+        </div>
+        <button class="hea-btn hea-btn--primary" id="f2b-btn">Convert →</button>
+
+        <div class="results" id="f2b-results">
+          <hr class="results-divider">
+          <p class="results-label">Customer Benefit</p>
+          <div class="benefit-quote">
+            <p id="benefit-output"></p>
+          </div>
+          <div class="try-again-row">
+            <button class="hea-btn hea-btn--ghost" id="f2b-again">Try another variation →</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+    <footer class="site-footer">
+    <p>&copy; Jonathan Pay 2025 &nbsp;&middot;&nbsp; <a href="/email-tools/">Email Tools</a></p>
+  </footer>
+
+  <script>
+    /* ---- Category detection keywords ---- */
+    const categoryKeywords = {
+      'time-saving':     ['automat', 'workflow', 'schedule', 'trigger', 'drip', 'sequence', 'recurring', 'bulk send', 'batch', 'streamline', 'time-sav', 'auto-'],
+      'ease-of-use':     ['simple', 'easy', 'intuitive', 'user-friendly', 'drag-and-drop', 'no-code', 'one-click', 'quick setup', 'hassle-free', 'plug-and-play', 'wizard', 'template'],
+      'performance':     ['deliverability', 'open rate', 'click rate', 'conversion', 'revenue', 'roi', 'growth', 'boost', 'optimis', 'optimiz', 'fast', 'real-time', 'high-performance', 'reliable', 'scale'],
+      'cost-saving':     ['afford', 'budget', 'cost-effect', 'save money', 'reduce cost', 'lower cost', 'saving', 'value for money', 'free plan', 'pricing', 'discount'],
+      'security':        ['secure', 'security', 'encrypt', 'protect', 'privacy', 'gdpr', 'complian', 'data protect', 'authenticat', 'audit trail', 'certif', 'safe'],
+      'analytics':       ['analytic', 'reporting', 'dashboard', 'insight', 'metric', 'tracking', 'measure', 'a/b test', 'split test', 'heatmap', 'heat map', 'statistic', 'data visuali'],
+      'personalisation': ['personaliz', 'personalis', 'dynamic content', 'segment', 'behavioural', 'behavioral', 'targeted', 'recommend', 'tailor', 'custom field', 'dynamic'],
+      'support':         ['support', 'helpdesk', 'onboarding', 'dedicated account', 'customer success', 'live chat', '24/7', 'documentation', 'training programme', 'managed service']
+    };
+
+    /* ---- Template library: 8 verticals × 8 categories × 6 templates ---- */
+    const templates = {
+
+      general: {
+        'time-saving': [
+          '{feature} takes the repetitive work off your plate, so you can focus on what actually moves the needle.',
+          'With {feature}, you get more done in less time — without compromising on quality.',
+          '{feature} automates the tasks that eat your day, freeing you up for the work that matters.',
+          'Stop spending hours on manual tasks. {feature} handles it for you, every time.',
+          'Your team gets back time they didn\'t know they were losing — {feature} runs in the background so you don\'t have to.',
+          '{feature} means fewer repetitive tasks on your to-do list and more time for strategic thinking.'
+        ],
+        'ease-of-use': [
+          '{feature} is built to be picked up quickly — no steep learning curve, no frustration.',
+          'You don\'t need to be technical to get results from {feature}. It\'s designed to be straightforward from day one.',
+          '{feature} gets out of your way and lets you focus on the work, not the tool.',
+          'Whether you\'re new to this or a seasoned pro, {feature} works the way you\'d expect it to.',
+          'With {feature}, you spend less time figuring things out and more time getting things done.',
+          '{feature} removes the complexity so you can move faster with more confidence.'
+        ],
+        'performance': [
+          '{feature} is built for results — not just activity, but outcomes you can point to.',
+          'When you use {feature}, you\'re not just doing more; you\'re doing it better.',
+          '{feature} consistently delivers, even when the stakes are high.',
+          'You get stronger results with {feature} because it\'s engineered to perform under pressure.',
+          '{feature} turns effort into impact — reliably and at scale.',
+          'With {feature}, performance stops being a concern and starts being a given.'
+        ],
+        'cost-saving': [
+          '{feature} gives you more value for your budget, without cutting corners on quality.',
+          'You get the results you need from {feature} without paying over the odds for them.',
+          '{feature} means your budget works harder — every pound spent goes further.',
+          'With {feature}, you reduce what you spend without reducing what you achieve.',
+          'Stop paying for tools that overlap. {feature} consolidates the value in one place.',
+          '{feature} keeps your costs predictable, so you can plan with confidence.'
+        ],
+        'security': [
+          'With {feature}, your data — and your customers\' data — is in safe hands.',
+          '{feature} means you can operate with confidence, knowing your systems are protected.',
+          'Your customers trust you with their data. {feature} helps you honour that trust.',
+          '{feature} takes the security burden off your team so you can focus on growth, not vulnerabilities.',
+          'You meet compliance requirements with {feature} without it becoming a full-time job.',
+          '{feature} keeps threats out and your reputation intact.'
+        ],
+        'analytics': [
+          '{feature} turns your raw data into clear answers — so you always know what\'s working.',
+          'With {feature}, you stop guessing and start making decisions backed by evidence.',
+          '{feature} surfaces the insights your team needs, without burying them in spreadsheets.',
+          'You get a complete picture of performance with {feature}, not just fragments.',
+          '{feature} makes it easy to see what\'s driving results — and what isn\'t.',
+          'With {feature}, your reporting tells a story instead of just showing numbers.'
+        ],
+        'personalisation': [
+          '{feature} lets you speak to each person as an individual, not just a name in a list.',
+          'With {feature}, your messages feel relevant — because they are.',
+          '{feature} means your audience gets content that matches where they are in their journey.',
+          'You stop sending the same thing to everyone and start sending the right thing to the right person, with {feature}.',
+          '{feature} gives your customers the sense that you actually know them — and that builds loyalty.',
+          'With {feature}, relevance becomes your default, not your exception.'
+        ],
+        'support': [
+          '{feature} means you\'re never on your own when something goes wrong.',
+          'With {feature}, expert help is available when you need it, not just during business hours.',
+          '{feature} gets you up and running faster because the support is there from day one.',
+          'You have a team behind you with {feature} — people who understand your goals, not just your tickets.',
+          '{feature} reduces the friction of getting help, so small problems don\'t become big ones.',
+          'With {feature}, your team spends less time stuck and more time moving forward.'
+        ]
+      },
+
+      ecommerce: {
+        'time-saving': [
+          '{feature} sends the right message to the right shopper at the right moment — without you lifting a finger.',
+          'Your email campaigns run themselves with {feature}, so your team can focus on merchandise and growth.',
+          '{feature} means your post-purchase sequences, abandoned cart emails, and win-backs all go out on time, every time.',
+          'With {feature}, you automate the customer touchpoints that drive repeat purchases — and stop doing it manually.',
+          '{feature} takes repetitive campaign work off your plate, so you can spend more time on the products your customers love.',
+          'Shoppers get timely, relevant messages without anyone on your team having to schedule them — that\'s what {feature} does.'
+        ],
+        'ease-of-use': [
+          '{feature} is built for retailers, not developers — you get results without needing technical help.',
+          'Set up your first campaign in minutes with {feature}, not hours.',
+          '{feature} works the way an e-commerce team thinks — products, segments, campaigns, done.',
+          'You don\'t need an agency to get professional-looking emails out the door. {feature} makes it straightforward.',
+          'With {feature}, your whole team can build and launch campaigns, regardless of their technical level.',
+          '{feature} removes the friction between your idea and your customer\'s inbox.'
+        ],
+        'performance': [
+          '{feature} turns your email list into your highest-converting sales channel.',
+          'More revenue from the customers you already have — that\'s what {feature} consistently delivers.',
+          '{feature} is built to drive conversions, not just opens.',
+          'Your email programme generates more revenue per send with {feature} working behind the scenes.',
+          'With {feature}, every email works harder — higher clicks, more transactions, better ROI.',
+          '{feature} helps you squeeze more value out of every campaign you run.'
+        ],
+        'cost-saving': [
+          '{feature} reduces your cost per acquisition by keeping existing customers coming back.',
+          'You spend less on paid acquisition when {feature} keeps your retention numbers strong.',
+          '{feature} means you get more from your email list — the marketing channel with the best ROI in retail.',
+          'With {feature}, you lower your marketing spend while increasing customer lifetime value.',
+          '{feature} helps you do more with the budget you have, rather than always asking for more.',
+          'Your ad spend goes further when {feature} is converting your email list into loyal repeat buyers.'
+        ],
+        'security': [
+          '{feature} keeps your customer data secure and your brand reputation protected.',
+          'Shoppers trust you with their details. {feature} makes sure that trust is never misplaced.',
+          '{feature} keeps you on the right side of data regulations — without slowing down your marketing.',
+          'With {feature}, your customers can shop and subscribe with confidence.',
+          '{feature} handles compliance so you can focus on selling, not worrying about data risk.',
+          'You protect your customers and your business with {feature} — because a data breach in retail can cost you more than sales.'
+        ],
+        'analytics': [
+          '{feature} shows you exactly which emails are driving purchases — and which aren\'t pulling their weight.',
+          'With {feature}, you understand your customer\'s path from email to checkout.',
+          '{feature} gives you the data to back every merchandising and campaign decision you make.',
+          'You stop guessing what your customers want when {feature} tells you exactly how they\'re behaving.',
+          'With {feature}, your reporting goes beyond opens and clicks to show real revenue impact.',
+          '{feature} helps you identify your most valuable customers and market to them accordingly.'
+        ],
+        'personalisation': [
+          '{feature} lets you tailor every email to what each shopper has browsed, bought, or left behind.',
+          'With {feature}, your customers feel like you know them — and that turns browsers into buyers.',
+          'Stop sending the same offer to everyone. {feature} serves each shopper something relevant.',
+          '{feature} makes every email feel like it was written for one person, even when you\'re sending to thousands.',
+          'Personalised product recommendations, dynamic content, tailored offers — {feature} makes all of it possible.',
+          'With {feature}, your email list becomes a personalised shopping experience, not a broadcast channel.'
+        ],
+        'support': [
+          '{feature} means expert help is there when your peak trading period hits and things get complicated.',
+          'With {feature}, you get guidance from people who understand e-commerce, not just email software.',
+          '{feature} gives your team the support they need to launch campaigns on time, every time.',
+          'You have backup when you need it most — {feature} provides responsive support during your busiest seasons.',
+          'With {feature}, onboarding is fast and the learning curve is short — your team is up and running before you know it.',
+          '{feature} means your team is never stuck waiting for answers when a campaign needs to go live.'
+        ]
+      },
+
+      saas: {
+        'time-saving': [
+          '{feature} automates the customer lifecycle touchpoints that your team would otherwise be building manually.',
+          'With {feature}, your onboarding sequences, trial nudges, and renewal reminders run without anyone having to hit send.',
+          '{feature} frees your marketing team from campaign operations and puts them back into strategy.',
+          'Your product emails go out at exactly the right moment — {feature} makes sure of it without human intervention.',
+          'With {feature}, you build the workflow once and it runs indefinitely. Less maintenance, more growth.',
+          '{feature} means your team ships campaigns faster without increasing headcount or burning out.'
+        ],
+        'ease-of-use': [
+          '{feature} integrates with the tools your team already uses, so there\'s no new system to learn.',
+          'Your developers don\'t need to be involved. {feature} is built for marketers who want to move fast.',
+          'With {feature}, you go from brief to live campaign in less time than your usual sign-off process takes.',
+          '{feature} is as straightforward for a growth hire as it is for a seasoned marketing lead.',
+          'You get enterprise-level capability from {feature} without enterprise-level complexity.',
+          'With {feature}, the whole marketing team can contribute to campaigns — not just the one person who knows the platform.'
+        ],
+        'performance': [
+          '{feature} improves trial-to-paid conversion because the right message gets to the right user at the right stage.',
+          'Your activation rate goes up when {feature} ensures new users get the guidance they actually need.',
+          '{feature} helps you reduce churn by reaching at-risk users before they\'ve already decided to leave.',
+          'With {feature}, your MRR grows because email is doing the customer education your sales team can\'t do at scale.',
+          '{feature} makes your product stickier — users who receive the right emails stay longer and upgrade more.',
+          'You improve net revenue retention with {feature} because existing customers get the value they need to keep paying.'
+        ],
+        'cost-saving': [
+          '{feature} reduces your CAC by keeping the customers you\'ve already won.',
+          'With {feature}, your email programme does the heavy lifting on retention — the most cost-effective growth lever you have.',
+          '{feature} means you spend less on re-acquiring churned customers because fewer of them leave in the first place.',
+          'You get more LTV from every customer you acquire when {feature} is handling their lifecycle communication.',
+          'With {feature}, you don\'t need a bigger team to scale your email programme — just smarter infrastructure.',
+          '{feature} reduces support load because users get proactive guidance before they have to ask for help.'
+        ],
+        'security': [
+          '{feature} is built for SaaS compliance — GDPR, SOC 2, and beyond — so your team can market with confidence.',
+          'Your customers\' data stays protected with {feature}, which matters more than ever when trust is your product.',
+          'With {feature}, security is baked in, not bolted on — so your engineering team isn\'t the last line of defence.',
+          '{feature} keeps your email infrastructure out of spam and phishing risk — protecting your deliverability and your brand.',
+          'You pass security reviews faster with {feature} because the compliance documentation is already there.',
+          'With {feature}, your customers know their data is handled responsibly — and that reduces churn.'
+        ],
+        'analytics': [
+          '{feature} shows you which lifecycle emails are driving activation, retention, and expansion — not just opens.',
+          'With {feature}, you build a product-led growth strategy on real behavioural data, not assumptions.',
+          '{feature} connects email engagement to revenue metrics, so you can prove the channel\'s ROI to your board.',
+          'You understand your user cohorts better with {feature} — and that makes every campaign sharper.',
+          '{feature} gives your growth team the signal they need to iterate fast and kill what isn\'t working.',
+          'With {feature}, email attribution is clear — you know exactly what\'s driving conversion and what\'s noise.'
+        ],
+        'personalisation': [
+          '{feature} lets you send emails triggered by what users actually do in your product, not just demographics.',
+          'With {feature}, every user gets a lifecycle journey that fits their behaviour — not a one-size-fits-all drip.',
+          '{feature} means your power users get expansion opportunities while new users get the onboarding they need.',
+          'You reduce time-to-value for new users when {feature} serves them the right guidance at the right moment.',
+          'With {feature}, your email feels like a natural extension of your product — not a separate broadcast channel.',
+          '{feature} makes every communication feel considered, because it\'s triggered by what your users actually need.'
+        ],
+        'support': [
+          '{feature} gives your team a dedicated point of contact who understands SaaS growth, not just ticket queues.',
+          'With {feature}, implementation is fast and opinionated — you get to value without months of setup.',
+          '{feature} provides the kind of technical support that actually unblocks your engineers, not slows them down.',
+          'Your customer success team gets a partner in {feature}, not just a tool — someone who\'s as invested in your retention as you are.',
+          'With {feature}, support SLAs are real commitments, not aspirations — your campaigns don\'t go dark because of a backlog.',
+          '{feature} means your team always has someone to call when a send goes wrong or a workflow breaks.'
+        ]
+      },
+
+      professional: {
+        'time-saving': [
+          '{feature} keeps you in front of clients and prospects without adding another task to your week.',
+          'With {feature}, your nurture sequences run in the background while you focus on client delivery.',
+          '{feature} means proposals go out faster, follow-ups happen automatically, and nothing slips through the cracks.',
+          'You stay top of mind with prospects without chasing — {feature} handles the touchpoints you\'d otherwise miss.',
+          'With {feature}, your business development work doesn\'t stop when client work picks up.',
+          '{feature} removes the admin from your outreach so your fee-earners can spend their time where it counts.'
+        ],
+        'ease-of-use': [
+          '{feature} is designed for professional services firms, not marketing departments — it fits the way you work.',
+          'You don\'t need a dedicated marketing resource to run a professional email programme. {feature} makes it manageable.',
+          'With {feature}, your partners and senior staff can contribute to client communications without a training programme.',
+          '{feature} works within the constraints of a busy practice — quick to use, easy to delegate.',
+          'You get a polished, professional result from {feature} without investing hours in setup.',
+          'With {feature}, the barrier to sending something useful to your network stays low — so it actually gets done.'
+        ],
+        'performance': [
+          '{feature} turns your email list into a consistent source of referrals, repeat mandates, and new instructions.',
+          'With {feature}, your thought leadership reaches the right decision-makers and generates the conversations that lead to work.',
+          '{feature} shortens your sales cycle because prospects arrive warmer — they already know what you do and why it matters.',
+          'You win more competitive pitches with {feature} because your prospects have been hearing from you throughout their decision process.',
+          'With {feature}, your firm stays visible between engagements — so when a need arises, you\'re already in mind.',
+          '{feature} converts your expertise into pipeline by consistently putting it in front of the people who can act on it.'
+        ],
+        'cost-saving': [
+          '{feature} is the most cost-effective way to maintain client relationships at scale — more efficient than events, more personal than advertising.',
+          'With {feature}, you reduce the cost of business development without reducing the quality of the relationships you build.',
+          '{feature} keeps your existing clients close, reducing the expensive cycle of losing and re-winning work.',
+          'You get better ROI from your marketing budget with {feature} than almost any other channel at your disposal.',
+          'With {feature}, small firms can compete with larger ones on client communication quality — without matching their budgets.',
+          '{feature} turns your email list into your most cost-efficient new business tool.'
+        ],
+        'security': [
+          '{feature} keeps sensitive client communication secure — because confidentiality isn\'t optional in professional services.',
+          'With {feature}, your firm meets its data obligations without it becoming a compliance burden for your team.',
+          '{feature} protects your client relationships from the reputational damage a data incident would cause.',
+          'You handle client data with the care it deserves, backed by the security infrastructure of {feature}.',
+          'With {feature}, your marketing doesn\'t compromise your firm\'s professional standards around data handling.',
+          '{feature} keeps you GDPR-compliant as your list grows — so your data practices scale with your practice.'
+        ],
+        'analytics': [
+          '{feature} shows you which content resonates with your prospects — so you invest in more of what works.',
+          'With {feature}, you know which of your contacts are reading, clicking, and engaging — and who to prioritise.',
+          '{feature} gives your business development team the engagement data they need to have better conversations.',
+          'You understand your pipeline\'s interests and triggers better with {feature} — and that makes every meeting more effective.',
+          'With {feature}, your firm can prove the value of its email programme in revenue terms, not just engagement metrics.',
+          '{feature} connects email activity to client acquisition, so you can make the case for continued investment in the channel.'
+        ],
+        'personalisation': [
+          '{feature} lets you segment your list by sector, role, or relationship stage — so every message feels considered.',
+          'With {feature}, your clients and prospects receive content that\'s relevant to their industry, not just your service offering.',
+          '{feature} means your most valuable relationships get a more personal experience than a mass newsletter.',
+          'You communicate like a trusted adviser with {feature} — not like a firm broadcasting to a list.',
+          'With {feature}, you send the right thought leadership to the right contact at the right point in their journey.',
+          '{feature} helps you show clients that you understand their specific situation, not just their sector.'
+        ],
+        'support': [
+          '{feature} comes with onboarding support that fits around a busy practice — no lengthy implementation projects.',
+          'With {feature}, you have someone to call when a campaign matters — not just a support ticket system.',
+          '{feature} gives smaller firms the same level of service support that larger enterprises expect.',
+          'You get expert guidance on what works in professional services email — {feature} brings that knowledge to your programme.',
+          'With {feature}, setup is fast and the support is responsive — you\'re not left to figure it out alone.',
+          '{feature} means your team spends less time troubleshooting and more time building client relationships.'
+        ]
+      },
+
+      financial: {
+        'time-saving': [
+          '{feature} automates the client communications that compliance requires, without them taking up your advisers\' time.',
+          'With {feature}, your regulated communications go out on schedule — automatically, accurately, and on time.',
+          '{feature} handles the routine touchpoints so your relationship managers can focus on the clients who need their attention.',
+          'You meet your communication obligations with {feature} without making them a drain on your team.',
+          'With {feature}, your annual reviews, statement notifications, and renewal reminders run themselves.',
+          '{feature} removes the manual effort from client communication so your team can spend more time on advice, not admin.'
+        ],
+        'ease-of-use': [
+          '{feature} is built with compliance guardrails that keep your communications within regulatory boundaries — without slowing you down.',
+          'With {feature}, your marketing team can operate independently without putting your compliance team on permanent alert.',
+          '{feature} simplifies the approval workflow so compliant emails go out faster without the back-and-forth.',
+          'You don\'t need to be a technical expert to run a professional, compliant email programme with {feature}.',
+          'With {feature}, complex communication requirements become manageable — without a team of specialists to run them.',
+          '{feature} makes it straightforward to do the right thing, so compliance becomes part of your process rather than a brake on it.'
+        ],
+        'performance': [
+          '{feature} increases engagement with your services at the moments when clients are most receptive to acting.',
+          'With {feature}, your product cross-sell rates improve because the right offer reaches the right client at the right time.',
+          '{feature} helps advisers deepen client relationships at scale — and deeper relationships mean more assets under management.',
+          'You retain more clients with {feature} because they feel heard, valued, and consistently well-served.',
+          'With {feature}, your email programme drives real revenue outcomes — new product uptake, renewals, and referrals.',
+          '{feature} converts your existing client base into your most reliable source of growth.'
+        ],
+        'cost-saving': [
+          '{feature} reduces client acquisition costs by keeping retention strong — your most profitable clients stay with you longer.',
+          'With {feature}, you lower the cost of regulatory communication without cutting the quality of your client experience.',
+          '{feature} replaces expensive printed or manual communications with digital alternatives that cost a fraction of the price.',
+          'You get more value from your existing book of clients with {feature} — without increasing your servicing costs.',
+          'With {feature}, your marketing budget stretches further because you\'re nurturing relationships that already exist.',
+          '{feature} reduces the cost of re-engaging lapsed clients, because proactive communication keeps them engaged in the first place.'
+        ],
+        'security': [
+          '{feature} is built to meet the data security standards that financial services clients expect — and regulators demand.',
+          'With {feature}, your clients\' sensitive financial data is handled with the rigour your profession requires.',
+          '{feature} keeps you on the right side of FCA, GDPR, and sector-specific data obligations — without your team having to become compliance specialists.',
+          'You protect your firm from regulatory risk and reputational damage with the security infrastructure of {feature}.',
+          'With {feature}, every communication is traceable, auditable, and defensible — exactly what your compliance function needs.',
+          '{feature} builds the trust your clients need to feel comfortable sharing sensitive financial information with you.'
+        ],
+        'analytics': [
+          '{feature} shows you which communications are driving client action — not just which ones are being opened.',
+          'With {feature}, you identify which client segments are most engaged and most likely to act on your recommendations.',
+          '{feature} gives your compliance team the audit trail they need and your marketing team the performance data they want.',
+          'You track the full impact of your client communication programme with {feature} — from email to advice conversation.',
+          'With {feature}, you understand client behaviour well enough to anticipate their needs before they express them.',
+          '{feature} turns your engagement data into a roadmap for deeper client relationships and better commercial outcomes.'
+        ],
+        'personalisation': [
+          '{feature} lets you tailor communications to each client\'s portfolio, life stage, and financial goals.',
+          'With {feature}, high-value clients receive a level of communication that matches the relationship — personalised, considered, and timely.',
+          '{feature} means every client feels like they\'re receiving advice designed specifically for their situation.',
+          'You move from mass communication to genuine 1:1 relevance with {feature} — and clients notice the difference.',
+          'With {feature}, your segmentation reflects what actually matters to financial clients: their circumstances, not just their demographics.',
+          '{feature} makes every email feel like it came from someone who knows the client — because it draws on data that does.'
+        ],
+        'support': [
+          '{feature} provides support that understands the specific pressures of financial services communication — not just generic marketing advice.',
+          'With {feature}, your team has expert guidance available when regulatory questions arise or campaign requirements get complex.',
+          '{feature} gives your firm a responsive support team who understand compliance as well as deliverability.',
+          'You have backup from people who\'ve worked in regulated environments with {feature} — not just software specialists.',
+          'With {feature}, onboarding is structured around your compliance requirements from day one — not retrofitted later.',
+          '{feature} means your team is never navigating a complex regulatory communication requirement without expert support.'
+        ]
+      },
+
+      healthcare: {
+        'time-saving': [
+          '{feature} keeps patients and clients informed automatically — so your team can focus on care, not communication admin.',
+          'With {feature}, appointment reminders, follow-ups, and health tips all go out on time without anyone on your team having to remember.',
+          '{feature} handles routine patient communication so your clinical staff aren\'t pulled away from the work that matters.',
+          'You reduce no-shows and improve patient compliance with {feature} — without increasing your administrative workload.',
+          'With {feature}, your wellness programme communications reach every participant at the right moment — automatically.',
+          '{feature} takes the routine touchpoints off your team\'s plate so they can give their full attention to the people in front of them.'
+        ],
+        'ease-of-use': [
+          '{feature} is designed to be used by healthcare teams, not marketing specialists — intuitive, quick, and clinically appropriate.',
+          'With {feature}, anyone on your team can manage patient communications without specialist training.',
+          '{feature} makes it simple to stay in regular contact with patients without it becoming a burden on your practice.',
+          'You communicate professionally and consistently with {feature} — even if marketing isn\'t your primary skill set.',
+          'With {feature}, your team spends minutes on patient communication tasks that would otherwise take hours.',
+          '{feature} removes the technical complexity from patient communication so your focus stays on care.'
+        ],
+        'performance': [
+          '{feature} improves patient adherence because they receive the right information at the right point in their care journey.',
+          'With {feature}, patient outcomes improve because follow-up communication doesn\'t fall through the cracks.',
+          '{feature} drives better health behaviours by delivering timely, relevant education to the people who need it.',
+          'You see better retention and engagement from your patient or client base with {feature} keeping communication consistent.',
+          'With {feature}, your wellness programmes achieve higher participation rates because communication is regular and personalised.',
+          '{feature} builds the ongoing relationship with patients that makes better health outcomes possible.'
+        ],
+        'cost-saving': [
+          '{feature} reduces the administrative cost of patient communication without reducing its quality or frequency.',
+          'With {feature}, you lower the cost of patient no-shows by making reminders automatic and timely.',
+          '{feature} replaces more expensive communication channels with a cost-effective alternative that patients actually engage with.',
+          'You improve operational efficiency with {feature} — the same team communicates with more patients, more effectively.',
+          'With {feature}, patient retention improves, which is the most cost-effective way to sustain a healthy practice.',
+          '{feature} reduces the cost of re-engaging lapsed patients because consistent communication keeps them connected in the first place.'
+        ],
+        'security': [
+          '{feature} handles patient data with the security and confidentiality that healthcare regulations require.',
+          'With {feature}, you communicate with patients in full confidence that their information is protected at every step.',
+          '{feature} is built to meet the data protection standards of healthcare — so your team can focus on care, not compliance anxiety.',
+          'You maintain patient trust with {feature} because their sensitive health information is handled with the rigour it deserves.',
+          'With {feature}, your practice stays compliant with patient data regulations without making it a drain on clinical time.',
+          '{feature} gives patients the confidence to engage openly — because they know their information is safe.'
+        ],
+        'analytics': [
+          '{feature} shows you which communications are improving patient engagement and which aren\'t landing effectively.',
+          'With {feature}, you understand how your patient population responds to different messages — and improve outcomes accordingly.',
+          '{feature} gives your team the data to demonstrate the impact of your communication programme on patient behaviour.',
+          'You identify the touchpoints that matter most in your patient journey with {feature} — and invest in them.',
+          'With {feature}, your wellness programme is guided by engagement data, not gut feel.',
+          '{feature} turns patient communication metrics into insights that help you deliver better care at scale.'
+        ],
+        'personalisation': [
+          '{feature} lets you tailor communications to each patient\'s condition, stage, or wellness goal.',
+          'With {feature}, patients receive information that\'s relevant to their specific situation — not a one-size-fits-all newsletter.',
+          '{feature} makes every patient feel seen and supported, because the messages they receive actually apply to them.',
+          'You build stronger therapeutic relationships with {feature} because your communication feels personal, not broadcast.',
+          'With {feature}, your care plans come with personalised communication that reinforces the guidance your team provides.',
+          '{feature} means every patient gets the right health information at the right point in their journey.'
+        ],
+        'support': [
+          '{feature} provides implementation support that respects the time constraints of a busy clinical or wellness practice.',
+          'With {feature}, your team has expert help available when patient communication gets complex or time-sensitive.',
+          '{feature} gives you a support partner who understands the specific context of healthcare communication.',
+          'You\'re never left managing a critical patient communication issue alone — {feature} has the support infrastructure to back you up.',
+          'With {feature}, onboarding is designed around how healthcare teams actually work — practical, fast, and low-disruption.',
+          '{feature} means your team can ask for help without wading through generic documentation that doesn\'t fit your context.'
+        ]
+      },
+
+      education: {
+        'time-saving': [
+          '{feature} automates the student touchpoints that keep learners engaged throughout their course — without your team having to manage each one.',
+          'With {feature}, your enrolment sequences, progress nudges, and completion reminders all go out without anyone pressing send.',
+          '{feature} handles learner communication at scale so your tutors can spend their time teaching, not chasing.',
+          'You keep students on track with {feature} without it adding to your administrative burden.',
+          'With {feature}, your team manages more learners more effectively — without working longer hours.',
+          '{feature} automates the communication that motivates learners and drives completion, so your programme runs itself.'
+        ],
+        'ease-of-use': [
+          '{feature} is built for learning and development teams, not email specialists — you get results without a steep learning curve.',
+          'With {feature}, even a small L&D team can run a professional learner communication programme.',
+          '{feature} makes it easy for tutors and course managers to contribute to learner communication without specialist training.',
+          'You build and launch learner journeys quickly with {feature} — the interface works the way educators think.',
+          'With {feature}, the whole team can manage learner communication, not just the one person who knows the platform.',
+          '{feature} removes the friction from learner communication so good practice becomes the default, not the exception.'
+        ],
+        'performance': [
+          '{feature} improves course completion rates by keeping learners motivated and informed at every stage.',
+          'With {feature}, your learners engage more consistently because the right nudge arrives at exactly the right moment.',
+          '{feature} drives better learning outcomes because communication supports the course, not just the marketing.',
+          'You see stronger enrolment numbers with {feature} because your nurture sequence does the work your sales team can\'t do at scale.',
+          'With {feature}, your alumni programme delivers real re-enrolment results, not just goodwill.',
+          '{feature} turns your learner community into your best source of referrals and repeat business.'
+        ],
+        'cost-saving': [
+          '{feature} reduces your learner acquisition cost by keeping completion rates high and word-of-mouth strong.',
+          'With {feature}, you retain more learners to completion — and that\'s where the real value of your programme is realised.',
+          '{feature} means your programme scales without a proportional increase in administrative cost.',
+          'You get more from your existing learner base with {feature} than from constantly recruiting new ones.',
+          'With {feature}, your marketing budget works harder because learner communication drives retention as well as acquisition.',
+          '{feature} reduces the cost of learner drop-out by catching disengagement early and acting on it.'
+        ],
+        'security': [
+          '{feature} handles learner data in line with GDPR and sector-specific educational data standards.',
+          'With {feature}, student information is protected — which matters to both learners and the institutions that sponsor them.',
+          '{feature} keeps your programme compliant with data regulations so your team can focus on learning outcomes, not legal risk.',
+          'You give learners and corporate sponsors the confidence that their data is handled responsibly with {feature}.',
+          'With {feature}, your data practices scale securely as your learner numbers grow.',
+          '{feature} protects the trust that learners place in you when they share their information and their progress.'
+        ],
+        'analytics': [
+          '{feature} shows you where learners are dropping off — so you can intervene before they disengage completely.',
+          'With {feature}, you understand which communications are driving completion and which are being ignored.',
+          '{feature} gives your L&D team the evidence they need to demonstrate the ROI of the programme to stakeholders.',
+          'You track learner engagement through the full journey with {feature} — from first click to certificate.',
+          'With {feature}, your course design improves over time because you can see exactly where learners struggle.',
+          '{feature} turns learner behaviour data into programme improvements that benefit every cohort that follows.'
+        ],
+        'personalisation': [
+          '{feature} lets you tailor communication to each learner\'s progress, pace, and goals.',
+          'With {feature}, struggling learners get a different message from thriving ones — and both get what they actually need.',
+          '{feature} makes every learner feel supported as an individual, not just a number in a cohort.',
+          'You personalise the learning journey at scale with {feature} — from onboarding to alumni engagement.',
+          'With {feature}, corporate learners get communication that reflects their organisation\'s goals alongside their personal development.',
+          '{feature} means your most ambitious learners get stretched while those who need support receive it — automatically.'
+        ],
+        'support': [
+          '{feature} provides the setup support that learning and development teams actually need — practical, fast, and education-focused.',
+          'With {feature}, your team has expert guidance available when a new cohort launches or a campaign needs to change quickly.',
+          '{feature} gives smaller training providers the support infrastructure that larger institutions take for granted.',
+          'You have a responsive team behind you with {feature} — people who understand education, not just software.',
+          'With {feature}, implementation is designed around your academic calendar, not a generic onboarding timeline.',
+          '{feature} means your L&D team is never stuck when a learner communication issue needs resolving fast.'
+        ]
+      },
+
+      nonprofit: {
+        'time-saving': [
+          '{feature} automates donor communication so your small team can focus on mission delivery, not admin.',
+          'With {feature}, your fundraising sequences, impact updates, and renewal asks all go out on time — without anyone on your team managing them manually.',
+          '{feature} keeps your supporters engaged throughout the year without it becoming a full-time communication role.',
+          'You steward more donors more consistently with {feature} — even with the lean team that most charities operate with.',
+          'With {feature}, your team spends less time on routine communication and more time on the work that changes lives.',
+          '{feature} means your year-end appeal, impact report, and monthly giving upgrade asks all happen at the right moment — automatically.'
+        ],
+        'ease-of-use': [
+          '{feature} is built to be managed by a small team without dedicated marketing expertise — it works out of the box.',
+          'With {feature}, your communications officer can run a professional, consistent programme without specialist tools or training.',
+          '{feature} makes it easy for your team to send the right message at the right time, without overcomplicating the process.',
+          'You don\'t need an agency to communicate effectively with your donors. {feature} puts that capability in your hands.',
+          'With {feature}, volunteers and junior staff can contribute to your donor communication programme confidently.',
+          '{feature} removes the technical barriers that often prevent smaller charities from communicating as well as their mission deserves.'
+        ],
+        'performance': [
+          '{feature} improves donor retention by keeping supporters connected to the impact of their giving.',
+          'With {feature}, your fundraising campaigns reach the right people at the right moment — and that shows in the results.',
+          '{feature} drives higher average gift values because supporters receive the communication that builds confidence in your cause.',
+          'You convert more one-time donors into regular givers with {feature} because the relationship continues after the first gift.',
+          'With {feature}, your legacy giving programme performs better because long-term supporters receive consistent, values-led communication.',
+          '{feature} turns your email list into your most reliable fundraising channel — lower cost, higher return than almost anything else.'
+        ],
+        'cost-saving': [
+          '{feature} gives you enterprise-quality donor communication at a cost that works for a charity budget.',
+          'With {feature}, you spend less on acquiring new donors because the ones you have stay engaged and keep giving.',
+          '{feature} is the most cost-effective stewardship tool available — and that matters when every pound counts.',
+          'You reduce the cost of lapsed donor reactivation with {feature} because regular communication keeps supporters invested.',
+          'With {feature}, your fundraising team achieves more with the budget they have rather than always needing more.',
+          '{feature} means you don\'t need to outspend larger charities to outperform them on donor relationships.'
+        ],
+        'security': [
+          '{feature} handles donor data in line with charity sector regulations and the expectations of the supporters who trust you.',
+          'With {feature}, your donor database is protected — and that protects the relationships you\'ve spent years building.',
+          '{feature} keeps you on the right side of fundraising regulations and data protection law — without it becoming a drain on capacity.',
+          'You maintain donor confidence with {feature} because their personal information is treated with the care it deserves.',
+          'With {feature}, your data practices are robust enough to satisfy corporate partners and grant-making bodies.',
+          '{feature} protects your charity from the reputational and financial cost of a data incident.'
+        ],
+        'analytics': [
+          '{feature} shows you which communications are driving donations, renewals, and upgrades — so you invest in more of what works.',
+          'With {feature}, you understand your donor journey from first contact to long-term committed giving.',
+          '{feature} gives your fundraising team the data to make better decisions about what to say, when, and to whom.',
+          'You identify your most engaged supporters with {feature} — the ones most likely to give more, volunteer, or advocate on your behalf.',
+          'With {feature}, your board gets clear evidence of the return on investment in your supporter communication programme.',
+          '{feature} helps you understand which messages resonate most deeply with your donors — so every appeal is stronger than the last.'
+        ],
+        'personalisation': [
+          '{feature} lets you acknowledge each donor\'s specific history — what they\'ve given, what they care about, why they got involved.',
+          'With {feature}, your supporters feel like valued partners in your mission, not just names on a mailing list.',
+          '{feature} means major donors receive communication that reflects their level of commitment — not the same email as everyone else.',
+          'You build deeper relationships with {feature} because every touchpoint acknowledges what each supporter has already contributed.',
+          'With {feature}, your stewardship feels personal even when you\'re communicating with thousands of donors at once.',
+          '{feature} makes every supporter feel that their contribution matters individually — and that\'s what keeps people giving.'
+        ],
+        'support': [
+          '{feature} provides the kind of responsive support that small charities need — without enterprise pricing.',
+          'With {feature}, you have expert guidance available when a major campaign is approaching and the stakes are high.',
+          '{feature} gives your team the support they need to communicate professionally, even with limited in-house expertise.',
+          'You have a partner in {feature} who understands the specific constraints and obligations of charity communication.',
+          'With {feature}, onboarding is practical and fast — designed for organisations that can\'t afford a lengthy implementation.',
+          '{feature} means your team never has to navigate a critical donor communication issue without backup.'
+        ]
+      }
+
+    }; /* end templates */
+
+    /* ---- Convert logic ---- */
+    function detectCategory(feature) {
+      const text = feature.toLowerCase();
+      let matched = 'ease-of-use'; // default
+      Object.keys(categoryKeywords).forEach(cat => {
+        categoryKeywords[cat].forEach(kw => {
+          if (text.includes(kw)) matched = cat;
+        });
+      });
+      return matched;
+    }
+
+    function convert() {
+      const feature   = document.getElementById('feature-input').value.trim();
+      const vertical  = document.getElementById('vertical-select').value;
+      const errorEl   = document.getElementById('f2b-error');
+      const resultsEl = document.getElementById('f2b-results');
+
+      if (!feature) {
+        errorEl.classList.add('visible');
+        resultsEl.classList.remove('visible');
+        return;
+      }
+      errorEl.classList.remove('visible');
+
+      const category = detectCategory(feature);
+      const pool     = templates[vertical][category];
+      const benefit  = pool[Math.floor(Math.random() * pool.length)].replace(/\{feature\}/g, feature);
+
+      document.getElementById('benefit-output').textContent = benefit;
+      resultsEl.classList.add('visible');
+    }
+
+    document.getElementById('f2b-btn').addEventListener('click', convert);
+    document.getElementById('f2b-again').addEventListener('click', convert);
+    document.getElementById('feature-input').addEventListener('keydown', e => {
+      if (e.key === 'Enter') convert();
+    });
+  </script>
+
+</body>
+</html>

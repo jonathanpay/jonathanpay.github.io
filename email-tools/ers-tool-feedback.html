@@ -1,0 +1,291 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Email Readability Score — Holistic Email Marketing — Jonathan Pay</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="tool-page.css">
+  <style>
+    body { background: var(--hea-bg-alt); }
+
+    /* ---- Scores grid ---- */
+    .scores-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--hea-s-4);
+    }
+    .score-item {
+      background: var(--hea-bg-warm);
+      border-radius: var(--hea-r-md);
+      padding: var(--hea-s-4) var(--hea-s-5);
+    }
+    .score-kicker {
+      font-size: var(--hea-text-xs);
+      font-weight: var(--hea-w-bold);
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--hea-fg-3);
+      margin: 0 0 var(--hea-s-2);
+    }
+    .score-value {
+      font-size: clamp(24px, 4vw, 32px);
+      font-weight: var(--hea-w-bold);
+      color: var(--hea-plum);
+      line-height: 1;
+      font-variant-numeric: tabular-nums;
+    }
+    .score-label {
+      font-size: var(--hea-text-sm);
+      font-weight: var(--hea-w-semibold);
+      color: var(--hea-fg-1);
+      margin: var(--hea-s-2) 0 var(--hea-s-1);
+    }
+    .score-desc {
+      font-size: var(--hea-text-xs);
+      color: var(--hea-fg-3);
+      margin: 0;
+      line-height: var(--hea-lh-snug);
+      font-style: italic;
+    }
+
+    /* Target zone card — purple accent */
+    .score-item--target {
+      background: var(--hea-purple);
+    }
+    .score-item--target .score-kicker { color: rgba(255,255,255,0.65); }
+    .score-item--target .score-label  { color: #fff; font-size: var(--hea-text-sm); font-weight: var(--hea-w-regular); line-height: var(--hea-lh-normal); margin: 0; }
+    .score-item--target .score-desc   { display: none; }
+
+    /* ---- Suggestions ---- */
+    .suggestions { margin-top: var(--hea-s-5); }
+    .suggestions-label {
+      font-size: var(--hea-text-xs);
+      font-weight: var(--hea-w-bold);
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--hea-fg-3);
+      margin: 0 0 var(--hea-s-3);
+    }
+    .suggestions ul {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: var(--hea-s-3);
+    }
+    .suggestions li {
+      display: flex;
+      gap: var(--hea-s-3);
+      align-items: flex-start;
+      font-size: var(--hea-text-sm);
+      color: var(--hea-fg-2);
+      background: var(--hea-purple-tint);
+      border-radius: var(--hea-r-sm);
+      padding: var(--hea-s-3) var(--hea-s-4);
+      line-height: var(--hea-lh-normal);
+    }
+    .suggestions li::before {
+      content: '→';
+      color: var(--hea-purple);
+      font-weight: var(--hea-w-bold);
+      flex-shrink: 0;
+    }
+
+    @media (max-width: 480px) {
+      .scores-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body class="hea">
+
+    <header class="site-header">
+    <a href="/" class="site-name">Jonathan Pay</a>
+    <nav>
+      <a href="/email-tools/" class="nav-active">Email Tools</a>
+      <a href="https://jonathanpay.com/blog/">Blog</a>
+      <a href="https://jonathanpay.com/holistic-email-marketing/">HEM</a>
+      <a href="https://holisticemailacademy.com">HEA</a>
+    </nav>
+  </header>
+
+  <main>
+    <div class="tool-page">
+
+      <a href="/email-tools/" class="tool-back">← All tools</a>
+
+      <header class="tool-header">
+        <span class="hea-pill hea-pill--foundation">● Foundation</span>
+        <h1>Email Readability Score</h1>
+        <p class="lead">Check how easy your email copy is to read. Paste your text below to get scores from three industry-standard readability formulas, plus actionable suggestions.</p>
+      </header>
+
+      <div class="tool-card">
+        <div class="field-group">
+          <label class="field-label" for="readability-input">Your email copy</label>
+          <textarea class="hea-textarea" id="readability-input" placeholder="Paste your email copy here…" rows="8"></textarea>
+          <p class="error-msg" id="ers-error">Please paste some email copy before checking.</p>
+        </div>
+        <button class="hea-btn hea-btn--primary" id="ers-btn">Check Readability →</button>
+
+        <div class="results" id="ers-results">
+          <hr class="results-divider">
+          <p class="results-label">Readability Scores</p>
+
+          <div class="scores-grid">
+            <div class="score-item">
+              <p class="score-kicker">Flesch-Kincaid</p>
+              <div class="score-value" id="fk-score">—</div>
+              <p class="score-label" id="fk-grade"></p>
+              <p class="score-desc">Score out of 100 — higher is easier. Weighs sentence length and syllable count.</p>
+            </div>
+            <div class="score-item">
+              <p class="score-kicker">Gunning Fog</p>
+              <div class="score-value" id="gf-score">—</div>
+              <p class="score-label" id="gf-grade"></p>
+              <p class="score-desc">Grade level estimate based on sentence length and complex (3+ syllable) words.</p>
+            </div>
+            <div class="score-item">
+              <p class="score-kicker">SMOG Index</p>
+              <div class="score-value" id="smog-score">—</div>
+              <p class="score-label" id="smog-grade"></p>
+              <p class="score-desc">Grade level estimate focused on polysyllabic words. Favoured in healthcare comms.</p>
+            </div>
+            <div class="score-item score-item--target">
+              <p class="score-kicker">Email target zone</p>
+              <p class="score-label">Aim for a Flesch-Kincaid score of <strong style="color:#fff">60 or above</strong> and a Gunning Fog / SMOG grade of <strong style="color:#fff">8 or below</strong> — roughly a comfortable 8th-grade reading level for most audiences.</p>
+            </div>
+          </div>
+
+          <div class="suggestions" id="suggestions-wrap" style="display:none">
+            <p class="suggestions-label">Suggestions</p>
+            <ul id="suggestions-list"></ul>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+    <footer class="site-footer">
+    <p>&copy; Jonathan Pay 2025 &nbsp;&middot;&nbsp; <a href="/email-tools/">Email Tools</a></p>
+  </footer>
+
+  <script>
+    function syllablesInWord(word) {
+      word = word.toLowerCase().replace(/[^a-z]/g, '');
+      if (!word) return 0;
+      if (word.length <= 3) return 1;
+      word = word.replace(/e$/, '');
+      const matches = word.match(/[aeiouy]+/g);
+      return matches ? Math.max(1, matches.length) : 1;
+    }
+
+    function countSyllables(text) {
+      return (text.match(/\b[a-zA-Z]+\b/g) || []).reduce((n, w) => n + syllablesInWord(w), 0);
+    }
+
+    function complexWordCount(text) {
+      return (text.match(/\b[a-zA-Z]+\b/g) || []).filter(w => syllablesInWord(w) >= 3).length;
+    }
+
+    function gradeLabel(grade) {
+      if (grade <= 6)  return 'Clear & accessible';
+      if (grade <= 8)  return 'Good for most email';
+      if (grade <= 10) return 'Moderate complexity';
+      if (grade <= 12) return 'Challenging';
+      return 'Very complex';
+    }
+
+    function calcFleschKincaid(text) {
+      const wordList  = text.match(/\b[a-zA-Z]+\b/g) || [];
+      const words     = wordList.length || 1;
+      const sentences = Math.max(1, (text.match(/[.!?]+/g) || []).length);
+      const syllables = countSyllables(text);
+      const score     = 206.835 - (1.015 * (words / sentences)) - (84.6 * (syllables / words));
+
+      let label = '';
+      if      (score >= 90) label = 'Very Easy — 5th grade';
+      else if (score >= 80) label = 'Easy — 6th grade';
+      else if (score >= 70) label = 'Fairly Easy — 7th grade';
+      else if (score >= 60) label = 'Standard — 8th–9th grade';
+      else if (score >= 50) label = 'Fairly Difficult — 10th–12th grade';
+      else if (score >= 30) label = 'Difficult — College level';
+      else                  label = 'Very Difficult — Advanced College';
+
+      return { score: score.toFixed(1), label };
+    }
+
+    function calcGunningFog(text) {
+      const words    = (text.match(/\b[a-zA-Z]+\b/g) || []).length || 1;
+      const sentences = Math.max(1, (text.match(/[.!?]+/g) || []).length);
+      const complex  = complexWordCount(text);
+      const grade    = 0.4 * ((words / sentences) + 100 * (complex / words));
+      return { score: grade.toFixed(1), label: gradeLabel(grade) };
+    }
+
+    function calcSMOG(text) {
+      const sentences = Math.max(1, (text.match(/[.!?]+/g) || []).length);
+      const complex   = complexWordCount(text);
+      const grade     = 1.0430 * Math.sqrt(complex * (30 / sentences)) + 3.1291;
+      return { score: grade.toFixed(1), label: gradeLabel(grade) };
+    }
+
+    function analyseText(text) {
+      const feedback  = [];
+      const sentences = text.split(/[.!?]+/).filter(s => s.trim());
+      if (sentences.some(s => (s.match(/\b[a-zA-Z]+\b/g) || []).length > 20))
+        feedback.push('You have at least one very long sentence (20+ words). Breaking it up will improve readability.');
+      if (complexWordCount(text) > 5)
+        feedback.push('Your text contains several polysyllabic words. Where possible, swap them for shorter alternatives.');
+      const passive = text.match(/\b(is|was|were|been|being|are|be)\s+\w+ed\b/gi);
+      if (passive && passive.length > 2)
+        feedback.push('Passive voice detected multiple times. Active constructions ("we sent" vs "was sent") tend to read faster.');
+      return feedback;
+    }
+
+    function check() {
+      const text      = document.getElementById('readability-input').value.trim();
+      const errorEl   = document.getElementById('ers-error');
+      const resultsEl = document.getElementById('ers-results');
+
+      if (!text) {
+        errorEl.classList.add('visible');
+        resultsEl.classList.remove('visible');
+        return;
+      }
+      errorEl.classList.remove('visible');
+
+      const fk   = calcFleschKincaid(text);
+      const gf   = calcGunningFog(text);
+      const smog = calcSMOG(text);
+      const feedback = analyseText(text);
+
+      document.getElementById('fk-score').textContent   = fk.score;
+      document.getElementById('fk-grade').textContent   = fk.label;
+      document.getElementById('gf-score').textContent   = gf.score;
+      document.getElementById('gf-grade').textContent   = gf.label;
+      document.getElementById('smog-score').textContent = smog.score;
+      document.getElementById('smog-grade').textContent = smog.label;
+
+      const suggestWrap = document.getElementById('suggestions-wrap');
+      const suggestList = document.getElementById('suggestions-list');
+      if (feedback.length > 0) {
+        suggestList.innerHTML = feedback.map(s => `<li>${s}</li>`).join('');
+        suggestWrap.style.display = 'block';
+      } else {
+        suggestWrap.style.display = 'none';
+      }
+
+      resultsEl.classList.add('visible');
+    }
+
+    document.getElementById('ers-btn').addEventListener('click', check);
+    document.getElementById('readability-input').addEventListener('keydown', e => {
+      if (e.key === 'Enter' && e.ctrlKey) check();
+    });
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Statistical Significance Calculator — Holistic Email Marketing — Jonathan Pay</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="tool-page.css">
+  <style>
+    body { background: var(--hea-bg-alt); }
+
+    /* ---- Two-column field row ---- */
+    .field-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--hea-s-4);
+    }
+
+    /* ---- Confidence result ---- */
+    .confidence-result {
+      text-align: center;
+      padding: var(--hea-s-7) var(--hea-s-5);
+    }
+    .confidence-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      margin: 0 auto var(--hea-s-5);
+    }
+    .confidence-badge svg { width: 30px; height: 30px; }
+    .confidence-badge.is-significant  {
+      background: rgba(33,191,61,0.15);
+      box-shadow: 0 0 0 8px rgba(33,191,61,0.08);
+    }
+    .confidence-badge.not-significant {
+      background: rgba(197,58,75,0.12);
+      box-shadow: 0 0 0 8px rgba(197,58,75,0.06);
+    }
+    .confidence-verdict {
+      font-size: clamp(22px, 4vw, 32px);
+      font-weight: var(--hea-w-bold);
+      line-height: var(--hea-lh-snug);
+      color: var(--hea-plum);
+      margin: 0 0 var(--hea-s-3);
+    }
+    .confidence-verdict.is-significant  { color: #138C28; }
+    .confidence-verdict.not-significant { color: var(--hea-danger); }
+    .confidence-note {
+      font-size: var(--hea-text-sm);
+      color: var(--hea-fg-3);
+      margin: 0;
+      font-style: italic;
+    }
+
+    @media (max-width: 480px) {
+      .field-row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body class="hea">
+
+    <header class="site-header">
+    <a href="/" class="site-name">Jonathan Pay</a>
+    <nav>
+      <a href="/email-tools/" class="nav-active">Email Tools</a>
+      <a href="https://jonathanpay.com/blog/">Blog</a>
+      <a href="https://jonathanpay.com/holistic-email-marketing/">HEM</a>
+      <a href="https://holisticemailacademy.com">HEA</a>
+    </nav>
+  </header>
+
+  <main>
+    <div class="tool-page">
+
+      <a href="/email-tools/" class="tool-back">← All tools</a>
+
+      <header class="tool-header">
+        <span class="hea-pill hea-pill--intermediate">● Intermediate</span>
+        <h1>Statistical Significance Calculator</h1>
+        <p class="lead">Find out whether your A/B test result is statistically significant before you act on it. Enter your sample size and conversion rates below.</p>
+      </header>
+
+      <div class="tool-card">
+        <div class="field-group">
+          <label class="field-label" for="sampleSize">
+            Sample Size
+            <span style="font-weight:400;color:var(--hea-fg-3)"> — per variant</span>
+          </label>
+          <input type="number" class="hea-input" id="sampleSize" placeholder="e.g. 1000" min="1">
+        </div>
+        <div class="field-row">
+          <div class="field-group">
+            <label class="field-label" for="controlRate">Control Rate (%)</label>
+            <input type="number" class="hea-input" id="controlRate" placeholder="e.g. 2.5" step="0.01">
+          </div>
+          <div class="field-group">
+            <label class="field-label" for="variantRate">Variant Rate (%)</label>
+            <input type="number" class="hea-input" id="variantRate" placeholder="e.g. 3.1" step="0.01">
+          </div>
+        </div>
+        <p class="error-msg" id="sscc-error">Please enter valid values in all three fields.</p>
+        <button class="hea-btn hea-btn--primary" id="sscc-btn" style="margin-top:var(--hea-s-2)">Calculate →</button>
+
+        <div class="results" id="sscc-results">
+          <hr class="results-divider">
+          <div class="confidence-result">
+            <div class="confidence-badge" id="sscc-badge">
+              <svg id="badge-check" viewBox="0 0 24 24" fill="none" stroke="#138C28" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
+              <svg id="badge-cross" viewBox="0 0 24 24" fill="none" stroke="var(--hea-danger)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:none">
+                <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+              </svg>
+            </div>
+            <p class="confidence-verdict" id="sscc-verdict"></p>
+            <p class="confidence-note" id="sscc-note"></p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+    <footer class="site-footer">
+    <p>&copy; Jonathan Pay 2025 &nbsp;&middot;&nbsp; <a href="/email-tools/">Email Tools</a></p>
+  </footer>
+
+  <script>
+    function calculate() {
+      const sampleSize  = parseFloat(document.getElementById('sampleSize').value);
+      const controlRate = parseFloat(document.getElementById('controlRate').value) / 100;
+      const variantRate = parseFloat(document.getElementById('variantRate').value) / 100;
+
+      const errorEl   = document.getElementById('sscc-error');
+      const resultsEl = document.getElementById('sscc-results');
+
+      if (isNaN(sampleSize) || isNaN(controlRate) || isNaN(variantRate) || sampleSize <= 0) {
+        errorEl.classList.add('visible');
+        resultsEl.classList.remove('visible');
+        return;
+      }
+      errorEl.classList.remove('visible');
+
+      const pooledRate    = ((controlRate * sampleSize) + (variantRate * sampleSize)) / (2 * sampleSize);
+      const standardError = Math.sqrt((2 * pooledRate * (1 - pooledRate)) / sampleSize);
+      const zScore        = (variantRate - controlRate) / standardError;
+      const confidence    = (1 - (1 / Math.exp(zScore * zScore / 2))) * 100;
+
+      const badge   = document.getElementById('sscc-badge');
+      const verdict = document.getElementById('sscc-verdict');
+      const note    = document.getElementById('sscc-note');
+      const check   = document.getElementById('badge-check');
+      const cross   = document.getElementById('badge-cross');
+
+      badge.className   = 'confidence-badge';
+      verdict.className = 'confidence-verdict';
+
+      if (confidence >= 99) {
+        badge.classList.add('is-significant');
+        verdict.classList.add('is-significant');
+        verdict.textContent = '99% Confident';
+        note.textContent    = 'Your result is highly significant. You can act on this with confidence.';
+        check.style.display = ''; cross.style.display = 'none';
+      } else if (confidence >= 95) {
+        badge.classList.add('is-significant');
+        verdict.classList.add('is-significant');
+        verdict.textContent = 'At Least 95% Confident';
+        note.textContent    = 'Your result meets the standard threshold for statistical significance.';
+        check.style.display = ''; cross.style.display = 'none';
+      } else {
+        badge.classList.add('not-significant');
+        verdict.classList.add('not-significant');
+        verdict.textContent = 'Not Yet Significant';
+        note.textContent    = 'You need more data before acting on this result. Continue the test.';
+        check.style.display = 'none'; cross.style.display = '';
+      }
+
+      resultsEl.classList.add('visible');
+    }
+
+    document.getElementById('sscc-btn').addEventListener('click', calculate);
+    ['sampleSize', 'controlRate', 'variantRate'].forEach(id => {
+      document.getElementById(id).addEventListener('keydown', e => {
+        if (e.key === 'Enter') calculate();
+      });
+    });
+  </script>
+
+</body>
+</html>
