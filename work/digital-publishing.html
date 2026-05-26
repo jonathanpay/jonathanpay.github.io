@@ -1,0 +1,261 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Jonathan Pay — digital publishing work: newsletters, guides, and white papers."
+    />
+    <title>Digital Publishing — Jonathan Pay</title>
+    <link rel="icon" href="/favicon.ico" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,400;0,600;1,700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      :root {
+        --gold: #dfb81f;
+        --gold-deep: #8b7417;
+        --navy: #2c3d50;
+        --navy-mid: #39536f;
+        --navy-muted: #aab3bf;
+        --white: #ffffff;
+        --black: #000000;
+        --grey-mid: #6d6d6d;
+        --grey-light: #dbdbdb;
+      }
+
+      body {
+        font-family: "Open Sans", sans-serif;
+        background: var(--white);
+        color: var(--black);
+        line-height: 1.6;
+      }
+
+      /* ── Header ── */
+      header {
+        background: var(--navy);
+        padding: 1.25rem 2rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 1rem;
+      }
+
+      .site-name {
+        color: var(--gold-deep);
+        font-size: 1.1rem;
+        font-weight: 700;
+        font-style: italic;
+        text-transform: uppercase;
+        text-decoration: none;
+        letter-spacing: 0.06em;
+      }
+
+      nav a {
+        color: var(--gold);
+        text-decoration: none;
+        font-size: 0.9rem;
+        margin-left: 1.5rem;
+        transition: color 0.15s;
+      }
+
+      nav a:hover {
+        color: var(--white);
+      }
+
+      /* ── Page header ── */
+      .page-header {
+        background: var(--navy);
+        border-top: 1px solid var(--navy-mid);
+        padding: 3.5rem 2rem 3rem;
+        text-align: center;
+      }
+
+      .page-header .breadcrumb {
+        font-size: 0.8rem;
+        color: var(--navy-muted);
+        margin-bottom: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+      }
+
+      .page-header .breadcrumb a {
+        color: var(--gold);
+        text-decoration: none;
+      }
+
+      .page-header .breadcrumb a:hover {
+        color: var(--white);
+      }
+
+      .page-header h1 {
+        color: var(--white);
+        font-size: clamp(1.5rem, 3.5vw, 2.25rem);
+        font-weight: 700;
+        font-style: italic;
+        margin-bottom: 1rem;
+        line-height: 1.25;
+      }
+
+      .page-header p {
+        color: var(--navy-muted);
+        max-width: 36rem;
+        margin: 0 auto;
+        font-size: 1.05rem;
+      }
+
+      /* ── Main content ── */
+      main {
+        max-width: 52rem;
+        margin: 0 auto;
+        padding: 3.5rem 2rem;
+      }
+
+      section + section {
+        margin-top: 3.5rem;
+        padding-top: 3.5rem;
+        border-top: 1px solid var(--grey-light);
+      }
+
+      h2 {
+        font-size: 1.3rem;
+        font-weight: 700;
+        font-style: italic;
+        margin-bottom: 1.5rem;
+        color: var(--black);
+      }
+
+      h2 span {
+        color: var(--gold-deep);
+      }
+
+      /* ── Publication cards ── */
+      .pub-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(18rem, 1fr));
+        gap: 1.25rem;
+      }
+
+      .pub-card {
+        border: 1px solid var(--grey-light);
+        border-radius: 6px;
+        padding: 1.5rem;
+        text-decoration: none;
+        color: inherit;
+        display: block;
+        transition:
+          border-color 0.15s,
+          box-shadow 0.15s;
+      }
+
+      .pub-card:hover {
+        border-color: var(--gold-deep);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
+      }
+
+      .pub-card-label {
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--grey-mid);
+        margin-bottom: 0.5rem;
+      }
+
+      .pub-card h3 {
+        font-size: 1.05rem;
+        font-weight: 700;
+        font-style: italic;
+        margin-bottom: 0.5rem;
+      }
+
+      .pub-card p {
+        font-size: 0.9rem;
+        color: var(--grey-mid);
+        line-height: 1.5;
+      }
+
+      /* ── Footer ── */
+      footer {
+        background: var(--navy);
+        color: var(--navy-muted);
+        text-align: center;
+        padding: 2rem;
+        font-size: 0.85rem;
+        margin-top: 4rem;
+      }
+
+      footer a {
+        color: var(--navy-muted);
+        text-decoration: none;
+      }
+
+      footer a:hover {
+        color: var(--gold);
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <a href="/" class="site-name">Jonathan Pay</a>
+      <nav>
+        <a href="/email-tools/">Email Tools</a>
+        <a href="https://jonathanpay.com/blog/">Blog</a>
+        <a href="https://jonathanpay.com/holistic-email-marketing/">HEM</a>
+        <a href="https://holisticemailacademy.com">HEA</a>
+      </nav>
+    </header>
+
+    <div class="page-header">
+      <p class="breadcrumb"><a href="/">Home</a> &rsaquo; Work</p>
+      <h1>Digital Publishing</h1>
+      <p>
+        Newsletters, guides, and white papers — practical content built around
+        email marketing done well.
+      </p>
+    </div>
+
+    <main>
+      <section>
+        <h2>Newsletters <span>/</span></h2>
+        <div class="pub-grid">
+          <!-- Add newsletter entries here -->
+        </div>
+      </section>
+
+      <section>
+        <h2>Guides <span>/</span></h2>
+        <div class="pub-grid">
+          <!-- Add guide entries here -->
+        </div>
+      </section>
+
+      <section>
+        <h2>White Papers <span>/</span></h2>
+        <div class="pub-grid">
+          <!-- Add white paper entries here -->
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <p>
+        &copy; Jonathan Pay 2025 &nbsp;·&nbsp;
+        <a href="/archive/2016/">circa 2016</a>
+      </p>
+    </footer>
+  </body>
+</html>
