@@ -7,11 +7,11 @@
 
 # THANKS
 
-    to Tom Gillett ( http://www.twitter.com/tomgillett ) for hosting my site.
-    to the Twitter Bootstrap ( http://www.getbootstrap.com ) team for the foundations of my site.
+    to Tom Gillett ( http://www.twitter.com/tomgillett ) for originally hosting my site.
 
 
 # TECHNOLOGY COLOPHON
 
     HTML5, CSS3
-    jQuery, Modernizr
+    GitHub Pages
+    Claude (Anthropic) — AI assistant used in site development
