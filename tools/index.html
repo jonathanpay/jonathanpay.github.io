@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Free email marketing tools by Jonathan Pay — analyse copy, check readability, test A/B results, and more.">
-  <title>Free Email Tools — Jonathan Pay</title>
+  <meta name="description" content="Free tools by Jonathan Pay — email marketing utilities and design tools, no sign-up required.">
+  <title>Free Tools — Jonathan Pay</title>
   <link rel="icon" href="/favicon.ico">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -87,18 +87,20 @@
     }
     .hero p {
       color: var(--navy-muted);
-      max-width: 30rem;
+      max-width: 32rem;
       margin: 0 auto;
       font-size: 1rem;
     }
 
-    /* ---- Tools grid ---- */
+    /* ---- Main ---- */
     main {
       max-width: 56rem;
       margin: 0 auto;
       padding: 3rem 2rem 5rem;
     }
-    .grid-label {
+
+    /* ---- Section headings ---- */
+    .section-label {
       font-size: 0.75rem;
       font-weight: 700;
       letter-spacing: 0.14em;
@@ -106,6 +108,15 @@
       color: var(--gold-deep);
       margin-bottom: 1.5rem;
     }
+    .tools-section {
+      margin-bottom: 3rem;
+    }
+    .tools-section + .tools-section {
+      padding-top: 3rem;
+      border-top: 1px solid var(--grey-light);
+    }
+
+    /* ---- Tool cards ---- */
     .tools-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(18rem, 1fr));
@@ -141,6 +152,7 @@
     }
     .tool-pill--foundation   { background: rgba(33,191,61,0.12);  color: #138C28; }
     .tool-pill--intermediate { background: rgba(34,206,242,0.16); color: #0E8FAD; }
+    .tool-pill--design       { background: rgba(124,92,255,0.12); color: #5a3fcf; }
     .tool-card h2 {
       font-size: 1.1rem;
       font-weight: 700;
@@ -171,10 +183,7 @@
       padding: 2rem;
       font-size: 0.85rem;
     }
-    footer a {
-      color: var(--navy-muted);
-      text-decoration: none;
-    }
+    footer a { color: var(--navy-muted); text-decoration: none; }
     footer a:hover { color: var(--gold); }
 
     @media (max-width: 600px) {
@@ -197,50 +206,68 @@
 
   <div class="hero">
     <p class="hero-kicker">Free Tools</p>
-    <h1>Sharpen Your Email Marketing</h1>
-    <p>Five practical, no-sign-up tools to analyse, improve, and test your email copy.</p>
+    <h1>Practical Tools for Email Marketers</h1>
+    <p>No sign-up, no paywalls. Just tools that do what they say.</p>
   </div>
 
   <main>
-    <p class="grid-label">Pick a tool</p>
-    <div class="tools-grid">
 
-      <a href="wewe-tool.html" class="tool-card">
-        <span class="tool-pill tool-pill--foundation">● Foundation</span>
-        <h2>We-We Calculator</h2>
-        <p>Is your copy talking about you, or to your reader? Paste your email and see the brand vs. customer balance instantly.</p>
-        <span class="tool-link">Open tool →</span>
-      </a>
+    <div class="tools-section">
+      <p class="section-label">Email Tools</p>
+      <div class="tools-grid">
 
-      <a href="ers-tool-feedback.html" class="tool-card">
-        <span class="tool-pill tool-pill--foundation">● Foundation</span>
-        <h2>Email Readability Score</h2>
-        <p>Score your copy against three formulas — Flesch-Kincaid, Gunning Fog, and SMOG — with per-word syllable counting and actionable suggestions.</p>
-        <span class="tool-link">Open tool →</span>
-      </a>
+        <a href="/email-tools/wewe-tool.html" class="tool-card">
+          <span class="tool-pill tool-pill--foundation">● Foundation</span>
+          <h2>We-We Calculator</h2>
+          <p>Is your copy talking about you, or to your reader? Paste your email and see the brand vs. customer balance instantly.</p>
+          <span class="tool-link">Open tool →</span>
+        </a>
 
-      <a href="f2b-tool.html" class="tool-card">
-        <span class="tool-pill tool-pill--intermediate">● Intermediate</span>
-        <h2>Feature-to-Benefit Converter</h2>
-        <p>Enter a feature, pick your industry, and get a customer-benefit statement from a library of 384 templates across 8 verticals.</p>
-        <span class="tool-link">Open tool →</span>
-      </a>
+        <a href="/email-tools/ers-tool-feedback.html" class="tool-card">
+          <span class="tool-pill tool-pill--foundation">● Foundation</span>
+          <h2>Email Readability Score</h2>
+          <p>Score your copy against three formulas — Flesch-Kincaid, Gunning Fog, and SMOG — with per-word syllable counting and actionable suggestions.</p>
+          <span class="tool-link">Open tool →</span>
+        </a>
 
-      <a href="sscc.html" class="tool-card">
-        <span class="tool-pill tool-pill--intermediate">● Intermediate</span>
-        <h2>Statistical Significance Calculator</h2>
-        <p>Enter sample size and conversion rates to find out whether your A/B test result is statistically significant before you act on it.</p>
-        <span class="tool-link">Open tool →</span>
-      </a>
+        <a href="/email-tools/f2b-tool.html" class="tool-card">
+          <span class="tool-pill tool-pill--intermediate">● Intermediate</span>
+          <h2>Feature-to-Benefit Converter</h2>
+          <p>Enter a feature, pick your industry, and get a customer-benefit statement from a library of 384 templates across 8 verticals.</p>
+          <span class="tool-link">Open tool →</span>
+        </a>
 
-      <a href="tone-tool.html" class="tool-card">
-        <span class="tool-pill tool-pill--intermediate">● Intermediate</span>
-        <h2>Email Tone Analyzer</h2>
-        <p>Detect the relative presence of five tones — Friendly, Persuasive, Professional, Urgent, and Empathetic — with phrase suggestions for shifting tone.</p>
-        <span class="tool-link">Open tool →</span>
-      </a>
+        <a href="/email-tools/sscc.html" class="tool-card">
+          <span class="tool-pill tool-pill--intermediate">● Intermediate</span>
+          <h2>Statistical Significance Calculator</h2>
+          <p>Enter sample size and conversion rates to find out whether your A/B test result is statistically significant before you act on it.</p>
+          <span class="tool-link">Open tool →</span>
+        </a>
 
+        <a href="/email-tools/tone-tool.html" class="tool-card">
+          <span class="tool-pill tool-pill--intermediate">● Intermediate</span>
+          <h2>Email Tone Analyzer</h2>
+          <p>Detect the relative presence of five tones — Friendly, Persuasive, Professional, Urgent, and Empathetic — with phrase suggestions for shifting tone.</p>
+          <span class="tool-link">Open tool →</span>
+        </a>
+
+      </div>
     </div>
+
+    <div class="tools-section">
+      <p class="section-label">Design Tools</p>
+      <div class="tools-grid">
+
+        <a href="/tools/carousel-maker/" class="tool-card">
+          <span class="tool-pill tool-pill--design">● Design</span>
+          <h2>Carousel Maker</h2>
+          <p>Build social media carousel slides in seconds. Four template families, ten layouts, two formats — export as PNG, no install needed.</p>
+          <span class="tool-link">Open tool →</span>
+        </a>
+
+      </div>
+    </div>
+
   </main>
 
   <footer>
