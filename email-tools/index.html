@@ -1,250 +1,306 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Free Email Optimisation Tools — Holistic Email Marketing</title>
   <meta name="description" content="Free email marketing tools by Jonathan Pay — analyse copy, check readability, test A/B results, and more.">
-  <title>Free Email Tools — Jonathan Pay</title>
   <link rel="icon" href="/favicon.ico">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,400;0,600;0,700;1,400;1,700&display=swap" rel="stylesheet">
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-    :root {
-      --gold:       #dfb81f;
-      --gold-deep:  #8b7417;
-      --navy:       #2c3d50;
-      --navy-mid:   #39536f;
-      --navy-muted: #aab3bf;
-      --grey-mid:   #6d6d6d;
-      --grey-light: #dbdbdb;
-    }
-
-    body {
-      font-family: 'Open Sans', sans-serif;
-      background: #fff;
-      color: var(--navy);
-      line-height: 1.6;
-    }
+    html, body { margin: 0; padding: 0; }
 
     /* ---- Header ---- */
-    header {
-      background: var(--navy);
-      padding: 1.25rem 2rem;
+    .site-header {
+      padding: var(--hea-s-4) var(--hea-s-8);
       display: flex;
       align-items: center;
       justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 1rem;
+      border-bottom: 1px solid var(--hea-divider);
+      background: rgba(255,255,255,0.94);
+      backdrop-filter: saturate(140%) blur(6px);
       position: sticky;
       top: 0;
       z-index: 50;
     }
-    .site-name {
-      color: var(--gold-deep);
-      font-size: 1.1rem;
-      font-weight: 700;
-      font-style: italic;
+    .brand-lockup {
+      display: flex;
+      align-items: center;
+      gap: var(--hea-s-3);
+      text-decoration: none;
+    }
+    .brand-logo { height: 36px; width: auto; }
+    .brand-name {
+      font-size: 11px;
+      font-weight: var(--hea-w-bold);
+      letter-spacing: 0.14em;
       text-transform: uppercase;
-      text-decoration: none;
-      letter-spacing: 0.06em;
+      color: var(--hea-plum);
+      line-height: 1.3;
     }
-    nav a {
-      color: var(--gold);
-      text-decoration: none;
-      font-size: 0.9rem;
-      font-weight: 600;
-      margin-left: 1.5rem;
-      transition: color 0.15s;
+    .brand-name em {
+      display: block;
+      font-style: italic;
+      font-weight: var(--hea-w-regular);
+      letter-spacing: 0.01em;
+      text-transform: none;
+      color: var(--hea-plum-soft);
+      font-size: 10px;
     }
-    nav a:hover { color: #fff; }
-    nav a.active { color: #fff; }
 
     /* ---- Hero ---- */
     .hero {
-      background: var(--navy);
-      border-top: 1px solid var(--navy-mid);
-      padding: 3.5rem 2rem 3rem;
+      max-width: 720px;
+      margin: 0 auto;
+      padding: var(--hea-s-9) var(--hea-s-8) var(--hea-s-8);
       text-align: center;
     }
-    .hero-kicker {
-      font-size: 0.75rem;
-      font-weight: 700;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      color: var(--gold);
-      margin-bottom: 1rem;
-    }
-    .hero h1 {
-      color: #fff;
-      font-size: clamp(1.5rem, 3.5vw, 2.25rem);
-      font-weight: 700;
+    .hero .kicker { margin-bottom: var(--hea-s-4); }
+    .hero h1 { margin-bottom: var(--hea-s-3); }
+    .hero .tagline {
       font-style: italic;
-      margin-bottom: 1rem;
-      line-height: 1.25;
+      font-weight: var(--hea-w-semibold);
+      color: var(--hea-fg-2);
+      font-size: var(--hea-text-lg);
+      display: block;
+      margin-bottom: var(--hea-s-4);
     }
-    .hero p {
-      color: var(--navy-muted);
-      max-width: 30rem;
+    .hero .lead {
+      font-size: var(--hea-text-base);
+      color: var(--hea-fg-2);
+      line-height: var(--hea-lh-loose);
+      max-width: 520px;
       margin: 0 auto;
-      font-size: 1rem;
     }
 
-    /* ---- Tools grid ---- */
-    main {
-      max-width: 56rem;
-      margin: 0 auto;
-      padding: 3rem 2rem 5rem;
+    /* ---- Tools section ---- */
+    .tools-section {
+      background: var(--hea-bg-alt);
+      padding: var(--hea-s-8) var(--hea-s-8) var(--hea-s-9);
     }
-    .grid-label {
-      font-size: 0.75rem;
-      font-weight: 700;
+    .tools-inner {
+      max-width: 1040px;
+      margin: 0 auto;
+    }
+    .section-kicker {
+      font-size: var(--hea-text-xs);
+      font-weight: var(--hea-w-bold);
       letter-spacing: 0.14em;
       text-transform: uppercase;
-      color: var(--gold-deep);
-      margin-bottom: 1.5rem;
+      color: var(--hea-purple);
+      margin: 0 0 var(--hea-s-6);
     }
     .tools-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(18rem, 1fr));
-      gap: 1.25rem;
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--hea-s-5);
     }
     .tool-card {
-      border: 1px solid var(--grey-light);
-      border-radius: 8px;
-      padding: 1.75rem;
-      text-decoration: none;
-      color: inherit;
+      background: var(--hea-bg);
+      border-radius: var(--hea-r-lg);
+      border: 1px solid var(--hea-divider);
+      box-shadow: var(--hea-shadow-sm);
+      padding: var(--hea-s-6);
       display: flex;
       flex-direction: column;
-      gap: 0.75rem;
-      transition: border-color 0.15s, box-shadow 0.15s, transform 0.15s;
+      gap: var(--hea-s-4);
+      text-decoration: none;
+      color: inherit;
+      transition: box-shadow var(--hea-dur-base) var(--hea-ease),
+                  transform var(--hea-dur-base) var(--hea-ease);
     }
     .tool-card:hover {
-      border-color: var(--gold-deep);
-      box-shadow: 0 4px 16px rgba(44,61,80,0.10);
+      box-shadow: var(--hea-shadow-md);
       transform: translateY(-2px);
     }
-    .tool-pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      padding: 4px 10px;
-      border-radius: 999px;
-      font-size: 11px;
-      font-weight: 700;
-      letter-spacing: 0.05em;
-      text-transform: uppercase;
-      align-self: flex-start;
+    .tool-card .title {
+      font-size: var(--hea-h3);
+      font-weight: var(--hea-w-semibold);
+      color: var(--hea-fg-1);
+      line-height: var(--hea-lh-snug);
+      margin: 0;
     }
-    .tool-pill--foundation   { background: rgba(33,191,61,0.12);  color: #138C28; }
-    .tool-pill--intermediate { background: rgba(34,206,242,0.16); color: #0E8FAD; }
-    .tool-card h2 {
-      font-size: 1.1rem;
-      font-weight: 700;
-      font-style: italic;
-      color: var(--navy);
-      line-height: 1.3;
-    }
-    .tool-card p {
-      font-size: 0.9rem;
-      color: var(--grey-mid);
-      line-height: 1.55;
+    .tool-card .desc {
+      font-size: var(--hea-text-sm);
+      color: var(--hea-fg-2);
+      line-height: var(--hea-lh-loose);
       flex: 1;
+      margin: 0;
     }
-    .tool-link {
-      font-size: 0.85rem;
-      font-weight: 700;
-      color: var(--gold-deep);
-      margin-top: 0.5rem;
-      transition: color 0.15s;
+    .tool-card .card-foot {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding-top: var(--hea-s-4);
+      border-top: 1px solid var(--hea-divider);
     }
-    .tool-card:hover .tool-link { color: var(--navy); }
+    .open-link {
+      font-size: var(--hea-text-sm);
+      font-weight: var(--hea-w-semibold);
+      color: var(--hea-purple);
+      text-decoration: none;
+      transition: color var(--hea-dur-fast) var(--hea-ease);
+    }
+    .tool-card:hover .open-link { color: var(--hea-purple-deep); }
+    a.hea-pill {
+      text-decoration: none;
+      cursor: pointer;
+      transition: filter var(--hea-dur-fast) var(--hea-ease);
+    }
+    a.hea-pill:hover { filter: brightness(0.88); }
 
     /* ---- Footer ---- */
-    footer {
-      background: var(--navy);
-      color: var(--navy-muted);
-      text-align: center;
-      padding: 2rem;
-      font-size: 0.85rem;
+    .site-footer {
+      padding: var(--hea-s-7) var(--hea-s-8);
+      border-top: 1px solid var(--hea-divider);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--hea-s-5);
     }
-    footer a {
-      color: var(--navy-muted);
-      text-decoration: none;
+    .footer-brand { display: flex; align-items: center; gap: var(--hea-s-3); }
+    .footer-logo { height: 24px; width: auto; }
+    .footer-wordmark {
+      font-size: 11px;
+      font-weight: var(--hea-w-bold);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--hea-plum);
     }
-    footer a:hover { color: var(--gold); }
+    .footer-tagline { font-size: var(--hea-text-sm); color: var(--hea-fg-3); font-style: italic; }
 
-    @media (max-width: 600px) {
-      header, main { padding: 1rem; }
-      main { padding-top: 2rem; padding-bottom: 3rem; }
+    @media (max-width: 680px) {
+      .tools-grid { grid-template-columns: 1fr; }
+      .site-header, .site-footer { padding: var(--hea-s-4); }
+      .brand-name em { display: none; }
+      .hero { padding-left: var(--hea-s-4); padding-right: var(--hea-s-4); }
+      .tools-section { padding: var(--hea-s-6) var(--hea-s-4); }
     }
   </style>
+  <link rel="stylesheet" crossorigin href="/email-tools/assets/style-CxLNB_9V.css">
 </head>
-<body>
+<body class="hea">
 
-  <header>
-    <a href="/" class="site-name">Jonathan Pay</a>
-    <nav>
-      <a href="/tools/" class="active">Tools</a>
-      <a href="https://jonathanpay.com/blog/">Blog</a>
-      <a href="https://jonathanpay.com/holistic-email-marketing/">HEM</a>
-      <a href="https://holisticemailacademy.com">HEA</a>
-    </nav>
+  <header class="site-header">
+    <a href="index.html" class="brand-lockup">
+      <img src="/email-tools/assets/logo-icon-Cl9V7EQO.png" alt="" class="brand-logo">
+      <span class="brand-name">Holistic Email Marketing<em>Free optimisation tools</em></span>
+    </a>
   </header>
 
-  <div class="hero">
-    <p class="hero-kicker">Free Tools</p>
-    <h1>Sharpen Your Email Marketing</h1>
-    <p>Five practical, no-sign-up tools to analyse, improve, and test your email copy.</p>
-  </div>
-
   <main>
-    <p class="grid-label">Pick a tool</p>
-    <div class="tools-grid">
+    <section class="hero">
+      <p class="kicker">Free Tools</p>
+      <h1>Sharpen Your Email Marketing</h1>
+      <em class="tagline">Stop guessing. Start growing.</em>
+      <p class="lead">Ten practical, no-sign-up tools to help you analyse, improve, and test your email copy.</p>
+    </section>
 
-      <a href="wewe-tool.html" class="tool-card">
-        <span class="tool-pill tool-pill--foundation">● Foundation</span>
-        <h2>We-We Calculator</h2>
-        <p>Is your copy talking about you, or to your reader? Paste your email and see the brand vs. customer balance instantly.</p>
-        <span class="tool-link">Open tool →</span>
-      </a>
+    <section class="tools-section">
+      <div class="tools-inner">
+        <p class="section-kicker">Ten tools — pick yours</p>
+        <div class="tools-grid">
 
-      <a href="ers-tool-feedback.html" class="tool-card">
-        <span class="tool-pill tool-pill--foundation">● Foundation</span>
-        <h2>Email Readability Score</h2>
-        <p>Score your copy against three formulas — Flesch-Kincaid, Gunning Fog, and SMOG — with per-word syllable counting and actionable suggestions.</p>
-        <span class="tool-link">Open tool →</span>
-      </a>
+          <div class="tool-card">
+            <div><a href="https://holisticemailacademy.com/courses/foundations-email-copywriting/" class="hea-pill hea-pill--foundation" target="_blank" rel="noopener">● Foundation Copywriting</a></div>
+            <h2 class="title">We-We Calculator</h2>
+            <p class="desc">Is your copy talking about you, or to your reader? Paste your email and see the brand vs. customer balance instantly.</p>
+            <div class="card-foot">
+              <a href="wewe-tool.html" class="open-link">Open tool →</a>
+            </div>
+          </div>
 
-      <a href="f2b-tool.html" class="tool-card">
-        <span class="tool-pill tool-pill--intermediate">● Intermediate</span>
-        <h2>Feature-to-Benefit Converter</h2>
-        <p>Enter a feature, pick your industry, and get a customer-benefit statement from a library of 384 templates across 8 verticals.</p>
-        <span class="tool-link">Open tool →</span>
-      </a>
+          <div class="tool-card">
+            <div><a href="https://holisticemailacademy.com/courses/foundations-email-copywriting/" class="hea-pill hea-pill--foundation" target="_blank" rel="noopener">● Foundation Copywriting</a></div>
+            <h2 class="title">Email Readability Score</h2>
+            <p class="desc">Paste your email to check its reading level against three industry-standard formulas — Flesch-Kincaid, Gunning Fog, and SMOG.</p>
+            <div class="card-foot">
+              <a href="ers-tool-feedback.html" class="open-link">Open tool →</a>
+            </div>
+          </div>
 
-      <a href="sscc.html" class="tool-card">
-        <span class="tool-pill tool-pill--intermediate">● Intermediate</span>
-        <h2>Statistical Significance Calculator</h2>
-        <p>Enter sample size and conversion rates to find out whether your A/B test result is statistically significant before you act on it.</p>
-        <span class="tool-link">Open tool →</span>
-      </a>
+          <div class="tool-card">
+            <div><a href="https://holisticemailacademy.com/courses/intermediate-email-copywriting-techniques/" class="hea-pill hea-pill--intermediate" target="_blank" rel="noopener">● Intermediate Copywriting</a></div>
+            <h2 class="title">Feature-to-Benefit Converter</h2>
+            <p class="desc">Enter a product or service feature and get a customer-benefit statement that speaks to your reader's real needs.</p>
+            <div class="card-foot">
+              <a href="f2b-tool.html" class="open-link">Open tool →</a>
+            </div>
+          </div>
 
-      <a href="tone-tool.html" class="tool-card">
-        <span class="tool-pill tool-pill--intermediate">● Intermediate</span>
-        <h2>Email Tone Analyzer</h2>
-        <p>Detect the relative presence of five tones — Friendly, Persuasive, Professional, Urgent, and Empathetic — with phrase suggestions for shifting tone.</p>
-        <span class="tool-link">Open tool →</span>
-      </a>
+          <div class="tool-card">
+            <div><a href="https://holisticemailacademy.com/courses/intermediate-holistic-testing-for-deeper-insights/" class="hea-pill hea-pill--intermediate" target="_blank" rel="noopener">● Intermediate Testing</a></div>
+            <h2 class="title">Statistical Significance Calculator</h2>
+            <p class="desc">Enter your sample size and conversion rates to find out whether your A/B test result is statistically significant before you act on it.</p>
+            <div class="card-foot">
+              <a href="sscc.html" class="open-link">Open tool →</a>
+            </div>
+          </div>
 
-    </div>
+          <div class="tool-card">
+            <div><a href="https://holisticemailacademy.com/courses/intermediate-email-copywriting-techniques/" class="hea-pill hea-pill--intermediate" target="_blank" rel="noopener">● Intermediate Copywriting</a></div>
+            <h2 class="title">Email Tone Analyzer</h2>
+            <p class="desc">Paste your email to see which tones are present — friendly, persuasive, professional, urgent, or empathetic — and get phrase suggestions for shifting tone.</p>
+            <div class="card-foot">
+              <a href="tone-tool.html" class="open-link">Open tool →</a>
+            </div>
+          </div>
+
+          <div class="tool-card">
+            <div><a href="https://holisticemailacademy.com/courses/intermediate-buyer-modalities-genai/" class="hea-pill hea-pill--intermediate" target="_blank" rel="noopener">● Intermediate Buyer Modalities</a></div>
+            <h2 class="title">Buyer Persona Matcher</h2>
+            <p class="desc">Paste your email to see which buyer types it speaks to — Competitive, Spontaneous, Humanistic, or Methodical — and get phrase suggestions for the types you're missing.</p>
+            <div class="card-foot">
+              <a href="persona-tool.html" class="open-link">Open tool →</a>
+            </div>
+          </div>
+
+          <div class="tool-card">
+            <div><a href="https://holisticemailacademy.com/courses/foundation-psychology-for-email/" class="hea-pill hea-pill--foundation" target="_blank" rel="noopener">● Foundation Psychology</a></div>
+            <h2 class="title">Emotional Appeal Analyzer</h2>
+            <p class="desc">Paste your email to see which emotional triggers it uses — Fear, Hope, Curiosity, Pride, Trust, or Belonging — and learn when each appeal works best.</p>
+            <div class="card-foot">
+              <a href="emotional-appeal-tool.html" class="open-link">Open tool →</a>
+            </div>
+          </div>
+
+          <div class="tool-card">
+            <div><a href="https://holisticemailacademy.com/courses/foundation-email-a-b-testing/" class="hea-pill hea-pill--foundation" target="_blank" rel="noopener">● Foundation Testing</a></div>
+            <h2 class="title">A/B Test Duration Calculator</h2>
+            <p class="desc">Plan your test before you start. Enter your objective metric, the minimum meaningful improvement, and your daily send volume to find out how long your test genuinely needs to run.</p>
+            <div class="card-foot">
+              <a href="ab-duration-tool.html" class="open-link">Open tool →</a>
+            </div>
+          </div>
+
+          <div class="tool-card">
+            <div><span class="hea-pill hea-pill--intermediate">● Intermediate</span></div>
+            <h2 class="title">Personalisation &amp; Dynamic Content Checker</h2>
+            <p class="desc">Select your email platform, paste your copy, and instantly see every personalisation token — whether each one has a fallback value, and whether your conditional blocks are balanced.</p>
+            <div class="card-foot">
+              <a href="personalisation-tool.html" class="open-link">Open tool →</a>
+            </div>
+          </div>
+
+          <div class="tool-card">
+            <div><span class="hea-pill hea-pill--intermediate">● Intermediate</span></div>
+            <h2 class="title">Email Accessibility Checker</h2>
+            <p class="desc">Paste your email's HTML to check it against common accessibility pitfalls — missing alt text, vague link text, undersized fonts, poor colour contrast, and broken heading order.</p>
+            <div class="card-foot">
+              <a href="accessibility-tool.html" class="open-link">Open tool →</a>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
   </main>
 
-  <footer>
-    <p>&copy; Jonathan Pay 2025 &nbsp;&middot;&nbsp; <a href="/">jonathanpay.github.io</a></p>
+  <footer class="site-footer">
+    <div class="footer-brand">
+      <img src="/email-tools/assets/logo-icon-Cl9V7EQO.png" alt="" class="footer-logo">
+      <span class="footer-wordmark">Holistic Email Marketing</span>
+    </div>
+    <span class="footer-tagline">Smarter email starts here.</span>
   </footer>
 
 </body>

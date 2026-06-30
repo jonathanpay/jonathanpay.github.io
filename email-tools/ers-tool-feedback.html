@@ -3,11 +3,9 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Email Readability Score — Holistic Email Marketing</title>
   <meta name="description" content="Score your email copy's readability with Flesch-Kincaid, Gunning Fog, and SMOG — with per-word syllable counting and actionable suggestions. No sign-up needed.">
-  <title>Email Readability Score — Jonathan Pay</title>
   <link rel="icon" href="/favicon.ico">
-  <link rel="stylesheet" href="style.css">
-  <link rel="stylesheet" href="tool-page.css">
   <style>
     body { background: var(--hea-bg-alt); }
 
@@ -95,27 +93,60 @@
       flex-shrink: 0;
     }
 
+    /* ---- Context note in target zone ---- */
+    .score-context {
+      font-size: var(--hea-text-xs);
+      color: rgba(255,255,255,0.72);
+      line-height: var(--hea-lh-normal);
+      margin: var(--hea-s-2) 0 0;
+      font-style: italic;
+    }
+
+    /* ---- Consulting CTA ---- */
+    .consulting-cta {
+      margin-top: var(--hea-s-6);
+      background: var(--hea-bg-warm);
+      border: 1px solid rgba(58,21,74,0.15);
+      border-radius: var(--hea-r-md);
+      padding: var(--hea-s-5) var(--hea-s-6);
+    }
+    .consulting-cta-kicker {
+      font-size: var(--hea-text-xs);
+      font-weight: var(--hea-w-bold);
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--hea-plum);
+      margin: 0 0 var(--hea-s-2);
+    }
+    .consulting-cta p {
+      font-size: var(--hea-text-sm);
+      color: var(--hea-fg-2);
+      line-height: var(--hea-lh-normal);
+      margin: 0 0 var(--hea-s-4);
+    }
+    .consulting-cta a { display: inline-block; }
+
     @media (max-width: 480px) {
       .scores-grid { grid-template-columns: 1fr; }
     }
   </style>
+  <script type="module" crossorigin src="/email-tools/assets/ers-Il3e-1qs.js"></script>
+  <link rel="modulepreload" crossorigin href="/email-tools/assets/utils-jnLFB3bE.js">
+  <link rel="stylesheet" crossorigin href="/email-tools/assets/utils-M5Ds6giI.css">
+  <link rel="stylesheet" crossorigin href="/email-tools/assets/style-CxLNB_9V.css">
 </head>
 <body class="hea">
 
-    <header class="site-header">
-    <a href="/" class="site-name">Jonathan Pay</a>
-    <nav>
-      <a href="/email-tools/" class="nav-active">Email Tools</a>
-      <a href="https://jonathanpay.com/blog/">Blog</a>
-      <a href="https://jonathanpay.com/holistic-email-marketing/">HEM</a>
-      <a href="https://holisticemailacademy.com">HEA</a>
-    </nav>
+  <header class="site-header">
+    <a href="index.html" class="brand-lockup">
+      <img src="/email-tools/assets/logo-icon-Cl9V7EQO.png" alt="" class="brand-logo">
+      <span class="brand-name">Holistic Email Marketing<em>Free optimisation tools</em></span>
+    </a>
+    <a href="index.html" class="back-link">← All Tools</a>
   </header>
 
   <main>
     <div class="tool-page">
-
-      <a href="/email-tools/" class="tool-back">← All tools</a>
 
       <header class="tool-header">
         <span class="hea-pill hea-pill--foundation">● Foundation</span>
@@ -157,7 +188,14 @@
             <div class="score-item score-item--target">
               <p class="score-kicker">Email target zone</p>
               <p class="score-label">Aim for a Flesch-Kincaid score of <strong style="color:#fff">60 or above</strong> and a Gunning Fog / SMOG grade of <strong style="color:#fff">8 or below</strong> — roughly a comfortable 8th-grade reading level for most audiences.</p>
+              <p class="score-context">These benchmarks suit broad consumer audiences. For professional, technical, or B2B readers, higher complexity is often appropriate — treat the scores as a starting point, not a rule.</p>
             </div>
+          </div>
+
+          <div class="consulting-cta" id="ers-consulting-cta" style="display:none">
+            <p class="consulting-cta-kicker">Get expert help</p>
+            <p>When scores are consistently in the difficult range across all three formulas, the issue often runs deeper than sentence length — it can signal structural complexity in how your messaging is built. Our email consulting service can review your copy and identify the changes that will have the biggest impact.</p>
+            <a href="https://holisticemail.com/contact/" class="hea-btn hea-btn--ghost" target="_blank" rel="noopener">Talk to us →</a>
           </div>
 
           <div class="suggestions" id="suggestions-wrap" style="display:none">
@@ -170,124 +208,13 @@
     </div>
   </main>
 
-    <footer class="site-footer">
-    <p>&copy; Jonathan Pay 2025 &nbsp;&middot;&nbsp; <a href="/email-tools/">Email Tools</a></p>
+  <footer class="site-footer">
+    <div class="footer-brand">
+      <img src="/email-tools/assets/logo-icon-Cl9V7EQO.png" alt="" class="footer-logo">
+      <span class="footer-wordmark">Holistic Email Marketing</span>
+    </div>
+    <span class="footer-tagline">Smarter email starts here.</span>
   </footer>
-
-  <script>
-    function syllablesInWord(word) {
-      word = word.toLowerCase().replace(/[^a-z]/g, '');
-      if (!word) return 0;
-      if (word.length <= 3) return 1;
-      word = word.replace(/e$/, '');
-      const matches = word.match(/[aeiouy]+/g);
-      return matches ? Math.max(1, matches.length) : 1;
-    }
-
-    function countSyllables(text) {
-      return (text.match(/\b[a-zA-Z]+\b/g) || []).reduce((n, w) => n + syllablesInWord(w), 0);
-    }
-
-    function complexWordCount(text) {
-      return (text.match(/\b[a-zA-Z]+\b/g) || []).filter(w => syllablesInWord(w) >= 3).length;
-    }
-
-    function gradeLabel(grade) {
-      if (grade <= 6)  return 'Clear & accessible';
-      if (grade <= 8)  return 'Good for most email';
-      if (grade <= 10) return 'Moderate complexity';
-      if (grade <= 12) return 'Challenging';
-      return 'Very complex';
-    }
-
-    function calcFleschKincaid(text) {
-      const wordList  = text.match(/\b[a-zA-Z]+\b/g) || [];
-      const words     = wordList.length || 1;
-      const sentences = Math.max(1, (text.match(/[.!?]+/g) || []).length);
-      const syllables = countSyllables(text);
-      const score     = 206.835 - (1.015 * (words / sentences)) - (84.6 * (syllables / words));
-
-      let label = '';
-      if      (score >= 90) label = 'Very Easy — 5th grade';
-      else if (score >= 80) label = 'Easy — 6th grade';
-      else if (score >= 70) label = 'Fairly Easy — 7th grade';
-      else if (score >= 60) label = 'Standard — 8th–9th grade';
-      else if (score >= 50) label = 'Fairly Difficult — 10th–12th grade';
-      else if (score >= 30) label = 'Difficult — College level';
-      else                  label = 'Very Difficult — Advanced College';
-
-      return { score: score.toFixed(1), label };
-    }
-
-    function calcGunningFog(text) {
-      const words    = (text.match(/\b[a-zA-Z]+\b/g) || []).length || 1;
-      const sentences = Math.max(1, (text.match(/[.!?]+/g) || []).length);
-      const complex  = complexWordCount(text);
-      const grade    = 0.4 * ((words / sentences) + 100 * (complex / words));
-      return { score: grade.toFixed(1), label: gradeLabel(grade) };
-    }
-
-    function calcSMOG(text) {
-      const sentences = Math.max(1, (text.match(/[.!?]+/g) || []).length);
-      const complex   = complexWordCount(text);
-      const grade     = 1.0430 * Math.sqrt(complex * (30 / sentences)) + 3.1291;
-      return { score: grade.toFixed(1), label: gradeLabel(grade) };
-    }
-
-    function analyseText(text) {
-      const feedback  = [];
-      const sentences = text.split(/[.!?]+/).filter(s => s.trim());
-      if (sentences.some(s => (s.match(/\b[a-zA-Z]+\b/g) || []).length > 20))
-        feedback.push('You have at least one very long sentence (20+ words). Breaking it up will improve readability.');
-      if (complexWordCount(text) > 5)
-        feedback.push('Your text contains several polysyllabic words. Where possible, swap them for shorter alternatives.');
-      const passive = text.match(/\b(is|was|were|been|being|are|be)\s+\w+ed\b/gi);
-      if (passive && passive.length > 2)
-        feedback.push('Passive voice detected multiple times. Active constructions ("we sent" vs "was sent") tend to read faster.');
-      return feedback;
-    }
-
-    function check() {
-      const text      = document.getElementById('readability-input').value.trim();
-      const errorEl   = document.getElementById('ers-error');
-      const resultsEl = document.getElementById('ers-results');
-
-      if (!text) {
-        errorEl.classList.add('visible');
-        resultsEl.classList.remove('visible');
-        return;
-      }
-      errorEl.classList.remove('visible');
-
-      const fk   = calcFleschKincaid(text);
-      const gf   = calcGunningFog(text);
-      const smog = calcSMOG(text);
-      const feedback = analyseText(text);
-
-      document.getElementById('fk-score').textContent   = fk.score;
-      document.getElementById('fk-grade').textContent   = fk.label;
-      document.getElementById('gf-score').textContent   = gf.score;
-      document.getElementById('gf-grade').textContent   = gf.label;
-      document.getElementById('smog-score').textContent = smog.score;
-      document.getElementById('smog-grade').textContent = smog.label;
-
-      const suggestWrap = document.getElementById('suggestions-wrap');
-      const suggestList = document.getElementById('suggestions-list');
-      if (feedback.length > 0) {
-        suggestList.innerHTML = feedback.map(s => `<li>${s}</li>`).join('');
-        suggestWrap.style.display = 'block';
-      } else {
-        suggestWrap.style.display = 'none';
-      }
-
-      resultsEl.classList.add('visible');
-    }
-
-    document.getElementById('ers-btn').addEventListener('click', check);
-    document.getElementById('readability-input').addEventListener('keydown', e => {
-      if (e.key === 'Enter' && e.ctrlKey) check();
-    });
-  </script>
 
 </body>
 </html>

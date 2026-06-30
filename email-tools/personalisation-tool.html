@@ -1,0 +1,304 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Personalisation &amp; Dynamic Content Checker — Holistic Email Marketing</title>
+  <meta name="description" content="Check your email's personalisation tokens and dynamic content blocks for missing fallbacks and unbalanced conditionals, across 16 ESP syntaxes. No sign-up needed.">
+  <link rel="icon" href="/favicon.ico">
+  <style>
+    body { background: var(--hea-bg-alt); }
+
+    /* ---- Summary box ---- */
+    .pc-summary-box {
+      display: flex;
+      gap: var(--hea-s-4);
+      align-items: flex-start;
+      border-radius: var(--hea-r-md);
+      padding: var(--hea-s-4) var(--hea-s-5);
+      margin-bottom: var(--hea-s-5);
+      font-size: var(--hea-text-sm);
+      line-height: var(--hea-lh-normal);
+    }
+    .pc-summary-box p { margin: 0; color: inherit; }
+    .pc-summary-box--ok {
+      background: rgba(22,101,52,0.08);
+      border: 1px solid rgba(22,101,52,0.25);
+      color: #14532D;
+    }
+    .pc-summary-box--warn {
+      background: rgba(232,165,60,0.10);
+      border: 1px solid rgba(232,165,60,0.35);
+      color: #7A4E00;
+    }
+    .pc-summary-box--neutral {
+      background: var(--hea-bg-warm);
+      border: 1px solid var(--hea-divider);
+      color: var(--hea-fg-2);
+    }
+    .pc-summary-icon {
+      font-size: 1.1rem;
+      flex-shrink: 0;
+      line-height: 1.4;
+      font-weight: var(--hea-w-bold);
+    }
+
+    /* ---- Token cards ---- */
+    .pc-token-list {
+      display: flex;
+      flex-direction: column;
+      gap: var(--hea-s-3);
+      margin-bottom: var(--hea-s-5);
+    }
+    .pc-token-card {
+      background: var(--hea-bg-warm);
+      border: 1px solid var(--hea-divider);
+      border-left: 3px solid var(--hea-divider);
+      border-radius: var(--hea-r-md);
+      padding: var(--hea-s-3) var(--hea-s-4);
+    }
+    .pc-token-card--warn {
+      border-left-color: #F59E0B;
+      background: rgba(245,158,11,0.05);
+    }
+    .pc-token-head {
+      display: flex;
+      align-items: center;
+      gap: var(--hea-s-2);
+      margin-bottom: var(--hea-s-2);
+      flex-wrap: wrap;
+    }
+    .pc-status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .pc-status-dot--ok   { background: #16A34A; }
+    .pc-status-dot--warn { background: #D97706; }
+    .pc-token-code {
+      font-family: var(--hea-mono, ui-monospace, monospace);
+      font-size: var(--hea-text-xs);
+      background: var(--hea-bg);
+      border: 1px solid var(--hea-divider);
+      border-radius: 4px;
+      padding: 1px var(--hea-s-2);
+      color: var(--hea-fg-1);
+      word-break: break-all;
+    }
+    .pc-count-badge {
+      font-size: var(--hea-text-xs);
+      font-weight: var(--hea-w-semibold);
+      color: var(--hea-fg-3);
+      margin-left: auto;
+      flex-shrink: 0;
+    }
+    .pc-token-meta {
+      display: flex;
+      align-items: center;
+      gap: var(--hea-s-4);
+      flex-wrap: wrap;
+    }
+    .pc-token-var {
+      font-size: var(--hea-text-xs);
+      color: var(--hea-fg-3);
+    }
+    .pc-token-status {
+      font-size: var(--hea-text-xs);
+      font-weight: var(--hea-w-semibold);
+    }
+    .pc-token-status em { font-style: normal; font-weight: var(--hea-w-regular); }
+    .pc-token-status--ok   { color: #16A34A; }
+    .pc-token-status--warn { color: #D97706; }
+    .pc-token-status--info { color: #0369A1; }
+    .pc-token-fix {
+      margin-top: var(--hea-s-2);
+      font-size: var(--hea-text-xs);
+      color: var(--hea-fg-2);
+    }
+    .pc-token-fix code {
+      font-family: var(--hea-mono, ui-monospace, monospace);
+      background: var(--hea-bg);
+      border: 1px solid var(--hea-divider);
+      border-radius: 3px;
+      padding: 1px 4px;
+    }
+
+    /* ---- Blocks section ---- */
+    .pc-blocks-status {
+      display: flex;
+      gap: var(--hea-s-3);
+      align-items: flex-start;
+      font-size: var(--hea-text-sm);
+      border-radius: var(--hea-r-md);
+      padding: var(--hea-s-3) var(--hea-s-4);
+      margin-bottom: var(--hea-s-5);
+    }
+    .pc-blocks-status code {
+      font-family: var(--hea-mono, ui-monospace, monospace);
+      background: rgba(0,0,0,0.06);
+      border-radius: 3px;
+      padding: 0 4px;
+    }
+    .pc-blocks-status--ok {
+      background: rgba(22,101,52,0.07);
+      border: 1px solid rgba(22,101,52,0.2);
+      color: #14532D;
+    }
+    .pc-blocks-status--warn {
+      background: rgba(232,165,60,0.10);
+      border: 1px solid rgba(232,165,60,0.35);
+      color: #7A4E00;
+    }
+
+    /* ---- Platform note ---- */
+    .pc-platform-note {
+      font-size: var(--hea-text-sm);
+      color: var(--hea-fg-2);
+      line-height: var(--hea-lh-normal);
+      background: var(--hea-bg-warm);
+      border-radius: var(--hea-r-md);
+      border: 1px solid var(--hea-divider);
+      padding: var(--hea-s-3) var(--hea-s-4);
+      margin-bottom: var(--hea-s-5);
+    }
+    .pc-platform-note code {
+      font-family: var(--hea-mono, ui-monospace, monospace);
+      font-size: 0.9em;
+      background: rgba(0,0,0,0.05);
+      border-radius: 3px;
+      padding: 0 3px;
+    }
+
+    /* ---- Course CTA ---- */
+    .course-cta {
+      margin-top: var(--hea-s-6);
+      background: var(--hea-purple-tint);
+      border: 1px solid rgba(158,65,191,0.2);
+      border-radius: var(--hea-r-md);
+      padding: var(--hea-s-5) var(--hea-s-6);
+    }
+    .course-cta-kicker {
+      font-size: var(--hea-text-xs);
+      font-weight: var(--hea-w-bold);
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--hea-purple);
+      margin: 0 0 var(--hea-s-2);
+    }
+    .course-cta p {
+      font-size: var(--hea-text-sm);
+      color: var(--hea-fg-2);
+      line-height: var(--hea-lh-normal);
+      margin: 0 0 var(--hea-s-4);
+    }
+    .course-cta a.hea-btn { display: inline-block; }
+  </style>
+  <script type="module" crossorigin src="/email-tools/assets/personalisation-BZqcjo0A.js"></script>
+  <link rel="modulepreload" crossorigin href="/email-tools/assets/utils-jnLFB3bE.js">
+  <link rel="stylesheet" crossorigin href="/email-tools/assets/utils-M5Ds6giI.css">
+  <link rel="stylesheet" crossorigin href="/email-tools/assets/style-CxLNB_9V.css">
+</head>
+<body class="hea">
+
+  <header class="site-header">
+    <a href="index.html" class="brand-lockup">
+      <img src="/email-tools/assets/logo-icon-Cl9V7EQO.png" alt="" class="brand-logo">
+      <span class="brand-name">Holistic Email Marketing<em>Free optimisation tools</em></span>
+    </a>
+    <a href="index.html" class="back-link">← All Tools</a>
+  </header>
+
+  <main>
+    <div class="tool-page">
+
+      <header class="tool-header">
+        <span class="hea-pill hea-pill--intermediate">● Intermediate</span>
+        <h1>Personalisation &amp; Dynamic Content Checker</h1>
+        <p class="lead">Paste your email copy, select your sending platform, and instantly see every personalisation token — whether each one has a fallback value for contacts with missing data, and whether your conditional blocks are balanced.</p>
+      </header>
+
+      <div class="tool-card">
+
+        <div class="field-group">
+          <label class="field-label" for="esp-select">Email platform</label>
+          <select class="hea-select" id="esp-select">
+            <option value="">Select your platform…</option>
+            <optgroup label="Liquid / Jinja2">
+              <option value="klaviyo">Klaviyo</option>
+              <option value="drip">Drip</option>
+              <option value="convertkit">ConvertKit / Kit</option>
+              <option value="brevo">Brevo (Sendinblue)</option>
+            </optgroup>
+            <optgroup label="HubL">
+              <option value="hubspot">HubSpot</option>
+            </optgroup>
+            <optgroup label="Handlebars">
+              <option value="sendgrid">SendGrid / Twilio</option>
+              <option value="iterable">Iterable</option>
+              <option value="pardot">Pardot / Account Engagement</option>
+            </optgroup>
+            <optgroup label="Proprietary syntax">
+              <option value="mailchimp">Mailchimp</option>
+              <option value="activecampaign">ActiveCampaign</option>
+              <option value="campaignmonitor">Campaign Monitor</option>
+              <option value="omnisend">Omnisend</option>
+              <option value="dotdigital">Dotdigital</option>
+              <option value="mailerlite">MailerLite</option>
+            </optgroup>
+            <optgroup label="Advanced scripting">
+              <option value="sfmc">Salesforce Marketing Cloud</option>
+              <option value="marketo">Marketo</option>
+            </optgroup>
+          </select>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label" for="pc-input">Your email copy</label>
+          <textarea class="hea-textarea" id="pc-input" placeholder="Paste your email copy here — including subject line, preview text, and body…" rows="10"></textarea>
+          <p class="error-msg" id="pc-error"></p>
+        </div>
+
+        <button class="hea-btn hea-btn--primary" id="pc-btn">Check Personalisation →</button>
+
+        <div class="results" id="pc-results">
+          <hr class="results-divider">
+
+          <p class="results-label">Summary</p>
+          <div id="pc-summary"></div>
+
+          <div id="pc-token-section">
+            <p class="results-label">Token breakdown</p>
+            <div class="pc-token-list" id="pc-token-list"></div>
+          </div>
+
+          <div id="pc-blocks-section">
+            <p class="results-label">Conditional blocks</p>
+            <div id="pc-blocks-status"></div>
+          </div>
+
+          <p class="results-label">Platform guidance</p>
+          <div class="pc-platform-note" id="pc-platform-note"></div>
+
+          <div class="course-cta">
+            <p class="course-cta-kicker">Take it further</p>
+            <p>Want to use personalisation and dynamic content more strategically — not just technically? The <strong>Holistic Email Academy</strong> teaches you how to segment smarter and write copy that converts across every audience slice.</p>
+            <a href="https://holisticemailacademy.com/" class="hea-btn hea-btn--primary" target="_blank" rel="noopener">Explore the Academy →</a>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-brand">
+      <img src="/email-tools/assets/logo-icon-Cl9V7EQO.png" alt="" class="footer-logo">
+      <span class="footer-wordmark">Holistic Email Marketing</span>
+    </div>
+    <span class="footer-tagline">Smarter email starts here.</span>
+  </footer>
+
+
+</body>
+</html>
