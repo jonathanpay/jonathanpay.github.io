@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Emotional Appeal Analyzer — Holistic Email Marketing</title>
+  <meta name="description" content="Detect the emotional triggers in your email copy — Fear, Hope, Curiosity, Pride, Trust, and Belonging — with guidance on when each appeal works best. No sign-up needed.">
+  <link rel="icon" href="/favicon.ico">
+  <style>
+    body { background: var(--hea-bg-alt); }
+
+    /* ---- Short-copy warning ---- */
+    .short-copy-warn {
+      display: none;
+      background: rgba(232,165,60,0.12);
+      border: 1px solid rgba(232,165,60,0.35);
+      border-radius: var(--hea-r-md);
+      padding: var(--hea-s-3) var(--hea-s-4);
+      font-size: var(--hea-text-sm);
+      color: #7A4E00;
+      margin-bottom: var(--hea-s-5);
+    }
+    .short-copy-warn.visible { display: block; }
+
+    /* ---- Dominant badge ---- */
+    .dominant-wrap {
+      text-align: center;
+      padding: var(--hea-s-5) var(--hea-s-5) var(--hea-s-4);
+    }
+    .dominant-label {
+      font-size: var(--hea-text-xs);
+      font-weight: var(--hea-w-bold);
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--hea-fg-3);
+      margin: 0 0 var(--hea-s-3);
+    }
+    .dominant-badge {
+      display: inline-block;
+      color: #fff;
+      font-size: var(--hea-text-base);
+      font-weight: var(--hea-w-semibold);
+      padding: var(--hea-s-2) var(--hea-s-5);
+      border-radius: 999px;
+      background: var(--hea-fg-3);
+      transition: background 0.3s var(--hea-ease);
+    }
+    .dominant-note {
+      font-size: var(--hea-text-sm);
+      color: var(--hea-fg-3);
+      font-style: italic;
+      margin: var(--hea-s-3) 0 0;
+    }
+
+    /* ---- Appeal bars ---- */
+    .appeal-bars {
+      display: flex;
+      flex-direction: column;
+      gap: var(--hea-s-3);
+      margin-bottom: var(--hea-s-5);
+    }
+    .appeal-row {
+      display: grid;
+      grid-template-columns: 100px 1fr 36px;
+      align-items: center;
+      gap: var(--hea-s-3);
+    }
+    .appeal-name {
+      font-size: var(--hea-text-sm);
+      font-weight: var(--hea-w-semibold);
+      color: var(--hea-fg-1);
+      transition: color 0.3s var(--hea-ease);
+    }
+    .appeal-bar-track {
+      height: 8px;
+      background: var(--hea-divider);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .appeal-bar-fill {
+      height: 100%;
+      border-radius: 4px;
+      width: 0;
+      opacity: 0.35;
+      transition: width 0.6s var(--hea-ease);
+    }
+    .appeal-row.is-dominant .appeal-bar-fill { opacity: 1; }
+    .appeal-pct {
+      font-size: var(--hea-text-xs);
+      font-weight: var(--hea-w-semibold);
+      color: var(--hea-fg-3);
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+      transition: color 0.3s var(--hea-ease);
+    }
+
+    /* ---- Appeal tip cards ---- */
+    .appeal-tips {
+      display: flex;
+      flex-direction: column;
+      gap: var(--hea-s-3);
+      margin-top: var(--hea-s-5);
+    }
+    .appeal-tip-card {
+      background: var(--hea-bg-warm);
+      border-radius: var(--hea-r-md);
+      border-left: 3px solid transparent;
+      padding: var(--hea-s-4) var(--hea-s-5);
+    }
+    .appeal-tip-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: var(--hea-s-3);
+    }
+    .appeal-tip-name {
+      font-size: var(--hea-text-sm);
+      font-weight: var(--hea-w-bold);
+      flex-shrink: 0;
+      margin-right: var(--hea-s-3);
+    }
+    .appeal-tip-tag {
+      font-size: var(--hea-text-xs);
+      color: var(--hea-fg-3);
+      font-style: italic;
+      text-align: right;
+    }
+    .appeal-tip-desc {
+      font-size: var(--hea-text-sm);
+      color: var(--hea-fg-2);
+      line-height: var(--hea-lh-normal);
+      margin: 0 0 var(--hea-s-3);
+    }
+    .appeal-tip-phrases {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--hea-s-2);
+    }
+    .phrase-chip {
+      font-size: var(--hea-text-xs);
+      border-radius: 999px;
+      padding: 2px var(--hea-s-3);
+      font-weight: var(--hea-w-semibold);
+    }
+
+    /* ---- Course CTA ---- */
+    .course-cta {
+      margin-top: var(--hea-s-6);
+      background: rgba(33,191,61,0.07);
+      border: 1px solid rgba(33,191,61,0.25);
+      border-radius: var(--hea-r-md);
+      padding: var(--hea-s-5) var(--hea-s-6);
+    }
+    .course-cta-kicker {
+      font-size: var(--hea-text-xs);
+      font-weight: var(--hea-w-bold);
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: #138C28;
+      margin: 0 0 var(--hea-s-2);
+    }
+    .course-cta p {
+      font-size: var(--hea-text-sm);
+      color: var(--hea-fg-2);
+      line-height: var(--hea-lh-normal);
+      margin: 0 0 var(--hea-s-4);
+    }
+    .course-cta a.hea-btn { display: inline-block; }
+  </style>
+  <script type="module" crossorigin src="/email-tools/assets/emotionalAppeal-BYLLcC8B.js"></script>
+  <link rel="modulepreload" crossorigin href="/email-tools/assets/utils-jnLFB3bE.js">
+  <link rel="stylesheet" crossorigin href="/email-tools/assets/utils-M5Ds6giI.css">
+  <link rel="stylesheet" crossorigin href="/email-tools/assets/style-CxLNB_9V.css">
+</head>
+<body class="hea">
+
+  <header class="site-header">
+    <a href="index.html" class="brand-lockup">
+      <img src="/email-tools/assets/logo-icon-Cl9V7EQO.png" alt="" class="brand-logo">
+      <span class="brand-name">Holistic Email Marketing<em>Free optimisation tools</em></span>
+    </a>
+    <a href="index.html" class="back-link">← All Tools</a>
+  </header>
+
+  <main>
+    <div class="tool-page">
+
+      <header class="tool-header">
+        <span class="hea-pill hea-pill--foundation">● Foundation</span>
+        <h1>Emotional Appeal Analyzer</h1>
+        <p class="lead">Paste your email copy to see which emotional triggers it uses — Fear, Hope, Curiosity, Pride, Trust, or Belonging — and learn when each appeal works best.</p>
+      </header>
+
+      <div class="tool-card">
+        <div class="field-group">
+          <label class="field-label" for="appeal-input">Your email copy</label>
+          <textarea class="hea-textarea" id="appeal-input" placeholder="Paste your email copy here…" rows="8"></textarea>
+          <p class="error-msg" id="appeal-error">Please paste some email copy before analysing.</p>
+        </div>
+        <button class="hea-btn hea-btn--primary" id="appeal-btn">Analyse Appeals →</button>
+
+        <div class="results" id="appeal-results">
+          <hr class="results-divider">
+
+          <p class="short-copy-warn" id="short-warn">For a reliable result, paste at least a full paragraph. Short samples may skew the scores.</p>
+
+          <div class="dominant-wrap">
+            <p class="dominant-label">Dominant appeal</p>
+            <span class="dominant-badge" id="dominant-badge">—</span>
+            <p class="dominant-note" id="dominant-note"></p>
+          </div>
+
+          <p class="results-label" style="margin-top:var(--hea-s-2)">Appeal breakdown</p>
+          <div class="appeal-bars" id="appeal-bars"></div>
+
+          <hr class="results-divider">
+          <p class="results-label">When each appeal works — and when to watch out</p>
+          <div class="appeal-tips" id="appeal-tips"></div>
+
+          <div class="course-cta">
+            <p class="course-cta-kicker">Coming soon</p>
+            <p>The <strong>Foundation Psychology for Email</strong> course goes deep on all six appeals — when to use them, how to layer them, and how to avoid the patterns that quietly damage reader trust. Join the waitlist and be first in line when it launches.</p>
+            <a href="https://holisticemailacademy.com/courses/foundation-psychology-for-email/" class="hea-btn hea-btn--primary" target="_blank" rel="noopener">Join the waitlist →</a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-brand">
+      <img src="/email-tools/assets/logo-icon-Cl9V7EQO.png" alt="" class="footer-logo">
+      <span class="footer-wordmark">Holistic Email Marketing</span>
+    </div>
+    <span class="footer-tagline">Smarter email starts here.</span>
+  </footer>
+
+</body>
+</html>

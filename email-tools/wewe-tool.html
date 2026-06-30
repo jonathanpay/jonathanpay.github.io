@@ -3,11 +3,9 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>We-We Calculator — Holistic Email Marketing</title>
   <meta name="description" content="Check if your email copy talks about you or to your reader. Count brand-focused vs. customer-focused pronouns instantly — no sign-up needed.">
-  <title>We-We Calculator — Jonathan Pay</title>
   <link rel="icon" href="/favicon.ico">
-  <link rel="stylesheet" href="style.css">
-  <link rel="stylesheet" href="tool-page.css">
   <style>
     body { background: var(--hea-bg-alt); }
 
@@ -58,11 +56,11 @@
     .tip-box {
       display: none;
       margin-top: var(--hea-s-5);
-      background: rgba(223,184,31,0.12);
+      background: #F4E9F9;
       border-radius: var(--hea-r-md);
       padding: var(--hea-s-4) var(--hea-s-5);
       font-size: var(--hea-text-sm);
-      color: #8b7417;
+      color: #7A2E96;
       gap: var(--hea-s-3);
       align-items: flex-start;
       line-height: var(--hea-lh-normal);
@@ -86,27 +84,51 @@
       font-weight: var(--hea-w-semibold);
     }
 
+    /* ---- Consulting CTA ---- */
+    .consulting-cta {
+      margin-top: var(--hea-s-5);
+      background: var(--hea-bg-warm);
+      border: 1px solid rgba(58,21,74,0.15);
+      border-radius: var(--hea-r-md);
+      padding: var(--hea-s-5) var(--hea-s-6);
+    }
+    .consulting-cta-kicker {
+      font-size: var(--hea-text-xs);
+      font-weight: var(--hea-w-bold);
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--hea-plum);
+      margin: 0 0 var(--hea-s-2);
+    }
+    .consulting-cta p {
+      font-size: var(--hea-text-sm);
+      color: var(--hea-fg-2);
+      line-height: var(--hea-lh-normal);
+      margin: 0 0 var(--hea-s-4);
+    }
+    .consulting-cta a { display: inline-block; }
+
     @media (max-width: 480px) {
       .score-pair { grid-template-columns: 1fr; }
     }
   </style>
+  <script type="module" crossorigin src="/email-tools/assets/wewe-Dq6bjncV.js"></script>
+  <link rel="modulepreload" crossorigin href="/email-tools/assets/utils-jnLFB3bE.js">
+  <link rel="stylesheet" crossorigin href="/email-tools/assets/utils-M5Ds6giI.css">
+  <link rel="stylesheet" crossorigin href="/email-tools/assets/style-CxLNB_9V.css">
 </head>
 <body class="hea">
 
-    <header class="site-header">
-    <a href="/" class="site-name">Jonathan Pay</a>
-    <nav>
-      <a href="/email-tools/" class="nav-active">Email Tools</a>
-      <a href="https://jonathanpay.com/blog/">Blog</a>
-      <a href="https://jonathanpay.com/holistic-email-marketing/">HEM</a>
-      <a href="https://holisticemailacademy.com">HEA</a>
-    </nav>
+  <header class="site-header">
+    <a href="index.html" class="brand-lockup">
+      <img src="/email-tools/assets/logo-icon-Cl9V7EQO.png" alt="" class="brand-logo">
+      <span class="brand-name">Holistic Email Marketing<em>Free optimisation tools</em></span>
+    </a>
+    <a href="index.html" class="back-link">← All Tools</a>
   </header>
 
   <main>
     <div class="tool-page">
-
-      <a href="/email-tools/" class="tool-back">← All tools</a>
 
       <header class="tool-header">
         <span class="hea-pill hea-pill--foundation">● Foundation</span>
@@ -153,58 +175,24 @@
             <span style="flex-shrink:0;font-weight:600">Tip</span>
             <span>Your copy is heavily brand-focused. Try replacing "we", "us", and "our" with "you" and "your" to put your reader at the centre of the message.</span>
           </div>
+          <div class="consulting-cta" id="wewe-consulting-cta" style="display:none">
+            <p class="consulting-cta-kicker">Get expert help</p>
+            <p>A brand score above 75% often points to a structural messaging problem — not just a pronoun count. If you see this pattern consistently across your emails, our consulting service can help you audit your messaging framework and reframe your copy around your reader.</p>
+            <a href="https://holisticemail.com/contact/" class="hea-btn hea-btn--ghost" target="_blank" rel="noopener">Talk to us →</a>
+          </div>
         </div>
       </div>
 
     </div>
   </main>
 
-    <footer class="site-footer">
-    <p>&copy; Jonathan Pay 2025 &nbsp;&middot;&nbsp; <a href="/email-tools/">Email Tools</a></p>
+  <footer class="site-footer">
+    <div class="footer-brand">
+      <img src="/email-tools/assets/logo-icon-Cl9V7EQO.png" alt="" class="footer-logo">
+      <span class="footer-wordmark">Holistic Email Marketing</span>
+    </div>
+    <span class="footer-tagline">Smarter email starts here.</span>
   </footer>
-
-  <script>
-    function analyse() {
-      const text = document.getElementById('wewe-input').value.trim();
-      const errorEl = document.getElementById('wewe-error');
-      const resultsEl = document.getElementById('wewe-results');
-
-      if (!text) {
-        errorEl.classList.add('visible');
-        resultsEl.classList.remove('visible');
-        return;
-      }
-      errorEl.classList.remove('visible');
-
-      const words = text.toLowerCase().match(/\b(\w+)\b/g) || [];
-      let brand = 0, customer = 0;
-      words.forEach(w => {
-        if ('we us our my i me'.split(' ').includes(w)) brand++;
-        else if ('you your'.split(' ').includes(w)) customer++;
-      });
-
-      const total = brand + customer;
-      const brandPct = total > 0 ? Math.round(brand / total * 100) : 0;
-      const customerPct = total > 0 ? Math.round(customer / total * 100) : 0;
-
-      document.getElementById('brand-pct').textContent = brandPct + '%';
-      document.getElementById('customer-pct').textContent = customerPct + '%';
-      resultsEl.classList.add('visible');
-
-      requestAnimationFrame(() => requestAnimationFrame(() => {
-        document.getElementById('brand-bar').style.width = brandPct + '%';
-        document.getElementById('customer-bar').style.width = customerPct + '%';
-      }));
-
-      const tip = document.getElementById('wewe-tip');
-      brandPct > 60 ? tip.classList.add('visible') : tip.classList.remove('visible');
-    }
-
-    document.getElementById('wewe-btn').addEventListener('click', analyse);
-    document.getElementById('wewe-input').addEventListener('keydown', e => {
-      if (e.key === 'Enter' && e.ctrlKey) analyse();
-    });
-  </script>
 
 </body>
 </html>
