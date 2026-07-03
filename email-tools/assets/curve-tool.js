@@ -1,22 +1,11 @@
 import { g as byId, a as animateBars, c as countHits } from "./utils-jnLFB3bE.js";
+import { EMOTIONAL_APPEALS } from "./appeal-keywords.js";
 
-// Reused verbatim from the Emotional Appeal Analyzer's keyword dictionary
-// (curiosity + the 5 non-curiosity appeals), so Emotion/Curiosity scoring
-// here stays consistent with that live tool rather than re-deriving it.
-const CURIOSITY_WORDS = ["discover","reveal","secret","hidden","surprising","what if","wonder","find out","uncover","inside","behind the scenes","little-known","curious","mystery","the truth","rarely","most people","you won't believe","unknown","unexpected","intriguing","why do","how is it","have you ever","bet you didn't","untold","overlooked"];
-
-const EMOTION_WORDS = [
-  // fear
-  "miss out","lose","risk","threat","falling behind","left behind","too late","regret","mistake","costly","fail","before it's gone","running out","expire","last chance","warning","penalty","danger","worried","at risk","missed","losing","afraid","fear","urgent","hurry","deadline",
-  // hope
-  "imagine","dream","transform","achieve","breakthrough","finally","unlock","inspire","thrive","flourish","aspire","new chapter","picture this","believe",
-  // pride
-  "exclusive","members only","elite","award","recognition","accomplished","premium","selected","chosen","invite only","vip","expert","authority","prestige","status","best-in-class","industry leader","top performer",
-  // trust
-  "proven","trusted","guarantee","certified","accredited","evidence","testimonial","review","established","verified","secure","reliable","backed by","transparent","authentic","track record","results",
-  // belonging
-  "together","community","join","members","family","team","people like you","shared","movement","insider","part of","fellow","belong","tribe"
-];
+// Curiosity and Emotion both draw on the Emotional Appeal Analyzer's shared
+// keyword dictionary — Curiosity uses that category's own list, Emotion uses
+// the other 5 (fear/hope/pride/trust/belonging) so curiosity isn't double-counted.
+const CURIOSITY_WORDS = EMOTIONAL_APPEALS.find((cat) => cat.id === "curiosity").keywords;
+const EMOTION_WORDS = EMOTIONAL_APPEALS.filter((cat) => cat.id !== "curiosity").flatMap((cat) => cat.keywords);
 
 const URGENCY_WORDS = ["now","today","hurry","deadline","limited time","last chance","ends","ending","final hours","don't wait","act now","before it's gone","running out","expires","expiring","tonight","closing soon","final call","almost gone","this week only"];
 const URGENCY_PATTERN = /\b\d+\s?(hours?|days?|minutes?)\s?(left|remaining)\b/i;

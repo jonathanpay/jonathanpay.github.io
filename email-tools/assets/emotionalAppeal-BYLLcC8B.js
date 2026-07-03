@@ -1,18 +1,76 @@
-import{g as t,a as v,c as w}from"./utils-jnLFB3bE.js";/* empty css              */const k=[{id:"fear",name:"Fear",color:"#B91C1C",tint:"rgba(185,28,28,0.1)",desc:"Loss aversion, risk of inaction, consequence of delay.",note:"High-converting for one-off promotions and re-engagement — but overuse in nurture sequences erodes trust over time. Best paired with a genuine solution, not just a threat.",phrases:[`"Don't let this happen to you"`,'"The cost of waiting"',`"Before it's too late"`,`"You're leaving money on the table"`,'"Most people miss this"'],keywords:["miss out","lose","risk","threat","falling behind","left behind","too late","regret","mistake","costly","fail","before it's gone","running out","expire","last chance","warning","without","penalty","danger","worried","concerned","at risk","behind","missed","losing","lost","afraid","fear","scary","urgent","hurry","deadline","ending"]},{id:"hope",name:"Hope",color:"#166534",tint:"rgba(22,101,52,0.1)",desc:"Aspiration, positive transformation, a better version of the future.",note:"The most sustainable long-term appeal. Works across all email types — onboarding, nurture, and educational content especially — because it motivates without pressure.",phrases:['"Imagine waking up to..."','"Finally, a way to..."','"This changes everything"','"Your next chapter starts here"',`"Picture where you'll be in 90 days"`],keywords:["imagine","dream","future","transform","change","achieve","better","improve","grow","success","possibility","opportunity","potential","breakthrough","finally","unlock","reach","vision","inspire","hope","thrive","flourish","build","create","aspire","look forward","new chapter","picture this","one day","could be","what if you","believe"]},{id:"curiosity",name:"Curiosity",color:"#5B21B6",tint:"rgba(91,33,182,0.1)",desc:"Intrigue, mystery, the desire to know something not yet revealed.",note:"Powerful for subject lines and opening hooks — but the body copy must deliver on the promise. Unfulfilled curiosity frustrates readers and hurts open rates on future sends.",phrases:[`"Here's what most marketers never notice..."`,'"The surprising reason your emails underperform"',`"Most people don't know this"`,'"We rarely talk about this"',`"Find out what's really happening"`],keywords:["discover","reveal","secret","hidden","surprising","what if","wonder","find out","uncover","inside","behind the scenes","little-known","curious","mystery","the truth","rarely","most people","you won't believe","unknown","unexpected","intriguing","why do","how is it","have you ever","bet you didn't","rarely discussed","untold","overlooked","uncover"]},{id:"pride",name:"Pride",color:"#92400E",tint:"rgba(146,64,14,0.1)",desc:"Status, achievement, recognition, and the desire to be seen as exceptional.",note:"Effective for exclusive offers, loyalty programmes, and professional development emails. Use carefully with Humanistic audiences — status appeals can feel at odds with community values.",phrases:['"For those who refuse to settle"',`"You've been selected"`,'"Join our most successful members"','"This is for the top 10%"','"Recognised industry leaders use this"'],keywords:["exclusive","members only","elite","award","recognition","achievement","accomplished","proud","premium","selected","chosen","invite only","vip","expert","authority","distinguished","renowned","prestige","status","best-in-class","industry leader","world-class","gold standard","top performer","high achiever","leading","ahead of","above average","superior"]},{id:"trust",name:"Trust",color:"#1E40AF",tint:"rgba(30,64,175,0.1)",desc:"Safety, reliability, credentials, and the reassurance that the risk is low.",note:"Essential in every email to some degree, but especially critical early in the relationship — welcome sequences, transactional emails, and high-stakes offers all need a strong trust foundation.",phrases:['"Trusted by 10,000+ marketers"','"Backed by independent research"','"30-day guarantee, no questions asked"',`"Here's exactly how it works"`,'"Read what our members say"'],keywords:["proven","trusted","guarantee","certified","accredited","research","study","data","evidence","testimonial","review","established","verified","secure","safe","reliable","backed by","endorsed","transparent","honest","authentic","track record","no risk","results","thousands","years of","industry-recognised","independently","tested","validated"]},{id:"belonging",name:"Belonging",color:"#9D174D",tint:"rgba(157,23,77,0.1)",desc:"Community, shared identity, and the feeling of being part of something larger.",note:"Builds long-term brand loyalty more reliably than any other appeal. Particularly powerful for subscription products, community-led brands, and re-engagement campaigns where readers have gone quiet.",phrases:['"Join 8,000 marketers doing this differently"',`"You're not alone in this"`,'"This is a community, not just a course"','"People like you are already inside"',`"We're building something together"`],keywords:["together","community","join","members","family","team","people like you","others like you","you're not alone","shared","collective","movement","group","network","insider","part of","we all","everyone","like-minded","peers","fellow","belong","in this together","our community","thousands of","millions of","growing group","tribe"]}];function x(s){const l=s.toLowerCase();return k.map(i=>({...i,count:w(l,i.keywords)}))}function g(){const s=t("appeal-input").value.trim(),l=t("appeal-error"),i=t("appeal-results"),y=t("short-warn");if(!s){l.classList.add("visible"),i.classList.remove("visible");return}l.classList.remove("visible");const f=s.split(/\s+/).filter(Boolean).length;y.classList.toggle("visible",f<30);const d=x(s),a=d.reduce((e,r)=>e+r.count,0),u=[...d].sort((e,r)=>r.count-e.count),o=u[0],p=u[1],n=t("dominant-badge"),c=t("dominant-note");a===0?(n.textContent="Mixed / Neutral",n.style.background="#897680",c.textContent="No clear emotional triggers detected. Even subtle changes in word choice can shift the emotional register significantly."):o.count>0&&p.count>0&&(o.count-p.count)/a<.08?(n.textContent=`${o.name} & ${p.name}`,n.style.background=o.color,c.textContent="Two appeals are registering at similar strength. Scroll down to check whether that combination is intentional."):o.count/a<.3?(n.textContent="Mixed / Neutral",n.style.background="#897680",c.textContent="No single appeal dominates. Spreading emotional signals too evenly can dilute impact — consider which trigger best fits your goal for this email."):(n.textContent=o.name,n.style.background=o.color,c.textContent=o.note);const m=t("appeal-bars");m.innerHTML=d.map(e=>{const r=a>0?Math.round(e.count/a*100):0,h=e.id===o.id&&a>0;return`<div class="appeal-row${h?" is-dominant":""}">
-      <span class="appeal-name" style="${h?`color:${e.color}`:""}">${e.name}</span>
+import { g as byId, a as animateBars } from "./utils-jnLFB3bE.js";
+import { EMOTIONAL_APPEALS } from "./appeal-keywords.js";
+import { scoreCategories } from "./dominance-scorer.js";
+
+function analyse() {
+  const text = byId("appeal-input").value.trim();
+  const errorEl = byId("appeal-error");
+  const resultsEl = byId("appeal-results");
+  const shortWarn = byId("short-warn");
+
+  if (!text) {
+    errorEl.classList.add("visible");
+    resultsEl.classList.remove("visible");
+    return;
+  }
+  errorEl.classList.remove("visible");
+
+  const wordCount = text.split(/\s+/).filter(Boolean).length;
+  shortWarn.classList.toggle("visible", wordCount < 30);
+
+  const { scored, ranked, total, verdict, dominant, runnerUp } = scoreCategories(text, EMOTIONAL_APPEALS);
+  const topCategory = total > 0 ? ranked[0] : null;
+
+  const badge = byId("dominant-badge");
+  const note = byId("dominant-note");
+  if (verdict === "mixed") {
+    badge.textContent = "Mixed / Neutral";
+    badge.style.background = "#897680";
+    note.textContent = total === 0
+      ? "No clear emotional triggers detected. Even subtle changes in word choice can shift the emotional register significantly."
+      : "No single appeal dominates. Spreading emotional signals too evenly can dilute impact — consider which trigger best fits your goal for this email.";
+  } else if (verdict === "tie") {
+    badge.textContent = `${dominant.name} & ${runnerUp.name}`;
+    badge.style.background = dominant.color;
+    note.textContent = "Two appeals are registering at similar strength. Scroll down to check whether that combination is intentional.";
+  } else {
+    badge.textContent = dominant.name;
+    badge.style.background = dominant.color;
+    note.textContent = dominant.note;
+  }
+
+  const barsEl = byId("appeal-bars");
+  barsEl.innerHTML = scored.map((cat) => {
+    const pct = total > 0 ? Math.round((cat.count / total) * 100) : 0;
+    const isTop = topCategory && cat.id === topCategory.id;
+    return `<div class="appeal-row${isTop ? " is-dominant" : ""}">
+      <span class="appeal-name" style="${isTop ? `color:${cat.color}` : ""}">${cat.name}</span>
       <div class="appeal-bar-track">
-        <div class="appeal-bar-fill" data-pct="${r}" style="background:${e.color}"></div>
+        <div class="appeal-bar-fill" data-pct="${pct}" style="background:${cat.color}"></div>
       </div>
-      <span class="appeal-pct" style="${h?`color:${e.color}`:""}">${r}%</span>
-    </div>`}).join(""),v(m,".appeal-bar-fill");const b=t("appeal-tips");b.innerHTML=u.map(e=>`
-    <div class="appeal-tip-card" style="border-left-color:${e.color}">
+      <span class="appeal-pct" style="${isTop ? `color:${cat.color}` : ""}">${pct}%</span>
+    </div>`;
+  }).join("");
+  animateBars(barsEl, ".appeal-bar-fill");
+
+  const tipsEl = byId("appeal-tips");
+  tipsEl.innerHTML = ranked.map((cat) => `
+    <div class="appeal-tip-card" style="border-left-color:${cat.color}">
       <div class="appeal-tip-head">
-        <span class="appeal-tip-name" style="color:${e.color}">${e.name}</span>
-        <span class="appeal-tip-tag">${e.desc}</span>
+        <span class="appeal-tip-name" style="color:${cat.color}">${cat.name}</span>
+        <span class="appeal-tip-tag">${cat.desc}</span>
       </div>
-      <p class="appeal-tip-desc">${e.note}</p>
+      <p class="appeal-tip-desc">${cat.note}</p>
       <div class="appeal-tip-phrases">
-        ${e.phrases.map(r=>`<span class="phrase-chip" style="background:${e.tint};color:${e.color}">${r}</span>`).join("")}
+        ${cat.phrases.map((p) => `<span class="phrase-chip" style="background:${cat.tint};color:${cat.color}">${p}</span>`).join("")}
       </div>
     </div>
-  `).join(""),i.classList.add("visible")}t("appeal-btn").addEventListener("click",g);t("appeal-input").addEventListener("keydown",s=>{s.key==="Enter"&&s.ctrlKey&&g()});
+  `).join("");
+
+  resultsEl.classList.add("visible");
+}
+
+byId("appeal-btn").addEventListener("click", analyse);
+byId("appeal-input").addEventListener("keydown", (e) => {
+  if (e.key === "Enter" && e.ctrlKey) analyse();
+});
