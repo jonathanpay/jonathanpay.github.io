@@ -357,7 +357,7 @@ figcaption, .wp-element-caption {
   letter-spacing: 0.02em;
   padding: 12px 22px;
   text-decoration: none;
-  border-radius: var(--radius-1);
+  border-radius: var(--radius-2);
   transition: background-color 150ms ease, color 150ms ease, border-color 150ms ease;
 }
 .jp-hero-btn:hover { text-decoration: none; }
@@ -373,10 +373,14 @@ figcaption, .wp-element-caption {
 }
 .jp-hero-btn--outline {
   background: transparent;
-  color: var(--jp-muted-navy);
-  border: 1px solid var(--jp-mid-navy);
+  color: var(--jp-white);
+  border: 2px solid var(--jp-highlight-gold);
 }
-.jp-hero-btn--outline:hover { color: var(--jp-white); border-color: var(--jp-muted-navy); }
+.jp-hero-btn--outline:hover {
+  background: var(--jp-highlight-gold);
+  color: var(--jp-navy);
+  border-color: var(--jp-highlight-gold);
+}
 
 @media (prefers-reduced-motion: reduce) {
   .jp-hero-cover { transform: none !important; }
