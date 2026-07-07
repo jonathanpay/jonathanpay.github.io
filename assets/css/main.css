@@ -295,6 +295,7 @@ figcaption, .wp-element-caption {
   position: relative;
   overflow: hidden;
   width: 100vw;
+  margin-top: -3.5rem;
   margin-left: calc(50% - 50vw);
   margin-right: calc(50% - 50vw);
   color: var(--jp-white);
@@ -613,6 +614,7 @@ figcaption, .wp-element-caption {
   body { font-size: 17px; }
   .jp-header-inner { padding: 14px 20px; gap: 12px; }
   .jp-hero-inner { padding: 4.5rem 1.25rem 3.5rem; }
+  .jp-hero { margin-top: -2.5rem; }
   .jp-main, .jp-home { padding: 2.5rem 1.25rem 3.5rem; }
   .jp-article-title { font-size: 1.7rem; }
 }
