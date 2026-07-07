@@ -616,7 +616,7 @@ figcaption, .wp-element-caption {
    Blog list & post
    ============================================================ */
 .jp-blog-head { margin-bottom: 2rem; }
-.jp-blog-title { font-family: var(--font-sans); font-style: italic; font-weight: 800; font-size: 2.2rem; line-height: 1.15; margin: 0 0 0.5rem; color: var(--jp-black); }
+.jp-blog-title { font-family: var(--font-sans); font-style: italic; font-weight: 800; font-size: 2.2rem; line-height: 1.15; margin: 0 0 0.5rem; color: var(--jp-navy); }
 .jp-blog-dek { font-size: 1.05rem; color: var(--jp-mid-grey); margin: 0; }
 
 .jp-post-list { list-style: none; padding: 0; margin: 0; }

@@ -2,8 +2,9 @@
 layout: default
 ---
 <div class="jp-blog-head">
-  <h1 class="jp-blog-title">{{ page.category }}</h1>
-  <p class="jp-blog-dek"><a class="jp-back" href="{{ '/blog/' | relative_url }}">&larr; All writing</a></p>
+  <h1 class="jp-blog-title"><span class="jp-section-h-text">{{ page.category }}</span><span class="jp-section-slash"> /</span></h1>
+  {% if page.dek %}<p class="jp-blog-dek">{{ page.dek }}</p>{% endif %}
+  <p class="jp-back-line"><a class="jp-back" href="{{ '/blog/' | relative_url }}">&larr; All writing</a></p>
 </div>
 
 <div class="jp-image-card-grid jp-writing-grid">
