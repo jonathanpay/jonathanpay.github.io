@@ -14,13 +14,40 @@
         <a class="jp-brand" href="{{ '/' | relative_url }}">
           <span class="jp-brand-mark" role="img" aria-label="Jonathan Pay"></span>
         </a>
-        <nav class="jp-nav" aria-label="Primary navigation">
+        <button class="jp-nav-toggle" type="button" aria-expanded="false" aria-controls="primary-nav" aria-label="Toggle menu">
+          <span class="jp-nav-toggle-bar"></span>
+          <span class="jp-nav-toggle-bar"></span>
+          <span class="jp-nav-toggle-bar"></span>
+        </button>
+        <nav class="jp-nav" id="primary-nav" aria-label="Primary navigation">
           <a class="jp-nav-link{% if page.url == '/blog/' %} is-active{% endif %}" href="{{ '/blog/' | relative_url }}">Blog</a>
           <a class="jp-nav-link{% if page.url == '/holistic-email-marketing/' %} is-active{% endif %}" href="{{ '/holistic-email-marketing/' | relative_url }}">Holistic Email Marketing</a>
           <a class="jp-nav-link{% if page.url == '/holistic-email-academy/' %} is-active{% endif %}" href="{{ '/holistic-email-academy/' | relative_url }}">Holistic Email Academy</a>
         </nav>
       </div>
     </header>
+
+    <script>
+      (function () {
+        var toggle = document.querySelector(".jp-nav-toggle");
+        var nav = document.getElementById("primary-nav");
+        if (!toggle || !nav) return;
+
+        toggle.addEventListener("click", function () {
+          var isOpen = nav.classList.toggle("is-open");
+          toggle.classList.toggle("is-open", isOpen);
+          toggle.setAttribute("aria-expanded", isOpen ? "true" : "false");
+        });
+
+        nav.addEventListener("click", function (e) {
+          if (e.target.closest("a")) {
+            nav.classList.remove("is-open");
+            toggle.classList.remove("is-open");
+            toggle.setAttribute("aria-expanded", "false");
+          }
+        });
+      })();
+    </script>
 
     <main class="jp-main">
       {{ content }}

@@ -290,6 +290,31 @@ figcaption, .wp-element-caption {
 .jp-nav-link:hover { text-decoration: underline; }
 .jp-nav-link.is-active { color: var(--jp-white); }
 
+.jp-nav-toggle {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  flex: none;
+}
+.jp-nav-toggle-bar {
+  display: block;
+  width: 100%;
+  height: 2px;
+  background: var(--jp-highlight-gold);
+  border-radius: 1px;
+  transition: transform 150ms ease, opacity 150ms ease;
+}
+.jp-nav-toggle.is-open .jp-nav-toggle-bar:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+.jp-nav-toggle.is-open .jp-nav-toggle-bar:nth-child(2) { opacity: 0; }
+.jp-nav-toggle.is-open .jp-nav-toggle-bar:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
 /* ============================================================
    Hero (cover photo + parallax)
    ============================================================ */
@@ -637,8 +662,23 @@ figcaption, .wp-element-caption {
 
 @media (max-width: 720px) {
   body { font-size: 17px; }
-  .jp-header-inner { padding: 14px 20px; gap: 12px; }
+  .jp-header-inner { position: relative; padding: 14px 20px; gap: 12px; }
   .jp-brand-mark { width: 44px; height: 44px; }
+  .jp-nav-toggle { display: flex; }
+  .jp-nav {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 20px;
+    background: var(--jp-navy);
+    border-bottom: 1px solid var(--jp-mid-navy);
+  }
+  .jp-nav.is-open { display: flex; }
   .jp-hero-inner { padding: 4.5rem 1.25rem 3.5rem; }
   .jp-hero { margin-top: -2.5rem; }
   .jp-main, .jp-home { padding: 2.5rem 1.25rem 3.5rem; }
