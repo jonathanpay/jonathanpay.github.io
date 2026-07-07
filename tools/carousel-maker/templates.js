@@ -39,11 +39,11 @@ const FAMILIES = {
   },
   'hea-clean': {
     brand: 'hea', label: 'HEA — Clean', subtitle: 'Bright + polished',
-    themes: ['purple','cyan','green','deep'],
+    themes: ['purple','cyan','green','purple-dark','cyan-dark','green-dark'],
   },
   'hea-shapes': {
     brand: 'hea', label: 'HEA — Shapes', subtitle: 'Geometric + vibrant',
-    themes: ['purple','cyan','green','deep'],
+    themes: ['purple','cyan','green','purple-dark','cyan-dark','green-dark'],
   },
 };
 
@@ -163,44 +163,64 @@ const THEMES = {
     purple: {
       label:'Purple',
       swatch:'#9E41BF',
-      cls:{} // Default purple accents
+      cls:{} // Default purple on light background
     },
     cyan: {
       label:'Cyan',
       swatch:'#22CEF2',
-      cls:{_all:'cyan'}
+      cls:{_all:'cyan'} // Cyan on light background
     },
     green: {
       label:'Green',
       swatch:'#21BF3D',
-      cls:{_all:'green'}
+      cls:{_all:'green'} // Green on light background
     },
-    deep: {
-      label:'Deep',
-      swatch:'#1a1a2e',
-      cls:{_all:'dark'} // Dark theme for HEA Clean
+    'purple-dark': {
+      label:'Purple Dark',
+      swatch:'#9E41BF',
+      cls:{_all:'hec-purple-dark'} // Purple accents on dark background
+    },
+    'cyan-dark': {
+      label:'Cyan Dark',
+      swatch:'#22CEF2',
+      cls:{_all:'hec-cyan-dark'} // Cyan on dark background
+    },
+    'green-dark': {
+      label:'Green Dark',
+      swatch:'#21BF3D',
+      cls:{_all:'hec-green-dark'} // Green on dark background
     },
   },
   'hea-shapes': {
     purple: {
       label:'Purple',
       swatch:'#9E41BF',
-      cls:{} // Default purple
+      cls:{} // Default purple on light background
     },
     cyan: {
       label:'Cyan',
       swatch:'#22CEF2',
-      cls:{_all:'cyan'}
+      cls:{_all:'cyan'} // Cyan on light background
     },
     green: {
       label:'Green',
       swatch:'#21BF3D',
-      cls:{_all:'green'}
+      cls:{_all:'green'} // Green on light background
     },
-    deep: {
-      label:'Deep',
-      swatch:'#1a1a2e',
-      cls:{_all:'dark'} // Dark theme for HEA Shapes
+    'purple-dark': {
+      label:'Purple Dark',
+      swatch:'#9E41BF',
+      cls:{_all:'hes-purple-dark'} // Purple on dark background
+    },
+    'cyan-dark': {
+      label:'Cyan Dark',
+      swatch:'#22CEF2',
+      cls:{_all:'hes-cyan-dark'} // Cyan on dark background
+    },
+    'green-dark': {
+      label:'Green Dark',
+      swatch:'#21BF3D',
+      cls:{_all:'hes-green-dark'} // Green on dark background
     },
   },
 };

@@ -303,6 +303,10 @@
 .hec.cyan{ --purple: #0a9abf; --purple-soft: #E6F9FD; --purple-mid: #5cc7e0; }
 .hec.green{ --purple: #17a032; --purple-soft: #E8F8EC; --purple-mid: #6dc97f; }
 .hec.dark{ --bg: #3D2A35; --ink: #ffffff; --ink-soft: rgba(255,255,255,0.78); --rule: rgba(255,255,255,0.12); --purple-soft: rgba(255,255,255,0.08); }
+/* Dark background themes for HEA Clean */
+.hec.hec-purple-dark{ --bg: #3D2A35; --ink: #ffffff; --ink-soft: rgba(255,255,255,0.78); --rule: rgba(255,255,255,0.12); --purple: #9E41BF; --purple-soft: rgba(158,65,191,0.15); --purple-mid: #c270e3; }
+.hec.hec-cyan-dark{ --bg: #3D2A35; --ink: #ffffff; --ink-soft: rgba(255,255,255,0.78); --rule: rgba(255,255,255,0.12); --purple: #22CEF2; --purple-soft: rgba(34,206,242,0.15); --purple-mid: #5ce8ff; }
+.hec.hec-green-dark{ --bg: #3D2A35; --ink: #ffffff; --ink-soft: rgba(255,255,255,0.78); --rule: rgba(255,255,255,0.12); --purple: #21BF3D; --purple-soft: rgba(33,191,61,0.15); --purple-mid: #5fde77; }
 
 .hec-pill{ display: inline-flex; align-items: center; gap: 6px; border: 1.5px solid var(--purple); color: var(--purple); font-size: 10px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; padding: 6px 14px; border-radius: 24px; align-self: flex-start; }
 .hec-pill.solid{ background: var(--purple); color: #fff; border-color: var(--purple); }
@@ -440,6 +444,10 @@
 .hes.green{ --shape: #21BF3D; --shape-2: #5fd676; }
 .hes.purple-bg{ --bg: #4a1f5c; --shape: #c270e3; --shape-2: #ffffff; }
 .hes.dark{ --bg: #1a1a2e; --shape: #9E41BF; --shape-2: #d88aff; }
+/* Dark background themes for HEA Shapes */
+.hes.hes-purple-dark{ --bg: #3D2A35; --shape: #9E41BF; --shape-2: #d88aff; }
+.hes.hes-cyan-dark{ --bg: #3D2A35; --shape: #22CEF2; --shape-2: #6ce0f5; }
+.hes.hes-green-dark{ --bg: #3D2A35; --shape: #21BF3D; --shape-2: #5fd676; }
 
 .hes-shape{ position: absolute !important; pointer-events: none; }
 .hes-shape.top-arc{ top: -160px; left: 50%; transform: translateX(-50%); width: 320px; height: 320px; border-radius: 50%; background: var(--shape); }
