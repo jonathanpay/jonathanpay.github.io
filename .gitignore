@@ -1,9 +1,6 @@
 .DS_Store
-<<<<<<< Updated upstream
-=======
 _site/
 .jekyll-cache/
 .sass-cache/
 .bundle/
 vendor/
->>>>>>> Stashed changes

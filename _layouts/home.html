@@ -1,0 +1,55 @@
+---
+layout: default
+---
+<section class="home-hero">
+  <div class="home-hero-bg" data-parallax></div>
+  <div class="home-hero-overlay"></div>
+  <div class="home-hero-content">
+    <h1>The world's first <em>second-generation</em> email marketer.</h1>
+    <p>
+      Email strategist, educator, and maker. Co-founder of Holistic Email
+      Academy. Based in Weston-super-Mare.
+    </p>
+    <div class="home-hero-links">
+      <a href="{{ '/blog/' | relative_url }}" class="button">Read the blog</a>
+      <a href="mailto:{{ site.author.email }}" class="button button-outline"
+        >Get in touch</a
+      >
+    </div>
+  </div>
+</section>
+
+<article class="page-content">
+  {{ content }}
+</article>
+
+<script>
+  (function () {
+    var bg = document.querySelector("[data-parallax]");
+    var reduceMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)"
+    ).matches;
+    if (!bg || reduceMotion) return;
+
+    var ticking = false;
+
+    function update() {
+      var offset = window.scrollY * 0.35;
+      bg.style.transform = "translate3d(0, " + offset + "px, 0)";
+      ticking = false;
+    }
+
+    window.addEventListener(
+      "scroll",
+      function () {
+        if (!ticking) {
+          window.requestAnimationFrame(update);
+          ticking = true;
+        }
+      },
+      { passive: true }
+    );
+
+    update();
+  })();
+</script>

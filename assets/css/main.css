@@ -257,6 +257,93 @@ figcaption, .wp-element-caption {
 
 .site-footer p { margin: 0; }
 
+/* ── Home hero ── */
+.home-hero {
+  position: relative;
+  overflow: hidden;
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+  margin-right: calc(50% - 50vw);
+  padding: 6rem 2rem 5rem;
+  text-align: center;
+  color: #fff;
+}
+
+.home-hero-bg {
+  position: absolute;
+  inset: -15% 0;
+  background-image: url("/img/21147985_354293961679777_3699025224876949504_n.jpeg");
+  background-size: cover;
+  background-position: center;
+  will-change: transform;
+}
+
+.home-hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(44, 62, 80, 0.75) 0%,
+    rgba(44, 62, 80, 0.55) 60%,
+    rgba(44, 62, 80, 0.75) 100%
+  );
+}
+
+.home-hero-content {
+  position: relative;
+  z-index: 1;
+  max-width: 36rem;
+  margin: 0 auto;
+}
+
+.home-hero-content h1 {
+  color: #fff;
+  font-size: clamp(1.9rem, 5vw, 3rem);
+  margin: 0 0 1.1rem;
+}
+
+.home-hero-content h1 em {
+  color: #dfb81f;
+  font-style: italic;
+}
+
+.home-hero-content p {
+  color: rgba(255, 255, 255, 0.82);
+  margin: 0 0 1.8rem;
+  font-size: 1.05rem;
+}
+
+.home-hero-links {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.home-hero-links .button-outline {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  color: #fff;
+}
+
+.home-hero-links .button-outline:hover,
+.home-hero-links .button-outline:focus {
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-hero-bg {
+    transform: none !important;
+  }
+}
+
+@media (max-width: 720px) {
+  .home-hero {
+    padding: 4.5rem 1.25rem 3.5rem;
+  }
+}
+
 @media (max-width: 720px) {
   body { font-size: 17px; }
   .site-header { align-items: flex-start; flex-direction: column; }
