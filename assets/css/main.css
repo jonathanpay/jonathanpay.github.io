@@ -530,7 +530,7 @@ figcaption, .wp-element-caption {
   flex-wrap: wrap;
   padding: 1.6rem 1.75rem;
   border: 1px solid var(--jp-light-grey);
-  border-left: 3px solid var(--jp-highlight-gold);
+  border-radius: var(--radius-2);
 }
 .jp-talk-body p { font-size: 1rem; line-height: 1.55; color: var(--jp-black); margin: 0; max-width: 56ch; }
 
