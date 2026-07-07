@@ -4,6 +4,8 @@
 # TEAM
 
     Jonathan Pay -- creator -- @jonathanpay
+    
+    Many thanks to Tom Gillett -- @tomgillett who hosted my original site so many years ago and has been a model coder and developer I've looked to for so many years.
 
 # TECHNOLOGY COLOPHON
 
