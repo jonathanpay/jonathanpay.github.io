@@ -461,6 +461,7 @@ figcaption, .wp-element-caption {
 .jp-project-card {
   display: flex;
   flex-direction: column;
+  justify-content: flex-end;
   height: 17.5rem;
   border: 1px solid var(--jp-light-grey);
   border-radius: var(--radius-2);
