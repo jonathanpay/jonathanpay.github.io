@@ -4,7 +4,15 @@ layout: default
 <article class="jp-article">
   <a class="jp-back" href="{{ '/blog/' | relative_url }}">&larr; Back to blog</a>
   <header>
-    <p class="jp-meta">{{ page.date | date: "%-d %B %Y" }}{% if page.categories and page.categories != empty %}<span class="jp-meta-dot">·</span>{{ page.categories | join: ", " }}{% endif %}</p>
+    <p class="jp-meta">
+      {{ page.date | date: "%-d %B %Y" }}
+      {% if page.categories and page.categories != empty %}
+        <span class="jp-meta-dot">·</span>
+        {% for cat in page.categories %}
+          <a class="jp-meta-cat" href="{{ '/category/' | append: cat | append: '/' | downcase | relative_url }}">{{ cat }}</a>{% unless forloop.last %}, {% endunless %}
+        {% endfor %}
+      {% endif %}
+    </p>
     <h1 class="jp-article-title">{{ page.title }}</h1>
   </header>
   {% if page.image %}
@@ -13,11 +21,4 @@ layout: default
   <div class="jp-article-body">
     {{ content }}
   </div>
-  {% if page.tags and page.tags != empty %}
-    <footer class="post-tags">
-      {% for tag in page.tags %}
-        <span>{{ tag }}</span>
-      {% endfor %}
-    </footer>
-  {% endif %}
 </article>

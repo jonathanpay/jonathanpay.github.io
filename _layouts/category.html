@@ -1,0 +1,27 @@
+---
+layout: default
+---
+<div class="jp-blog-head">
+  <h1 class="jp-blog-title">{{ page.category }}</h1>
+  <p class="jp-blog-dek"><a class="jp-back" href="{{ '/blog/' | relative_url }}">&larr; All writing</a></p>
+</div>
+
+<div class="jp-image-card-grid jp-writing-grid">
+  {% assign cat_posts = site.categories[page.category] | sort: "date" | reverse %}
+  {% for post in cat_posts %}
+    <a
+      href="{{ post.url | relative_url }}"
+      class="jp-image-card"
+      {% if post.image %}style="background-image: url(&quot;{{ post.image | relative_url }}&quot;);"{% endif %}
+    >
+      <div class="jp-image-card__inner">
+        <div class="jp-image-card__eyebrow">
+          {{ post.date | date: "%-d %B %Y" }}
+        </div>
+        <h2 class="jp-image-card__title">{{ post.title }}</h2>
+        {% assign dek = post.excerpt | strip_html | strip %}
+        {% if dek != "" %}<p class="jp-image-card__body">{{ dek | truncate: 140 }}</p>{% endif %}
+      </div>
+    </a>
+  {% endfor %}
+</div>
