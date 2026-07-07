@@ -38,12 +38,12 @@ const FAMILIES = {
     themes: ['navy','cream','midnight'],
   },
   'hea-clean': {
-    brand: 'hea', label: 'HEA — Clean', subtitle: 'Bright purple, polished',
-    themes: ['purple','cyan','green','dark'],
+    brand: 'hea', label: 'HEA — Clean', subtitle: 'Bright + polished',
+    themes: ['purple','cyan','green','deep'],
   },
   'hea-shapes': {
-    brand: 'hea', label: 'HEA — Shapes', subtitle: 'Dark + geometric blocks',
-    themes: ['purple','cyan','green','plum'],
+    brand: 'hea', label: 'HEA — Shapes', subtitle: 'Geometric + vibrant',
+    themes: ['purple','cyan','green','deep'],
   },
 };
 
@@ -123,28 +123,85 @@ const FIELDS = {
 };
 
 // ── Theme registry (maps family.theme → CSS class modifier) ───────
+// cls structure: _all applies to all layouts, otherwise specify per-layout
 const THEMES = {
   'jp-editorial': {
-    navy:  { label:'Navy',   swatch:'#2c3d50', cls:{cover:'dark',cta:'dark',quote:'dark',tip:'',list:'',stat:'',compare:'',case:'',image:'',author:''} },
-    white: { label:'White',  swatch:'#ffffff', cls:{} },
-    gold:  { label:'Gold',   swatch:'#dfb81f', cls:{cover:'gold-bg',cta:'gold-bg'} },
+    navy: {
+      label:'Navy',
+      swatch:'#2c3d50',
+      cls:{_all:'dark'} // Apply navy/dark theme to all layouts
+    },
+    white: {
+      label:'White',
+      swatch:'#ffffff',
+      cls:{} // Default, no theme class
+    },
+    gold: {
+      label:'Gold',
+      swatch:'#dfb81f',
+      cls:{_all:'gold-bg'} // Apply gold background to all layouts
+    },
   },
   'jp-magazine': {
-    navy:    { label:'Navy',   swatch:'#15202c', cls:{} },
-    cream:   { label:'Cream',  swatch:'#f4eedb', cls:{_all:'cream'} },
-    midnight:{ label:'Black',  swatch:'#0d1620', cls:{_all:'midnight'} },
+    navy: {
+      label:'Navy',
+      swatch:'#15202c',
+      cls:{} // Default navy text
+    },
+    cream: {
+      label:'Cream',
+      swatch:'#f4eedb',
+      cls:{_all:'cream'}
+    },
+    midnight: {
+      label:'Midnight',
+      swatch:'#0d1620',
+      cls:{_all:'midnight'}
+    },
   },
   'hea-clean': {
-    purple: { label:'Purple', swatch:'#9E41BF', cls:{} },
-    cyan:   { label:'Cyan',   swatch:'#22CEF2', cls:{_all:'cyan'} },
-    green:  { label:'Green',  swatch:'#21BF3D', cls:{_all:'green'} },
-    dark:   { label:'Plum',   swatch:'#3D2A35', cls:{_all:'dark'} },
+    purple: {
+      label:'Purple',
+      swatch:'#9E41BF',
+      cls:{} // Default purple accents
+    },
+    cyan: {
+      label:'Cyan',
+      swatch:'#22CEF2',
+      cls:{_all:'cyan'}
+    },
+    green: {
+      label:'Green',
+      swatch:'#21BF3D',
+      cls:{_all:'green'}
+    },
+    deep: {
+      label:'Deep',
+      swatch:'#1a1a2e',
+      cls:{_all:'dark'} // Dark theme for HEA Clean
+    },
   },
   'hea-shapes': {
-    purple: { label:'Purple', swatch:'#9E41BF', cls:{} },
-    cyan:   { label:'Cyan',   swatch:'#22CEF2', cls:{_all:'cyan'} },
-    green:  { label:'Green',  swatch:'#21BF3D', cls:{_all:'green'} },
-    plum:   { label:'Plum',   swatch:'#4a1f5c', cls:{_all:'purple-bg'} },
+    purple: {
+      label:'Purple',
+      swatch:'#9E41BF',
+      cls:{} // Default purple
+    },
+    cyan: {
+      label:'Cyan',
+      swatch:'#22CEF2',
+      cls:{_all:'cyan'}
+    },
+    green: {
+      label:'Green',
+      swatch:'#21BF3D',
+      cls:{_all:'green'}
+    },
+    deep: {
+      label:'Deep',
+      swatch:'#1a1a2e',
+      cls:{_all:'dark'} // Dark theme for HEA Shapes
+    },
   },
 };
 

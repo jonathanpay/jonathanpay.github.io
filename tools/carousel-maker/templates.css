@@ -439,6 +439,7 @@
 .hes.cyan{ --shape: #22CEF2; --shape-2: #6ce0f5; }
 .hes.green{ --shape: #21BF3D; --shape-2: #5fd676; }
 .hes.purple-bg{ --bg: #4a1f5c; --shape: #c270e3; --shape-2: #ffffff; }
+.hes.dark{ --bg: #1a1a2e; --shape: #9E41BF; --shape-2: #d88aff; }
 
 .hes-shape{ position: absolute !important; pointer-events: none; }
 .hes-shape.top-arc{ top: -160px; left: 50%; transform: translateX(-50%); width: 320px; height: 320px; border-radius: 50%; background: var(--shape); }
