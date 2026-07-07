@@ -679,6 +679,10 @@ figcaption, .wp-element-caption {
     border-bottom: 1px solid var(--jp-mid-navy);
   }
   .jp-nav.is-open { display: flex; }
+  .jp-header--overlay .jp-nav {
+    background: transparent;
+    border-bottom: none;
+  }
   .jp-hero-inner { padding: 4.5rem 1.25rem 3.5rem; }
   .jp-hero { margin-top: -2.5rem; }
   .jp-main, .jp-home { padding: 2.5rem 1.25rem 3.5rem; }
