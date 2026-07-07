@@ -78,10 +78,42 @@
 
       /* ── Hero ── */
       .hero {
-        background: var(--navy);
+        position: relative;
+        overflow: hidden;
         border-top: 1px solid var(--navy-mid);
-        padding: 5rem 2rem 4rem;
+        padding: 6rem 2rem 5rem;
         text-align: center;
+      }
+
+      .hero-bg {
+        position: absolute;
+        inset: -15% 0;
+        background-image: url("https://www.holisticemailmarketing.com/app/uploads/2018/03/AdobeStock_82742402_med.jpg");
+        background-size: cover;
+        background-position: center;
+        will-change: transform;
+      }
+
+      .hero-overlay {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+          180deg,
+          rgba(44, 61, 80, 0.94) 0%,
+          rgba(44, 61, 80, 0.88) 60%,
+          rgba(44, 61, 80, 0.94) 100%
+        );
+      }
+
+      .hero-content {
+        position: relative;
+        z-index: 1;
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .hero-bg {
+          transform: none !important;
+        }
       }
 
       .hero h1 {
@@ -347,18 +379,22 @@
     </header>
 
     <div class="hero">
-      <h1>The world's first <em>second-generation</em> email marketer.</h1>
-      <p>
-        Email strategist, educator, and maker. Co-founder of Holistic Email
-        Academy. Based in Weston-super-Mare.
-      </p>
-      <div class="hero-links">
-        <a href="https://jonathanpay.com" class="btn btn-primary"
-          >Read the blog</a
-        >
-        <a href="mailto:jonathan@holisticemail.com" class="btn btn-outline"
-          >Get in touch</a
-        >
+      <div class="hero-bg" data-parallax></div>
+      <div class="hero-overlay"></div>
+      <div class="hero-content">
+        <h1>The world's first <em>second-generation</em> email marketer.</h1>
+        <p>
+          Email strategist, educator, and maker. Co-founder of Holistic Email
+          Academy. Based in Weston-super-Mare.
+        </p>
+        <div class="hero-links">
+          <a href="https://jonathanpay.com" class="btn btn-primary"
+            >Read the blog</a
+          >
+          <a href="mailto:jonathan@holisticemail.com" class="btn btn-outline"
+            >Get in touch</a
+          >
+        </div>
       </div>
     </div>
 
@@ -547,5 +583,36 @@
         <a href="/archive/2016/">circa 2016</a>
       </p>
     </footer>
+
+    <script>
+      (function () {
+        var bg = document.querySelector("[data-parallax]");
+        var reduceMotion = window.matchMedia(
+          "(prefers-reduced-motion: reduce)"
+        ).matches;
+        if (!bg || reduceMotion) return;
+
+        var ticking = false;
+
+        function update() {
+          var offset = window.scrollY * 0.35;
+          bg.style.transform = "translate3d(0, " + offset + "px, 0)";
+          ticking = false;
+        }
+
+        window.addEventListener(
+          "scroll",
+          function () {
+            if (!ticking) {
+              window.requestAnimationFrame(update);
+              ticking = true;
+            }
+          },
+          { passive: true }
+        );
+
+        update();
+      })();
+    </script>
   </body>
 </html>
