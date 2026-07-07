@@ -147,6 +147,26 @@ def clean_content(content: str, media_tails: set[str]) -> str:
     return content.strip() + "\n"
 
 
+def collect_attachment_urls(items: list[ET.Element]) -> dict[str, str]:
+    urls: dict[str, str] = {}
+    for item in items:
+        if text(item, "wp:post_type") == "attachment":
+            post_id = text(item, "wp:post_id")
+            urls[post_id] = text(item, "wp:attachment_url")
+    return urls
+
+
+def featured_image(item: ET.Element, attachment_urls: dict[str, str]) -> str | None:
+    thumb_id = None
+    for postmeta in item.findall("wp:postmeta", namespaces=NS):
+        if text(postmeta, "wp:meta_key") == "_thumbnail_id":
+            thumb_id = text(postmeta, "wp:meta_value")
+            break
+    if not thumb_id:
+        return None
+    return local_upload_url(attachment_urls.get(thumb_id, ""))
+
+
 def collect_media(items: list[ET.Element]) -> set[str]:
     tails: set[str] = set()
     for item in items:
@@ -596,6 +616,7 @@ def remove_old_bootstrap_site() -> None:
 
 def write_content(items: list[ET.Element], media_tails: set[str]) -> tuple[int, int, int]:
     published_posts = draft_posts = pages = 0
+    attachment_urls = collect_attachment_urls(items)
     for item in items:
         post_type = text(item, "wp:post_type")
         status = text(item, "wp:status")
@@ -617,6 +638,7 @@ def write_content(items: list[ET.Element], media_tails: set[str]) -> tuple[int, 
                 "title": title,
                 "date": date.strftime("%Y-%m-%d %H:%M:%S %z").strip() or date.strftime("%Y-%m-%d %H:%M:%S"),
                 "permalink": permalink_from_link(item) if status == "publish" else None,
+                "image": featured_image(item, attachment_urls),
                 "categories": category_terms(item, "category"),
                 "tags": category_terms(item, "post_tag"),
                 "wordpress_id": int(wp_id) if wp_id.isdigit() else wp_id,

@@ -7,6 +7,9 @@ layout: default
     <p class="jp-meta">{{ page.date | date: "%-d %B %Y" }}{% if page.categories and page.categories != empty %}<span class="jp-meta-dot">·</span>{{ page.categories | join: ", " }}{% endif %}</p>
     <h1 class="jp-article-title">{{ page.title }}</h1>
   </header>
+  {% if page.image %}
+    <img class="jp-article-image" src="{{ page.image | relative_url }}" alt="" />
+  {% endif %}
   <div class="jp-article-body">
     {{ content }}
   </div>

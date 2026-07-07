@@ -9,16 +9,20 @@ permalink: "/blog/"
   <p class="jp-blog-dek">Writing on email, faith, family, and whatever else is on my mind.</p>
 </div>
 
-<ul class="jp-post-list">
+<div class="jp-image-card-grid jp-writing-grid">
   {% for post in site.posts %}
-    <li class="jp-post-card">
-      <p class="jp-meta">
-        <time datetime="{{ post.date | date_to_xmlschema }}">{{ post.date | date: "%-d %B %Y" }}</time>
-        {% if post.categories and post.categories != empty %}<span class="jp-meta-dot">·</span>{{ post.categories | join: ", " }}{% endif %}
-      </p>
-      <h2 class="jp-post-title"><a href="{{ post.url | relative_url }}">{{ post.title }}</a></h2>
-      {% if post.excerpt %}<p class="jp-post-dek">{{ post.excerpt | strip_html | truncate: 180 }}</p>{% endif %}
-      <a class="jp-read-more" href="{{ post.url | relative_url }}">Read more</a>
-    </li>
+    <a
+      href="{{ post.url | relative_url }}"
+      class="jp-image-card"
+      {% if post.image %}style="background-image: url(&quot;{{ post.image | relative_url }}&quot;);"{% endif %}
+    >
+      <div class="jp-image-card__inner">
+        <div class="jp-image-card__eyebrow">
+          {{ post.date | date: "%-d %B %Y" }}{% if post.categories and post.categories != empty %} · {{ post.categories | join: ", " }}{% endif %}
+        </div>
+        <h2 class="jp-image-card__title">{{ post.title }}</h2>
+        {% if post.excerpt %}<p class="jp-image-card__body">{{ post.excerpt | strip_html | truncate: 140 }}</p>{% endif %}
+      </div>
+    </a>
   {% endfor %}
-</ul>
+</div>

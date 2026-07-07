@@ -572,6 +572,13 @@ figcaption, .wp-element-caption {
 .jp-back { display: inline-block; font-style: italic; font-weight: 700; font-size: 0.85rem; color: var(--jp-link-gold); text-decoration: none; margin-bottom: 2rem; }
 .jp-back:hover { text-decoration: underline; }
 .jp-article-title { font-size: clamp(1.7rem, 4vw, 2.4rem); font-style: italic; font-weight: 800; line-height: 1.15; color: var(--jp-black); margin: 0.3rem 0 0.8rem; }
+.jp-article-image {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  border-radius: var(--radius-2);
+  margin: 1.5rem 0 2rem;
+}
 .jp-article-body { font-size: 1.05rem; line-height: 1.75; color: var(--jp-black); }
 .jp-article-body p { margin: 0 0 1.1em; }
 .jp-article-body h3 { font-size: 1.3rem; font-style: italic; font-weight: 700; margin: 1.8em 0 0.5em; color: var(--jp-black); }
