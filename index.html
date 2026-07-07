@@ -87,6 +87,49 @@ wordpress_url: "https://jonathanpay.com/"
 </a>
 </div>
 
+<h2 class="jp-section-h"><span class="jp-section-h-text">Writing</span><span class="jp-section-slash"> /</span></h2>
+
+{% assign latest_posts = site.posts | slice: 0, 5 %}
+{% assign lead = latest_posts.first %}
+{% if lead %}
+<a
+  href="{{ lead.url | relative_url }}"
+  class="jp-image-card jp-image-card--wide"
+  {% if lead.image %}style="background-image: url(&quot;{{ lead.image | relative_url }}&quot;);"{% endif %}
+>
+  <div class="jp-image-card__inner">
+    <div class="jp-image-card__eyebrow">
+      {{ lead.date | date: "%-d %B %Y" }}{% if lead.categories and lead.categories != empty %} · {{ lead.categories | join: ", " }}{% endif %}
+    </div>
+    <h3 class="jp-image-card__title">{{ lead.title }}</h3>
+    {% if lead.excerpt %}<p class="jp-image-card__body">{{ lead.excerpt | strip_html | truncate: 160 }}</p>{% endif %}
+  </div>
+</a>
+{% endif %}
+
+<div class="jp-image-card-grid jp-writing-grid">
+  {% assign rest_posts = site.posts | slice: 1, 4 %}
+  {% for post in rest_posts %}
+    <a
+      href="{{ post.url | relative_url }}"
+      class="jp-image-card"
+      {% if post.image %}style="background-image: url(&quot;{{ post.image | relative_url }}&quot;);"{% endif %}
+    >
+      <div class="jp-image-card__inner">
+        <div class="jp-image-card__eyebrow">
+          {{ post.date | date: "%-d %B %Y" }}{% if post.categories and post.categories != empty %} · {{ post.categories | join: ", " }}{% endif %}
+        </div>
+        <h3 class="jp-image-card__title">{{ post.title }}</h3>
+        {% if post.excerpt %}<p class="jp-image-card__body">{{ post.excerpt | strip_html | truncate: 110 }}</p>{% endif %}
+      </div>
+    </a>
+  {% endfor %}
+</div>
+
+<div class="jp-writing-more">
+  <a class="jp-link-arrow" href="{{ '/blog/' | relative_url }}">See all writing &rarr;</a>
+</div>
+
 <h2 class="jp-section-h"><span class="jp-section-h-text">Curious? Let’s talk</span><span class="jp-section-slash"> /</span></h2>
 
 <div class="jp-talk-body">
