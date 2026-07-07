@@ -439,6 +439,7 @@ figcaption, .wp-element-caption {
 .jp-project-card {
   display: block;
   border: 1px solid var(--jp-light-grey);
+  border-radius: var(--radius-2);
   padding: 1.4rem 1.5rem;
   background: var(--jp-white);
   color: inherit;
