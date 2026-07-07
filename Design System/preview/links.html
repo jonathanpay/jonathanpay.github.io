@@ -1,0 +1,30 @@
+<!doctype html>
+<!-- @dsCard group="Components" name="Links" subtitle="Link gold on white, highlight gold on navy" viewport="700x210" -->
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Links</title>
+<link rel="stylesheet" href="../colors_and_type.css" />
+<style>
+  body { margin: 0; padding: 22px 26px; background: #fff; font-size: 18px; line-height: 1.6; }
+  .row + .row { margin-top: 14px; }
+  .label { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--jp-mid-grey); margin-bottom: 6px; }
+  .demo a { color: var(--jp-link-gold); text-decoration: none; }
+  .demo a.hover { text-decoration: underline; }
+  .dark { background: var(--jp-navy); padding: 14px 16px; }
+  .dark .label { color: var(--jp-muted-navy); }
+  .dark .demo { color: var(--jp-white); }
+  .dark .demo a { color: var(--jp-highlight-gold); }
+</style>
+</head>
+<body>
+  <div class="row">
+    <div class="label">In body copy — on white</div>
+    <div class="demo">I've worked in <a href="#">email since before Gmail existed</a>. Literally. The <a href="#" class="hover">channel keeps living</a>.</div>
+  </div>
+  <div class="row dark">
+    <div class="label">In nav / on navy</div>
+    <div class="demo"><a href="#">Faith</a> &nbsp; <a href="#" class="hover">Fun</a> &nbsp; <a href="#">Life</a> &nbsp; <a href="#">Work</a></div>
+  </div>
+</body>
+</html>

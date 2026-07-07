@@ -1,0 +1,31 @@
+<!doctype html>
+<!-- @dsCard group="Brand" name="Logo lockups" subtitle="JP initials (navy/gold) + wordmark" viewport="700x180" -->
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Logo lockups</title>
+<link rel="stylesheet" href="../colors_and_type.css" />
+<style>
+  body { margin: 0; padding: 18px; background: #fff; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr 1.6fr; gap: 12px; align-items: stretch; }
+  .cell { border: 1px solid var(--jp-light-grey); display: flex; align-items: center; justify-content: center; padding: 16px; min-height: 110px; }
+  .dark { background: var(--jp-navy); border-color: var(--jp-navy); }
+  img { display: block; }
+  .a { width: 64px; height: 64px; }
+  .b { height: 28px; width: auto; }
+</style>
+</head>
+<body>
+  <div class="grid">
+    <div class="cell">
+      <img class="a" src="../assets/logos/jp-logo-initials-2016.png" alt="JP initials navy" />
+    </div>
+    <div class="cell dark">
+      <img class="a" src="../assets/logos/jp-logo-initials-2016-gold.png" alt="JP initials gold" />
+    </div>
+    <div class="cell">
+      <img class="b" src="../assets/logos/jp-logo-fullname-2016.png" alt="Jonathan Pay wordmark" />
+    </div>
+  </div>
+</body>
+</html>

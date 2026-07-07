@@ -1,0 +1,38 @@
+<!doctype html>
+<!-- @dsCard group="Brand" name="Categories" subtitle="Faith / Fun / Life / Work" viewport="700x170" -->
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Categories</title>
+<link rel="stylesheet" href="../colors_and_type.css" />
+<style>
+  body { margin: 0; padding: 26px; background: #fff; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+  .chip {
+    font-family: var(--font-sans);
+    font-style: italic;
+    font-weight: 700;
+    font-size: 14px;
+    letter-spacing: 0.02em;
+    padding: 6px 14px;
+    border: 1px solid var(--jp-link-gold);
+    color: var(--jp-link-gold);
+    background: transparent;
+    text-decoration: none;
+  }
+  .chip.solid { background: var(--jp-link-gold); color: var(--jp-white); }
+  .label { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--jp-mid-grey); margin-bottom: 10px; }
+  .note { margin-top: 14px; color: var(--jp-mid-grey); font-size: 12px; line-height: 1.5; }
+</style>
+</head>
+<body>
+  <div class="label">Blog taxonomy</div>
+  <div class="row">
+    <a class="chip solid" href="#">Faith</a>
+    <a class="chip" href="#">Fun</a>
+    <a class="chip" href="#">Life</a>
+    <a class="chip" href="#">Work</a>
+  </div>
+  <p class="note">Four categories. Alphabetical, but the word choice signals informality — "Work" not "Professional", "Fun" not "Hobbies".</p>
+</body>
+</html>

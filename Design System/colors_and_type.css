@@ -1,0 +1,276 @@
+/* ============================================================
+   Jonathan Pay — Colors & Type
+   Reverse-engineered from jonathanpay.com (March 2026 audit).
+   Single-family system: Open Sans, differentiated by weight,
+   style, and size. All headings are Bold Italic.
+   ============================================================ */
+
+/* Self-hosted Open Sans — upright + italic variable fonts.
+   Italic is real, not synthesised. The brand leans on italic heavily
+   (every heading, every button), so this matters. */
+@font-face {
+  font-family: "Open Sans";
+  src: url("fonts/OpenSans-VariableFont_wdth_wght.ttf") format("truetype-variations"),
+       url("fonts/OpenSans-VariableFont_wdth_wght.ttf") format("truetype");
+  font-weight: 300 800;
+  font-stretch: 75% 100%;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Open Sans";
+  src: url("fonts/OpenSans-Italic-VariableFont_wdth_wght.ttf") format("truetype-variations"),
+       url("fonts/OpenSans-Italic-VariableFont_wdth_wght.ttf") format("truetype");
+  font-weight: 300 800;
+  font-stretch: 75% 100%;
+  font-style: italic;
+  font-display: swap;
+}
+
+:root {
+  /* -------- Color tokens (base) -------- */
+  --jp-navy:           #2c3d50;  /* Header, footer, cover overlay. Dominant structural color. */
+  --jp-mid-navy:       #39536f;  /* Borders & dividers within dark zones. */
+  --jp-muted-navy:     #aab3bf;  /* De-emphasised text within dark header (taglines, widget text). */
+  --jp-highlight-gold: #dfb81f;  /* Nav links, social icons, pull-quotes, active highlight on dark. */
+  --jp-link-gold:      #8b7417;  /* Body links, buttons, accent on white. The workhorse accent. */
+  --jp-white:          #ffffff;  /* Page background. Content canvas. */
+  --jp-black:          #000000;  /* Primary body text. No softening to dark grey. */
+  --jp-mid-grey:       #6d6d6d;  /* Post meta, captions, secondary information. */
+  --jp-light-grey:     #dbdbdb;  /* Subtle backgrounds, table stripes, rule lines. */
+
+  /* -------- Semantic colors -------- */
+  --fg-1:           var(--jp-black);         /* Primary text */
+  --fg-2:           var(--jp-mid-grey);      /* Secondary text, meta */
+  --fg-on-dark:     var(--jp-white);
+  --fg-on-dark-2:   var(--jp-muted-navy);    /* Secondary text on navy */
+  --bg-page:        var(--jp-white);
+  --bg-dark:        var(--jp-navy);          /* Header/footer/overlay */
+  --bg-subtle:      var(--jp-light-grey);
+  --border-subtle:  var(--jp-light-grey);
+  --border-on-dark: var(--jp-mid-navy);
+  --accent:         var(--jp-link-gold);     /* on white */
+  --accent-on-dark: var(--jp-highlight-gold);/* on navy */
+  --link:           var(--jp-link-gold);
+  --link-hover:     var(--jp-link-gold);     /* same color; underline appears on hover */
+
+  /* Cover-image overlay: navy at ~45% over personal photography. */
+  --cover-overlay:  rgba(44, 61, 80, 0.55);
+
+  /* -------- Typography tokens -------- */
+  --font-sans: "Open Sans", system-ui, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
+  /* No mono in the system; if needed, use a neutral system mono. */
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  /* Type scale (px-based to match site audit). */
+  --fs-h1:    34px;   /* "The world's first second-generation email marketer" scale */
+  --fs-h2:    26px;   /* Section headings — matches audit "H1 26px+"; we promote audit-H1 to H2 here for hierarchy */
+  --fs-h3:    20px;
+  --fs-h4:    17px;
+  --fs-h5:    15px;
+  --fs-body:  21px;   /* Body. Generous and readable. */
+  --fs-input: 16px;   /* Form fields and dense UI */
+  --fs-meta:  13px;   /* Dates, categories, captions */
+
+  --lh-tight: 1.25;
+  --lh-body:  1.7;    /* Site default. Air around text. */
+
+  /* -------- Spacing & radii (descriptive, not from the site explicitly) -------- */
+  --space-1:  4px;
+  --space-2:  8px;
+  --space-3:  12px;
+  --space-4:  16px;
+  --space-5:  24px;
+  --space-6:  32px;
+  --space-7:  48px;
+  --space-8:  64px;
+  --space-9:  96px;
+
+  --radius-0: 0px;    /* The site uses sharp corners almost everywhere. */
+  --radius-1: 2px;    /* Hairline rounding for inputs/buttons if needed. */
+  --radius-pill: 999px;
+
+  --shadow-soft: 0 1px 2px rgba(44, 61, 80, 0.08), 0 6px 18px rgba(44, 61, 80, 0.06);
+  --shadow-card: 0 2px 4px rgba(44, 61, 80, 0.10), 0 12px 30px rgba(44, 61, 80, 0.08);
+}
+
+/* ============================================================
+   Element styles — semantic defaults for prose surfaces.
+   ============================================================ */
+
+html, body {
+  background: var(--bg-page);
+  color: var(--fg-1);
+  font-family: var(--font-sans);
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+}
+
+/* All headings are Open Sans Bold Italic — the defining type choice. */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-sans);
+  font-style: italic;
+  font-weight: 700;
+  line-height: var(--lh-tight);
+  margin: 0 0 0.5em;
+  color: var(--fg-1);
+}
+h1 { font-size: var(--fs-h1); font-weight: 800; }
+h2 { font-size: var(--fs-h2); }
+h3 { font-size: var(--fs-h3); }
+h4 { font-size: var(--fs-h4); }
+h5 { font-size: var(--fs-h5); }
+
+p { margin: 0 0 1em; }
+
+a {
+  color: var(--link);
+  text-decoration: none;
+}
+a:hover { text-decoration: underline; }
+
+/* On dark navy surfaces, links flip to highlight gold. */
+.on-dark a, a.on-dark { color: var(--accent-on-dark); }
+
+small, .meta {
+  font-size: var(--fs-meta);
+  color: var(--fg-2);
+  letter-spacing: 0.02em;
+}
+
+hr {
+  border: 0;
+  border-top: 1px solid var(--border-subtle);
+  margin: var(--space-6) 0;
+}
+
+blockquote {
+  border-left: 3px solid var(--accent-on-dark);
+  margin: var(--space-5) 0;
+  padding: var(--space-2) var(--space-5);
+  color: var(--fg-1);
+  font-style: italic;
+}
+
+/* Buttons — Bold Italic, like headings. The italic carries through to UI. */
+.btn {
+  display: inline-block;
+  font-family: var(--font-sans);
+  font-style: italic;
+  font-weight: 700;
+  font-size: var(--fs-input);
+  letter-spacing: 0.02em;
+  padding: 12px 22px;
+  border: 2px solid var(--accent);
+  background: transparent;
+  color: var(--accent);
+  cursor: pointer;
+  text-decoration: none;
+  transition: background-color 120ms ease, color 120ms ease;
+}
+.btn:hover { background: var(--accent); color: var(--jp-white); text-decoration: none; }
+
+.btn-solid {
+  background: var(--accent);
+  color: var(--jp-white);
+  border-color: var(--accent);
+}
+.btn-solid:hover { background: var(--jp-navy); border-color: var(--jp-navy); color: var(--jp-white); }
+
+.btn-on-dark {
+  border-color: var(--accent-on-dark);
+  color: var(--accent-on-dark);
+}
+.btn-on-dark:hover { background: var(--accent-on-dark); color: var(--jp-navy); }
+
+/* ============================================================
+   Image-overlay card — the "work" cards from jonathanpay.github.io.
+   Personal photography as background, navy gradient on top, gold
+   eyebrow + italic heading + body. Bottom-anchored content.
+
+   The corner radius here is intentionally 6px (--radius-2), softer
+   than the rest of the system. It's the one place the brand allows
+   gentle rounding, because the photo edge wants a bit of give.
+   ============================================================ */
+:root {
+  --radius-2: 6px;
+  --jp-card-overlay: linear-gradient(
+    to top,
+    rgba(44, 61, 80, 0.92) 0%,
+    rgba(44, 61, 80, 0.60) 60%,
+    rgba(44, 61, 80, 0.35) 100%
+  );
+  --jp-card-overlay-hover: linear-gradient(
+    to top,
+    rgba(44, 61, 80, 0.97) 0%,
+    rgba(44, 61, 80, 0.75) 60%,
+    rgba(44, 61, 80, 0.50) 100%
+  );
+}
+
+.jp-image-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  min-height: 13rem;
+  padding: var(--space-6) var(--space-5);
+  border-radius: var(--radius-2);
+  overflow: hidden;
+  text-decoration: none;
+  color: var(--jp-white);
+  background-color: var(--jp-navy);
+  background-size: cover;
+  background-position: center;
+  transition: box-shadow 200ms ease;
+}
+.jp-image-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--jp-card-overlay);
+  transition: background 200ms ease;
+}
+.jp-image-card:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.20);
+  text-decoration: none;
+}
+.jp-image-card:hover::before { background: var(--jp-card-overlay-hover); }
+
+.jp-image-card__inner { position: relative; }
+
+.jp-image-card__eyebrow {
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--jp-highlight-gold);
+  margin-bottom: 6px;
+}
+
+.jp-image-card h3,
+.jp-image-card__title {
+  font-family: var(--font-sans);
+  font-style: italic;
+  font-weight: 700;
+  font-size: 20px;
+  line-height: var(--lh-tight);
+  color: var(--jp-white);
+  margin: 0 0 8px;
+}
+
+.jp-image-card p,
+.jp-image-card__body {
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--jp-white);
+  margin: 0;
+}
+
+/* Grid container for image-overlay cards. */
+.jp-image-card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(18rem, 1fr));
+  gap: var(--space-4);
+}

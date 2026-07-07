@@ -1,0 +1,41 @@
+<!doctype html>
+<!-- @dsCard group="Type" name="Type — heading scale" subtitle="All headings Bold Italic. The defining choice." viewport="700x260" -->
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Type — headings</title>
+<link rel="stylesheet" href="../colors_and_type.css" />
+<style>
+  body { margin: 0; padding: 24px 28px; background: #fff; }
+  .row { display: grid; gap: 10px; }
+  .item { display: grid; grid-template-columns: 96px 1fr; align-items: baseline; gap: 16px; }
+  .label { font-family: var(--font-mono); font-size: 11px; color: var(--jp-mid-grey); letter-spacing: 0.06em; text-transform: uppercase; }
+  .spec  { font-family: var(--font-mono); font-size: 10px; color: var(--jp-mid-grey); display: block; margin-top: 3px; letter-spacing: 0.03em; }
+  h1, h2, h3, h4 { margin: 0; line-height: 1.15; color: var(--jp-black); }
+  h1 { font-size: 34px; font-weight: 800; }
+  h2 { font-size: 26px; }
+  h3 { font-size: 20px; }
+  h4 { font-size: 17px; }
+</style>
+</head>
+<body>
+  <div class="row">
+    <div class="item">
+      <div class="label">H1<span class="spec">800 it · 34</span></div>
+      <h1>Thinking out loud</h1>
+    </div>
+    <div class="item">
+      <div class="label">H2<span class="spec">700 it · 26</span></div>
+      <h2>Thinking out loud</h2>
+    </div>
+    <div class="item">
+      <div class="label">H3<span class="spec">700 it · 20</span></div>
+      <h3>Thinking out loud</h3>
+    </div>
+    <div class="item">
+      <div class="label">H4<span class="spec">700 it · 17</span></div>
+      <h4>Thinking out loud</h4>
+    </div>
+  </div>
+</body>
+</html>

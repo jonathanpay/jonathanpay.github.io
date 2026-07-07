@@ -1,0 +1,783 @@
+/* ui_kits/website/kit.css — page-level styles for the website recreation.
+   Token usage lives in ../../colors_and_type.css; this is the layout glue. */
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  background: var(--bg-page);
+  color: var(--fg-1);
+  font-family: var(--font-sans);
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+img { max-width: 100%; display: block; }
+
+/* ---------- Header ---------- */
+.jp-header {
+  background: var(--jp-navy);
+  color: var(--jp-white);
+  border-bottom: 1px solid var(--jp-mid-navy);
+}
+.jp-header-inner {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 18px 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 32px;
+}
+.jp-brand {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  text-decoration: none;
+  color: var(--jp-white);
+}
+.jp-brand-mark {
+  display: inline-block;
+  width: 40px; height: 40px;
+  background-image: url("../../assets/logos/jp-logo-initials-2016-gold.png");
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+.jp-brand-name {
+  font-style: italic;
+  font-weight: 800;
+  font-size: 22px;
+  letter-spacing: 0.01em;
+  color: var(--jp-white);
+}
+.jp-nav {
+  display: flex;
+  gap: 28px;
+  align-items: center;
+}
+.jp-nav-link {
+  font-style: italic;
+  font-weight: 700;
+  font-size: 15px;
+  letter-spacing: 0.02em;
+  color: var(--jp-highlight-gold);
+  text-decoration: none;
+}
+.jp-nav-link:hover { text-decoration: underline; }
+.jp-nav-link.is-active { color: var(--jp-white); }
+
+/* ---------- Hero ---------- */
+.jp-hero {
+  position: relative;
+  color: var(--jp-white);
+  min-height: 420px;
+  display: flex;
+  align-items: center;
+  isolation: isolate;
+  overflow: hidden;
+}
+.jp-hero-cover {
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(60% 80% at 30% 40%, #4a6b8d 0%, #2c3d50 60%, #1a2735 100%);
+  z-index: 0;
+}
+.jp-hero-overlay {
+  position: absolute; inset: 0;
+  background: var(--cover-overlay);
+  z-index: 1;
+}
+.jp-hero-inner {
+  position: relative;
+  z-index: 2;
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 96px 32px;
+  width: 100%;
+}
+.jp-hero-title {
+  font-size: 44px;
+  font-style: italic;
+  font-weight: 800;
+  line-height: 1.15;
+  margin: 0 0 18px;
+  max-width: 18ch;
+  color: var(--jp-white);
+}
+.jp-hero-tagline {
+  font-size: 17px;
+  line-height: 1.65;
+  color: var(--jp-muted-navy);
+  max-width: 64ch;
+  margin: 0;
+}
+
+/* ---------- Main content frame ---------- */
+.jp-main {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 64px 32px 80px;
+}
+
+/* ---------- Category chips ---------- */
+.jp-chips {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  margin: 0 0 36px;
+  flex-wrap: wrap;
+}
+.jp-chips-label {
+  font-size: 13px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--jp-mid-grey);
+}
+.jp-chips-row { display: flex; flex-wrap: wrap; gap: 8px; }
+.jp-chip {
+  font-style: italic;
+  font-weight: 700;
+  font-size: 14px;
+  letter-spacing: 0.02em;
+  padding: 6px 14px;
+  border: 1px solid var(--jp-link-gold);
+  color: var(--jp-link-gold);
+  background: transparent;
+  text-decoration: none;
+  border-radius: 0;
+  transition: background-color 120ms ease, color 120ms ease;
+}
+.jp-chip:hover { background: var(--jp-link-gold); color: var(--jp-white); text-decoration: none; }
+.jp-chip.is-active { background: var(--jp-link-gold); color: var(--jp-white); }
+
+/* ---------- Post list & card ---------- */
+.jp-post-list > .jp-post-card + .jp-post-card {
+  border-top: 1px solid var(--jp-light-grey);
+  margin-top: 40px;
+  padding-top: 40px;
+}
+.jp-meta {
+  font-size: 13px;
+  letter-spacing: 0.04em;
+  color: var(--jp-mid-grey);
+  margin-bottom: 10px;
+}
+.jp-meta-cat {
+  color: var(--jp-link-gold);
+  font-style: italic;
+  font-weight: 700;
+  text-decoration: none;
+  letter-spacing: 0.04em;
+}
+.jp-meta-cat:hover { text-decoration: underline; }
+.jp-meta-dot { margin: 0 8px; color: var(--jp-mid-grey); }
+
+.jp-post-title {
+  margin: 0 0 12px;
+  font-size: 30px;
+  font-style: italic;
+  font-weight: 700;
+  line-height: 1.2;
+}
+.jp-post-title a { color: var(--jp-black); text-decoration: none; }
+.jp-post-title a:hover { color: var(--jp-link-gold); text-decoration: none; }
+
+.jp-post-dek {
+  margin: 0 0 16px;
+  font-size: 19px;
+  line-height: 1.6;
+  color: var(--jp-black);
+}
+.jp-read-more {
+  font-style: italic;
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--jp-link-gold);
+  text-decoration: none;
+}
+.jp-read-more:hover { text-decoration: underline; }
+
+.jp-empty {
+  padding: 48px 0;
+  color: var(--jp-mid-grey);
+  font-style: italic;
+  font-size: 18px;
+}
+
+/* ---------- Article view ---------- */
+.jp-article { padding-top: 4px; }
+.jp-back {
+  display: inline-block;
+  font-style: italic;
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--jp-link-gold);
+  text-decoration: none;
+  margin-bottom: 32px;
+}
+.jp-back:hover { text-decoration: underline; }
+.jp-article-title {
+  font-size: 40px;
+  font-style: italic;
+  font-weight: 800;
+  line-height: 1.15;
+  color: var(--jp-black);
+  margin: 6px 0 14px;
+}
+.jp-article-dek {
+  font-size: 21px;
+  line-height: 1.55;
+  color: var(--jp-mid-grey);
+  font-style: italic;
+  margin: 0 0 36px;
+}
+.jp-article-body { font-size: 19px; line-height: 1.75; color: var(--jp-black); }
+.jp-article-body p { margin: 0 0 1.1em; }
+.jp-article-body h3 {
+  font-size: 22px;
+  font-style: italic;
+  font-weight: 700;
+  margin: 1.8em 0 0.5em;
+  color: var(--jp-black);
+}
+.jp-article-body blockquote {
+  border-left: 3px solid var(--jp-highlight-gold);
+  margin: 1.6em 0;
+  padding: 4px 0 4px 22px;
+  font-size: 22px;
+  line-height: 1.45;
+  font-style: italic;
+  color: var(--jp-black);
+}
+.jp-article-body blockquote cite {
+  display: block;
+  font-style: normal;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--jp-mid-grey);
+  margin-top: 10px;
+}
+.jp-article-body a {
+  color: var(--jp-link-gold);
+  text-decoration: none;
+}
+.jp-article-body a:hover { text-decoration: underline; }
+
+/* ---------- Newsletter ---------- */
+.jp-newsletter {
+  background: var(--jp-navy);
+  color: var(--jp-white);
+  border-top: 1px solid var(--jp-mid-navy);
+  border-bottom: 1px solid var(--jp-mid-navy);
+}
+.jp-newsletter-inner {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 56px 32px;
+}
+.jp-newsletter-title {
+  font-size: 28px;
+  font-style: italic;
+  font-weight: 700;
+  margin: 0 0 8px;
+  color: var(--jp-white);
+}
+.jp-newsletter-dek {
+  font-size: 16px;
+  line-height: 1.55;
+  color: var(--jp-muted-navy);
+  margin: 0 0 22px;
+  max-width: 56ch;
+}
+.jp-newsletter-form {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 10px;
+  max-width: 520px;
+}
+.jp-input {
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 1.4;
+  padding: 12px 14px;
+  border: 1px solid var(--jp-mid-navy);
+  background: var(--jp-navy);
+  color: var(--jp-white);
+  outline: none;
+  border-radius: 2px;
+}
+.jp-input::placeholder { color: var(--jp-muted-navy); }
+.jp-input:focus { border-color: var(--jp-highlight-gold); }
+.jp-btn {
+  font-family: var(--font-sans);
+  font-style: italic;
+  font-weight: 700;
+  font-size: 15px;
+  letter-spacing: 0.02em;
+  padding: 12px 22px;
+  border: 2px solid var(--jp-highlight-gold);
+  color: var(--jp-navy);
+  background: var(--jp-highlight-gold);
+  cursor: pointer;
+  border-radius: 0;
+  transition: background-color 120ms ease, color 120ms ease;
+}
+.jp-btn:hover { background: transparent; color: var(--jp-highlight-gold); }
+.jp-newsletter-status {
+  margin: 14px 0 0;
+  font-size: 14px;
+  font-style: italic;
+  color: var(--jp-highlight-gold);
+}
+.jp-newsletter-status.jp-error { color: #f0a594; }
+
+/* ---------- Footer ---------- */
+.jp-footer {
+  background: var(--jp-navy);
+  color: var(--jp-white);
+}
+.jp-footer-inner {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+.jp-footer-left { display: flex; align-items: center; gap: 16px; }
+.jp-footer-mark {
+  display: inline-block;
+  width: 36px; height: 36px;
+  background-image: url("../../assets/logos/jp-logo-initials-2016-gold.png");
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+.jp-footer-tagline {
+  font-size: 14px;
+  font-style: italic;
+  color: var(--jp-muted-navy);
+}
+.jp-footer-right { display: flex; align-items: center; gap: 22px; flex-wrap: wrap; }
+.jp-social-row { display: flex; gap: 14px; align-items: center; }
+.jp-social-row a {
+  color: var(--jp-highlight-gold);
+  display: inline-flex;
+  align-items: center;
+}
+.jp-social-row a:hover { color: var(--jp-white); }
+.jp-copy { font-size: 13px; color: var(--jp-muted-navy); }
+
+/* ---------- Responsive ---------- */
+@media (max-width: 720px) {
+  .jp-header-inner { padding: 14px 20px; gap: 12px; flex-wrap: wrap; }
+  .jp-nav { gap: 18px; }
+  .jp-hero-inner { padding: 64px 20px; }
+  .jp-hero-title { font-size: 32px; }
+  .jp-main { padding: 40px 20px 56px; }
+  .jp-article-title { font-size: 30px; }
+}
+
+/* ============================================================
+   Home — sectioned front page (Work / Projects / Blog / About / Find me).
+   Mirrors jonathanpay.github.io.
+   ============================================================ */
+
+/* Solid-navy hero variant. Overrides the cover/overlay layers. */
+.jp-hero--solid { background: var(--jp-navy); min-height: auto; isolation: auto; overflow: visible; }
+.jp-hero--solid .jp-hero-cover,
+.jp-hero--solid .jp-hero-overlay { display: none; }
+.jp-hero--solid .jp-hero-inner {
+  max-width: 720px;
+  padding: 88px 32px 76px;
+  text-align: center;
+}
+.jp-hero--solid .jp-hero-title {
+  font-size: clamp(28px, 4vw, 44px);
+  max-width: none;
+  margin: 0 auto 18px;
+  font-weight: 700;
+}
+.jp-hero--solid .jp-hero-title em {
+  color: var(--jp-highlight-gold);
+  font-style: italic;
+}
+.jp-hero--solid .jp-hero-tagline {
+  margin: 0 auto 28px;
+  max-width: 56ch;
+  font-size: 17px;
+}
+.jp-hero-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* Hero buttons. Distinct from the system .btn so the hero reads a touch softer. */
+.jp-hero-btn {
+  display: inline-block;
+  font-family: var(--font-sans);
+  font-style: italic;
+  font-weight: 700;
+  font-size: 15px;
+  letter-spacing: 0.02em;
+  padding: 12px 22px;
+  text-decoration: none;
+  border-radius: 2px;
+  transition: background-color 150ms ease, color 150ms ease, border-color 150ms ease;
+}
+.jp-hero-btn--primary {
+  background: var(--jp-link-gold);
+  color: var(--jp-white);
+  border: 2px solid var(--jp-link-gold);
+}
+.jp-hero-btn--primary:hover {
+  background: var(--jp-highlight-gold);
+  border-color: var(--jp-highlight-gold);
+  color: var(--jp-navy);
+}
+.jp-hero-btn--outline {
+  background: transparent;
+  color: var(--jp-muted-navy);
+  border: 1px solid var(--jp-mid-navy);
+}
+.jp-hero-btn--outline:hover {
+  color: var(--jp-white);
+  border-color: var(--jp-muted-navy);
+}
+
+/* Home page wrapper + section rhythm. */
+.jp-home {
+  max-width: 920px;
+  margin: 0 auto;
+  padding: 56px 32px 80px;
+}
+.jp-home-section + .jp-home-section {
+  margin-top: 56px;
+  padding-top: 56px;
+  border-top: 1px solid var(--jp-light-grey);
+}
+
+/* Slash heading: italic black title with a gold trailing slash. */
+.jp-section-h {
+  font-family: var(--font-sans);
+  font-style: italic;
+  font-weight: 700;
+  font-size: 22px;
+  line-height: 1.2;
+  margin: 0 0 28px;
+  color: var(--jp-black);
+}
+.jp-section-slash { color: var(--jp-link-gold); }
+
+/* Projects grid — bordered, non-image variant. */
+.jp-project-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(18rem, 1fr));
+  gap: 14px;
+}
+.jp-project-card {
+  border: 1px solid var(--jp-light-grey);
+  padding: 22px 20px;
+  background: var(--jp-white);
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+}
+.jp-project-card:hover {
+  border-color: var(--jp-link-gold);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
+}
+.jp-project-card-label {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--jp-mid-grey);
+  margin-bottom: 6px;
+}
+.jp-project-card-title {
+  font-family: var(--font-sans);
+  font-style: italic;
+  font-weight: 700;
+  font-size: 18px;
+  line-height: 1.2;
+  margin: 0 0 6px;
+  color: var(--jp-black);
+}
+.jp-project-card-body {
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--jp-mid-grey);
+  margin: 0;
+}
+
+/* Blog feature card — wider variant of .jp-image-card for the home section. */
+.jp-image-card--wide {
+  min-height: 240px;
+  padding: 30px 28px;
+}
+.jp-image-card--wide .jp-image-card__title { font-size: 22px; }
+
+/* Background-image classes for the home cards. Declared in CSS (not JS)
+   so they're inlined by the standalone bundler. */
+.jp-image-card--hem  { background-image: url("../../assets/photos/work-consultancy.jpeg"); }
+.jp-image-card--hea  { background-image: url("../../assets/photos/work-education.jpeg"); }
+.jp-image-card--blog { background-image: url("../../assets/photos/jp-profile-2015.jpg"); }
+
+/* Post background images — real WordPress feature photos. */
+.jp-image-card--post-consent      { background-image: url("../../assets/photos/post-consent-sexy.jpeg"); }
+.jp-image-card--post-decision     { background-image: url("../../assets/photos/post-decision-problem.jpeg"); }
+.jp-image-card--post-cawing       { background-image: url("../../assets/photos/post-cawing.jpeg"); }
+.jp-image-card--post-co-thinking  { background-image: url("../../assets/photos/post-co-thinking.jpeg"); }
+.jp-image-card--post-film         { background-image: url("../../assets/photos/post-birds-of-prey.jpg"); }
+.jp-image-card--post-deus-ex      { background-image: url("../../assets/photos/post-deus-ex.jpeg"); }
+.jp-image-card--post-mystery      { background-image: url("../../assets/photos/post-mystery.jpg"); }
+
+/* Recent posts list under the blog feature card. */
+.jp-recent-posts {
+  list-style: none;
+  margin: 22px 0 0;
+  padding: 0;
+}
+.jp-recent-posts li + li {
+  border-top: 1px solid var(--jp-light-grey);
+}
+.jp-recent-posts a {
+  display: grid;
+  grid-template-columns: 70px 1fr auto;
+  gap: 18px;
+  align-items: baseline;
+  padding: 14px 0;
+  text-decoration: none;
+}
+.jp-recent-cat {
+  font-family: var(--font-sans);
+  font-style: italic;
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 0.04em;
+  color: var(--jp-link-gold);
+}
+.jp-recent-title {
+  font-family: var(--font-sans);
+  font-style: italic;
+  font-weight: 700;
+  font-size: 17px;
+  color: var(--jp-black);
+  line-height: 1.35;
+}
+.jp-recent-posts a:hover .jp-recent-title { color: var(--jp-link-gold); }
+.jp-recent-date {
+  font-size: 13px;
+  color: var(--jp-mid-grey);
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+/* About body — slightly tighter than article copy. */
+.jp-about-body p {
+  font-size: 18px;
+  line-height: 1.7;
+  margin: 0 0 1em;
+  color: var(--jp-black);
+}
+.jp-about-body p:last-child { margin: 0; }
+
+/* Find me list — gold italic links, row-flowing. */
+.jp-find-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 22px;
+}
+.jp-find-list a {
+  font-family: var(--font-sans);
+  font-style: italic;
+  font-weight: 700;
+  font-size: 16px;
+  color: var(--jp-link-gold);
+  text-decoration: none;
+}
+.jp-find-list a:hover {
+  color: var(--jp-highlight-gold);
+  text-decoration: underline;
+}
+
+/* Blog list page heading. */
+.jp-blog-head { margin-bottom: 32px; }
+.jp-blog-title {
+  font-family: var(--font-sans);
+  font-style: italic;
+  font-weight: 800;
+  font-size: 36px;
+  line-height: 1.15;
+  margin: 0 0 8px;
+  color: var(--jp-black);
+}
+.jp-blog-dek {
+  font-size: 17px;
+  color: var(--jp-mid-grey);
+  margin: 0;
+}
+
+@media (max-width: 720px) {
+  .jp-home { padding: 40px 20px 56px; }
+  .jp-home-section + .jp-home-section { margin-top: 40px; padding-top: 40px; }
+  .jp-hero--solid .jp-hero-inner { padding: 60px 20px 56px; }
+  .jp-recent-posts a {
+    grid-template-columns: 1fr;
+    gap: 4px;
+    padding: 14px 0;
+  }
+  .jp-recent-date { font-size: 12px; }
+  .jp-blog-title { font-size: 28px; }
+}
+
+/* ============================================================
+   Intro hero — portrait + name + tagline. Mirrors the
+   personal hub layout on jonathanpay.com.
+   ============================================================ */
+.jp-intro {
+  background: var(--jp-navy);
+  color: var(--jp-white);
+  border-top: 1px solid var(--jp-mid-navy);
+  padding: 72px 32px 80px;
+  text-align: center;
+}
+.jp-intro-inner {
+  max-width: 640px;
+  margin: 0 auto;
+}
+.jp-intro-name {
+  font-family: var(--font-sans);
+  font-style: italic;
+  font-weight: 800;
+  font-size: clamp(36px, 5.5vw, 56px);
+  line-height: 1.05;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+  margin: 0 0 28px;
+  color: var(--jp-white);
+}
+.jp-intro-portrait {
+  width: 220px;
+  height: 220px;
+  margin: 0 auto 28px;
+  background-image: url("../../assets/photos/portrait-2026.jpeg");
+  background-size: cover;
+  background-position: center;
+  border: 4px solid var(--jp-highlight-gold);
+  border-radius: 2px;
+}
+.jp-intro-tagline {
+  font-size: 17px;
+  line-height: 1.6;
+  color: var(--jp-muted-navy);
+  margin: 0;
+  max-width: 50ch;
+  margin-left: auto;
+  margin-right: auto;
+}
+.jp-intro-tagline em { font-style: italic; }
+
+/* About — headline + body text. */
+.jp-about-headline {
+  font-family: var(--font-sans);
+  font-style: italic;
+  font-weight: 800;
+  font-size: 30px;
+  line-height: 1.2;
+  color: var(--jp-black);
+  margin: 0 0 24px;
+}
+.jp-about-headline em {
+  color: var(--jp-link-gold);
+  font-style: italic;
+}
+
+/* Services — 4 text cards. */
+.jp-services-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 18px;
+}
+.jp-service-card {
+  border: 1px solid var(--jp-light-grey);
+  border-top: 3px solid var(--jp-link-gold);
+  padding: 22px 22px 24px;
+  background: var(--jp-white);
+  transition: border-color 150ms ease;
+}
+.jp-service-card:hover { border-top-color: var(--jp-highlight-gold); }
+.jp-service-card-title {
+  font-family: var(--font-sans);
+  font-style: italic;
+  font-weight: 700;
+  font-size: 20px;
+  line-height: 1.2;
+  margin: 0 0 10px;
+  color: var(--jp-black);
+}
+.jp-service-card-body {
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--jp-black);
+  margin: 0;
+}
+
+/* Writing — lead card + grid + see-all link. */
+.jp-writing-grid {
+  grid-template-columns: repeat(auto-fill, minmax(20rem, 1fr));
+  margin-top: 16px;
+}
+.jp-writing-grid .jp-image-card { min-height: 220px; }
+.jp-writing-grid .jp-image-card__title { font-size: 18px; }
+.jp-writing-more {
+  margin-top: 22px;
+  text-align: right;
+}
+.jp-link-arrow {
+  font-family: var(--font-sans);
+  font-style: italic;
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--jp-link-gold);
+  text-decoration: none;
+}
+.jp-link-arrow:hover { text-decoration: underline; }
+
+/* Talk CTA — sits on light grey block; matches the editorial card aesthetic. */
+.jp-home-section--cta {
+  background: transparent;
+}
+.jp-talk-body {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  flex-wrap: wrap;
+  padding: 26px 28px;
+  border: 1px solid var(--jp-light-grey);
+  border-left: 3px solid var(--jp-highlight-gold);
+}
+.jp-talk-body p {
+  font-size: 17px;
+  line-height: 1.55;
+  color: var(--jp-black);
+  margin: 0;
+  max-width: 56ch;
+}
+
+@media (max-width: 720px) {
+  .jp-intro { padding: 56px 20px; }
+  .jp-intro-portrait { width: 180px; height: 180px; }
+  .jp-about-headline { font-size: 24px; }
+  .jp-talk-body { padding: 22px; }
+  .jp-services-grid { grid-template-columns: 1fr; }
+}

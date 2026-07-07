@@ -1,0 +1,40 @@
+<!doctype html>
+<!-- @dsCard group="Components" name="Form inputs" subtitle="16px, sharp edges, gold focus" viewport="700x150" -->
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Form inputs</title>
+<link rel="stylesheet" href="../colors_and_type.css" />
+<style>
+  body { margin: 0; padding: 22px 26px; background: #fff; font-family: var(--font-sans); }
+  label { display: block; font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--jp-mid-grey); margin-bottom: 6px; }
+  input[type="text"], input[type="email"] {
+    width: 100%;
+    box-sizing: border-box;
+    font-family: var(--font-sans);
+    font-size: 16px;
+    line-height: 1.4;
+    padding: 12px 14px;
+    border: 1px solid var(--jp-mid-grey);
+    border-radius: 2px;
+    background: var(--jp-white);
+    color: var(--jp-black);
+    outline: none;
+  }
+  input:focus { border-color: var(--jp-link-gold); }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: end; }
+  .btn { padding: 12px 22px; }
+</style>
+</head>
+<body>
+  <div class="grid">
+    <div>
+      <label>Email</label>
+      <input type="email" value="you@example.com" />
+    </div>
+    <div>
+      <a class="btn btn-solid" href="#">Subscribe</a>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,47 @@
+<!doctype html>
+<!-- @dsCard group="Colors" name="Palette — on dark" subtitle="Mid navy borders, muted navy text, white" viewport="700x180" -->
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Palette — on dark</title>
+<link rel="stylesheet" href="../colors_and_type.css" />
+<style>
+  body { margin: 0; padding: 20px; background: var(--jp-navy); }
+  .row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .swatch { border: 1px solid var(--jp-mid-navy); display: flex; flex-direction: column; }
+  .chip { height: 86px; }
+  .meta { padding: 10px 12px 12px; background: rgba(0,0,0,0.18); }
+  .name { font-style: italic; font-weight: 700; font-size: 14px; color: var(--jp-white); margin: 0 0 2px; }
+  .hex  { font-family: var(--font-mono); font-size: 11px; color: var(--jp-muted-navy); letter-spacing: 0.04em; text-transform: uppercase; }
+  .role { font-size: 11px; color: var(--jp-muted-navy); margin-top: 4px; line-height: 1.45; }
+</style>
+</head>
+<body>
+  <div class="row">
+    <div class="swatch">
+      <div class="chip" style="background: var(--jp-mid-navy);"></div>
+      <div class="meta">
+        <div class="name">Mid Navy</div>
+        <div class="hex">#39536f</div>
+        <div class="role">Borders in dark zones</div>
+      </div>
+    </div>
+    <div class="swatch">
+      <div class="chip" style="background: var(--jp-muted-navy);"></div>
+      <div class="meta">
+        <div class="name">Muted Navy</div>
+        <div class="hex">#aab3bf</div>
+        <div class="role">Secondary text on navy</div>
+      </div>
+    </div>
+    <div class="swatch">
+      <div class="chip" style="background: var(--jp-white);"></div>
+      <div class="meta">
+        <div class="name">White</div>
+        <div class="hex">#ffffff</div>
+        <div class="role">Page background, fg on dark</div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

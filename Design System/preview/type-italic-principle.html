@@ -1,0 +1,33 @@
+<!doctype html>
+<!-- @dsCard group="Type" name="Type — italic principle" subtitle="Plain bold loses the brand. Always italic." viewport="700x210" -->
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Type — italic principle</title>
+<link rel="stylesheet" href="../colors_and_type.css" />
+<style>
+  body { margin: 0; padding: 22px 26px; background: #fff; }
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; align-items: center; }
+  .cell { border: 1px solid var(--jp-light-grey); padding: 18px 20px; }
+  .tag { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--jp-mid-grey); margin-bottom: 8px; }
+  .h { font-size: 28px; font-weight: 700; color: var(--jp-black); margin: 0; line-height: 1.15; }
+  .right .h { font-style: italic; }
+  .note { font-size: 12px; color: var(--jp-mid-grey); margin-top: 12px; line-height: 1.55; }
+  .right .note { color: var(--jp-link-gold); font-style: italic; font-weight: 600; }
+</style>
+</head>
+<body>
+  <div class="row">
+    <div class="cell">
+      <div class="tag">Plain bold — wrong</div>
+      <p class="h">Thinking happens here</p>
+      <div class="note">Reads like a generic SaaS heading. Loses the brand.</div>
+    </div>
+    <div class="cell right">
+      <div class="tag">Bold italic — on brand</div>
+      <p class="h">Thinking happens here</p>
+      <div class="note">The defining typographic choice.</div>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,33 @@
+<!doctype html>
+<!-- @dsCard group="Components" name="Buttons" subtitle="Bold italic labels, on white and on navy" viewport="700x160" -->
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Buttons</title>
+<link rel="stylesheet" href="../colors_and_type.css" />
+<style>
+  body { margin: 0; padding: 22px; background: #fff; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .cell { border: 1px solid var(--jp-light-grey); padding: 22px 18px; display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap; }
+  .dark { background: var(--jp-navy); border-color: var(--jp-navy); }
+  .label { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--jp-mid-grey); position: absolute; }
+  .row { position: relative; }
+  .row > .label { top: 6px; left: 10px; }
+  .dark .label { color: var(--jp-muted-navy); }
+</style>
+</head>
+<body>
+  <div class="grid">
+    <div class="cell row">
+      <div class="label">On white</div>
+      <a class="btn" href="#">Read more</a>
+      <a class="btn btn-solid" href="#">Subscribe</a>
+    </div>
+    <div class="cell row dark">
+      <div class="label">On navy</div>
+      <a class="btn btn-on-dark" href="#">Read more</a>
+      <a class="btn btn-solid" href="#" style="border-color: var(--jp-highlight-gold); background: var(--jp-highlight-gold); color: var(--jp-navy);">Subscribe</a>
+    </div>
+  </div>
+</body>
+</html>

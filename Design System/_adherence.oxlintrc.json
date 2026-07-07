@@ -1,0 +1,166 @@
+{
+  "plugins": [
+    "react",
+    "import"
+  ],
+  "rules": {
+    "react/forbid-elements": [
+      "warn",
+      {
+        "forbid": []
+      }
+    ],
+    "no-restricted-imports": [
+      "warn",
+      {
+        "patterns": [
+          {
+            "group": [
+              "ui_kits/website/**"
+            ],
+            "message": "Import design-system components from 'index.js', not component internals."
+          }
+        ]
+      }
+    ],
+    "no-restricted-syntax": [
+      "warn",
+      {
+        "selector": "Literal[value=/#[0-9a-fA-F]{3,8}\\b/]",
+        "message": "Raw hex color — use a design-system color token via var()."
+      },
+      {
+        "selector": "Literal[value=/\\b\\d+px\\b/]",
+        "message": "Raw px value — use a design-system spacing token via var()."
+      },
+      {
+        "selector": "Literal[value=/font-family\\s*:\\s*(?!['\\\"]?(?:Open Sans))/i]",
+        "message": "Font not provided by the design system. Available: Open Sans."
+      }
+    ]
+  },
+  "overrides": [
+    {
+      "files": [
+        "**/index.js"
+      ],
+      "rules": {
+        "no-restricted-imports": "off"
+      }
+    }
+  ],
+  "x-omelette": {
+    "components": {},
+    "tokens": [
+      "--accent",
+      "--accent-on-dark",
+      "--bg-dark",
+      "--bg-page",
+      "--bg-subtle",
+      "--border-on-dark",
+      "--border-subtle",
+      "--cover-overlay",
+      "--fg-1",
+      "--fg-2",
+      "--fg-on-dark",
+      "--fg-on-dark-2",
+      "--font-mono",
+      "--font-sans",
+      "--fs-body",
+      "--fs-h1",
+      "--fs-h2",
+      "--fs-h3",
+      "--fs-h4",
+      "--fs-h5",
+      "--fs-input",
+      "--fs-meta",
+      "--jp-black",
+      "--jp-card-overlay",
+      "--jp-card-overlay-hover",
+      "--jp-highlight-gold",
+      "--jp-light-grey",
+      "--jp-link-gold",
+      "--jp-mid-grey",
+      "--jp-mid-navy",
+      "--jp-muted-navy",
+      "--jp-navy",
+      "--jp-white",
+      "--lh-body",
+      "--lh-tight",
+      "--link",
+      "--link-hover",
+      "--radius-0",
+      "--radius-1",
+      "--radius-2",
+      "--radius-pill",
+      "--shadow-card",
+      "--shadow-soft",
+      "--space-1",
+      "--space-2",
+      "--space-3",
+      "--space-4",
+      "--space-5",
+      "--space-6",
+      "--space-7",
+      "--space-8",
+      "--space-9"
+    ],
+    "tokenKinds": {
+      "--jp-navy": "color",
+      "--jp-mid-navy": "color",
+      "--jp-muted-navy": "color",
+      "--jp-highlight-gold": "color",
+      "--jp-link-gold": "color",
+      "--jp-white": "color",
+      "--jp-black": "color",
+      "--jp-mid-grey": "color",
+      "--jp-light-grey": "color",
+      "--fg-1": "color",
+      "--fg-2": "color",
+      "--fg-on-dark": "color",
+      "--fg-on-dark-2": "color",
+      "--bg-page": "color",
+      "--bg-dark": "color",
+      "--bg-subtle": "color",
+      "--border-subtle": "color",
+      "--border-on-dark": "color",
+      "--accent": "color",
+      "--accent-on-dark": "color",
+      "--link": "color",
+      "--link-hover": "color",
+      "--cover-overlay": "color",
+      "--font-sans": "font",
+      "--font-mono": "font",
+      "--fs-h1": "spacing",
+      "--fs-h2": "spacing",
+      "--fs-h3": "spacing",
+      "--fs-h4": "spacing",
+      "--fs-h5": "spacing",
+      "--fs-body": "spacing",
+      "--fs-input": "spacing",
+      "--fs-meta": "spacing",
+      "--lh-tight": "other",
+      "--lh-body": "other",
+      "--space-1": "spacing",
+      "--space-2": "spacing",
+      "--space-3": "spacing",
+      "--space-4": "spacing",
+      "--space-5": "spacing",
+      "--space-6": "spacing",
+      "--space-7": "spacing",
+      "--space-8": "spacing",
+      "--space-9": "spacing",
+      "--radius-0": "radius",
+      "--radius-1": "radius",
+      "--radius-pill": "radius",
+      "--shadow-soft": "shadow",
+      "--shadow-card": "shadow",
+      "--radius-2": "radius",
+      "--jp-card-overlay": "other",
+      "--jp-card-overlay-hover": "other"
+    },
+    "fontFamilies": [
+      "Open Sans"
+    ]
+  }
+}

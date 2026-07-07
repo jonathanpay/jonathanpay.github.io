@@ -1,0 +1,50 @@
+<!doctype html>
+<!-- @dsCard group="Colors" name="Palette — primary" subtitle="Navy + two golds, the workhorse trio" viewport="700x180" -->
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Palette — primary</title>
+<link rel="stylesheet" href="../colors_and_type.css" />
+<style>
+  body { margin: 0; padding: 20px; background: #fff; }
+  .row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .swatch {
+    border: 1px solid var(--jp-light-grey);
+    display: flex; flex-direction: column;
+  }
+  .chip { height: 86px; }
+  .meta { padding: 10px 12px 12px; }
+  .name { font-style: italic; font-weight: 700; font-size: 14px; color: var(--jp-black); margin: 0 0 2px; }
+  .hex  { font-family: var(--font-mono); font-size: 11px; color: var(--jp-mid-grey); letter-spacing: 0.04em; text-transform: uppercase; }
+  .role { font-size: 11px; color: var(--jp-mid-grey); margin-top: 4px; line-height: 1.45; }
+</style>
+</head>
+<body>
+  <div class="row">
+    <div class="swatch">
+      <div class="chip" style="background: var(--jp-navy);"></div>
+      <div class="meta">
+        <div class="name">Navy</div>
+        <div class="hex">#2c3d50</div>
+        <div class="role">Header, footer, cover overlay</div>
+      </div>
+    </div>
+    <div class="swatch">
+      <div class="chip" style="background: var(--jp-highlight-gold);"></div>
+      <div class="meta">
+        <div class="name">Highlight Gold</div>
+        <div class="hex">#dfb81f</div>
+        <div class="role">Nav, social, accent on navy</div>
+      </div>
+    </div>
+    <div class="swatch">
+      <div class="chip" style="background: var(--jp-link-gold);"></div>
+      <div class="meta">
+        <div class="name">Link Gold</div>
+        <div class="hex">#8b7417</div>
+        <div class="role">Body links, buttons on white</div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
