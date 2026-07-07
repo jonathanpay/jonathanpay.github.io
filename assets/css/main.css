@@ -306,7 +306,7 @@ figcaption, .wp-element-caption {
 }
 .jp-hero-cover {
   position: absolute;
-  inset: -15% 0;
+  inset: -15% -5%;
   background-color: var(--jp-navy);
   background-image: url("/img/21147985_354293961679777_3699025224876949504_n.jpeg");
   background-size: cover;

@@ -23,31 +23,68 @@ layout: default
 
 <script>
   (function () {
+    var hero = document.querySelector(".jp-hero");
     var bg = document.querySelector("[data-parallax]");
     var reduceMotion = window.matchMedia(
       "(prefers-reduced-motion: reduce)"
     ).matches;
-    if (!bg || reduceMotion) return;
+    if (!hero || !bg || reduceMotion) return;
 
-    var ticking = false;
+    var MOUSE_RANGE = 16; // max px shift from mouse movement
+    var scrollOffset = 0;
+    var targetX = 0;
+    var targetY = 0;
+    var currentX = 0;
+    var currentY = 0;
+    var rafId = null;
 
-    function update() {
-      var offset = window.scrollY * 0.35;
-      bg.style.transform = "translate3d(0, " + offset + "px, 0)";
-      ticking = false;
+    function render() {
+      currentX += (targetX - currentX) * 0.08;
+      currentY += (targetY - currentY) * 0.08;
+      var offset = scrollOffset * 0.35;
+      bg.style.transform =
+        "translate3d(" + currentX + "px, " + (offset + currentY) + "px, 0)";
+
+      if (
+        Math.abs(targetX - currentX) > 0.05 ||
+        Math.abs(targetY - currentY) > 0.05
+      ) {
+        rafId = window.requestAnimationFrame(render);
+      } else {
+        rafId = null;
+      }
+    }
+
+    function requestRender() {
+      if (!rafId) rafId = window.requestAnimationFrame(render);
     }
 
     window.addEventListener(
       "scroll",
       function () {
-        if (!ticking) {
-          window.requestAnimationFrame(update);
-          ticking = true;
-        }
+        scrollOffset = window.scrollY;
+        requestRender();
       },
       { passive: true }
     );
 
-    update();
+    hero.addEventListener("pointermove", function (e) {
+      if (e.pointerType && e.pointerType !== "mouse") return;
+      var rect = hero.getBoundingClientRect();
+      var relX = (e.clientX - rect.left) / rect.width - 0.5;
+      var relY = (e.clientY - rect.top) / rect.height - 0.5;
+      targetX = relX * MOUSE_RANGE * -1;
+      targetY = relY * MOUSE_RANGE * -1;
+      requestRender();
+    });
+
+    hero.addEventListener("pointerleave", function (e) {
+      if (e.pointerType && e.pointerType !== "mouse") return;
+      targetX = 0;
+      targetY = 0;
+      requestRender();
+    });
+
+    render();
   })();
 </script>
