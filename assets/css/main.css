@@ -297,6 +297,10 @@ figcaption, .wp-element-caption {
   position: relative;
   overflow: hidden;
   width: 100vw;
+  min-height: clamp(360px, 70vh, 720px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
   margin-top: -3.5rem;
   margin-left: calc(50% - 50vw);
   margin-right: calc(50% - 50vw);
@@ -337,19 +341,6 @@ figcaption, .wp-element-caption {
   color: var(--jp-white);
 }
 .jp-hero-title em { color: var(--jp-highlight-gold); font-style: italic; }
-.jp-hero-tagline {
-  font-size: 1.05rem;
-  line-height: 1.6;
-  color: var(--jp-muted-navy);
-  max-width: 56ch;
-  margin: 0 auto 1.8rem;
-}
-.jp-hero-actions {
-  display: flex;
-  gap: 0.75rem;
-  justify-content: center;
-  flex-wrap: wrap;
-}
 .jp-hero-btn {
   display: inline-block;
   font-family: var(--font-sans);
