@@ -21,7 +21,8 @@ permalink: "/blog/"
           {{ post.date | date: "%-d %B %Y" }}{% if post.categories and post.categories != empty %} · {{ post.categories | join: ", " }}{% endif %}
         </div>
         <h2 class="jp-image-card__title">{{ post.title }}</h2>
-        {% if post.excerpt %}<p class="jp-image-card__body">{{ post.excerpt | strip_html | truncate: 140 }}</p>{% endif %}
+        {% assign dek = post.excerpt | strip_html | strip %}
+        {% if dek != "" %}<p class="jp-image-card__body">{{ dek | truncate: 140 }}</p>{% endif %}
       </div>
     </a>
   {% endfor %}

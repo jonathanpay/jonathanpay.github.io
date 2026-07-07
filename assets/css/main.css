@@ -517,7 +517,7 @@ figcaption, .wp-element-caption {
   margin: 0 0 8px;
 }
 .jp-image-card p, .jp-image-card__body { font-size: 15px; line-height: 1.5; color: var(--jp-white); margin: 0; }
-.jp-image-card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(18rem, 1fr)); gap: var(--space-4); }
+.jp-image-card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(18rem, 1fr)); align-items: start; gap: var(--space-4); }
 
 /* Single-column stack of recent posts, used by the homepage Writing section. */
 .jp-image-card--wide { min-height: 240px; padding: 30px 28px; }
