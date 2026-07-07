@@ -1,0 +1,31 @@
+title: Jonathan Pay
+description: Email marketer, writer, consultant, and second-generation practitioner.
+url: "https://jonathanpay.com"
+baseurl: ""
+lang: en-GB
+timezone: Europe/London
+permalink: /:year/:month/:day/:title/
+
+author:
+  name: Jonathan Pay
+  email: email@jonathanpay.com
+
+plugins:
+  - jekyll-feed
+  - jekyll-sitemap
+  - jekyll-seo-tag
+  - jekyll-redirect-from
+
+defaults:
+  - scope:
+      path: ""
+      type: posts
+    values:
+      layout: post
+
+exclude:
+  - scripts
+  - wordpress-import-report.md
+  - readme.md
+  - vendor
+  - Gemfile.lock

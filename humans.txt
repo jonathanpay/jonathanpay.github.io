@@ -5,13 +5,21 @@
 
     Jonathan Pay -- creator -- @jonathanpay
 
+<<<<<<< Updated upstream
 # THANKS
 
     to Tom Gillett ( http://www.twitter.com/tomgillett ) for originally hosting my site.
 
 
+=======
+>>>>>>> Stashed changes
 # TECHNOLOGY COLOPHON
 
+    Jekyll on GitHub Pages
     HTML5, CSS3
+<<<<<<< Updated upstream
     GitHub Pages
     Claude (Anthropic) — AI assistant used in site development
+=======
+    WordPress.com export migrated to local posts and media
+>>>>>>> Stashed changes
