@@ -4,3 +4,6 @@ _site/
 .sass-cache/
 .bundle/
 vendor/
+/scripts/
+/Design System/
+/archive/
