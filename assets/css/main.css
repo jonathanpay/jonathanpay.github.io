@@ -483,17 +483,17 @@ figcaption, .wp-element-caption {
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  color: var(--jp-mid-grey);
+  color: var(--jp-link-gold);
   margin-bottom: 0.4rem;
 }
 .jp-project-card-title {
   font-family: var(--font-sans);
   font-style: italic;
   font-weight: 700;
-  font-size: 1.1rem;
+  font-size: 20px;
   line-height: 1.2;
   margin: 0 0 0.5rem;
-  color: var(--jp-black);
+  color: var(--jp-navy);
   display: -webkit-box;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
