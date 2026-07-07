@@ -459,6 +459,14 @@ body.has-banner #main{ padding-top: calc(32px + 37px); }
   border-radius: 2px;
   z-index: 2;
 }
+.tray-thumb.dragging{
+  opacity: 0.5;
+  cursor: grabbing;
+}
+.tray-thumb.drag-over{
+  border-color: var(--ui-accent);
+  background: rgba(124,92,255,0.15);
+}
 
 .tray-add{
   width: 96px;
