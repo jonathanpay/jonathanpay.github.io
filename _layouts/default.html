@@ -9,11 +9,10 @@
     {% seo title=false %}
   </head>
   <body>
-    <header class="jp-header">
+    <header class="jp-header{% if page.layout == 'home' %} jp-header--overlay{% endif %}">
       <div class="jp-header-inner">
         <a class="jp-brand" href="{{ '/' | relative_url }}">
           <span class="jp-brand-mark" role="img" aria-label="Jonathan Pay"></span>
-          <span class="jp-brand-name">Jonathan Pay</span>
         </a>
         <nav class="jp-nav" aria-label="Primary navigation">
           <a class="jp-nav-link{% if page.url == '/blog/' %} is-active{% endif %}" href="{{ '/blog/' | relative_url }}">Blog</a>
