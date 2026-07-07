@@ -1,406 +1,608 @@
- :root {
-  --ink: #2c3e50;
-  --muted: #687783;
-  --paper: #fafafa;
-  --line: #dfe5e8;
-  --accent: #7f8c8d;
-  --accent-strong: #2c3e50;
-  --max: 780px;
+/* ============================================================
+   Jonathan Pay — site styles
+   Adapted from the Jonathan Pay Design System (colors_and_type.css
+   + ui_kits/website/kit.css) for the Jekyll site.
+   ============================================================ */
+
+@font-face {
+  font-family: "Open Sans";
+  src: url("/assets/fonts/OpenSans-VariableFont_wdth_wght.ttf") format("truetype-variations"),
+       url("/assets/fonts/OpenSans-VariableFont_wdth_wght.ttf") format("truetype");
+  font-weight: 300 800;
+  font-stretch: 75% 100%;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Open Sans";
+  src: url("/assets/fonts/OpenSans-Italic-VariableFont_wdth_wght.ttf") format("truetype-variations"),
+       url("/assets/fonts/OpenSans-Italic-VariableFont_wdth_wght.ttf") format("truetype");
+  font-weight: 300 800;
+  font-stretch: 75% 100%;
+  font-style: italic;
+  font-display: swap;
+}
+
+:root {
+  /* -------- Color tokens (base) -------- */
+  --jp-navy:           #2c3d50;
+  --jp-mid-navy:       #39536f;
+  --jp-muted-navy:     #aab3bf;
+  --jp-highlight-gold: #dfb81f;
+  --jp-link-gold:      #8b7417;
+  --jp-white:          #ffffff;
+  --jp-black:          #000000;
+  --jp-mid-grey:       #6d6d6d;
+  --jp-light-grey:     #dbdbdb;
+
+  /* -------- Semantic colors -------- */
+  --fg-1:           var(--jp-black);
+  --fg-2:           var(--jp-mid-grey);
+  --fg-on-dark:     var(--jp-white);
+  --fg-on-dark-2:   var(--jp-muted-navy);
+  --bg-page:        var(--jp-white);
+  --bg-dark:        var(--jp-navy);
+  --bg-subtle:      var(--jp-light-grey);
+  --border-subtle:  var(--jp-light-grey);
+  --border-on-dark: var(--jp-mid-navy);
+  --accent:         var(--jp-link-gold);
+  --accent-on-dark: var(--jp-highlight-gold);
+  --link:           var(--jp-link-gold);
+
+  /* Cover-image overlay: navy over personal photography. */
+  --cover-overlay: linear-gradient(
+    180deg,
+    rgba(44, 61, 80, 0.75) 0%,
+    rgba(44, 61, 80, 0.55) 60%,
+    rgba(44, 61, 80, 0.75) 100%
+  );
+
+  /* -------- Typography tokens -------- */
+  --font-sans: "Open Sans", system-ui, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
+
+  --fs-h1:    34px;
+  --fs-h2:    26px;
+  --fs-h3:    20px;
+  --fs-h4:    17px;
+  --fs-h5:    15px;
+  --fs-body:  21px;
+  --fs-input: 16px;
+  --fs-meta:  13px;
+
+  --lh-tight: 1.25;
+  --lh-body:  1.7;
+
+  /* -------- Spacing & radii -------- */
+  --space-1:  4px;
+  --space-2:  8px;
+  --space-3:  12px;
+  --space-4:  16px;
+  --space-5:  24px;
+  --space-6:  32px;
+  --space-7:  48px;
+  --space-8:  64px;
+  --space-9:  96px;
+
+  --radius-0: 0px;
+  --radius-1: 2px;
+  --radius-2: 6px;
+  --radius-pill: 999px;
+
+  --jp-card-overlay: linear-gradient(
+    to top,
+    rgba(44, 61, 80, 0.92) 0%,
+    rgba(44, 61, 80, 0.60) 60%,
+    rgba(44, 61, 80, 0.35) 100%
+  );
+  --jp-card-overlay-hover: linear-gradient(
+    to top,
+    rgba(44, 61, 80, 0.97) 0%,
+    rgba(44, 61, 80, 0.75) 60%,
+    rgba(44, 61, 80, 0.50) 100%
+  );
 }
 
 * { box-sizing: border-box; }
 
-html { min-height: 100%; background: var(--paper); }
+html { min-height: 100%; background: var(--bg-page); }
 
 body {
   min-height: 100%;
   margin: 0;
-  color: var(--ink);
-  background: radial-gradient(circle at top, rgba(44, 62, 80, 0.08), transparent 34rem), var(--paper);
-  font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  color: var(--fg-1);
+  background: var(--bg-page);
+  font-family: var(--font-sans);
   font-size: 18px;
-  line-height: 1.65;
+  line-height: var(--lh-body);
+  -webkit-font-smoothing: antialiased;
 }
 
-a { color: var(--accent-strong); text-decoration-thickness: 0.08em; text-underline-offset: 0.18em; }
-a:hover, a:focus { color: var(--accent); }
+img, video { display: block; max-width: 100%; height: auto; }
 
-.site-shell {
-  width: min(100% - 32px, var(--max));
-  min-height: 100vh;
-  margin: 0 auto;
-  display: flex;
-  flex-direction: column;
-}
+a { color: var(--link); text-decoration: none; }
+a:hover, a:focus { text-decoration: underline; }
+.on-dark a, a.on-dark { color: var(--accent-on-dark); }
 
-.site-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 24px;
-  padding: 28px 0;
-  border-bottom: 1px solid var(--line);
-}
-
-.site-brand {
-  color: var(--ink);
-  font-size: 1.1rem;
-  font-weight: 800;
-  text-decoration: none;
-  white-space: nowrap;
-}
-
-.site-nav {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-  gap: 10px 18px;
-  font-size: 0.88rem;
+/* All headings are Open Sans Bold Italic. */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-sans);
+  font-style: italic;
   font-weight: 700;
+  line-height: var(--lh-tight);
+  margin: 1.4em 0 0.6em;
+  color: var(--fg-1);
 }
+h1 { margin-top: 0; font-size: clamp(1.9rem, 5vw, var(--fs-h1)); font-weight: 800; }
+h2 { font-size: clamp(1.4rem, 3.5vw, var(--fs-h2)); }
+h3 { font-size: var(--fs-h3); }
+h4 { font-size: var(--fs-h4); }
+h5 { font-size: var(--fs-h5); }
 
-.site-nav a {
-  color: rgba(44, 62, 80, 0.78);
-  padding-bottom: 3px;
-  text-decoration: none;
-  border-bottom: 2px solid transparent;
-}
-
-.site-nav a:hover,
-.site-nav a:focus,
-.site-nav a[aria-current="page"] {
-  color: var(--ink);
-  border-bottom-color: var(--ink);
-}
-
-.site-main {
-  flex: 1;
-  padding: 56px 0 64px;
-}
-
-.page-content,
-.post-content,
-.blog-index {
-  overflow-wrap: break-word;
-}
-
-h1, h2, h3, h4 {
-  color: var(--ink);
-  font-weight: 800;
-  line-height: 1.15;
-  margin: 2.2rem 0 0.8rem;
-}
-
-h1 { margin-top: 0; font-size: clamp(2.1rem, 7vw, 4rem); letter-spacing: 0; }
-h2 { font-size: clamp(1.55rem, 4vw, 2.35rem); }
-h3 { font-size: 1.35rem; }
-
-p, ul, ol, blockquote, figure { margin: 0 0 1.35rem; }
+p, ul, ol, blockquote, figure { margin: 0 0 1.1em; }
 ul, ol { padding-left: 1.35rem; }
 li + li { margin-top: 0.35rem; }
 
-blockquote {
-  border-left: 4px solid var(--accent);
-  color: #405260;
-  padding: 0.2rem 0 0.2rem 1.1rem;
+small, .meta { font-size: var(--fs-meta); color: var(--fg-2); letter-spacing: 0.02em; }
+
+hr { border: 0; border-top: 1px solid var(--border-subtle); margin: var(--space-6) 0; }
+
+blockquote,
+.wp-block-quote {
+  border-left: 3px solid var(--accent-on-dark);
+  margin: var(--space-5) 0;
+  padding: var(--space-2) var(--space-5);
+  color: var(--fg-1);
   font-style: italic;
 }
-
 blockquote cite {
   display: block;
   margin-top: 0.7rem;
-  color: var(--muted);
-  font-size: 0.92rem;
+  color: var(--fg-2);
+  font-size: 0.85rem;
   font-style: normal;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
 }
 
-img, video {
-  display: block;
-  max-width: 100%;
-  height: auto;
+/* -------- Buttons -------- */
+.btn {
+  display: inline-block;
+  font-family: var(--font-sans);
+  font-style: italic;
+  font-weight: 700;
+  font-size: var(--fs-input);
+  letter-spacing: 0.02em;
+  padding: 12px 22px;
+  border: 2px solid var(--accent);
+  background: transparent;
+  color: var(--accent);
+  cursor: pointer;
+  text-decoration: none;
+  border-radius: var(--radius-0);
+  transition: background-color 120ms ease, color 120ms ease;
 }
+.btn:hover { background: var(--accent); color: var(--jp-white); text-decoration: none; }
 
 figure img { margin-inline: auto; }
 figcaption, .wp-element-caption {
-  color: var(--muted);
+  color: var(--fg-2);
   font-size: 0.88rem;
   line-height: 1.45;
   margin-top: 0.55rem;
   text-align: center;
 }
 
-.aligncenter,
-.has-text-align-center { text-align: center; }
-
+.aligncenter, .has-text-align-center { text-align: center; }
 .aligncenter img,
 .is-style-circle-mask img,
 .is-style-rounded img { margin-inline: auto; }
 .is-style-circle-mask img { border-radius: 999px; }
-.is-style-rounded img { border-radius: 14px; }
+.is-style-rounded img { border-radius: var(--radius-2); }
 
-.wp-block-group.alignwide {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 1.25rem;
-  margin: 1.8rem 0;
-}
+.wp-block-separator { border: 0; border-top: 1px solid var(--border-subtle); margin: 2.2rem auto; }
 
-a.wp-block-group.link-card {
-  display: block;
-  border: 1px solid var(--line);
-  border-radius: 10px;
-  padding: 1.4rem 1.5rem;
-  color: inherit;
-  text-decoration: none;
-  transition:
-    border-color 0.15s,
-    box-shadow 0.15s;
-}
-
-a.wp-block-group.link-card:hover,
-a.wp-block-group.link-card:focus {
-  border-color: var(--accent-strong);
-  box-shadow: 0 2px 10px rgba(44, 62, 80, 0.08);
-}
-
-a.wp-block-group.link-card h3,
-a.wp-block-group.link-card p {
-  color: inherit;
-  margin: 0;
-}
-
-a.wp-block-group.link-card h3 {
-  margin-bottom: 0.5rem;
-}
-
-a.wp-block-group.link-card h3.alignwide {
-  margin-top: 0;
-}
-
-.wp-block-social-links {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 1rem;
-  list-style: none;
-  padding: 0;
-  margin: 1.8rem 0 0;
-}
-
-.wp-block-social-links a {
-  font-weight: 700;
-  text-decoration: none;
-}
-
-.wp-block-separator {
-  border: 0;
-  border-top: 1px solid var(--line);
-  margin: 2.2rem auto;
-}
-
-.wp-block-buttons {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.8rem;
-  margin: 1.8rem 0;
-}
-
-.wp-block-button__link,
-.button {
+.wp-block-buttons { display: flex; flex-wrap: wrap; gap: 0.8rem; margin: 1.8rem 0; }
+.wp-block-button__link {
   display: inline-block;
-  border-radius: 999px;
-  background: var(--accent-strong);
-  color: #fff;
-  font-weight: 800;
-  padding: 0.75rem 1.15rem;
+  border-radius: var(--radius-0);
+  background: var(--jp-link-gold);
+  color: var(--jp-white);
+  font-family: var(--font-sans);
+  font-style: italic;
+  font-weight: 700;
+  padding: 0.75rem 1.25rem;
   text-decoration: none;
 }
-
 .wp-block-button__link:hover,
-.wp-block-button__link:focus,
-.button:hover,
-.button:focus {
-  background: var(--accent);
-  color: #fff;
-}
+.wp-block-button__link:focus { background: var(--jp-highlight-gold); color: var(--jp-navy); }
 
 .wp-block-gallery,
 .wp-block-jetpack-tiled-gallery,
-.tiled-gallery__gallery {
-  display: grid;
-  gap: 12px;
-}
+.tiled-gallery__gallery { display: grid; gap: 12px; }
+.wp-block-gallery.has-nested-images { grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); }
+.tiled-gallery__row { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; }
+.tiled-gallery__item img, .wp-block-gallery img { width: 100%; height: 100%; object-fit: cover; }
 
-.wp-block-gallery.has-nested-images {
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+/* ============================================================
+   Header
+   ============================================================ */
+.jp-header {
+  background: var(--jp-navy);
+  color: var(--jp-white);
+  border-bottom: 1px solid var(--jp-mid-navy);
 }
-
-.tiled-gallery__row {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-  gap: 12px;
-}
-
-.tiled-gallery__item img,
-.wp-block-gallery img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.post-header { margin-bottom: 2rem; }
-.post-meta {
-  color: var(--muted);
-  font-size: 0.9rem;
-  font-weight: 700;
-  margin-bottom: 0.55rem;
-}
-
-.post-tags {
+.jp-header-inner {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 18px 32px;
   display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
   flex-wrap: wrap;
-  gap: 0.45rem;
-  margin-top: 3rem;
 }
-
-.post-tags span {
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  color: var(--muted);
-  font-size: 0.78rem;
-  padding: 0.22rem 0.62rem;
+.jp-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  color: var(--jp-white);
 }
-
-.post-list {
-  list-style: none;
-  padding: 0;
-  margin: 2.3rem 0 0;
+.jp-brand:hover { text-decoration: none; }
+.jp-brand-mark {
+  display: inline-block;
+  width: 32px;
+  height: 32px;
+  background-image: url("/assets/logos/jp-logo-initials-2016-gold.png");
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  flex: none;
 }
-
-.post-list li {
-  border-top: 1px solid var(--line);
-  padding: 1.2rem 0;
-}
-
-.post-list a {
-  display: block;
-  color: var(--ink);
-  font-size: 1.28rem;
+.jp-brand-name {
+  font-style: italic;
   font-weight: 800;
-  line-height: 1.25;
+  font-size: 1.1rem;
+  letter-spacing: 0.01em;
+  color: var(--jp-white);
+}
+.jp-nav { display: flex; flex-wrap: wrap; gap: 22px; align-items: center; }
+.jp-nav-link {
+  font-style: italic;
+  font-weight: 700;
+  font-size: 0.9rem;
+  letter-spacing: 0.02em;
+  color: var(--jp-highlight-gold);
   text-decoration: none;
 }
+.jp-nav-link:hover { text-decoration: underline; }
+.jp-nav-link.is-active { color: var(--jp-white); }
 
-.post-list a:hover,
-.post-list a:focus { color: var(--accent); }
-
-.post-list time {
-  color: var(--muted);
-  display: block;
-  font-size: 0.86rem;
-  font-weight: 700;
-  margin-bottom: 0.35rem;
-}
-
-.site-footer {
-  border-top: 1px solid var(--line);
-  color: var(--muted);
-  font-size: 0.85rem;
-  padding: 24px 0 34px;
-}
-
-.site-footer p { margin: 0; }
-
-/* ── Home hero ── */
-.home-hero {
+/* ============================================================
+   Hero (cover photo + parallax)
+   ============================================================ */
+.jp-hero {
   position: relative;
   overflow: hidden;
   width: 100vw;
   margin-left: calc(50% - 50vw);
   margin-right: calc(50% - 50vw);
-  padding: 6rem 2rem 5rem;
+  color: var(--jp-white);
   text-align: center;
-  color: #fff;
+  isolation: isolate;
 }
-
-.home-hero-bg {
+.jp-hero-cover {
   position: absolute;
   inset: -15% 0;
+  background-color: var(--jp-navy);
   background-image: url("/img/21147985_354293961679777_3699025224876949504_n.jpeg");
   background-size: cover;
   background-position: center;
   will-change: transform;
+  z-index: 0;
 }
-
-.home-hero-overlay {
+.jp-hero-overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(
-    180deg,
-    rgba(44, 62, 80, 0.75) 0%,
-    rgba(44, 62, 80, 0.55) 60%,
-    rgba(44, 62, 80, 0.75) 100%
-  );
-}
-
-.home-hero-content {
-  position: relative;
+  background: var(--cover-overlay);
   z-index: 1;
-  max-width: 36rem;
+}
+.jp-hero-inner {
+  position: relative;
+  z-index: 2;
+  max-width: 720px;
   margin: 0 auto;
+  padding: 6rem 2rem 5rem;
 }
-
-.home-hero-content h1 {
-  color: #fff;
-  font-size: clamp(1.9rem, 5vw, 3rem);
-  margin: 0 0 1.1rem;
-}
-
-.home-hero-content h1 em {
-  color: #dfb81f;
+.jp-hero-title {
+  font-size: clamp(1.75rem, 4.5vw, 44px);
   font-style: italic;
+  font-weight: 800;
+  line-height: 1.2;
+  max-width: none;
+  margin: 0 auto 1.1rem;
+  color: var(--jp-white);
 }
-
-.home-hero-content p {
-  color: rgba(255, 255, 255, 0.82);
-  margin: 0 0 1.8rem;
+.jp-hero-title em { color: var(--jp-highlight-gold); font-style: italic; }
+.jp-hero-tagline {
   font-size: 1.05rem;
+  line-height: 1.6;
+  color: var(--jp-muted-navy);
+  max-width: 56ch;
+  margin: 0 auto 1.8rem;
 }
-
-.home-hero-links {
+.jp-hero-actions {
   display: flex;
   gap: 0.75rem;
   justify-content: center;
   flex-wrap: wrap;
 }
-
-.home-hero-links .button-outline {
+.jp-hero-btn {
+  display: inline-block;
+  font-family: var(--font-sans);
+  font-style: italic;
+  font-weight: 700;
+  font-size: 0.95rem;
+  letter-spacing: 0.02em;
+  padding: 12px 22px;
+  text-decoration: none;
+  border-radius: var(--radius-1);
+  transition: background-color 150ms ease, color 150ms ease, border-color 150ms ease;
+}
+.jp-hero-btn:hover { text-decoration: none; }
+.jp-hero-btn--primary {
+  background: var(--jp-link-gold);
+  color: var(--jp-white);
+  border: 2px solid var(--jp-link-gold);
+}
+.jp-hero-btn--primary:hover {
+  background: var(--jp-highlight-gold);
+  border-color: var(--jp-highlight-gold);
+  color: var(--jp-navy);
+}
+.jp-hero-btn--outline {
   background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.6);
-  color: #fff;
+  color: var(--jp-muted-navy);
+  border: 1px solid var(--jp-mid-navy);
 }
-
-.home-hero-links .button-outline:hover,
-.home-hero-links .button-outline:focus {
-  background: rgba(255, 255, 255, 0.12);
-  color: #fff;
-}
+.jp-hero-btn--outline:hover { color: var(--jp-white); border-color: var(--jp-muted-navy); }
 
 @media (prefers-reduced-motion: reduce) {
-  .home-hero-bg {
-    transform: none !important;
-  }
+  .jp-hero-cover { transform: none !important; }
 }
 
-@media (max-width: 720px) {
-  .home-hero {
-    padding: 4.5rem 1.25rem 3.5rem;
-  }
+/* ============================================================
+   Main content frame
+   ============================================================ */
+.jp-main {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 3.5rem 2rem 4.5rem;
 }
+
+/* Home page uses a slightly wider frame for its section grids. */
+.jp-home { max-width: 920px; margin: 0 auto; padding: 3.5rem 2rem 4.5rem; }
+.jp-home-section + .jp-home-section,
+.jp-home > h2 + * { }
+.jp-home > h2 {
+  margin-top: 3.5rem;
+  padding-top: 3.5rem;
+  border-top: 1px solid var(--jp-light-grey);
+}
+.jp-home > h2:first-child { margin-top: 1.4em; padding-top: 0; border-top: 0; }
+
+/* Slash heading. */
+.jp-section-h {
+  font-family: var(--font-sans);
+  font-style: italic;
+  font-weight: 700;
+  font-size: 22px;
+  line-height: 1.2;
+  margin: 0 0 1.25rem;
+  color: var(--jp-black);
+}
+.jp-section-slash { color: var(--jp-link-gold); }
+
+.jp-about-headline {
+  font-family: var(--font-sans);
+  font-style: italic;
+  font-weight: 800;
+  font-size: 1.6rem;
+  line-height: 1.2;
+  color: var(--jp-black);
+  margin: 0 0 1rem;
+}
+.jp-about-headline em { color: var(--jp-link-gold); font-style: italic; }
+
+.jp-about-body p { font-size: 1rem; line-height: 1.7; margin: 0 0 1em; color: var(--jp-black); }
+.jp-about-body p:last-child { margin: 0; }
+
+/* ============================================================
+   Project cards (bordered, non-photo variant)
+   ============================================================ */
+.jp-project-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(18rem, 1fr));
+  gap: 1.25rem;
+}
+.jp-project-card {
+  display: block;
+  border: 1px solid var(--jp-light-grey);
+  padding: 1.4rem 1.5rem;
+  background: var(--jp-white);
+  color: inherit;
+  text-decoration: none;
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+}
+.jp-project-card:hover,
+.jp-project-card:focus {
+  border-color: var(--jp-link-gold);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
+  text-decoration: none;
+}
+.jp-project-card-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--jp-mid-grey);
+  margin-bottom: 0.4rem;
+}
+.jp-project-card-title {
+  font-family: var(--font-sans);
+  font-style: italic;
+  font-weight: 700;
+  font-size: 1.1rem;
+  line-height: 1.2;
+  margin: 0 0 0.5rem;
+  color: var(--jp-black);
+}
+.jp-project-card-body { font-size: 0.9rem; line-height: 1.5; color: var(--jp-mid-grey); margin: 0; }
+
+/* ============================================================
+   Image-overlay card (photo background + navy gradient)
+   ============================================================ */
+.jp-image-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  min-height: 13rem;
+  padding: var(--space-6) var(--space-5);
+  border-radius: var(--radius-2);
+  overflow: hidden;
+  text-decoration: none;
+  color: var(--jp-white);
+  background-color: var(--jp-navy);
+  background-size: cover;
+  background-position: center;
+  transition: box-shadow 200ms ease;
+}
+.jp-image-card::before { content: ""; position: absolute; inset: 0; background: var(--jp-card-overlay); transition: background 200ms ease; }
+.jp-image-card:hover { box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2); text-decoration: none; }
+.jp-image-card:hover::before { background: var(--jp-card-overlay-hover); }
+.jp-image-card__inner { position: relative; }
+.jp-image-card__eyebrow {
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--jp-highlight-gold);
+  margin-bottom: 6px;
+}
+.jp-image-card h3, .jp-image-card__title {
+  font-family: var(--font-sans);
+  font-style: italic;
+  font-weight: 700;
+  font-size: 20px;
+  line-height: var(--lh-tight);
+  color: var(--jp-white);
+  margin: 0 0 8px;
+}
+.jp-image-card p, .jp-image-card__body { font-size: 15px; line-height: 1.5; color: var(--jp-white); margin: 0; }
+.jp-image-card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(18rem, 1fr)); gap: var(--space-4); }
+
+/* ============================================================
+   Talk CTA
+   ============================================================ */
+.jp-talk-body {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  padding: 1.6rem 1.75rem;
+  border: 1px solid var(--jp-light-grey);
+  border-left: 3px solid var(--jp-highlight-gold);
+}
+.jp-talk-body p { font-size: 1rem; line-height: 1.55; color: var(--jp-black); margin: 0; max-width: 56ch; }
+
+/* ============================================================
+   Find me list
+   ============================================================ */
+.jp-find-list { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 1.4rem; }
+.jp-find-list a {
+  font-family: var(--font-sans);
+  font-style: italic;
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--jp-link-gold);
+  text-decoration: none;
+}
+.jp-find-list a:hover { color: var(--jp-highlight-gold); text-decoration: underline; }
+
+/* ============================================================
+   Blog list & post
+   ============================================================ */
+.jp-blog-head { margin-bottom: 2rem; }
+.jp-blog-title { font-family: var(--font-sans); font-style: italic; font-weight: 800; font-size: 2.2rem; line-height: 1.15; margin: 0 0 0.5rem; color: var(--jp-black); }
+.jp-blog-dek { font-size: 1.05rem; color: var(--jp-mid-grey); margin: 0; }
+
+.jp-post-list { list-style: none; padding: 0; margin: 0; }
+.jp-post-list > .jp-post-card + .jp-post-card { border-top: 1px solid var(--jp-light-grey); margin-top: 2.5rem; padding-top: 2.5rem; }
+
+.jp-meta { font-size: var(--fs-meta); letter-spacing: 0.04em; color: var(--jp-mid-grey); margin-bottom: 0.6rem; }
+.jp-meta-dot { margin: 0 8px; color: var(--jp-mid-grey); }
+
+.jp-post-title { margin: 0 0 0.7rem; font-size: 1.7rem; font-style: italic; font-weight: 700; line-height: 1.2; }
+.jp-post-title a { color: var(--jp-black); text-decoration: none; }
+.jp-post-title a:hover { color: var(--jp-link-gold); text-decoration: none; }
+.jp-post-dek { margin: 0 0 1rem; font-size: 1.05rem; line-height: 1.6; color: var(--jp-black); }
+.jp-read-more { font-style: italic; font-weight: 700; font-size: 0.9rem; color: var(--jp-link-gold); text-decoration: none; }
+.jp-read-more:hover { text-decoration: underline; }
+
+.jp-article { padding-top: 0.25rem; }
+.jp-back { display: inline-block; font-style: italic; font-weight: 700; font-size: 0.85rem; color: var(--jp-link-gold); text-decoration: none; margin-bottom: 2rem; }
+.jp-back:hover { text-decoration: underline; }
+.jp-article-title { font-size: clamp(1.7rem, 4vw, 2.4rem); font-style: italic; font-weight: 800; line-height: 1.15; color: var(--jp-black); margin: 0.3rem 0 0.8rem; }
+.jp-article-body { font-size: 1.05rem; line-height: 1.75; color: var(--jp-black); }
+.jp-article-body p { margin: 0 0 1.1em; }
+.jp-article-body h3 { font-size: 1.3rem; font-style: italic; font-weight: 700; margin: 1.8em 0 0.5em; color: var(--jp-black); }
+.jp-article-body a { color: var(--jp-link-gold); text-decoration: none; }
+.jp-article-body a:hover { text-decoration: underline; }
+
+.post-tags { display: flex; flex-wrap: wrap; gap: 0.45rem; margin-top: 3rem; }
+.post-tags span { border: 1px solid var(--jp-light-grey); color: var(--jp-mid-grey); font-size: 0.78rem; padding: 0.22rem 0.62rem; }
+
+/* ============================================================
+   Footer
+   ============================================================ */
+.jp-footer { background: var(--jp-navy); color: var(--jp-white); }
+.jp-footer-inner {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+.jp-footer-left { display: flex; align-items: center; gap: 1rem; }
+.jp-footer-mark {
+  display: inline-block;
+  width: 28px;
+  height: 28px;
+  background-image: url("/assets/logos/jp-logo-initials-2016-gold.png");
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  flex: none;
+}
+.jp-footer-tagline { font-size: 0.85rem; font-style: italic; color: var(--jp-muted-navy); }
+.jp-footer-right { display: flex; align-items: center; gap: 1.4rem; flex-wrap: wrap; }
+.jp-social-row { display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; }
+.jp-social-row a { color: var(--jp-highlight-gold); font-weight: 700; text-decoration: none; font-size: 0.85rem; }
+.jp-social-row a:hover { color: var(--jp-white); text-decoration: underline; }
+.jp-copy { font-size: 0.8rem; color: var(--jp-muted-navy); }
+.jp-copy a { color: var(--jp-muted-navy); text-decoration: underline; }
+.jp-copy a:hover { color: var(--jp-white); }
 
 @media (max-width: 720px) {
   body { font-size: 17px; }
-  .site-header { align-items: flex-start; flex-direction: column; }
-  .site-nav { justify-content: flex-start; }
-  .site-main { padding-top: 38px; }
+  .jp-header-inner { padding: 14px 20px; gap: 12px; }
+  .jp-hero-inner { padding: 4.5rem 1.25rem 3.5rem; }
+  .jp-main, .jp-home { padding: 2.5rem 1.25rem 3.5rem; }
+  .jp-article-title { font-size: 1.7rem; }
 }

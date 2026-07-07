@@ -1,12 +1,15 @@
 ---
 layout: default
 ---
-<article class="post-content">
-  <header class="post-header">
-    <p class="post-meta">{{ page.date | date: "%-d %B %Y" }}{% if page.categories and page.categories != empty %} · {{ page.categories | join: ", " }}{% endif %}</p>
-    <h1>{{ page.title }}</h1>
+<article class="jp-article">
+  <a class="jp-back" href="{{ '/blog/' | relative_url }}">&larr; Back to blog</a>
+  <header>
+    <p class="jp-meta">{{ page.date | date: "%-d %B %Y" }}{% if page.categories and page.categories != empty %}<span class="jp-meta-dot">·</span>{{ page.categories | join: ", " }}{% endif %}</p>
+    <h1 class="jp-article-title">{{ page.title }}</h1>
   </header>
-  {{ content }}
+  <div class="jp-article-body">
+    {{ content }}
+  </div>
   {% if page.tags and page.tags != empty %}
     <footer class="post-tags">
       {% for tag in page.tags %}

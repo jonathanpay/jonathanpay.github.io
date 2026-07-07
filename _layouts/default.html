@@ -5,31 +5,45 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{% if page.title %}{{ page.title }} | {% endif %}{{ site.title }}</title>
     <link rel="icon" href="{{ '/favicon.ico' | relative_url }}">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,400;0,700;0,800;1,400;1,700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ '/assets/css/main.css' | relative_url }}">
     {% seo title=false %}
   </head>
   <body>
-    <div class="site-shell">
-      <header class="site-header">
-        <a class="site-brand" href="{{ '/' | relative_url }}">Jonathan Pay</a>
-        <nav class="site-nav" aria-label="Primary navigation">
-          <a href="{{ '/blog/' | relative_url }}" {% if page.url == '/blog/' %}aria-current="page"{% endif %}>Blog</a>
-          <a href="{{ '/holistic-email-marketing/' | relative_url }}" {% if page.url == '/holistic-email-marketing/' %}aria-current="page"{% endif %}>Holistic Email Marketing</a>
-          <a href="{{ '/holistic-email-academy/' | relative_url }}" {% if page.url == '/holistic-email-academy/' %}aria-current="page"{% endif %}>Holistic Email Academy</a>
-          <a href="mailto:email@jonathanpay.com">Contact</a>
+    <header class="jp-header">
+      <div class="jp-header-inner">
+        <a class="jp-brand" href="{{ '/' | relative_url }}">
+          <span class="jp-brand-mark" role="img" aria-label="Jonathan Pay"></span>
+          <span class="jp-brand-name">Jonathan Pay</span>
+        </a>
+        <nav class="jp-nav" aria-label="Primary navigation">
+          <a class="jp-nav-link{% if page.url == '/blog/' %} is-active{% endif %}" href="{{ '/blog/' | relative_url }}">Blog</a>
+          <a class="jp-nav-link{% if page.url == '/holistic-email-marketing/' %} is-active{% endif %}" href="{{ '/holistic-email-marketing/' | relative_url }}">Holistic Email Marketing</a>
+          <a class="jp-nav-link{% if page.url == '/holistic-email-academy/' %} is-active{% endif %}" href="{{ '/holistic-email-academy/' | relative_url }}">Holistic Email Academy</a>
+          <a class="jp-nav-link" href="mailto:email@jonathanpay.com">Contact</a>
         </nav>
-      </header>
+      </div>
+    </header>
 
-      <main class="site-main">
-        {{ content }}
-      </main>
+    <main class="jp-main">
+      {{ content }}
+    </main>
 
-      <footer class="site-footer">
-        <p>&copy; {{ 'now' | date: '%Y' }} Jonathan Pay. <a href="{{ '/privacy-policy/' | relative_url }}">Privacy policy</a>.</p>
-      </footer>
-    </div>
+    <footer class="jp-footer on-dark">
+      <div class="jp-footer-inner">
+        <div class="jp-footer-left">
+          <span class="jp-footer-mark" role="img" aria-label="JP"></span>
+          <div class="jp-footer-tagline">Email marketer. Writer. Weston-super-Mare.</div>
+        </div>
+        <div class="jp-footer-right">
+          <div class="jp-social-row">
+            <a href="https://bsky.app/profile/jonathanpay.bsky.social" target="_blank" rel="noopener" aria-label="Bluesky">Bluesky</a>
+            <a href="https://www.linkedin.com/in/jonathanpay/" target="_blank" rel="noopener" aria-label="LinkedIn">LinkedIn</a>
+            <a href="{{ '/feed.xml' | relative_url }}" aria-label="RSS">RSS</a>
+            <a href="mailto:email@jonathanpay.com" aria-label="Email">Email</a>
+          </div>
+          <div class="jp-copy">&copy; {{ 'now' | date: '%Y' }} Jonathan Pay. <a href="{{ '/privacy-policy/' | relative_url }}">Privacy policy</a>.</div>
+        </div>
+      </div>
+    </footer>
   </body>
 </html>

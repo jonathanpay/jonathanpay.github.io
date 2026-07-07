@@ -4,15 +4,21 @@ title: "Blog"
 permalink: "/blog/"
 ---
 
-<section class="blog-index">
-  <h1>Blog</h1>
-  <ul class="post-list">
-    {% for post in site.posts %}
-      <li>
+<div class="jp-blog-head">
+  <h1 class="jp-blog-title">Blog</h1>
+  <p class="jp-blog-dek">Writing on email, faith, family, and whatever else is on my mind.</p>
+</div>
+
+<ul class="jp-post-list">
+  {% for post in site.posts %}
+    <li class="jp-post-card">
+      <p class="jp-meta">
         <time datetime="{{ post.date | date_to_xmlschema }}">{{ post.date | date: "%-d %B %Y" }}</time>
-        <a href="{{ post.url | relative_url }}">{{ post.title }}</a>
-        {% if post.excerpt %}<p>{{ post.excerpt | strip_html | truncate: 180 }}</p>{% endif %}
-      </li>
-    {% endfor %}
-  </ul>
-</section>
+        {% if post.categories and post.categories != empty %}<span class="jp-meta-dot">·</span>{{ post.categories | join: ", " }}{% endif %}
+      </p>
+      <h2 class="jp-post-title"><a href="{{ post.url | relative_url }}">{{ post.title }}</a></h2>
+      {% if post.excerpt %}<p class="jp-post-dek">{{ post.excerpt | strip_html | truncate: 180 }}</p>{% endif %}
+      <a class="jp-read-more" href="{{ post.url | relative_url }}">Read more</a>
+    </li>
+  {% endfor %}
+</ul>
