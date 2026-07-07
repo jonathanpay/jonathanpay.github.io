@@ -404,6 +404,7 @@ function renderTray(){
     const thumb = document.createElement('div');
     thumb.className = 'tray-thumb' + (idx === state.currentIdx ? ' active' : '') + (state.format === 'portrait' ? ' portrait' : '');
     thumb.dataset.idx = idx;
+    thumb.draggable = true;
     thumb.onclick = () => switchTo(idx);
     thumb.innerHTML = `
       <button class="thumb-del" title="Delete">×</button>
@@ -420,12 +421,58 @@ function renderTray(){
   add.onclick = addSlide;
   add.innerHTML = `<span>+</span>Add slide`;
   tray.appendChild(add);
+  setupTrayDragDrop();
 }
 
 function refreshThumb(idx){
   const thumb = document.querySelector(`.tray-thumb[data-idx="${idx}"]`);
   if (!thumb) return;
   thumb.querySelector('.thumb-inner').innerHTML = T.render(applyRenderTweaks(state.slides[idx]));
+}
+
+function setupTrayDragDrop(){
+  let draggedIdx = null;
+  const thumbs = $$('.tray-thumb');
+
+  thumbs.forEach(thumb => {
+    thumb.addEventListener('dragstart', (e) => {
+      draggedIdx = parseInt(thumb.dataset.idx, 10);
+      thumb.classList.add('dragging');
+      e.dataTransfer.effectAllowed = 'move';
+    });
+
+    thumb.addEventListener('dragend', () => {
+      thumb.classList.remove('dragging');
+      thumbs.forEach(t => t.classList.remove('drag-over'));
+    });
+
+    thumb.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+      thumb.classList.add('drag-over');
+    });
+
+    thumb.addEventListener('dragleave', () => {
+      thumb.classList.remove('drag-over');
+    });
+
+    thumb.addEventListener('drop', (e) => {
+      e.preventDefault();
+      const targetIdx = parseInt(thumb.dataset.idx, 10);
+      if (draggedIdx !== null && draggedIdx !== targetIdx) {
+        const draggedSlide = state.slides[draggedIdx];
+        state.slides.splice(draggedIdx, 1);
+        const insertIdx = draggedIdx < targetIdx ? targetIdx - 1 : targetIdx;
+        state.slides.splice(insertIdx, 0, draggedSlide);
+        state.currentIdx = insertIdx;
+        renderTray();
+        renderCanvas();
+        persistDraft();
+        toast('Slide moved');
+      }
+      thumb.classList.remove('drag-over');
+    });
+  });
 }
 
 // ── Slide management ──────────────────────────────────────────────
@@ -536,6 +583,75 @@ async function exportAll(){
   state.currentIdx = origIdx;
   renderCanvas();
   toast('All slides exported');
+}
+
+async function exportAllToPdf(){
+  if (!window.html2pdf) return toast('PDF exporter loading…');
+  if (!window.html2canvas) return toast('Exporter loading…');
+  toast('Exporting to PDF…');
+  const origIdx = state.currentIdx;
+
+  // Collect all slides as canvases
+  const slides = [];
+  for (let i = 0; i < state.slides.length; i++){
+    state.currentIdx = i;
+    renderCanvas();
+    await new Promise(r => setTimeout(r, 100));
+    const wrap = $('#slide-canvas-wrap');
+    const prevTransform = wrap.style.transform;
+    wrap.style.transform = 'scale(1)';
+    const slide = wrap.querySelector('.slide');
+    const w = slide.offsetWidth, h = slide.offsetHeight;
+    const exportScale = 1080 / w;
+    const canvas = await html2canvas(slide, {
+      backgroundColor: null, scale: exportScale,
+      width: w, height: h, useCORS: true, logging: false,
+    });
+    wrap.style.transform = prevTransform;
+    slides.push({
+      img: canvas.toDataURL('image/png'),
+      w: w, h: h,
+    });
+    await new Promise(r => setTimeout(r, 50));
+  }
+
+  // Create PDF
+  const pageSize = state.format === 'portrait' ? 'a5' : [100, 100];
+  const pdf = window.html2pdf().set({
+    margin: 5,
+    filename: 'carousel.pdf',
+    image: { type: 'png', quality: 0.98 },
+    html2canvas: { scale: 2 },
+    jsPDF: {
+      orientation: state.format === 'portrait' ? 'p' : 'l',
+      unit: 'mm',
+      format: pageSize,
+    },
+  });
+
+  // Add first slide
+  const firstSlide = document.createElement('div');
+  const firstImg = document.createElement('img');
+  firstImg.src = slides[0].img;
+  firstImg.style.maxWidth = '100%';
+  firstSlide.appendChild(firstImg);
+  pdf.html(firstSlide);
+
+  // Add remaining slides
+  for (let i = 1; i < slides.length; i++){
+    pdf.addPage();
+    const slideDiv = document.createElement('div');
+    const img = document.createElement('img');
+    img.src = slides[i].img;
+    img.style.maxWidth = '100%';
+    slideDiv.appendChild(img);
+    pdf.html(slideDiv);
+  }
+
+  state.currentIdx = origIdx;
+  renderCanvas();
+  pdf.save();
+  toast('PDF exported');
 }
 
 // ── Showcase ──────────────────────────────────────────────────────
@@ -1024,6 +1140,7 @@ window.addEventListener('DOMContentLoaded', () => {
   $('#btn-duplicate').onclick = duplicateSlide;
   $('#btn-export').onclick = exportSlide;
   $('#btn-export-all').onclick = exportAll;
+  $('#btn-export-pdf').onclick = exportAllToPdf;
   $('#btn-browse').onclick = openShowcase;
   $('#btn-tweaks').onclick = () => {
     const isOpen = $('#tweaks').classList.toggle('open');
