@@ -48,10 +48,10 @@ const FAMILIES = {
 };
 
 // ── Layouts ────────────────────────────────────────────────────────
-const LAYOUTS = ['cover','stat','tip','list','quote','compare','case','image','author','cta'];
+const LAYOUTS = ['cover','cover-image','stat','tip','list','quote','compare','case','image','author','cta'];
 
 const LAYOUT_LABELS = {
-  cover: 'Cover', stat: 'Big Stat', tip: 'Numbered Tip', list: 'Checklist',
+  cover: 'Cover', 'cover-image': 'Cover + Image', stat: 'Big Stat', tip: 'Numbered Tip', list: 'Checklist',
   quote: 'Pull Quote', compare: 'Compare', case: 'Case Study',
   image: 'Image + Caption', author: 'Author', cta: 'CTA',
 };
@@ -62,6 +62,12 @@ const FIELDS = {
     { id:'eyebrow', label:'Eyebrow / Tag', ph:'Email Strategy' },
     { id:'headline', label:'Headline (use *word* for accent)', ph:'5 *tips* to write better emails', ta:true },
     { id:'sub', label:'Subheadline', ph:'A practical guide for marketers who actually want to grow.', ta:true },
+  ],
+  'cover-image': [
+    { id:'eyebrow', label:'Eyebrow / Tag', ph:'Email Strategy' },
+    { id:'headline', label:'Headline (use *word* for accent)', ph:'5 *tips* to write better emails', ta:true },
+    { id:'sub', label:'Subheadline', ph:'A practical guide for marketers who actually want to grow.', ta:true },
+    { id:'photoUrl', label:'Feature image URL (optional)', ph:'paste image URL or leave blank for placeholder' },
   ],
   stat: [
     { id:'number', label:'Big number', ph:'73%' },
@@ -125,9 +131,9 @@ const FIELDS = {
 // ── Theme registry (maps family.theme → CSS class modifier) ───────
 const THEMES = {
   'jp-editorial': {
-    navy:  { label:'Navy',   swatch:'#2c3d50', cls:{cover:'dark',cta:'dark',quote:'dark',tip:'',list:'',stat:'',compare:'',case:'',image:'',author:''} },
+    navy:  { label:'Navy',   swatch:'#2c3d50', cls:{cover:'dark','cover-image':'dark',cta:'dark',quote:'dark',tip:'',list:'',stat:'',compare:'',case:'',image:'',author:''} },
     white: { label:'White',  swatch:'#ffffff', cls:{} },
-    gold:  { label:'Gold',   swatch:'#dfb81f', cls:{cover:'gold-bg',cta:'gold-bg'} },
+    gold:  { label:'Gold',   swatch:'#dfb81f', cls:{cover:'gold-bg','cover-image':'gold-bg',cta:'gold-bg'} },
   },
   'jp-magazine': {
     navy:    { label:'Navy',   swatch:'#15202c', cls:{} },
@@ -180,6 +186,28 @@ JPE.cover = (s, t, f) => {
     <div class="top">
       <div class="jpe-eyebrow">${esc(fields.eyebrow)}</div>
       <img src="assets/logos/jp-full.png" class="jpe-logo" alt="JP">
+    </div>
+    <div style="display:flex;flex-direction:column;gap:18px">
+      <div class="jpe-rule"></div>
+      <h1 class="jpe-h1">${acc(fields.headline)}</h1>
+      ${fields.sub ? `<p class="jpe-sub">${lineBreak(fields.sub)}</p>` : ''}
+    </div>
+    <div class="jpe-footer">
+      <span class="handle">${esc(s.handle)}</span>
+      <span>${esc(s.pg)} / ${esc(s.pgTot)}</span>
+    </div>
+  </div>`;
+};
+
+JPE['cover-image'] = (s, t, f) => {
+  const fields = s.fields || {};
+  return `<div class="slide jpe jpe-cover-image ${t} ${f}">
+    <div class="top">
+      <div class="jpe-eyebrow">${esc(fields.eyebrow)}</div>
+      <img src="assets/logos/jp-full.png" class="jpe-logo" alt="JP">
+    </div>
+    <div class="image-slot">
+      ${fields.photoUrl ? `<img src="${esc(fields.photoUrl)}" alt="" style="width:100%;height:100%;object-fit:cover;display:block">` : `<div class="placeholder">Feature image</div>`}
     </div>
     <div style="display:flex;flex-direction:column;gap:18px">
       <div class="jpe-rule"></div>
@@ -373,6 +401,25 @@ JPM.cover = (s, t, f) => {
   </div>`;
 };
 
+JPM['cover-image'] = (s, t, f) => {
+  const fields = s.fields || {};
+  return `<div class="slide jpm jpm-cover-image ${t} ${f}">
+    ${jpmChrome(s)}
+    <div class="stage">
+      <div class="photo ${fields.photoUrl ? 'photo-real' : ''}">
+        ${fields.photoUrl ? `<img src="${esc(fields.photoUrl)}" alt="" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0">` : 'FEATURE IMAGE'}
+      </div>
+      <div>
+        <div class="jpm-script" style="margin-bottom:8px">${esc(fields.eyebrow)}</div>
+        <h1 class="jpm-h1">${acc(fields.headline, 'var(--accent)')}</h1>
+      </div>
+      ${fields.sub ? `<p class="jpm-body" style="margin-top:14px;max-width:88%;font-size:15px">${lineBreak(fields.sub)}</p>` : ''}
+      <div class="signature jpm-arrow">↳ swipe</div>
+    </div>
+    ${jpmFooter()}
+  </div>`;
+};
+
 JPM.stat = (s, t, f) => {
   const fields = s.fields || {};
   return `<div class="slide jpm jpm-stat ${t} ${f}">
@@ -527,6 +574,27 @@ HEC.cover = (s, t, f) => {
     <div class="top">
       <div class="hec-pill solid">${esc(fields.eyebrow || 'HEA')}</div>
       <img src="assets/logos/hea-mark.png" class="hec-logo" alt="HEA" style="height:36px">
+    </div>
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <h1 class="hec-h1">${acc(fields.headline)}</h1>
+      ${fields.sub ? `<p class="hec-sub">${lineBreak(fields.sub)}</p>` : ''}
+    </div>
+    <div class="hec-footer">
+      <span class="handle">${esc(s.handle)}</span>
+      <span>${esc(s.pg)} / ${esc(s.pgTot)}</span>
+    </div>
+  </div>`;
+};
+
+HEC['cover-image'] = (s, t, f) => {
+  const fields = s.fields || {};
+  return `<div class="slide hec hec-cover-image ${t} ${f}">
+    <div class="top">
+      <div class="hec-pill solid">${esc(fields.eyebrow || 'HEA')}</div>
+      <img src="assets/logos/hea-mark.png" class="hec-logo" alt="HEA" style="height:36px">
+    </div>
+    <div class="photo ${fields.photoUrl ? 'photo-real' : ''}">
+      ${fields.photoUrl ? `<img src="${esc(fields.photoUrl)}" alt="" style="width:100%;height:100%;object-fit:cover">` : 'FEATURE IMAGE'}
     </div>
     <div style="display:flex;flex-direction:column;gap:14px">
       <h1 class="hec-h1">${acc(fields.headline)}</h1>
@@ -705,6 +773,25 @@ HES.cover = (s, t, f) => {
   const icon = iconSrc(s.icon);
   return `<div class="slide hes hes-cover ${t} ${f}">
     <div class="hes-shape top-arc"></div>
+    <div style="position:relative;z-index:1">
+      <h1 class="hes-h1"><span class="stack">${esc(fields.eyebrow || 'Why')}</span><span class="stack">${acc(fields.headline)}</span></h1>
+    </div>
+    ${fields.sub ? `<p class="hes-sub">${lineBreak(fields.sub)}</p>` : ''}
+    <div class="hes-footer">
+      <span class="handle">${esc(s.handle)}</span>
+      <div class="hes-cbtn">⏭</div>
+    </div>
+  </div>`;
+};
+
+HES['cover-image'] = (s, t, f) => {
+  const fields = s.fields || {};
+  const icon = iconSrc(s.icon);
+  return `<div class="slide hes hes-cover-image ${t} ${f}">
+    <div class="hes-shape top-arc"></div>
+    <div class="photo ${fields.photoUrl ? 'photo-real' : ''}">
+      ${fields.photoUrl ? `<img src="${esc(fields.photoUrl)}" alt="" style="width:100%;height:100%;object-fit:cover">` : 'FEATURE IMAGE'}
+    </div>
     <div style="position:relative;z-index:1">
       <h1 class="hes-h1"><span class="stack">${esc(fields.eyebrow || 'Why')}</span><span class="stack">${acc(fields.headline)}</span></h1>
     </div>
@@ -920,6 +1007,24 @@ CSTM.cover = (s, t, f, cfg) => {
       <div class="cstm-eyebrow">${esc(fl.eyebrow)}</div>
       ${cstmLogo(cfg)}
     </div>
+    <div class="cstm-grow">
+      <div class="cstm-rule"></div>
+      <h1 class="cstm-h1">${acc(fl.headline, 'var(--cacc)')}</h1>
+      ${fl.sub ? `<p class="cstm-sub">${lineBreak(fl.sub)}</p>` : ''}
+    </div>
+    ${cstmFooter(s)}
+  </div>`;
+};
+
+CSTM['cover-image'] = (s, t, f, cfg) => {
+  const fl = s.fields || {};
+  const v  = cstmVars(cfg, s.theme);
+  return `<div class="slide cstm cstm-cover-image ${f}" style="${v}">
+    <div class="cstm-top">
+      <div class="cstm-eyebrow">${esc(fl.eyebrow)}</div>
+      ${cstmLogo(cfg)}
+    </div>
+    <div class="cstm-photo">${photoBlock(fl.photoUrl, 'FEATURE IMAGE')}</div>
     <div class="cstm-grow">
       <div class="cstm-rule"></div>
       <h1 class="cstm-h1">${acc(fl.headline, 'var(--cacc)')}</h1>

@@ -14,6 +14,16 @@ client-side; opened at `https://jonathanpay.github.io/tools/carousel-maker/`.
 | `families.js` | Stock (repo-shipped) custom-style families — see below |
 | `assets/` | Icons and static assets |
 
+## Layouts
+
+Eleven layouts, available to every family: `cover`, `cover-image`, `stat`,
+`tip`, `list`, `quote`, `compare`, `case`, `image`, `author`, `cta`.
+
+`cover-image` (Cover + Image) is a cover with a feature image between the
+top row and the headline. Fields: `eyebrow`, `headline`, `sub`, `photoUrl` —
+same as `cover` plus the image. With no `photoUrl` it renders the family's
+own placeholder block, so slides look right before the photo is chosen.
+
 ## Two kinds of family
 
 **Built-in families** (`jp-editorial`, `jp-magazine`, `hea-clean`, `hea-shapes`)
