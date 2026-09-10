@@ -744,18 +744,29 @@ function toast(msg){
 // ── Custom template persistence ───────────────────────────────────
 const STORAGE_KEY = 'carouselMaker_customTemplates';
 
+// Stock families ship with the tool (families.js) — they are never persisted
+// to localStorage, so a stale saved copy can't shadow the repo version.
+function stockFamilyIds(){
+  return new Set((window.CAROUSEL_STOCK_FAMILIES || []).map(f => f.id));
+}
 function saveCustomTemplates(){
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(T.getCustomFamilies()));
+    const stock = stockFamilyIds();
+    const mine = T.getCustomFamilies().filter(cfg => !stock.has(cfg.id));
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(mine));
   } catch(e) {}
 }
 
 function loadCustomTemplates(){
   try {
     const stored = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+    const stock = stockFamilyIds();
+    let dropped = false;
     stored.forEach(cfg => {
+      if (cfg && stock.has(cfg.id)) { dropped = true; return; }   // repo stock always wins
       try { T.registerCustomFamily(cfg); } catch(e) {}
     });
+    if (dropped) saveCustomTemplates();   // clean stale stock copies out of storage
   } catch(e) {}
 }
 
