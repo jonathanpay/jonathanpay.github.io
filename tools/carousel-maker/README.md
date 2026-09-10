@@ -24,6 +24,20 @@ top row and the headline. Fields: `eyebrow`, `headline`, `sub`, `photoUrl` —
 same as `cover` plus the image. With no `photoUrl` it renders the family's
 own placeholder block, so slides look right before the photo is chosen.
 
+### Author layout: portrait and family mark
+
+`author` takes `role`, `name`, `bio`, `handles`, `photoUrl` (portrait) and
+`logoUrl` (optional). The brand mark is **family-level**: each family renders
+its own logo in the slide corner — JP family the wordmark/gold mark, HEA
+family the HEA mark, the LTSL families the kintsugi ring. A slide can override
+it with `logoUrl` (`/url$/i` fields default to empty, so the family mark is
+what renders unless you paste something).
+
+A family's `logo` may be an image path/URL **or** the sentinel `ltsl-ring`,
+which renders the ring as inline SVG using `currentColor` for the ring and
+`#D9BA45` for the mend — so it reads correctly on both light and dark themes
+without a second asset file.
+
 ## Two kinds of family
 
 **Built-in families** (`jp-editorial`, `jp-magazine`, `hea-clean`, `hea-shapes`)

@@ -19,7 +19,7 @@ window.CAROUSEL_STOCK_FAMILIES = [
     label: 'JP — Standard',
     subtitle: 'Navy, white, gold',
     handle: '@jonathanpay',
-    logo: '',
+    logo: 'assets/logos/jp-full.png',
     logoStyle: 'height:36px;max-width:160px;object-fit:contain',
     fonts: {
       headingFamily: "'Open Sans','Helvetica Neue',sans-serif",
@@ -51,7 +51,7 @@ window.CAROUSEL_STOCK_FAMILIES = [
     label: 'LTSL — Sermon',
     subtitle: 'Ink, parchment, gold',
     handle: '@livingthescandalouslife',
-    logo: '',
+    logo: 'ltsl-ring',
     logoStyle: 'height:36px;max-width:160px;object-fit:contain',
     fonts: {
       headingFamily: "'Cormorant Garamond', Georgia, serif",
@@ -83,7 +83,7 @@ window.CAROUSEL_STOCK_FAMILIES = [
     label: 'LTSL — Brand',
     subtitle: 'Paper, navy, one gold mend',
     handle: '@livingthescandalouslife',
-    logo: '',
+    logo: 'ltsl-ring',
     logoStyle: 'height:36px;max-width:160px;object-fit:contain',
     fonts: {
       // Bebas Neue is caps-only: type headlines in UPPERCASE.
@@ -120,7 +120,7 @@ window.CAROUSEL_STOCK_FAMILIES = [
     label: 'LTSL — Brand (Classic)',
     subtitle: 'System sans, navy paper',
     handle: 'livingthescandalouslife.substack.com',
-    logo: '',
+    logo: 'ltsl-ring',
     logoStyle: 'height:36px;max-width:160px;object-fit:contain',
     fonts: {
       headingFamily: "'SF Pro Display', -apple-system, system-ui, 'Inter', 'Helvetica Neue', sans-serif",

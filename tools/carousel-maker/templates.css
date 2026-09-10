@@ -793,3 +793,10 @@
 .cstm-cover-image .cstm-photo{ flex-shrink: 0; }
 .cstm.portrait .cstm-cover-image .cstm-photo{ height: calc(250px * var(--slide-font-scale,1)); }
 .cstm-cover-image .cstm-photo img{ width: 100%; height: 100%; object-fit: cover; display: block; }
+
+/* ── Author slides: brand mark (family logo or per-slide override) ── */
+.jpe-author .author-mark, .jpm-author .author-mark, .hec-author .author-mark,
+.hes-author .author-mark, .cstm-author .author-mark{
+  position: absolute; top: 20px; right: 22px; height: 32px; max-width: 140px;
+  object-fit: contain; opacity: 0.92; z-index: 3; }
+.cstm-author .author-mark{ height: 30px; width: 30px; }

@@ -118,7 +118,8 @@ const FIELDS = {
     { id:'name', label:'Name', ph:'Jonathan Pay' },
     { id:'bio', label:'Bio', ph:'Email marketer, writer, second-generation ESP brat. I\'ve worked in email since before Gmail existed.', ta:true },
     { id:'handles', label:'Handles / links (comma separated)', ph:'@jonathanpay, jonathanpay.com' },
-    { id:'photoUrl', label:'Photo URL (optional)', ph:'paste image URL' },
+    { id:'photoUrl', label:'Photo / portrait URL (optional)', ph:'paste image URL' },
+    { id:'logoUrl', label:'Brand logo URL (optional)', ph:'leave blank to use the family mark' },
   ],
   cta: [
     { id:'pre', label:'Pre-headline', ph:'Want more like this?' },
@@ -347,6 +348,7 @@ JPE.author = (s, t, f) => {
   const fields = s.fields || {};
   const handles = (fields.handles || '').split(',').map(h => h.trim()).filter(Boolean);
   return `<div class="slide jpe jpe-author ${t} ${f}">
+    ${authorMark(s, null, 'assets/logos/jp-full.png')}
     <div class="photo-side">
       ${fields.photoUrl ? `<img src="${esc(fields.photoUrl)}" alt="" style="width:100%;height:100%;object-fit:cover">` : 'PORTRAIT'}
     </div>
@@ -534,6 +536,7 @@ JPM.author = (s, t, f) => {
   const fields = s.fields || {};
   const handles = (fields.handles || '').split(',').map(h => h.trim()).filter(Boolean);
   return `<div class="slide jpm jpm-author ${t} ${f}">
+    ${authorMark(s, null, 'assets/logos/jp-mark-gold.png')}
     <div class="chrome-strip">
       <span>Page ${esc(s.pg)} / ${esc(s.pgTot)}</span>
       <span>${esc(s.handle)}</span>
@@ -735,6 +738,7 @@ HEC.author = (s, t, f) => {
   const fields = s.fields || {};
   const handles = (fields.handles || '').split(',').map(h => h.trim()).filter(Boolean);
   return `<div class="slide hec hec-author ${t} ${f}">
+    ${authorMark(s, null, 'assets/logos/hea-mark.png')}
     <div class="top-row">
       <div class="avatar">${fields.photoUrl ? `<img src="${esc(fields.photoUrl)}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">` : 'PORTRAIT'}</div>
       <div class="who">
@@ -935,6 +939,7 @@ HES.author = (s, t, f) => {
   const fields = s.fields || {};
   const handles = (fields.handles || '').split(',').map(h => h.trim()).filter(Boolean);
   return `<div class="slide hes hes-author ${t} ${f}">
+    ${authorMark(s, null, 'assets/logos/hea-mark.png')}
     <div class="hes-shape tr-circle" style="opacity:0.7"></div>
     <div class="top-row">
       <div class="avatar">${fields.photoUrl ? `<img src="${esc(fields.photoUrl)}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">` : 'PORTRAIT'}</div>
@@ -986,10 +991,31 @@ function cstmVars(cfg, themeKey) {
   ].join(';');
 }
 
+// Brand marks. A family logo can be an image path, a pasted URL, or the
+// sentinel 'ltsl-ring', which renders an adaptive inline SVG (ring inherits the
+// theme's text colour, the mend stays gold) so it reads on light and dark grounds.
+function markHeight(style){ const m = /height:\s*(\d+)/.exec(style || ''); return m ? m[1] : '34'; }
+function markHtml(src, cls, style){
+  if (!src) return '';
+  if (src === 'ltsl-ring') {
+    const h = markHeight(style);
+    return `<svg class="${cls}" viewBox="0 0 56 56" style="height:${h}px;width:${h}px;flex-shrink:0" aria-hidden="true">
+      <circle cx="28" cy="28" r="18" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-dasharray="80 33" transform="rotate(120 28 28)"></circle>
+      <circle cx="28" cy="28" r="18" fill="none" stroke="#D9BA45" stroke-width="3.5" stroke-linecap="round" stroke-dasharray="24 89" transform="rotate(28 28 28)"></circle>
+    </svg>`;
+  }
+  return `<img src="${esc(src)}" alt="" class="${cls}" style="${esc(style || 'height:34px;max-width:150px;object-fit:contain')}">`;
+}
+// Author-slide mark: slide-level override (logoUrl) wins, else the family mark.
+function authorMark(s, cfg, familyFallback){
+  const fl = s.fields || {};
+  const src = fl.logoUrl || (cfg && cfg.logo) || familyFallback || '';
+  return markHtml(src, 'author-mark', (cfg && cfg.logoStyle) || '');
+}
+
 function cstmLogo(cfg) {
   if (!cfg.logo) return '';
-  const s = esc(cfg.logoStyle || 'height:40px;max-width:150px;object-fit:contain');
-  return `<img src="${esc(cfg.logo)}" alt="" class="cstm-logo" style="${s}">`;
+  return markHtml(cfg.logo, 'cstm-logo', cfg.logoStyle || 'height:40px;max-width:150px;object-fit:contain');
 }
 
 function cstmFooter(s) {
@@ -1133,6 +1159,7 @@ CSTM.author = (s, t, f, cfg) => {
   const fl = s.fields || {};
   const v  = cstmVars(cfg, s.theme);
   return `<div class="slide cstm cstm-author ${f}" style="${v}">
+    ${authorMark(s, cfg)}
     <div class="cstm-role">${esc(fl.role)}</div>
     <div class="cstm-author-bio cstm-grow">
       ${fl.photoUrl ? `<div class="cstm-av"><img src="${esc(fl.photoUrl)}" alt=""></div>` : ''}
