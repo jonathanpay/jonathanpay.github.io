@@ -656,6 +656,7 @@ figcaption, .wp-element-caption {
 .jp-article-body h3 { font-size: 1.3rem; font-style: italic; font-weight: 700; margin: 1.8em 0 0.5em; color: var(--jp-black); }
 .jp-article-body a { color: var(--jp-link-gold); text-decoration: none; }
 .jp-article-body a:hover { text-decoration: underline; }
+.jp-article-body iframe { max-width: 100%; width: 100%; aspect-ratio: 16 / 9; height: auto; }
 
 /* ============================================================
    Footer
