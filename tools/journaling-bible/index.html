@@ -102,6 +102,10 @@
         }
         #fit-status.warn { background: #fdf3e6; color: #97621a; border-color: #f0dcbd; }
 
+        /* A build stamp, so a stale cached copy is visible at a glance instead of
+           silently exporting at the wrong size. */
+        #build-stamp { font-size: 0.68rem; color: #aaa; margin: -6px 0 14px; letter-spacing: 0.03em; }
+
         /* ---------- Preview ---------- */
         #preview-pane {
             flex: 1;
@@ -215,6 +219,7 @@
 
     <div id="editor">
         <h1>Journaling Bible Generator</h1>
+        <div id="build-stamp" title="If your export is not 3000 × 3000, you are running an older cached copy — hard-reload with Cmd+Shift+R.">build 2026-09-24-c</div>
 
         <div class="section">
             <span class="section-label">Scripture</span>
@@ -323,6 +328,11 @@ When the days drew near for him to be taken up, he set his face to go to Jerusal
                 }
                 notesEl.appendChild(div);
             });
+
+            // Re-check here, not only in refresh(): moving a note is exactly the
+            // edit that can push one into the foot or onto another note, and the
+            // readout used to keep reporting the previous state.
+            checkFit();
         }
 
         // How far the content runs past the point where clipped text would

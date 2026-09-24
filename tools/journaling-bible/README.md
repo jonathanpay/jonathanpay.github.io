@@ -63,6 +63,17 @@ hidden under the footer. The readout therefore warns on:
 Two notes per page is the comfortable ceiling for a filled page; four only fits
 on a short passage.
 
+### One note block per highlight, not one note per thought
+
+Corrected after building the first real page. The ceiling above is about **note
+blocks**, not thoughts — and two thoughts belong in one block. Condense each
+highlight's marginalia into a single note and **both highlights fit comfortably on
+one page**; split them into separate blocks and the same content collides with the
+foot and forces the passage across two pages, which is worse.
+
+So: build one page, one note block per highlight, and only split the page when the
+notes genuinely will not condense.
+
 ## Marginal notes
 
 Each note anchors to a **paragraph index**, with a pixel nudge. The note's `top`
