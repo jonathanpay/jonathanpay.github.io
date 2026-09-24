@@ -332,8 +332,32 @@ When the days drew near for him to be taken up, he set his face to go to Jerusal
             return pageBodyEl.getBoundingClientRect().height - limit;
         }
 
+        // The margin is its own column and overflows independently: a note
+        // anchored to the last paragraph has nowhere below it to go. Measuring
+        // only the scripture column reports "fits" while a note is half hidden.
+        function noteOverflowPx() {
+            const notes = notesEl.querySelectorAll('.handwritten-note');
+            if (!notes.length) return -Infinity;
+            let lowest = -Infinity;
+            notes.forEach(n => { lowest = Math.max(lowest, n.getBoundingClientRect().bottom); });
+            return lowest - limitEl.getBoundingClientRect().top;
+        }
+
+        // Two notes anchored to the same or nearby paragraphs will happily sit
+        // on top of each other.
+        function noteCollision() {
+            const boxes = [...notesEl.querySelectorAll('.handwritten-note')]
+                .map(n => n.getBoundingClientRect())
+                .sort((a, b) => a.top - b.top);
+            for (let i = 1; i < boxes.length; i++) {
+                if (boxes[i].top < boxes[i - 1].bottom - 2) return true;
+            }
+            return false;
+        }
+
         function checkFit() {
             const over = Math.round(overflowPx());
+            const noteOver = Math.round(noteOverflowPx());
 
             if (over > 2) {
                 const lineHeight = parseFloat(getComputedStyle(scriptureEl).lineHeight) || 30;
@@ -341,6 +365,13 @@ When the days drew near for him to be taken up, he set his face to go to Jerusal
                 fitStatus.className = 'warn';
                 fitStatus.textContent = '⚠ ' + over + 'px hidden at the foot — about ' + lines +
                     (lines === 1 ? ' line' : ' lines') + ' cut off. Trim the passage or lower the text size.';
+            } else if (noteOver > 2) {
+                fitStatus.className = 'warn';
+                fitStatus.textContent = '⚠ a margin note runs ' + noteOver +
+                    'px into the foot — shorten it or raise its nudge.';
+            } else if (noteCollision()) {
+                fitStatus.className = 'warn';
+                fitStatus.textContent = '⚠ two margin notes are overlapping — move one of them.';
             } else {
                 fitStatus.className = '';
                 fitStatus.textContent = 'Fits — nothing hidden.';

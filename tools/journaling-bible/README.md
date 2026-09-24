@@ -48,6 +48,21 @@ passage fits — opt-in, never automatic. **Reset** returns to 1.35rem.
 Don't "fix" this by adding automatic shrinking. Jon's call was to be told and
 decide, not to have the type quietly change size on him.
 
+### The fit check watches three things, not one
+
+The margin is its own column and overflows independently of the scripture, so a
+check that only measures the text column reports "fits" while a note is half
+hidden under the footer. The readout therefore warns on:
+
+1. **Scripture past the foot** — text clipped at the bottom.
+2. **A note past the foot** — the margin has run out. A note anchored to the
+   last paragraph in particular has nowhere below it to go.
+3. **Two notes overlapping** — anchoring two notes to the same or nearby
+   paragraphs stacks them on top of each other unless the nudge separates them.
+
+Two notes per page is the comfortable ceiling for a filled page; four only fits
+on a short passage.
+
 ## Marginal notes
 
 Each note anchors to a **paragraph index**, with a pixel nudge. The note's `top`
