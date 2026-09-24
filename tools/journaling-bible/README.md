@@ -104,6 +104,27 @@ Canva's is hand-drawn with soft, uneven feathering; this one is a mask, so it is
 slightly crisper and more even. That is the accepted end state, not a gap to close.
 Do not go hunting for a filter to reproduce the Canva edge.
 
+### The marginalia is inset, because the flourishes overhang
+
+`.handwritten-note { left: 7px }`. Homemade Apple is a handwriting face, and its
+entry strokes reach **~7.7px to the left of the text origin** — the F of "Fear", the
+f of "facts", the Y of "You". With the note text flush at the column's left edge
+(`left: 0`), the first flourish of every line sat *outside* its own column, alive only
+because ink is allowed to spill into the gutter. Anything that clips at that boundary
+then shears the flourishes off along a straight vertical line.
+
+Canva insets its note text the same way: its ink starts at page x 612 with the notes
+column at 613, so its flourishes sit inside the box. Ours started at 607 with the
+column at 615. The 7px offset puts our ink at 614 — within Canva's own ragged spread
+of 3.7px, and no longer crossing the boundary.
+
+**Move the block, never the width.** `left: 7px` with `width: 100%` unchanged shifts
+the whole note right, so the wrapping — which was matched to Canva line for line — is
+untouched. `padding-left` would have narrowed the box and re-wrapped the notes.
+
+If a note ever looks sheared on its left, measure the ink's leftmost pixel against the
+column edge before touching anything: ragged = correct, one repeated x = clipped.
+
 ### Notes anchor to highlights, not paragraphs
 
 A note belongs beside its **highlight**, so each note's "Beside" control lists the

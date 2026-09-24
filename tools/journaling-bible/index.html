@@ -231,7 +231,13 @@
 
         .handwritten-note {
             position: absolute;
-            left: 0;
+            /* Homemade Apple's entry strokes reach ~7.7px LEFT of the text origin,
+               so at left:0 the first flourish of every line spilled into the gutter
+               and any clipping at the column's edge sheared it off. Canva insets its
+               note text the same way: its ink starts at 612 with the column at 613.
+               The offset moves the block, not the width, so the wrapping — which was
+               matched to Canva line for line — is untouched. */
+            left: 7px;
             width: 100%;
             font-family: 'Homemade Apple', cursive;
             font-size: calc(var(--scripture-size) * var(--note-scale));
@@ -308,7 +314,10 @@
         }
         /* safe centre: centred while the page fits, top-anchored once it doesn't —
            plain centring clips an oversized page at the top and cannot be scrolled to */
-        #preview-pane { padding: 72px 40px 40px; background: var(--ui-bg); align-items: safe center; }
+        #preview-pane {
+            padding: 72px 40px 40px; background: var(--ui-bg);
+            align-items: safe center; justify-content: safe center;
+        }
 
         #editor h1 {
             font-size: 13px; font-weight: 700; letter-spacing: 0.3px;
