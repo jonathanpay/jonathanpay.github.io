@@ -37,6 +37,39 @@ it fits, and falls back to top-anchored when it doesn't — which is what keeps 
 too-long passage losing only its *foot*. Plain `center` clips the top and the
 bottom equally, so the passage loses its opening.
 
+## The design system, measured
+
+These are not choices I made. They were sampled or solved out of Jon's nine published
+Canva pages (all 1080 x 1080) after he confirmed the fonts. Everything below is
+expressed for the tool's 1000px page, which is 0.926 of the Canva original.
+
+| Thing | Value | How it was pinned |
+|---|---|---|
+| Scripture | Playfair Display, **1.41rem**, line-height **1.355** | Reproducing Canva's line breaks. 1.41rem in a 500px column matches **all 22 lines** of the 1 John 4:13-21 page. 1.44rem was 2 per cent too large and flipped 10 of them |
+| Marginalia | Homemade Apple, **26.85px** (1.19 x scripture), line-height **1.52** | Two independent ways agreed: the size at which his notes break into the same lines, and the ratio of measured ink heights |
+| Reference | Poppins **600**, **1.25rem**, centred on the page | Ink box for "1 John 4:18" measures 447-553 in both |
+| Paper | background **#F0F1ED** plus his texture | Sampled; grain amplitude is only +-4 levels, so the tone does more work than the grain |
+| Marker | **#FFF197**, padding **9px 5px**, margin **0 -5px** | Sampled colour; 9px vertical bleed and 5px horizontal from the measured band |
+| Ink | **#004AAD** | Darkest decile of the blue strokes, not the antialiased mean |
+| Margins | **100px** all round | Canva's 108/1080. Must be px, see pitfalls |
+| Columns | scripture **62.5%** (500px), gutter **15px** | Canva text column 108-646, notes start 662 of 1080 |
+| Pairs | same passage, different highlight | Already published as 1 John 4:18 (a) and (b) |
+
+### Notes anchor to highlights, not paragraphs
+
+A note belongs beside its **highlight**, so each note's "Beside" control lists the
+highlights first (`M1`, `M2`, ...) and the paragraphs after (`P1`, `P2`, ...). Anchoring
+to the mark is what makes the placement survive editing the passage.
+
+### Two things worth knowing before you change anything
+
+**The marker's padding is layout-neutral on purpose.** Horizontal padding of 5px with an
+equal negative margin means the marker bleeds past the text without moving a single line
+break. Change one without the other and the text reflows.
+
+**Type size and column width are coupled.** The line breaks only match Canva at 1.41rem
+*and* 500px. Nudge either and lines start flipping.
+
 ## Overflow behaviour
 
 Deliberate: **overflow is hidden, never auto-shrunk.** A passage that runs long
