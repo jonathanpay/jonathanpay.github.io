@@ -20,6 +20,49 @@ being a manual exercise every time a post wants one.
 A flat **1000 × 1000 px** square, exported at `scale: 3` → **3000 × 3000 PNG**,
 which is the shape Substack and social want.
 
+## The UI
+
+The tool's chrome follows the Carousel Maker, so the two read as one product: the
+same 32px navy navigation strip, the same `--ui-*` tokens, the same 10px uppercase
+section labels, the same button shapes, and the same dark backdrop behind the
+artefact. **The chrome and the page are two separate palettes and must stay that
+way** — `--ui-*` styles the editor, `--bg-paper` / `--ink-*` / `--highlight-yellow`
+style the exported page. Changing a `--ui-*` token cannot affect an export; changing
+anything from `--bg-paper` down can.
+
+### The navigation strip
+
+`#site-nav` is the only way out of a tool, so its links matter more than its looks.
+It carries the same four destinations as `tools/index.html`:
+
+| Link | Goes to |
+|---|---|
+| Jonathan Pay (brand) | `/` — the site root |
+| All Tools | `/tools/` — the tool registry |
+| Blog, HEM, HEA | `jonathanpay.com` and `holisticemailacademy.com` |
+
+Two rules, both learned the hard way:
+
+- **Absolute paths from the site root.** The Carousel Maker's strip used
+  `href="index.html"` for "All Tools", which resolved to *the Carousel Maker itself*
+  — a link that looks right and goes nowhere. On the custom domain the same
+  relative link would resolve differently again.
+- **Do not link to a page that does not exist.** The same strip carried a "Template
+  Builder" link to a file that was never built. If a tool is coming, add the link
+  when the page lands.
+
+The strip is `position: fixed`, so each column carries a `padding-top` of at least
+32px (`#editor` 52px, `#preview-pane` 72px). A new panel added to the tool needs the
+same.
+
+### The preview pane uses safe centring
+
+`align-items: safe center` on `#preview-pane`. The page is 1000px tall and often
+taller than the viewport; plain centring pushed its top out of reach with no way to
+scroll to it, so the opening of a passage could not be seen. Safe centring gives
+centred-while-it-fits and top-anchored-when-it-does-not, which is the same rule the
+page itself follows.
+
 ## The design system, measured
 
 These are not choices I made. They were sampled or solved out of Jon's nine published
@@ -143,3 +186,4 @@ texture is embedded as a data URI rather than referenced as a file.
 | The readout goes stale after a note moves | The margin is redrawn without re-running the check | `checkFit()` at the end of `renderNotes()` |
 | Lines land differently in the export than on screen | Webfonts weren't loaded when it rendered | `await document.fonts.ready` |
 | The tool looks different in a tab you already had open | You're running a cached copy | Check the build stamp under the heading |
+| Two exports of identical content differ byte-for-byte after a UI change | The page sits at a different subpixel offset in a resized preview pane, so every glyph re-rasterises | Not a regression. Blur both ~3px and diff, or re-check against the Canva reference: the line offsets and marker box are the real test |

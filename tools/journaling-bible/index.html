@@ -14,7 +14,19 @@
            from the pixels, column widths and type pitch from row/column
            profiles. Values in the comments are the raw 1080 measurements. */
         :root {
-            --bg-app: #f4f4f9;
+            /* Tool chrome — the Carousel Maker's tokens, so the two tools
+               read as one product. Separate from the page palette below. */
+            --ui-bg: #0f0f10;
+            --ui-surface: #1a1a1c;
+            --ui-surface-2: #232326;
+            --ui-border: #2a2a2e;
+            --ui-text: #e6e6e8;
+            --ui-muted: #888892;
+            --ui-faint: #5a5a62;
+            --ui-accent: #7c5cff;
+            --ui-accent-2: #6147d6;
+            --ui-danger: #e05555;
+            --bg-app: #0f0f10;
             --bg-paper: #f0f1ed;                           /* sampled F0F1ED */
             --ink-black: #1a1a1a;
             --ink-blue: #004aad;                           /* sampled 004AAD */
@@ -260,9 +272,118 @@
         }
 
         .hint { font-size: 0.72rem; color: #999; margin-bottom: 8px; line-height: 1.4; }
-    </style>
+            /* ---------- Site navigation strip ----------
+           Matches the Carousel Maker's strip and the site header: navy bar,
+           gold brand, muted links. Fixed, so every tool's content is pushed
+           down by its height. */
+        #site-nav {
+            position: fixed; top: 0; left: 0; right: 0; height: 32px;
+            background: #2c3e50;
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0 16px; z-index: 40;
+            font-family: 'Open Sans', 'Inter', sans-serif; font-size: 12px;
+        }
+        .snav-brand { font-weight: 700; color: #dfb81f; text-decoration: none; }
+        .snav-brand:hover { color: #f0ca3a; }
+        .snav-links { display: flex; gap: 16px; }
+        .snav-links a { color: rgba(255,255,255,0.7); text-decoration: none; }
+        .snav-links a:hover { color: #fff; }
+
+        /* ---------- Tool chrome, in the Carousel Maker's language ----------
+           Same tokens, type scale and component shapes as tools/carousel-maker
+           so the two tools read as one product. None of this touches
+           #bible-page or anything inside it — the exported artefact keeps the
+           measured Canva palette exactly. */
+        body {
+            background: var(--ui-bg); color: var(--ui-text); font-size: 13px;
+            font-family: 'Inter', 'Open Sans', sans-serif;   /* the Carousel Maker's stack */
+        }
+
+        #editor {
+            width: 320px;
+            background: var(--ui-surface);
+            border-right: 1px solid var(--ui-border);
+            box-shadow: none;
+            padding: 52px 18px 18px;          /* 20px + the 32px nav strip */
+        }
+        /* safe centre: centred while the page fits, top-anchored once it doesn't —
+           plain centring clips an oversized page at the top and cannot be scrolled to */
+        #preview-pane { padding: 72px 40px 40px; background: var(--ui-bg); align-items: safe center; }
+
+        #editor h1 {
+            font-size: 13px; font-weight: 700; letter-spacing: 0.3px;
+            color: var(--ui-text); border-bottom: 1px solid var(--ui-border);
+            padding-bottom: 10px; margin: 0 0 14px;
+        }
+        .section { margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid var(--ui-border); }
+        .section:last-of-type { border-bottom: none; }
+        .section-label {
+            font-size: 10px; font-weight: 700; letter-spacing: 1.5px;
+            color: var(--ui-muted); margin-bottom: 12px;
+        }
+        .hint { font-size: 11px; color: var(--ui-faint); line-height: 1.5; margin-bottom: 10px; }
+        #build-stamp { font-size: 10px; color: var(--ui-faint); letter-spacing: 0.04em; margin: -6px 0 16px; }
+
+        #editor textarea, #editor input[type="text"] {
+            background: var(--ui-bg); border: 1px solid var(--ui-border);
+            border-radius: 6px; color: var(--ui-text); font-size: 12px;
+        }
+        #editor textarea:focus, #editor input[type="text"]:focus,
+        #editor select:focus { outline: none; border-color: var(--ui-accent); }
+        .note-item {
+            background: var(--ui-surface-2); border: 1px solid var(--ui-border);
+            border-radius: 8px;
+        }
+        .note-item .remove-btn { background: transparent; color: var(--ui-danger); border: 1px solid #6a2525; border-radius: 4px; }
+        .note-item .remove-btn:hover { background: rgba(224,85,85,0.1); }
+
+        .row { gap: 10px; margin-bottom: 8px; }
+        .row label { font-size: 10px; font-weight: 600; color: var(--ui-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+        .row select {
+            background: var(--ui-bg); border: 1px solid var(--ui-border);
+            border-radius: 6px; color: var(--ui-text); font-size: 12px; padding: 5px 7px;
+        }
+        .row input[type="range"] { accent-color: var(--ui-accent); }
+
+        .mini-btn {
+            background: transparent; color: var(--ui-muted);
+            border: 1px solid var(--ui-border); border-radius: 6px;
+            font-size: 11px; font-weight: 600; padding: 6px 11px;
+        }
+        .mini-btn:hover { color: var(--ui-text); border-color: #444; }
+
+        .btn { padding: 9px 14px; border-radius: 6px; font-size: 12px; font-weight: 600; }
+        .btn-primary { background: var(--ui-accent); color: #fff; }
+        .btn-primary:hover { background: var(--ui-accent-2); opacity: 1; }
+        .btn-secondary { background: transparent; color: var(--ui-muted); border: 1px solid var(--ui-border); }
+        .btn-secondary:hover { color: var(--ui-text); border-color: #444; }
+
+        #fit-status {
+            font-size: 11px; border-radius: 6px;
+            background: rgba(60,180,90,0.10); color: #7fd39a; border: 1px solid rgba(60,180,90,0.28);
+        }
+        #fit-status.warn {
+            background: rgba(224,150,60,0.12); color: #e0b070; border-color: rgba(224,150,60,0.32);
+        }
+        #export-block { border-top: 1px solid var(--ui-border); }
+
+</style>
 </head>
 <body>
+
+<!-- ── Site navigation strip ─────────────────────────────────────────────
+     The same strip the Carousel Maker carries, and the same links as the
+     tools index. Keep the two in step: this is the only way out of a tool.
+     ────────────────────────────────────────────────────────────────────── -->
+<div id="site-nav">
+    <a class="snav-brand" href="/">Jonathan Pay</a>
+    <nav class="snav-links">
+        <a href="/tools/">All Tools</a>
+        <a href="https://jonathanpay.com/blog/">Blog</a>
+        <a href="https://jonathanpay.com/holistic-email-marketing/">HEM</a>
+        <a href="https://holisticemailacademy.com">HEA</a>
+    </nav>
+</div>
 
     <div id="editor">
         <h1>Journaling Bible Generator</h1>
@@ -305,7 +426,7 @@ God is love, and those who abide in love abide in God, and God abides in them. L
             <button class="btn btn-secondary" onclick="addNote()">+ Add Note</button>
         </div>
 
-        <div style="margin-top: auto; padding-top: 18px; border-top: 1px solid var(--border-color);">
+        <div id="export-block" style="margin-top: auto; padding-top: 18px;">
             <button class="btn btn-primary" onclick="exportImage()">Download as PNG</button>
             <div class="hint" style="text-align:center; margin:0">1000 × 1000 px, exported at 3× (3000 × 3000).</div>
         </div>
