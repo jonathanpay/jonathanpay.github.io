@@ -56,6 +56,11 @@ The strips also give the ragged edge: a data-URI SVG mask, soft edges, and a blo
 tile over the fill so it reads as ink rather than a flat block. If a renderer ignores
 masks the strips fall back to plain rectangles, which is still correct, just plainer.
 
+**Jon's call: the marker stays as it is — a touch more uniform than Canva's asset.**
+Canva's is hand-drawn with soft, uneven feathering; this one is a mask, so it is
+slightly crisper and more even. That is the accepted end state, not a gap to close.
+Do not go hunting for a filter to reproduce the Canva edge.
+
 ### Notes anchor to highlights, not paragraphs
 
 A note belongs beside its **highlight**, so each note's "Beside" control lists the
