@@ -57,11 +57,16 @@ same.
 
 ### The preview pane uses safe centring
 
-`align-items: safe center` on `#preview-pane`. The page is 1000px tall and often
-taller than the viewport; plain centring pushed its top out of reach with no way to
-scroll to it, so the opening of a passage could not be seen. Safe centring gives
-centred-while-it-fits and top-anchored-when-it-does-not, which is the same rule the
-page itself follows.
+`margin: auto` on `#bible-page`, plus `safe center` on `#preview-pane` as a
+belt-and-braces. The page is 1000px square and usually larger than the pane, and plain
+centring anchors an oversized child with **both** edges cut — the top and the left of
+it unreachable by scrolling, so the opening of a passage and the left of the marginalia
+could not be seen. Auto margins are the cross-engine way to say "centred while it fits,
+start-aligned when it does not": they absorb the free space when there is any and
+resolve to 0 when there is not. `safe center` gives the same result, but a browser that
+does not support it silently drops the declaration and the earlier plain `center` takes
+over — which is how a fix that works in one browser can leave the bug in place in
+another.
 
 ## The design system, measured
 
@@ -104,26 +109,32 @@ Canva's is hand-drawn with soft, uneven feathering; this one is a mask, so it is
 slightly crisper and more even. That is the accepted end state, not a gap to close.
 Do not go hunting for a filter to reproduce the Canva edge.
 
-### The marginalia is inset, because the flourishes overhang
+### The marginalia keeps its flourishes inside its own box
 
-`.handwritten-note { left: 7px }`. Homemade Apple is a handwriting face, and its
-entry strokes reach **~7.7px to the left of the text origin** — the F of "Fear", the
-f of "facts", the Y of "You". With the note text flush at the column's left edge
-(`left: 0`), the first flourish of every line sat *outside* its own column, alive only
-because ink is allowed to spill into the gutter. Anything that clips at that boundary
-then shears the flourishes off along a straight vertical line.
+`.handwritten-note { left: 0; padding-left: 8px; width: 100% }`.
 
-Canva insets its note text the same way: its ink starts at page x 612 with the notes
-column at 613, so its flourishes sit inside the box. Ours started at 607 with the
-column at 615. The 7px offset puts our ink at 614 — within Canva's own ragged spread
-of 3.7px, and no longer crossing the boundary.
+Homemade Apple is a handwriting face, and its entry strokes reach **~7.7px to the
+*left* of the text origin** — the F of "Fear", the f of "facts", the Y of "You". Any
+element whose text sits flush against its own left edge therefore draws that flourish
+*outside itself*. Ink is allowed to spill, so this is invisible in a plain render and
+in the export — html2canvas draws text straight onto a canvas and clips nothing — but
+it is exactly the kind of overflow an engine may clip when it composites, which is
+what showed up on screen as the flourishes being sliced off along one vertical line.
 
-**Move the block, never the width.** `left: 7px` with `width: 100%` unchanged shifts
-the whole note right, so the wrapping — which was matched to Canva line for line — is
-untouched. `padding-left` would have narrowed the box and re-wrapped the notes.
+`padding-left` moves the *text* 8px right while `width: 100%` holds the content box at
+the full 285px, so the wrapping — matched to Canva line for line — is untouched, and
+the ink lands inside the element's own border box. Measured: ink leftmost at page x
+615.3 with the box at 615, i.e. +0.3px **inside**; it was −0.7px outside with `left: 7px`
+and −7.7px with `left: 0`. Canva insets its note text the same way.
 
-If a note ever looks sheared on its left, measure the ink's leftmost pixel against the
-column edge before touching anything: ragged = correct, one repeated x = clipped.
+**Offset the text, never the width.** `left` moves the whole block and takes its wrap
+width with it; `padding-left` alone would have narrowed the box and re-wrapped the
+notes that the calibration had matched.
+
+If a note ever looks sheared on its left, measure the ink's leftmost pixel per line
+against the box edge before touching anything: ragged edges mean the glyphs are fine,
+one repeated x means a shear. Measure it in the user's own screenshot too — a clip can
+be in the view rather than the file, and the two need different fixes.
 
 ### Notes anchor to highlights, not paragraphs
 

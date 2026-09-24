@@ -231,13 +231,18 @@
 
         .handwritten-note {
             position: absolute;
-            /* Homemade Apple's entry strokes reach ~7.7px LEFT of the text origin,
-               so at left:0 the first flourish of every line spilled into the gutter
-               and any clipping at the column's edge sheared it off. Canva insets its
-               note text the same way: its ink starts at 612 with the column at 613.
-               The offset moves the block, not the width, so the wrapping — which was
-               matched to Canva line for line — is untouched. */
-            left: 7px;
+            /* Homemade Apple's entry strokes reach ~7.7px LEFT of the text origin, so
+               the flourish of every line's first letter is drawn outside the text's own
+               box. left:0 let it hang into the gutter, where the engine's compositing
+               clipped it on screen even though the export (html2canvas draws text
+               directly, clipping nothing) kept it.
+               padding-left moves the *text* 8px right while `width: 100%` keeps the
+               content box at the full 285px, so the wrapping — matched to Canva line
+               for line — is untouched, and the ink now lands inside the element's own
+               box where no clip can reach it. Canva insets its note text the same way:
+               its ink starts at 612 with the column at 613. */
+            left: 0;
+            padding-left: 8px;
             width: 100%;
             font-family: 'Homemade Apple', cursive;
             font-size: calc(var(--scripture-size) * var(--note-scale));
@@ -318,6 +323,12 @@
             padding: 72px 40px 40px; background: var(--ui-bg);
             align-items: safe center; justify-content: safe center;
         }
+        /* Auto margins centre the page when it fits and leave it start-aligned when it
+           doesn't. `safe center` gives the same result in engines that support it, but
+           where it is not supported the declaration is dropped and the earlier `center`
+           takes over — which anchors an oversized page with both edges cut, the left one
+           unreachable by scrolling. Auto margins are honoured everywhere. */
+        #bible-page { margin: auto; }
 
         #editor h1 {
             font-size: 13px; font-weight: 700; letter-spacing: 0.3px;
@@ -396,7 +407,7 @@
 
     <div id="editor">
         <h1>Journaling Bible Generator</h1>
-        <div id="build-stamp" title="If your export is not 3000 × 3000, you are running an older cached copy — hard-reload with Cmd+Shift+R.">build 2026-09-24-d</div>
+        <div id="build-stamp" title="If your export is not 3000 × 3000, you are running an older cached copy — hard-reload with Cmd+Shift+R.">build 2026-09-24-e</div>
 
         <div class="section">
             <span class="section-label">Scripture</span>
