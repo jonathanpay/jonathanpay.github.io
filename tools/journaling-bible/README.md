@@ -219,3 +219,27 @@ texture is embedded as a data URI rather than referenced as a file.
 | Lines land differently in the export than on screen | Webfonts weren't loaded when it rendered | `await document.fonts.ready` |
 | The tool looks different in a tab you already had open | You're running a cached copy | Check the build stamp under the heading |
 | Two exports of identical content differ byte-for-byte after a UI change | The page sits at a different subpixel offset in a resized preview pane, so every glyph re-rasterises | Not a regression. Blur both ~3px and diff, or re-check against the Canva reference: the line offsets and marker box are the real test |
+
+## Post title and watermark (build 2026-09-24-f)
+
+Two additions, both artefact-side, both driven from the editor.
+
+**Post title.** A new `Post title` field renders above the centred reference in italic Playfair Display (1.05rem, `#1a1a1a`), because the italic serif is the Substack social card's treatment of the publication line. It exists so a page cannot be lifted loose from the argument it belongs to, which is the whole reason the pages name a verse while the posts cite chapters. Empty input renders nothing (`#page-title:empty { display: none }`), so pages made before this change are unaffected. It also joins the export filename: `in_Before_We_Made_Him_God_1_John_4_18.png`.
+
+**Watermark.** `livingthescandalouslife.substack.com`, centred below the reference line, in **Bebas Neue** at 1.15rem with `letter-spacing: 0.09em` and `text-transform: uppercase`, in the brand ink `--ink-blue` (#004AAD). The face and its fallback stack are copied from the Carousel Maker rather than chosen: `'Bebas Neue', 'Barlow Condensed', 'Arial Narrow', sans-serif`, with both web faces requested from Google Fonts, the same pair `carousel-maker/families.js` loads for its headings. Weight stays at 400 on purpose — Bebas ships a single weight, and the carousel's README already records that asking for more renders as synthesised bold. Uppercase is not a style choice here either: Bebas Neue is caps-only, which the carousel's own comment states. The watermark sits below the reference line so a long reference cannot collide with it.
+
+Measured geometry on a 1000px page (build `f`), all in page units:
+
+| Element | Position |
+|---|---|
+| `#page-title` | full content width, centred text, above the reference, 8px gap |
+| `#page-reference` | centred, `bottom: 44px` (unchanged, the calibrated Canva element) |
+| `#page-foot #page-url` | `left: 100px; right: 100px; bottom: -34px`, text centred; lands 12px below the reference's line and 10px off the paper edge |
+
+Verified: a long reference (`Exodus 20:8-17, NRSVUE`, 237px wide) does not collide with the watermark, the fit check still reports "Fits — nothing hidden.", and the export carries the watermark in Bebas: 14,149 ink-blue pixels with an ink centre of page x **499 against a page centre of 500**, 295px wide and 13px of cap height, in the band 12px below the reference.
+
+**Two traps worth keeping.** Neither is visible in a diff:
+
+- `#page-foot span { position: relative }` outranks a bare `#page-url`, because one id plus one type beats one id. A new element inside the footer needs **two ids** in its selector, or its `position: absolute` is silently dropped and the element flows inline instead. The computed style is the only place this shows up (`position: relative` on an element whose stylesheet says `absolute`).
+- `left: var(--page-pad)` worked, but using the literal `100px` is the better habit here: a percentage padding resolves against the preview pane, so px keeps a fixed-geometry page deterministic. See `jon-site-tools` for the percentage-padding version of the same bug.
+
