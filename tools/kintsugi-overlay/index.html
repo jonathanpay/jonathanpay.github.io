@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kintsugi Overlay Generator</title>
+    <link rel="icon" href="/favicon.ico">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Tool chrome: the Carousel Maker's tokens, as in the Journaling Bible. */
+            --ui-bg: #0f0f10;
+            --ui-surface: #1a1a1c;
+            --ui-surface-2: #232326;
+            --ui-border: #2a2a2e;
+            --ui-text: #e6e6e8;
+            --ui-muted: #888892;
+            --ui-faint: #5a5a62;
+            --ui-accent: #7c5cff;
+            --ui-accent-2: #6147d6;
+            --ui-danger: #e05555;
+            --gold: #dfb81f;
+        }
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html, body { height: 100%; }
+        body {
+            font-family: 'Open Sans', 'Inter', sans-serif;
+            background: var(--ui-bg);
+            color: var(--ui-text);
+            font-size: 13px;
+            line-height: 1.5;
+            display: flex;
+            overflow: hidden;
+        }
+
+        /* ---------- Site navigation strip (same as the other two tools) ---------- */
+        #site-nav {
+            position: fixed; top: 0; left: 0; right: 0; height: 32px;
+            background: #2c3e50;
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0 16px; z-index: 40; font-size: 12px;
+        }
+        .snav-brand { font-weight: 700; color: #dfb81f; text-decoration: none; }
+        .snav-brand:hover { color: #f0ca3a; }
+        .snav-links { display: flex; gap: 16px; }
+        .snav-links a { color: rgba(255,255,255,0.7); text-decoration: none; }
+        .snav-links a:hover { color: #fff; }
+
+        /* ---------- Editor column ---------- */
+        #editor {
+            flex: 0 0 320px;
+            height: 100%;
+            overflow-y: auto;
+            padding: 52px 18px 24px;
+            background: var(--ui-surface);
+            border-right: 1px solid var(--ui-border);
+        }
+        h1 { font-size: 15px; font-weight: 700; margin-bottom: 2px; }
+        #build-stamp { font-size: 10px; color: var(--ui-faint); margin-bottom: 14px; }
+        .section { padding: 14px 0; border-top: 1px solid var(--ui-border); }
+        .section-label {
+            display: block; font-size: 10px; font-weight: 600; letter-spacing: .08em;
+            text-transform: uppercase; color: var(--ui-muted); margin-bottom: 8px;
+        }
+        .hint { font-size: 11px; color: var(--ui-muted); margin-top: 6px; line-height: 1.45; }
+        .row { display: flex; align-items: center; gap: 10px; margin-top: 8px; }
+        .row label { flex: 0 0 74px; color: var(--ui-muted); font-size: 12px; }
+        .row .val { flex: 0 0 44px; text-align: right; font-variant-numeric: tabular-nums; font-size: 12px; }
+        input[type=range] { flex: 1; accent-color: var(--ui-accent); min-width: 0; }
+        input[type=color] {
+            width: 36px; height: 26px; border: 1px solid var(--ui-border);
+            background: none; border-radius: 4px; padding: 0; cursor: pointer;
+        }
+        .check { display: flex; align-items: flex-start; gap: 8px; margin-top: 10px; font-size: 12px; cursor: pointer; }
+        .check input { margin-top: 3px; accent-color: var(--ui-accent); }
+
+        .btn {
+            padding: 9px 14px; border-radius: 6px; font: inherit; font-size: 12px; font-weight: 600;
+            border: 1px solid transparent; cursor: pointer; width: 100%;
+        }
+        .btn-primary { background: var(--ui-accent); color: #fff; }
+        .btn-primary:hover:not(:disabled) { background: var(--ui-accent-2); }
+        .btn-secondary { background: transparent; color: var(--ui-muted); border-color: var(--ui-border); }
+        .btn-secondary:hover:not(:disabled) { color: var(--ui-text); border-color: #444; }
+        .btn:disabled { opacity: .4; cursor: not-allowed; }
+        .btn-row { display: flex; gap: 8px; margin-top: 8px; }
+        .btn-row .btn { flex: 1; }
+
+        .tool-toggle { display: flex; gap: 8px; }
+        .tool-toggle button {
+            flex: 1; padding: 8px 0; border-radius: 6px; font: inherit; font-size: 12px; font-weight: 600;
+            background: transparent; color: var(--ui-muted); border: 1px solid var(--ui-border); cursor: pointer;
+        }
+        .tool-toggle button.on { background: var(--ui-surface-2); color: var(--ui-text); border-color: var(--ui-accent); }
+
+        #coverage { font-size: 11px; color: var(--ui-muted); margin-top: 8px; }
+        #coverage.warn { color: #e0b155; }
+
+        /* ---------- Preview pane ---------- */
+        #preview-pane {
+            flex: 1; min-width: 0; height: 100%;
+            padding: 72px 24px 24px;
+            display: flex; background: var(--ui-bg);
+            position: relative;
+        }
+        #stage {
+            position: relative; margin: auto; flex: 0 0 auto;
+            box-shadow: 0 8px 40px rgba(0,0,0,.6);
+            display: none;
+        }
+        #stage canvas { position: absolute; left: 0; top: 0; width: 100%; height: 100%; display: block; }
+        #c-over { touch-action: none; cursor: none; }
+        #ring {
+            position: absolute; pointer-events: none; border-radius: 50%;
+            border: 1px solid rgba(255,255,255,.9);
+            box-shadow: 0 0 0 1px rgba(0,0,0,.6);
+            transform: translate(-50%, -50%); display: none;
+        }
+        #drop {
+            margin: auto; width: min(520px, 100%); padding: 56px 24px; text-align: center;
+            border: 1.5px dashed var(--ui-border); border-radius: 10px; color: var(--ui-muted);
+            cursor: pointer;
+        }
+        #drop.over, #drop:hover { border-color: var(--ui-accent); color: var(--ui-text); }
+        #drop strong { display: block; color: var(--ui-text); font-size: 14px; margin-bottom: 6px; }
+        #size-note { position: absolute; bottom: 8px; right: 16px; font-size: 10px; color: var(--ui-faint); }
+
+        @media (max-width: 800px) {
+            body { flex-direction: column-reverse; overflow: auto; }
+            #editor { flex: 0 0 auto; height: auto; padding-top: 18px; border-right: 0; border-top: 1px solid var(--ui-border); }
+            #preview-pane { height: 70vh; flex: 0 0 auto; }
+        }
+    </style>
+</head>
+<body>
+
+<div id="site-nav">
+    <a class="snav-brand" href="/">Jonathan Pay</a>
+    <nav class="snav-links">
+        <a href="/tools/">All Tools</a>
+        <a href="https://jonathanpay.com/blog/">Blog</a>
+        <a href="https://jonathanpay.com/holistic-email-marketing/">HEM</a>
+        <a href="https://holisticemailacademy.com">HEA</a>
+    </nav>
+</div>
+
+<div id="editor">
+    <h1>Kintsugi Overlay Generator</h1>
+    <div id="build-stamp">build 2026-09-29-a</div>
+
+    <div class="section" style="border-top:0; padding-top:0">
+        <span class="section-label">Image</span>
+        <button class="btn btn-secondary" id="btn-open">Choose a black and white image…</button>
+        <input type="file" id="file" accept="image/*" hidden>
+        <div class="hint">Or drop one on the canvas, or paste from the clipboard. Nothing leaves your browser.</div>
+    </div>
+
+    <div class="section">
+        <span class="section-label">Gold from shadow</span>
+        <div class="row">
+            <label for="thr">Threshold</label>
+            <input type="range" id="thr" min="8" max="30" step="0.5" value="18">
+            <span class="val" id="thr-v">18%</span>
+        </div>
+        <div class="row">
+            <label for="smooth">Smoothing</label>
+            <input type="range" id="smooth" min="0" max="6" step="1" value="1">
+            <span class="val" id="smooth-v">1</span>
+        </div>
+        <div class="row">
+            <label for="gold">Gold</label>
+            <input type="color" id="gold" value="#dfb81f">
+            <span class="val" style="flex:1; text-align:left; color:var(--ui-muted)" id="gold-v">#DFB81F</span>
+        </div>
+        <label class="check">
+            <input type="checkbox" id="override">
+            <span>Override the safe range<br><span class="hint" style="margin:0">Opens the slider out to <span id="ov-range"></span> for images that under- or over-produce gold.</span></span>
+        </label>
+        <div id="coverage">Gold covers –</div>
+        <div class="hint">Everything darker than the threshold becomes gold. Lower it for fewer, finer lines; raise it for more. Smoothing blurs the shadows first, which drops speckle.</div>
+    </div>
+
+    <div class="section">
+        <span class="section-label">Touch-up</span>
+        <div class="tool-toggle">
+            <button id="t-draw" class="on">Draw gold (B)</button>
+            <button id="t-erase">Erase (E)</button>
+        </div>
+        <div class="row">
+            <label for="size">Brush</label>
+            <input type="range" id="size" min="2" max="120" step="1" value="14">
+            <span class="val" id="size-v">14px</span>
+        </div>
+        <div class="btn-row">
+            <button class="btn btn-secondary" id="btn-undo" disabled>Undo (⌘Z)</button>
+            <button class="btn btn-secondary" id="btn-clear" disabled>Clear edits</button>
+        </div>
+        <label class="check">
+            <input type="checkbox" id="hide">
+            <span>Hide the gold (see the original)</span>
+        </label>
+        <div class="hint">Edits are kept when you move the threshold, so you can tune the shadows after touching up.</div>
+    </div>
+
+    <div class="section">
+        <button class="btn btn-primary" id="btn-export" disabled>Download as PNG</button>
+        <div class="hint" id="export-note">Exports the image and gold flattened at its working resolution.</div>
+    </div>
+</div>
+
+<div id="preview-pane">
+    <div id="drop">
+        <strong>Drop a black and white image here</strong>
+        or click to choose one
+    </div>
+    <div id="stage">
+        <canvas id="c-base"></canvas>
+        <canvas id="c-over"></canvas>
+        <div id="ring"></div>
+    </div>
+    <div id="size-note"></div>
+</div>
+
+<script>
+(function () {
+    'use strict';
+
+    /* Tuning knobs. The default window and the override limits are guesses until
+       they have been tested against Jon's real hero images: change them here.
+       Values are % of full luminance (0 = black, 100 = white). */
+    var CFG = {
+        maxSide: 3000,                              // longest side of the working image and the export
+        window:   { min: 8, max: 30, def: 18 },     // where the slider lives normally
+        override: { min: 1, max: 60 },              // where it can go when unlocked
+        soft: 3                                     // half-width of the edge ramp, in % luminance
+    };
+
+    var $ = function (id) { return document.getElementById(id); };
+    var cBase = $('c-base'), cOver = $('c-over');
+    var gBase = cBase.getContext('2d'), gOver = cOver.getContext('2d');
+
+    // Working canvases, same pixel size as the image.
+    var cAuto = document.createElement('canvas');   // the automatic gold
+    var cAdd = document.createElement('canvas');    // gold drawn by hand
+    var cErase = document.createElement('canvas');  // where the hand has erased the automatic gold
+    var gAuto = cAuto.getContext('2d'), gAdd = cAdd.getContext('2d'), gErase = cErase.getContext('2d');
+
+    var W = 0, H = 0, luma = null, blurCache = {}, srcName = 'image';
+    var strokes = [], current = null, tool = 'draw';
+    var pending = false;
+
+    /* ---------- Image loading ---------- */
+    function loadFile(file) {
+        if (!file || !/^image\//.test(file.type)) return;
+        srcName = (file.name || 'image').replace(/\.[^.]+$/, '');
+        var url = URL.createObjectURL(file), img = new Image();
+        img.onload = function () { URL.revokeObjectURL(url); setImage(img); };
+        img.onerror = function () { URL.revokeObjectURL(url); alert('That file could not be read as an image.'); };
+        img.src = url;
+    }
+
+    function setImage(img) {
+        var s = Math.min(1, CFG.maxSide / Math.max(img.naturalWidth, img.naturalHeight));
+        W = Math.max(1, Math.round(img.naturalWidth * s));
+        H = Math.max(1, Math.round(img.naturalHeight * s));
+        [cBase, cOver, cAuto, cAdd, cErase].forEach(function (c) { c.width = W; c.height = H; });
+        gBase.drawImage(img, 0, 0, W, H);
+
+        var d = gBase.getImageData(0, 0, W, H).data;
+        luma = new Float32Array(W * H);
+        for (var i = 0, p = 0; i < luma.length; i++, p += 4) {
+            luma[i] = (0.2126 * d[p] + 0.7152 * d[p + 1] + 0.0722 * d[p + 2]) / 255;
+        }
+        blurCache = {};
+        strokes = [];
+
+        $('drop').style.display = 'none';
+        $('stage').style.display = 'block';
+        $('btn-export').disabled = false;
+        $('size-note').textContent = W + ' × ' + H + (s < 1 ? ' (scaled down from ' + img.naturalWidth + ' × ' + img.naturalHeight + ')' : '');
+        fitStage();
+        rebuildAll();
+    }
+
+    /* ---------- Step 1: shadow to gold ---------- */
+    function boxBlur(src, r) {
+        // Two separable box passes with edge clamping: close enough to a gaussian.
+        var out = new Float32Array(src.length), tmp = new Float32Array(src.length);
+        var n = 2 * r + 1, x, y, acc, i;
+        for (var pass = 0; pass < 2; pass++) {
+            var a = pass === 0 ? src : out;
+            for (y = 0; y < H; y++) {              // horizontal, a -> tmp
+                var row = y * W; acc = 0;
+                for (i = -r; i <= r; i++) acc += a[row + Math.min(W - 1, Math.max(0, i))];
+                for (x = 0; x < W; x++) {
+                    tmp[row + x] = acc / n;
+                    acc += a[row + Math.min(W - 1, x + r + 1)] - a[row + Math.max(0, x - r)];
+                }
+            }
+            for (x = 0; x < W; x++) {              // vertical, tmp -> out
+                acc = 0;
+                for (i = -r; i <= r; i++) acc += tmp[Math.min(H - 1, Math.max(0, i)) * W + x];
+                for (y = 0; y < H; y++) {
+                    out[y * W + x] = acc / n;
+                    acc += tmp[Math.min(H - 1, y + r + 1) * W + x] - tmp[Math.max(0, y - r) * W + x];
+                }
+            }
+        }
+        return out;
+    }
+
+    function lumaFor(radius) {
+        if (!radius) return luma;
+        if (!blurCache[radius]) blurCache[radius] = boxBlur(luma, radius * 2);
+        return blurCache[radius];
+    }
+
+    function hexToRgb(h) {
+        var n = parseInt(h.slice(1), 16);
+        return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+    }
+
+    function renderAuto() {
+        var L = lumaFor(+$('smooth').value);
+        var T = +$('thr').value / 100, soft = CFG.soft / 100;
+        var rgb = hexToRgb($('gold').value);
+        var img = gAuto.createImageData(W, H), d = img.data, hit = 0;
+        for (var i = 0, p = 0; i < L.length; i++, p += 4) {
+            var t = (T + soft - L[i]) / (2 * soft);
+            if (t <= 0) continue;                       // stays transparent
+            if (t > 1) t = 1;
+            t = t * t * (3 - 2 * t);
+            d[p] = rgb[0]; d[p + 1] = rgb[1]; d[p + 2] = rgb[2];
+            d[p + 3] = t * 255;
+            if (t > 0.5) hit++;
+        }
+        gAuto.putImageData(img, 0, 0);
+
+        var pct = hit / L.length * 100, el = $('coverage');
+        el.textContent = 'Gold covers ' + (pct < 0.1 ? '<0.1' : pct.toFixed(1)) + '% of the image'
+            + (pct < 0.3 ? ' · very sparse' : pct > 12 ? ' · very busy' : '');
+        el.className = (pct < 0.3 || pct > 12) ? 'warn' : '';
+    }
+
+    /* ---------- Step 3: touch-up layers ---------- */
+    function paintStroke(s) {
+        var goldCss = $('gold').value;
+        function trace(g) {
+            g.lineWidth = s.size; g.lineCap = 'round'; g.lineJoin = 'round';
+            g.beginPath();
+            g.moveTo(s.pts[0][0], s.pts[0][1]);
+            if (s.pts.length === 1) g.lineTo(s.pts[0][0] + 0.01, s.pts[0][1]);
+            for (var i = 1; i < s.pts.length; i++) g.lineTo(s.pts[i][0], s.pts[i][1]);
+            g.stroke();
+        }
+        if (s.erase) {
+            gErase.strokeStyle = '#fff'; trace(gErase);
+            gAdd.globalCompositeOperation = 'destination-out'; gAdd.strokeStyle = '#000'; trace(gAdd);
+            gAdd.globalCompositeOperation = 'source-over';
+        } else {
+            gAdd.strokeStyle = goldCss; trace(gAdd);
+        }
+    }
+
+    function rebuildLayers() {
+        gAdd.clearRect(0, 0, W, H); gErase.clearRect(0, 0, W, H);
+        strokes.forEach(paintStroke);
+    }
+
+    function compose() {
+        gOver.clearRect(0, 0, W, H);
+        if ($('hide').checked) return;
+        gOver.globalCompositeOperation = 'source-over';
+        gOver.drawImage(cAuto, 0, 0);
+        gOver.globalCompositeOperation = 'destination-out';
+        gOver.drawImage(cErase, 0, 0);
+        gOver.globalCompositeOperation = 'source-over';
+        gOver.drawImage(cAdd, 0, 0);
+    }
+
+    function schedule() {
+        if (pending) return;
+        pending = true;
+        requestAnimationFrame(function () { pending = false; compose(); });
+    }
+
+    function rebuildAll() { if (!luma) return; renderAuto(); rebuildLayers(); compose(); syncButtons(); }
+    var autoTimer = null;
+    function rebuildAutoSoon() {
+        if (!luma) return;
+        clearTimeout(autoTimer);
+        autoTimer = setTimeout(function () { renderAuto(); compose(); }, 30);
+    }
+
+    function syncButtons() {
+        $('btn-undo').disabled = !strokes.length;
+        $('btn-clear').disabled = !strokes.length;
+    }
+
+    /* ---------- Pointer drawing ---------- */
+    function toImage(e) {
+        var r = cOver.getBoundingClientRect();
+        return [(e.clientX - r.left) * W / r.width, (e.clientY - r.top) * H / r.height];
+    }
+    function moveRing(e) {
+        var r = cOver.getBoundingClientRect(), ring = $('ring'), px = +$('size').value * r.width / W;
+        var st = $('stage').getBoundingClientRect();
+        ring.style.display = 'block';
+        ring.style.width = ring.style.height = Math.max(4, px) + 'px';
+        ring.style.left = (e.clientX - st.left) + 'px';
+        ring.style.top = (e.clientY - st.top) + 'px';
+    }
+
+    cOver.addEventListener('pointerdown', function (e) {
+        if (!luma || e.button > 0) return;
+        cOver.setPointerCapture(e.pointerId);
+        current = { erase: tool === 'erase', size: +$('size').value, pts: [toImage(e)] };
+        strokes.push(current);
+        paintStroke(current); schedule(); syncButtons(); moveRing(e);
+    });
+    cOver.addEventListener('pointermove', function (e) {
+        moveRing(e);
+        if (!current) return;
+        var p = toImage(e), last = current.pts[current.pts.length - 1];
+        current.pts.push(p);
+        // Paint only the new segment; the full stroke is replayed on undo.
+        paintStroke({ erase: current.erase, size: current.size, pts: [last, p] });
+        schedule();
+    });
+    function endStroke() { current = null; }
+    cOver.addEventListener('pointerup', endStroke);
+    cOver.addEventListener('pointercancel', endStroke);
+    cOver.addEventListener('pointerleave', function () { $('ring').style.display = 'none'; });
+
+    function undo() {
+        if (!strokes.length) return;
+        strokes.pop(); rebuildLayers(); compose(); syncButtons();
+    }
+
+    /* ---------- Controls ---------- */
+    function setTool(t) {
+        tool = t;
+        $('t-draw').classList.toggle('on', t === 'draw');
+        $('t-erase').classList.toggle('on', t === 'erase');
+    }
+    $('t-draw').onclick = function () { setTool('draw'); };
+    $('t-erase').onclick = function () { setTool('erase'); };
+    $('btn-undo').onclick = undo;
+    $('btn-clear').onclick = function () {
+        if (strokes.length && confirm('Remove all ' + strokes.length + ' manual edits?')) {
+            strokes = []; rebuildLayers(); compose(); syncButtons();
+        }
+    };
+
+    function applyRange() {
+        var o = $('override').checked, r = o ? CFG.override : CFG.window, s = $('thr');
+        s.min = r.min; s.max = r.max;
+        if (+s.value < r.min) s.value = r.min;
+        if (+s.value > r.max) s.value = r.max;
+        $('thr-v').textContent = (+s.value) + '%';
+    }
+    $('ov-range').textContent = CFG.override.min + '–' + CFG.override.max + '%';
+    $('thr').value = CFG.window.def;
+
+    $('thr').oninput = function () { $('thr-v').textContent = this.value + '%'; rebuildAutoSoon(); };
+    $('smooth').oninput = function () { $('smooth-v').textContent = this.value; rebuildAutoSoon(); };
+    $('override').onchange = function () { applyRange(); rebuildAutoSoon(); };
+    $('gold').oninput = function () {
+        $('gold-v').textContent = this.value.toUpperCase();
+        if (!luma) return;
+        renderAuto(); rebuildLayers(); compose();
+    };
+    $('size').oninput = function () { $('size-v').textContent = this.value + 'px'; };
+    $('hide').onchange = compose;
+
+    $('btn-open').onclick = function () { $('file').click(); };
+    $('drop').onclick = function () { $('file').click(); };
+    $('file').onchange = function () { loadFile(this.files[0]); this.value = ''; };
+
+    var pane = $('preview-pane');
+    ['dragenter', 'dragover'].forEach(function (n) {
+        pane.addEventListener(n, function (e) { e.preventDefault(); $('drop').classList.add('over'); });
+    });
+    ['dragleave', 'drop'].forEach(function (n) {
+        pane.addEventListener(n, function () { $('drop').classList.remove('over'); });
+    });
+    pane.addEventListener('drop', function (e) { e.preventDefault(); loadFile(e.dataTransfer.files[0]); });
+    document.addEventListener('paste', function (e) {
+        var items = e.clipboardData && e.clipboardData.files;
+        if (items && items.length) loadFile(items[0]);
+    });
+
+    document.addEventListener('keydown', function (e) {
+        var tag = (e.target.tagName || '').toLowerCase();
+        if (tag === 'input' && e.target.type !== 'range' && e.target.type !== 'checkbox') return;
+        if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'z') { e.preventDefault(); undo(); }
+        else if (!e.metaKey && !e.ctrlKey && e.key.toLowerCase() === 'b') setTool('draw');
+        else if (!e.metaKey && !e.ctrlKey && e.key.toLowerCase() === 'e') setTool('erase');
+    });
+
+    /* ---------- Layout ---------- */
+    function fitStage() {
+        if (!W) return;
+        var cs = getComputedStyle(pane);
+        var aw = pane.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+        var ah = pane.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
+        var k = Math.min(aw / W, ah / H);
+        $('stage').style.width = Math.max(50, Math.floor(W * k)) + 'px';
+        $('stage').style.height = Math.max(50, Math.floor(H * k)) + 'px';
+    }
+    window.addEventListener('resize', fitStage);
+
+    /* ---------- Step 4: export ---------- */
+    $('btn-export').onclick = function () {
+        if (!luma) return;
+        var out = document.createElement('canvas');
+        out.width = W; out.height = H;
+        var g = out.getContext('2d');
+        g.drawImage(cBase, 0, 0);
+        // Export always includes the gold, even if the preview has it hidden.
+        var wasHidden = $('hide').checked;
+        $('hide').checked = false; compose();
+        g.drawImage(cOver, 0, 0);
+        $('hide').checked = wasHidden; compose();
+        out.toBlob(function (blob) {
+            var a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'kintsugi_' + srcName.replace(/[^\w-]+/g, '_') + '.png';
+            document.body.appendChild(a); a.click(); a.remove();
+            setTimeout(function () { URL.revokeObjectURL(a.href); }, 5000);
+        }, 'image/png');
+    };
+
+    // Exposed so the tool can be driven from a test without a file dialog.
+    window.__kintsugi = { setImage: setImage };
+    applyRange();
+})();
+</script>
+</body>
+</html>
