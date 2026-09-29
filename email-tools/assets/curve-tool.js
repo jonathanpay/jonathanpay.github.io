@@ -1,4 +1,8 @@
-import { g as byId, a as animateBars, c as countHits } from "./utils-jnLFB3bE.js";
+import { g as byId, a as animateBars } from "./utils-jnLFB3bE.js";
+// The old countHits in utils is a boundary-free substring counter, so "know"
+// scored as "now" and "they" as "hey". The shared scorer owns the
+// boundary-aware matcher; aliased so the call sites below stay unchanged.
+import { countKeywordHits as countHits } from "./dominance-scorer.js";
 import { EMOTIONAL_APPEALS } from "./appeal-keywords.js";
 
 // Curiosity and Emotion both draw on the Emotional Appeal Analyzer's shared

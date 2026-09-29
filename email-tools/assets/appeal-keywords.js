@@ -1,6 +1,33 @@
 // Single source of truth for the 6 emotional-appeal categories.
 // Consumed by the Emotional Appeal Analyzer (dominance scoring across all 6)
 // and the CURVE Subject Line Builder (Curiosity + the other 5 as "Emotion").
+//
+// Applied 2026-09-29, previously drafted as appeal-keywords.next.js.
+// Rationale and open follow-ups: ../scorer-notes.md
+//
+// Only `keywords` changed. `id`, `name`, `color`, `tint`, `desc`, `note` and
+// `phrases` are byte-identical to the live file: CURVE keys off `id`, and the
+// three renderers show `name`/`desc`/`note`/`phrases`/`color`/`tint` directly.
+//
+// Keyword changes, in two groups:
+//
+//   REMOVED — function words that fire on any prose in any register, which the
+//   new boundary-aware matcher makes obvious because they were previously also
+//   matching inside unrelated words:
+//     Fear: "without", "behind"
+//   Both are ordinary English. "behind" was also matching the Curiosity sense
+//   in "behind the scenes". Genuine risk/urgency phrasings are already covered
+//   by "at risk", "running out", "last chance", "deadline" and friends.
+//
+//   STEMMED — a trailing `*` marks a stem (base word plus any suffix), added
+//   only where the inflection family is the intended signal AND the stem has no
+//   wrong-polarity false friend. Deliberately NOT stemmed: "hope" (hopeless),
+//   "care" (careless), "test" (testament), "safe" (a stem would be harmless but
+//   "safe" is already well covered).
+//
+// The boundary fix alone removes the substring false positives this list used
+// to score, such as "closely" counting as Fear's "lose" and "contested" as
+// Trust's "tested".
 export const EMOTIONAL_APPEALS = [
   {
     id: "fear",
@@ -10,7 +37,7 @@ export const EMOTIONAL_APPEALS = [
     desc: "Loss aversion, risk of inaction, consequence of delay.",
     note: "High-converting for one-off promotions and re-engagement — but overuse in nurture sequences erodes trust over time. Best paired with a genuine solution, not just a threat.",
     phrases: [`"Don't let this happen to you"`, '"The cost of waiting"', `"Before it's too late"`, `"You're leaving money on the table"`, '"Most people miss this"'],
-    keywords: ["miss out", "lose", "risk", "threat", "falling behind", "left behind", "too late", "regret", "mistake", "costly", "fail", "before it's gone", "running out", "expire", "last chance", "warning", "without", "penalty", "danger", "worried", "concerned", "at risk", "behind", "missed", "losing", "lost", "afraid", "fear", "scary", "urgent", "hurry", "deadline", "ending"],
+    keywords: ["miss out", "lose*", "risk", "threat", "falling behind", "left behind", "too late", "regret", "mistake", "costly", "fail", "before it's gone", "running out", "expire", "last chance", "warning", "penalty", "danger", "worried", "concerned", "at risk", "missed", "lost", "afraid", "fear", "scary", "urgent", "hurry", "deadline", "ending"],
   },
   {
     id: "hope",
@@ -20,7 +47,7 @@ export const EMOTIONAL_APPEALS = [
     desc: "Aspiration, positive transformation, a better version of the future.",
     note: "The most sustainable long-term appeal. Works across all email types — onboarding, nurture, and educational content especially — because it motivates without pressure.",
     phrases: ['"Imagine waking up to..."', '"Finally, a way to..."', '"This changes everything"', '"Your next chapter starts here"', `"Picture where you'll be in 90 days"`],
-    keywords: ["imagine", "dream", "future", "transform", "change", "achieve", "better", "improve", "grow", "success", "possibility", "opportunity", "potential", "breakthrough", "finally", "unlock", "reach", "vision", "inspire", "hope", "thrive", "flourish", "build", "create", "aspire", "look forward", "new chapter", "picture this", "one day", "could be", "what if you", "believe"],
+    keywords: ["imagine", "dream", "future", "transform*", "change*", "achieve*", "better", "improve*", "grow*", "success", "possibility", "opportunity", "potential", "breakthrough", "finally", "unlock*", "reach", "vision", "inspire*", "hope", "thrive", "flourish*", "build*", "create*", "aspire", "look forward", "new chapter", "picture this", "one day", "could be", "what if you", "believe*"],
   },
   {
     id: "curiosity",
@@ -30,7 +57,7 @@ export const EMOTIONAL_APPEALS = [
     desc: "Intrigue, mystery, the desire to know something not yet revealed.",
     note: "Powerful for subject lines and opening hooks — but the body copy must deliver on the promise. Unfulfilled curiosity frustrates readers and hurts open rates on future sends.",
     phrases: [`"Here's what most marketers never notice..."`, '"The surprising reason your emails underperform"', `"Most people don't know this"`, '"We rarely talk about this"', `"Find out what's really happening"`],
-    keywords: ["discover", "reveal", "secret", "hidden", "surprising", "what if", "wonder", "find out", "uncover", "inside", "behind the scenes", "little-known", "curious", "mystery", "the truth", "rarely", "most people", "you won't believe", "unknown", "unexpected", "intriguing", "why do", "how is it", "have you ever", "bet you didn't", "rarely discussed", "untold", "overlooked"],
+    keywords: ["discover*", "reveal*", "secret", "hidden", "surprising", "what if", "wonder", "find out", "uncover", "inside", "behind the scenes", "little-known", "curious", "mystery", "the truth", "rarely", "most people", "you won't believe", "unknown", "unexpected", "intriguing", "why do", "how is it", "have you ever", "bet you didn't", "rarely discussed", "untold", "overlooked"],
   },
   {
     id: "pride",
@@ -50,7 +77,7 @@ export const EMOTIONAL_APPEALS = [
     desc: "Safety, reliability, credentials, and the reassurance that the risk is low.",
     note: "Essential in every email to some degree, but especially critical early in the relationship — welcome sequences, transactional emails, and high-stakes offers all need a strong trust foundation.",
     phrases: ['"Trusted by 10,000+ marketers"', '"Backed by independent research"', '"30-day guarantee, no questions asked"', `"Here's exactly how it works"`, '"Read what our members say"'],
-    keywords: ["proven", "trusted", "guarantee", "certified", "accredited", "research", "study", "data", "evidence", "testimonial", "review", "established", "verified", "secure", "safe", "reliable", "backed by", "endorsed", "transparent", "honest", "authentic", "track record", "no risk", "results", "thousands", "years of", "industry-recognised", "independently", "tested", "validated"],
+    keywords: ["proven", "trust*", "guarantee", "certified", "accredited", "research", "study", "data", "evidence", "testimonial", "review", "established", "verified", "secure", "safe", "reliable", "backed by", "endorsed", "transparent", "honest", "authentic", "track record", "no risk", "results", "thousands", "years of", "industry-recognised", "independently", "tested", "validated"],
   },
   {
     id: "belonging",
@@ -60,6 +87,6 @@ export const EMOTIONAL_APPEALS = [
     desc: "Community, shared identity, and the feeling of being part of something larger.",
     note: "Builds long-term brand loyalty more reliably than any other appeal. Particularly powerful for subscription products, community-led brands, and re-engagement campaigns where readers have gone quiet.",
     phrases: ['"Join 8,000 marketers doing this differently"', `"You're not alone in this"`, '"This is a community, not just a course"', '"People like you are already inside"', `"We're building something together"`],
-    keywords: ["together", "community", "join", "members", "family", "team", "people like you", "others like you", "you're not alone", "shared", "collective", "movement", "group", "network", "insider", "part of", "we all", "everyone", "like-minded", "peers", "fellow", "belong", "in this together", "our community", "thousands of", "millions of", "growing group", "tribe"],
+    keywords: ["together", "community", "join", "members", "family", "team", "people like you", "others like you", "you're not alone", "shared", "collective", "movement", "group", "network", "insider", "part of", "we all", "everyone", "like-minded", "peers", "fellow", "belong*", "in this together", "our community", "thousands of", "millions of", "growing group", "tribe"],
   },
 ];
