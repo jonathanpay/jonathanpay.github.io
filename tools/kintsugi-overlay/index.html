@@ -20,8 +20,6 @@
             --ui-faint: #5a5a62;
             --ui-accent: #7c5cff;
             --ui-accent-2: #6147d6;
-            --ui-danger: #e05555;
-            --gold: #dfb81f;
         }
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
         html, body { height: 100%; }
@@ -85,7 +83,7 @@
         .btn-secondary { background: transparent; color: var(--ui-muted); border-color: var(--ui-border); }
         .btn-secondary:hover:not(:disabled) { color: var(--ui-text); border-color: #444; }
         .btn:disabled { opacity: .4; cursor: not-allowed; }
-        .btn-row { display: flex; gap: 8px; margin-top: 8px; }
+        .btn-row { display: flex; gap: 8px; margin-top: 12px; }
         .btn-row .btn { flex: 1; }
 
         .tool-toggle { display: flex; gap: 8px; }
@@ -94,9 +92,6 @@
             background: transparent; color: var(--ui-muted); border: 1px solid var(--ui-border); cursor: pointer;
         }
         .tool-toggle button.on { background: var(--ui-surface-2); color: var(--ui-text); border-color: var(--ui-accent); }
-
-        #coverage { font-size: 11px; color: var(--ui-muted); margin-top: 8px; }
-        #coverage.warn { color: #e0b155; }
 
         /* ---------- Preview pane ---------- */
         #preview-pane {
@@ -148,71 +143,51 @@
 
 <div id="editor">
     <h1>Kintsugi Overlay Generator</h1>
-    <div id="build-stamp">build 2026-09-29-a</div>
+    <div id="build-stamp">build 2026-09-30-a</div>
 
     <div class="section" style="border-top:0; padding-top:0">
         <span class="section-label">Image</span>
-        <button class="btn btn-secondary" id="btn-open">Choose a black and white image…</button>
+        <button class="btn btn-secondary" id="btn-open">Choose an image…</button>
         <input type="file" id="file" accept="image/*" hidden>
         <div class="hint">Or drop one on the canvas, or paste from the clipboard. Nothing leaves your browser.</div>
     </div>
 
     <div class="section">
-        <span class="section-label">Gold from shadow</span>
-        <div class="row">
-            <label for="thr">Threshold</label>
-            <input type="range" id="thr" min="8" max="30" step="0.5" value="18">
-            <span class="val" id="thr-v">18%</span>
-        </div>
-        <div class="row">
-            <label for="smooth">Smoothing</label>
-            <input type="range" id="smooth" min="0" max="6" step="1" value="1">
-            <span class="val" id="smooth-v">1</span>
-        </div>
-        <div class="row">
-            <label for="gold">Gold</label>
-            <input type="color" id="gold" value="#dfb81f">
-            <span class="val" style="flex:1; text-align:left; color:var(--ui-muted)" id="gold-v">#DFB81F</span>
-        </div>
-        <label class="check">
-            <input type="checkbox" id="override">
-            <span>Override the safe range<br><span class="hint" style="margin:0">Opens the slider out to <span id="ov-range"></span> for images that under- or over-produce gold.</span></span>
-        </label>
-        <div id="coverage">Gold covers –</div>
-        <div class="hint">Everything darker than the threshold becomes gold. Lower it for fewer, finer lines; raise it for more. Smoothing blurs the shadows first, which drops speckle.</div>
-    </div>
-
-    <div class="section">
-        <span class="section-label">Touch-up</span>
+        <span class="section-label">Draw</span>
         <div class="tool-toggle">
-            <button id="t-draw" class="on">Draw gold (B)</button>
+            <button id="t-draw" class="on">Draw (B)</button>
             <button id="t-erase">Erase (E)</button>
         </div>
         <div class="row">
             <label for="size">Brush</label>
-            <input type="range" id="size" min="2" max="120" step="1" value="14">
+            <input type="range" id="size" min="2" max="200" step="1" value="14">
             <span class="val" id="size-v">14px</span>
+        </div>
+        <div class="row">
+            <label for="gold">Colour</label>
+            <input type="color" id="gold" value="#dfb81f">
+            <span class="val" style="flex:1; text-align:left; color:var(--ui-muted)" id="gold-v">#DFB81F</span>
         </div>
         <div class="btn-row">
             <button class="btn btn-secondary" id="btn-undo" disabled>Undo (⌘Z)</button>
-            <button class="btn btn-secondary" id="btn-clear" disabled>Clear edits</button>
+            <button class="btn btn-secondary" id="btn-clear" disabled>Clear all</button>
         </div>
         <label class="check">
             <input type="checkbox" id="hide">
-            <span>Hide the gold (see the original)</span>
+            <span>Hide the drawing (see the original)</span>
         </label>
-        <div class="hint">Edits are kept when you move the threshold, so you can tune the shadows after touching up.</div>
+        <div class="hint">Lines are smoothed as you draw. Changing the colour recolours everything you've drawn. Brush size is in image pixels and starts at about 1% of the image's long side.</div>
     </div>
 
     <div class="section">
         <button class="btn btn-primary" id="btn-export" disabled>Download as PNG</button>
-        <div class="hint" id="export-note">Exports the image and gold flattened at its working resolution.</div>
+        <div class="hint">Exports the image and drawing flattened, at the image's own size (long side capped at 3000px).</div>
     </div>
 </div>
 
 <div id="preview-pane">
     <div id="drop">
-        <strong>Drop a black and white image here</strong>
+        <strong>Drop an image here</strong>
         or click to choose one
     </div>
     <div id="stage">
@@ -227,27 +202,17 @@
 (function () {
     'use strict';
 
-    /* Tuning knobs. The default window and the override limits are guesses until
-       they have been tested against Jon's real hero images: change them here.
-       Values are % of full luminance (0 = black, 100 = white). */
     var CFG = {
-        maxSide: 3000,                              // longest side of the working image and the export
-        window:   { min: 8, max: 30, def: 18 },     // where the slider lives normally
-        override: { min: 1, max: 60 },              // where it can go when unlocked
-        soft: 3                                     // half-width of the edge ramp, in % luminance
+        maxSide: 3000,       // longest side of the working image and the export
+        brushFrac: 0.01,     // default brush as a fraction of the long side
+        brushMax: 200
     };
 
     var $ = function (id) { return document.getElementById(id); };
     var cBase = $('c-base'), cOver = $('c-over');
     var gBase = cBase.getContext('2d'), gOver = cOver.getContext('2d');
 
-    // Working canvases, same pixel size as the image.
-    var cAuto = document.createElement('canvas');   // the automatic gold
-    var cAdd = document.createElement('canvas');    // gold drawn by hand
-    var cErase = document.createElement('canvas');  // where the hand has erased the automatic gold
-    var gAuto = cAuto.getContext('2d'), gAdd = cAdd.getContext('2d'), gErase = cErase.getContext('2d');
-
-    var W = 0, H = 0, luma = null, blurCache = {}, srcName = 'image';
+    var W = 0, H = 0, srcName = 'image';
     var strokes = [], current = null, tool = 'draw';
     var pending = false;
 
@@ -265,133 +230,58 @@
         var s = Math.min(1, CFG.maxSide / Math.max(img.naturalWidth, img.naturalHeight));
         W = Math.max(1, Math.round(img.naturalWidth * s));
         H = Math.max(1, Math.round(img.naturalHeight * s));
-        [cBase, cOver, cAuto, cAdd, cErase].forEach(function (c) { c.width = W; c.height = H; });
+        cBase.width = cOver.width = W;
+        cBase.height = cOver.height = H;
         gBase.drawImage(img, 0, 0, W, H);
-
-        var d = gBase.getImageData(0, 0, W, H).data;
-        luma = new Float32Array(W * H);
-        for (var i = 0, p = 0; i < luma.length; i++, p += 4) {
-            luma[i] = (0.2126 * d[p] + 0.7152 * d[p + 1] + 0.0722 * d[p + 2]) / 255;
-        }
-        blurCache = {};
         strokes = [];
+
+        var b = Math.max(2, Math.min(CFG.brushMax, Math.round(Math.max(W, H) * CFG.brushFrac)));
+        $('size').value = b; $('size-v').textContent = b + 'px';
 
         $('drop').style.display = 'none';
         $('stage').style.display = 'block';
         $('btn-export').disabled = false;
         $('size-note').textContent = W + ' × ' + H + (s < 1 ? ' (scaled down from ' + img.naturalWidth + ' × ' + img.naturalHeight + ')' : '');
         fitStage();
-        rebuildAll();
+        render(); syncButtons();
     }
 
-    /* ---------- Step 1: shadow to gold ---------- */
-    function boxBlur(src, r) {
-        // Two separable box passes with edge clamping: close enough to a gaussian.
-        var out = new Float32Array(src.length), tmp = new Float32Array(src.length);
-        var n = 2 * r + 1, x, y, acc, i;
-        for (var pass = 0; pass < 2; pass++) {
-            var a = pass === 0 ? src : out;
-            for (y = 0; y < H; y++) {              // horizontal, a -> tmp
-                var row = y * W; acc = 0;
-                for (i = -r; i <= r; i++) acc += a[row + Math.min(W - 1, Math.max(0, i))];
-                for (x = 0; x < W; x++) {
-                    tmp[row + x] = acc / n;
-                    acc += a[row + Math.min(W - 1, x + r + 1)] - a[row + Math.max(0, x - r)];
-                }
+    /* ---------- Drawing ---------- */
+    // Strokes are kept as point lists and replayed in order, so undo is exact and a
+    // colour change recolours the lot. Lines are smoothed by curving through the
+    // midpoints between points, which takes the jitter out of a mouse or a finger.
+    function trace(g, s) {
+        var p = s.pts, n = p.length;
+        g.lineWidth = s.size; g.lineCap = 'round'; g.lineJoin = 'round';
+        g.beginPath();
+        g.moveTo(p[0][0], p[0][1]);
+        if (n === 1) g.lineTo(p[0][0] + 0.01, p[0][1]);
+        else if (n === 2) g.lineTo(p[1][0], p[1][1]);
+        else {
+            for (var i = 1; i < n - 1; i++) {
+                g.quadraticCurveTo(p[i][0], p[i][1], (p[i][0] + p[i + 1][0]) / 2, (p[i][1] + p[i + 1][1]) / 2);
             }
-            for (x = 0; x < W; x++) {              // vertical, tmp -> out
-                acc = 0;
-                for (i = -r; i <= r; i++) acc += tmp[Math.min(H - 1, Math.max(0, i)) * W + x];
-                for (y = 0; y < H; y++) {
-                    out[y * W + x] = acc / n;
-                    acc += tmp[Math.min(H - 1, y + r + 1) * W + x] - tmp[Math.max(0, y - r) * W + x];
-                }
-            }
+            g.lineTo(p[n - 1][0], p[n - 1][1]);
         }
-        return out;
+        g.stroke();
     }
 
-    function lumaFor(radius) {
-        if (!radius) return luma;
-        if (!blurCache[radius]) blurCache[radius] = boxBlur(luma, radius * 2);
-        return blurCache[radius];
-    }
-
-    function hexToRgb(h) {
-        var n = parseInt(h.slice(1), 16);
-        return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
-    }
-
-    function renderAuto() {
-        var L = lumaFor(+$('smooth').value);
-        var T = +$('thr').value / 100, soft = CFG.soft / 100;
-        var rgb = hexToRgb($('gold').value);
-        var img = gAuto.createImageData(W, H), d = img.data, hit = 0;
-        for (var i = 0, p = 0; i < L.length; i++, p += 4) {
-            var t = (T + soft - L[i]) / (2 * soft);
-            if (t <= 0) continue;                       // stays transparent
-            if (t > 1) t = 1;
-            t = t * t * (3 - 2 * t);
-            d[p] = rgb[0]; d[p + 1] = rgb[1]; d[p + 2] = rgb[2];
-            d[p + 3] = t * 255;
-            if (t > 0.5) hit++;
-        }
-        gAuto.putImageData(img, 0, 0);
-
-        var pct = hit / L.length * 100, el = $('coverage');
-        el.textContent = 'Gold covers ' + (pct < 0.1 ? '<0.1' : pct.toFixed(1)) + '% of the image'
-            + (pct < 0.3 ? ' · very sparse' : pct > 12 ? ' · very busy' : '');
-        el.className = (pct < 0.3 || pct > 12) ? 'warn' : '';
-    }
-
-    /* ---------- Step 3: touch-up layers ---------- */
-    function paintStroke(s) {
-        var goldCss = $('gold').value;
-        function trace(g) {
-            g.lineWidth = s.size; g.lineCap = 'round'; g.lineJoin = 'round';
-            g.beginPath();
-            g.moveTo(s.pts[0][0], s.pts[0][1]);
-            if (s.pts.length === 1) g.lineTo(s.pts[0][0] + 0.01, s.pts[0][1]);
-            for (var i = 1; i < s.pts.length; i++) g.lineTo(s.pts[i][0], s.pts[i][1]);
-            g.stroke();
-        }
-        if (s.erase) {
-            gErase.strokeStyle = '#fff'; trace(gErase);
-            gAdd.globalCompositeOperation = 'destination-out'; gAdd.strokeStyle = '#000'; trace(gAdd);
-            gAdd.globalCompositeOperation = 'source-over';
-        } else {
-            gAdd.strokeStyle = goldCss; trace(gAdd);
-        }
-    }
-
-    function rebuildLayers() {
-        gAdd.clearRect(0, 0, W, H); gErase.clearRect(0, 0, W, H);
-        strokes.forEach(paintStroke);
-    }
-
-    function compose() {
+    function render() {
         gOver.clearRect(0, 0, W, H);
         if ($('hide').checked) return;
+        var colour = $('gold').value;
+        strokes.forEach(function (s) {
+            gOver.globalCompositeOperation = s.erase ? 'destination-out' : 'source-over';
+            gOver.strokeStyle = s.erase ? '#000' : colour;
+            trace(gOver, s);
+        });
         gOver.globalCompositeOperation = 'source-over';
-        gOver.drawImage(cAuto, 0, 0);
-        gOver.globalCompositeOperation = 'destination-out';
-        gOver.drawImage(cErase, 0, 0);
-        gOver.globalCompositeOperation = 'source-over';
-        gOver.drawImage(cAdd, 0, 0);
     }
 
     function schedule() {
         if (pending) return;
         pending = true;
-        requestAnimationFrame(function () { pending = false; compose(); });
-    }
-
-    function rebuildAll() { if (!luma) return; renderAuto(); rebuildLayers(); compose(); syncButtons(); }
-    var autoTimer = null;
-    function rebuildAutoSoon() {
-        if (!luma) return;
-        clearTimeout(autoTimer);
-        autoTimer = setTimeout(function () { renderAuto(); compose(); }, 30);
+        requestAnimationFrame(function () { pending = false; render(); });
     }
 
     function syncButtons() {
@@ -399,7 +289,7 @@
         $('btn-clear').disabled = !strokes.length;
     }
 
-    /* ---------- Pointer drawing ---------- */
+    /* ---------- Pointer ---------- */
     function toImage(e) {
         var r = cOver.getBoundingClientRect();
         return [(e.clientX - r.left) * W / r.width, (e.clientY - r.top) * H / r.height];
@@ -414,19 +304,17 @@
     }
 
     cOver.addEventListener('pointerdown', function (e) {
-        if (!luma || e.button > 0) return;
+        if (!W || e.button > 0) return;
+        if ($('hide').checked) { $('hide').checked = false; }
         cOver.setPointerCapture(e.pointerId);
         current = { erase: tool === 'erase', size: +$('size').value, pts: [toImage(e)] };
         strokes.push(current);
-        paintStroke(current); schedule(); syncButtons(); moveRing(e);
+        schedule(); syncButtons(); moveRing(e);
     });
     cOver.addEventListener('pointermove', function (e) {
         moveRing(e);
         if (!current) return;
-        var p = toImage(e), last = current.pts[current.pts.length - 1];
-        current.pts.push(p);
-        // Paint only the new segment; the full stroke is replayed on undo.
-        paintStroke({ erase: current.erase, size: current.size, pts: [last, p] });
+        current.pts.push(toImage(e));
         schedule();
     });
     function endStroke() { current = null; }
@@ -436,7 +324,7 @@
 
     function undo() {
         if (!strokes.length) return;
-        strokes.pop(); rebuildLayers(); compose(); syncButtons();
+        strokes.pop(); render(); syncButtons();
     }
 
     /* ---------- Controls ---------- */
@@ -449,31 +337,13 @@
     $('t-erase').onclick = function () { setTool('erase'); };
     $('btn-undo').onclick = undo;
     $('btn-clear').onclick = function () {
-        if (strokes.length && confirm('Remove all ' + strokes.length + ' manual edits?')) {
-            strokes = []; rebuildLayers(); compose(); syncButtons();
+        if (strokes.length && confirm('Remove everything you have drawn?')) {
+            strokes = []; render(); syncButtons();
         }
     };
-
-    function applyRange() {
-        var o = $('override').checked, r = o ? CFG.override : CFG.window, s = $('thr');
-        s.min = r.min; s.max = r.max;
-        if (+s.value < r.min) s.value = r.min;
-        if (+s.value > r.max) s.value = r.max;
-        $('thr-v').textContent = (+s.value) + '%';
-    }
-    $('ov-range').textContent = CFG.override.min + '–' + CFG.override.max + '%';
-    $('thr').value = CFG.window.def;
-
-    $('thr').oninput = function () { $('thr-v').textContent = this.value + '%'; rebuildAutoSoon(); };
-    $('smooth').oninput = function () { $('smooth-v').textContent = this.value; rebuildAutoSoon(); };
-    $('override').onchange = function () { applyRange(); rebuildAutoSoon(); };
-    $('gold').oninput = function () {
-        $('gold-v').textContent = this.value.toUpperCase();
-        if (!luma) return;
-        renderAuto(); rebuildLayers(); compose();
-    };
+    $('gold').oninput = function () { $('gold-v').textContent = this.value.toUpperCase(); render(); };
     $('size').oninput = function () { $('size-v').textContent = this.value + 'px'; };
-    $('hide').onchange = compose;
+    $('hide').onchange = render;
 
     $('btn-open').onclick = function () { $('file').click(); };
     $('drop').onclick = function () { $('file').click(); };
@@ -512,18 +382,18 @@
     }
     window.addEventListener('resize', fitStage);
 
-    /* ---------- Step 4: export ---------- */
+    /* ---------- Export ---------- */
     $('btn-export').onclick = function () {
-        if (!luma) return;
+        if (!W) return;
         var out = document.createElement('canvas');
         out.width = W; out.height = H;
         var g = out.getContext('2d');
         g.drawImage(cBase, 0, 0);
-        // Export always includes the gold, even if the preview has it hidden.
+        // The drawing always goes in, even if the preview has it hidden.
         var wasHidden = $('hide').checked;
-        $('hide').checked = false; compose();
+        $('hide').checked = false; render();
         g.drawImage(cOver, 0, 0);
-        $('hide').checked = wasHidden; compose();
+        $('hide').checked = wasHidden; render();
         out.toBlob(function (blob) {
             var a = document.createElement('a');
             a.href = URL.createObjectURL(blob);
@@ -535,7 +405,6 @@
 
     // Exposed so the tool can be driven from a test without a file dialog.
     window.__kintsugi = { setImage: setImage };
-    applyRange();
 })();
 </script>
 </body>
