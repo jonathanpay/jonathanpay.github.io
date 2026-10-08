@@ -1,0 +1,342 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>A/B Test Hypothesis Builder — Holistic Email Marketing</title>
+  <meta name="description" content="Turn a vague test idea into a hypothesis you can actually prove wrong. A guided set of questions, then hand it on to the Duration Calculator. No sign-up needed.">
+  <link rel="icon" href="/favicon.ico">
+  <style>
+    body { background: var(--hea-bg-alt); }
+
+    .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: var(--hea-s-4); }
+    .field-hint {
+      font-size: var(--hea-text-xs);
+      color: var(--hea-fg-3);
+      line-height: var(--hea-lh-normal);
+      margin: var(--hea-s-2) 0 0;
+    }
+    .optional { font-weight: 400; color: var(--hea-fg-3); }
+
+    /* ---- Pipeline ---- */
+    .pipeline {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--hea-s-2) var(--hea-s-4);
+      list-style: none;
+      margin: var(--hea-s-5) 0 0;
+      padding: 0;
+      font-size: var(--hea-text-sm);
+      color: var(--hea-fg-3);
+    }
+    .pipeline li::before { content: attr(data-step) ". "; font-weight: var(--hea-w-bold); }
+    .pipeline li[aria-current="step"] { color: var(--hea-purple); font-weight: var(--hea-w-bold); }
+    .pipeline a { color: var(--hea-fg-2); text-decoration: none; }
+    .pipeline a:hover { color: var(--hea-purple-deep); }
+
+    /* ---- Numbered questions ---- */
+    .question-head {
+      display: flex;
+      align-items: baseline;
+      gap: var(--hea-s-3);
+      margin: var(--hea-s-6) 0 var(--hea-s-3);
+    }
+    .question-head:first-child { margin-top: 0; }
+    .question-num {
+      flex: none;
+      width: 1.75rem;
+      height: 1.75rem;
+      border-radius: 999px;
+      background: var(--hea-purple-tint);
+      color: var(--hea-purple);
+      font-size: var(--hea-text-sm);
+      font-weight: var(--hea-w-bold);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .question-title { font-size: var(--hea-text-lg, 1.125rem); font-weight: var(--hea-w-bold); color: var(--hea-fg-1); margin: 0; }
+
+    /* ---- Suggestion chips ---- */
+    .chips { display: flex; flex-wrap: wrap; gap: var(--hea-s-2); margin-top: var(--hea-s-3); }
+    .chips-label { font-size: var(--hea-text-xs); color: var(--hea-fg-3); margin: var(--hea-s-3) 0 0; }
+    .chip {
+      font: inherit;
+      font-size: var(--hea-text-sm);
+      color: var(--hea-fg-2);
+      background: #fff;
+      border: 1px solid var(--hea-divider);
+      border-radius: 999px;
+      padding: var(--hea-s-1) var(--hea-s-3);
+      cursor: pointer;
+      text-align: left;
+    }
+    .chip:hover, .chip:focus-visible { border-color: var(--hea-purple); color: var(--hea-purple); }
+    .chip[aria-pressed="true"] { background: var(--hea-purple-tint); border-color: var(--hea-purple); color: var(--hea-purple); }
+    .lever-hint { font-size: var(--hea-text-sm); color: var(--hea-fg-2); line-height: var(--hea-lh-normal); margin: var(--hea-s-3) 0 0; }
+    .lever-hint:empty { display: none; }
+    .lever-hint a { color: var(--hea-purple); }
+
+    /* ---- Warnings ---- */
+    .calc-warning {
+      display: none;
+      border-radius: var(--hea-r-md);
+      padding: var(--hea-s-3) var(--hea-s-4);
+      font-size: var(--hea-text-sm);
+      line-height: var(--hea-lh-normal);
+      margin-top: var(--hea-s-3);
+      background: rgba(232,165,60,0.12);
+      border: 1px solid rgba(232,165,60,0.35);
+      color: #7A4E00;
+    }
+    .calc-warning.visible { display: block; }
+
+    /* ---- Result ---- */
+    .hypothesis-sentence {
+      background: var(--hea-purple-tint);
+      border-left: 4px solid var(--hea-purple);
+      border-radius: var(--hea-r-md);
+      padding: var(--hea-s-5);
+      font-size: var(--hea-text-lg, 1.125rem);
+      line-height: 1.5;
+      color: var(--hea-fg-1);
+      margin: 0 0 var(--hea-s-3);
+    }
+    .hypothesis-context { font-size: var(--hea-text-sm); color: var(--hea-fg-3); margin: 0 0 var(--hea-s-5); }
+    .check-list { list-style: none; margin: 0 0 var(--hea-s-5); padding: 0; }
+    .check-list li {
+      display: grid;
+      grid-template-columns: 1.5rem 1fr;
+      gap: var(--hea-s-2);
+      padding: var(--hea-s-3) 0;
+      border-bottom: 1px solid var(--hea-divider);
+      font-size: var(--hea-text-sm);
+      line-height: var(--hea-lh-normal);
+    }
+    .check-list li:last-child { border-bottom: none; }
+    .check-icon { font-weight: var(--hea-w-bold); }
+    .check-ok .check-icon { color: #138C28; }
+    .check-warn .check-icon { color: #B26A00; }
+    .check-title { font-weight: var(--hea-w-semibold); color: var(--hea-fg-1); margin: 0; }
+    .check-detail { color: var(--hea-fg-2); margin: var(--hea-s-1) 0 0; }
+
+    .planner-table { width: 100%; border-collapse: collapse; font-size: var(--hea-text-sm); margin-top: var(--hea-s-2); }
+    .planner-table th {
+      font-size: var(--hea-text-xs);
+      font-weight: var(--hea-w-bold);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--hea-fg-3);
+      text-align: left;
+      padding: var(--hea-s-2) var(--hea-s-3) var(--hea-s-3);
+      border-bottom: 1px solid var(--hea-divider);
+    }
+    .planner-table td { padding: var(--hea-s-3); color: var(--hea-fg-2); vertical-align: top; overflow-wrap: anywhere; }
+    .planner-table td:empty::before { content: "—"; color: var(--hea-fg-3); }
+    .table-scroll { overflow-x: auto; }
+
+    .result-actions { display: flex; flex-wrap: wrap; gap: var(--hea-s-3); margin-top: var(--hea-s-5); align-items: center; }
+    .copy-status { font-size: var(--hea-text-sm); color: #138C28; min-height: 1.2em; margin: var(--hea-s-2) 0 0; }
+    .hea-btn[href] { display: inline-block; text-decoration: none; }
+
+    .validation-note {
+      background: var(--hea-bg-warm);
+      border-left: 3px solid var(--hea-purple-soft);
+      border-radius: var(--hea-r-md);
+      padding: var(--hea-s-4) var(--hea-s-5);
+      margin: var(--hea-s-5) 0;
+    }
+    .validation-note-head { font-size: var(--hea-text-sm); font-weight: var(--hea-w-bold); color: var(--hea-plum); margin: 0 0 var(--hea-s-2); }
+    .validation-note p { font-size: var(--hea-text-sm); color: var(--hea-fg-2); line-height: var(--hea-lh-normal); margin: 0; }
+
+    .tool-crosslink {
+      display: flex;
+      align-items: center;
+      gap: var(--hea-s-2);
+      font-size: var(--hea-text-sm);
+      color: var(--hea-fg-3);
+      padding: var(--hea-s-4) 0;
+      border-top: 1px solid var(--hea-divider);
+      margin-top: var(--hea-s-2);
+    }
+    .tool-crosslink a { color: var(--hea-purple); font-weight: var(--hea-w-semibold); text-decoration: none; }
+    .tool-crosslink a:hover { color: var(--hea-purple-deep); }
+
+    .course-cta {
+      margin-top: var(--hea-s-6);
+      background: var(--hea-purple-tint);
+      border: 1px solid rgba(158,65,191,0.2);
+      border-radius: var(--hea-r-md);
+      padding: var(--hea-s-5) var(--hea-s-6);
+    }
+    .course-cta-kicker {
+      font-size: var(--hea-text-xs);
+      font-weight: var(--hea-w-bold);
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--hea-purple);
+      margin: 0 0 var(--hea-s-2);
+    }
+    .course-cta p { font-size: var(--hea-text-sm); color: var(--hea-fg-2); line-height: var(--hea-lh-normal); margin: 0 0 var(--hea-s-4); }
+    .course-cta a.hea-btn { display: inline-block; }
+
+    @media (max-width: 480px) { .field-row { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body class="hea">
+
+  <header class="site-header">
+    <a href="index.html" class="brand-lockup">
+      <img src="/email-tools/assets/logo-icon-Cl9V7EQO.png" alt="" class="brand-logo">
+      <span class="brand-name">Holistic Email Marketing<em>Free optimisation tools</em></span>
+    </a>
+    <a href="index.html" class="back-link">← All Tools</a>
+  </header>
+
+  <main>
+    <div class="tool-page">
+
+      <header class="tool-header">
+        <span class="hea-pill hea-pill--foundation">● Foundation</span>
+        <h1>A/B Test Hypothesis Builder</h1>
+        <p class="lead">"Try a different subject line" isn't a test, it's an idea. Answer five questions and this turns it into a hypothesis you can prove wrong, then hands it on to the Duration Calculator.</p>
+        <ol class="pipeline" aria-label="The testing tools, in order">
+          <li data-step="1" aria-current="step">Hypothesis</li>
+          <li data-step="2"><a href="ab-duration-tool.html">Duration</a></li>
+          <li data-step="3"><a href="sscc.html">Significance</a></li>
+        </ol>
+      </header>
+
+      <div class="tool-card">
+        <form id="hyp-form" novalidate>
+
+          <div class="question-head"><span class="question-num">1</span><h2 class="question-title">Where does this email live?</h2></div>
+          <div class="field-group">
+            <label class="field-label" for="programme">Programme or journey stage</label>
+            <select class="hea-select" id="programme"></select>
+          </div>
+
+          <div class="question-head"><span class="question-num">2</span><h2 class="question-title">What's the problem?</h2></div>
+          <div class="field-group">
+            <label class="field-label" for="objective">What are you trying to achieve? <span class="optional">— optional, but it lets us check your metric</span></label>
+            <select class="hea-select" id="objective"></select>
+          </div>
+          <div class="field-group">
+            <label class="field-label" for="problem">What's happening now, and what would you like to happen instead? <span class="optional">— optional</span></label>
+            <textarea class="hea-textarea" id="problem" rows="2" placeholder="e.g. Promotional emails get opened, but hardly anyone clicks."></textarea>
+            <p class="chips-label" id="problem-chips-label" hidden>Common problems for this programme. Pick one to start from:</p>
+            <div class="chips" id="problem-chips"></div>
+          </div>
+
+          <div class="question-head"><span class="question-num">3</span><h2 class="question-title">What will you change?</h2></div>
+          <div class="field-group">
+            <label class="field-label" for="factor">What kind of change is it?</label>
+            <select class="hea-select" id="factor"></select>
+          </div>
+          <div class="field-group">
+            <label class="field-label" for="change">Complete the sentence: "I'm changing…"</label>
+            <input type="text" class="hea-input" id="change" placeholder="e.g. the subject line from a product announcement to a benefit-led line" autocomplete="off">
+            <p class="field-hint">One change per test. If you change two things at once, you can't tell which one made the difference.</p>
+          </div>
+
+          <div class="question-head"><span class="question-num">4</span><h2 class="question-title">What do you expect to happen?</h2></div>
+          <div class="field-row">
+            <div class="field-group">
+              <label class="field-label" for="metric">Metric you expect to move</label>
+              <select class="hea-select" id="metric"></select>
+            </div>
+            <div class="field-group">
+              <label class="field-label" for="direction">Which way?</label>
+              <select class="hea-select" id="direction">
+                <option value="increase">Increase</option>
+                <option value="decrease">Decrease</option>
+              </select>
+            </div>
+          </div>
+          <div class="calc-warning" id="metric-warning" role="note"></div>
+          <div class="field-row" style="margin-top:var(--hea-s-4)">
+            <div class="field-group">
+              <label class="field-label" for="lift">Smallest change that would matter (%) <span class="optional">— relative</span></label>
+              <input type="number" class="hea-input" id="lift" placeholder="e.g. 10" min="1" max="200" step="1">
+            </div>
+            <div class="field-group">
+              <label class="field-label" for="baseline">Where is that metric now (%) <span class="optional">— optional</span></label>
+              <input type="number" class="hea-input" id="baseline" placeholder="e.g. 3.2" min="0" max="100" step="0.1">
+            </div>
+          </div>
+          <p class="field-hint" style="margin-top:0">Without a smallest change that would matter, you can't say what counts as the hypothesis being wrong. A relative 10% on a 3% click rate means 3.3%, not 13%. Baseline and size of change are passed on to the Duration Calculator.</p>
+
+          <div class="question-head"><span class="question-num">5</span><h2 class="question-title">Why do you believe this?</h2></div>
+          <div class="field-group">
+            <label class="field-label" for="because">Complete the sentence: "…because"</label>
+            <textarea class="hea-textarea" id="because" rows="3" placeholder="e.g. it speaks to what the reader gains rather than what we're announcing."></textarea>
+            <p class="chips-label">Stuck? Start from a psychology lever:</p>
+            <div class="chips" id="lever-chips"></div>
+            <p class="lever-hint" id="lever-hint" aria-live="polite"></p>
+          </div>
+
+          <p class="error-msg" id="hyp-error" role="alert"></p>
+          <button type="submit" class="hea-btn hea-btn--primary" id="hyp-btn" style="margin-top:var(--hea-s-4)">Build my hypothesis →</button>
+        </form>
+
+        <div class="results" id="hyp-results" aria-live="polite">
+          <hr class="results-divider">
+
+          <p class="results-label">Your hypothesis</p>
+          <p class="hypothesis-sentence" id="hyp-sentence"></p>
+          <p class="hypothesis-context" id="hyp-context"></p>
+
+          <p class="results-label">Quick checks</p>
+          <ul class="check-list" id="hyp-checks"></ul>
+
+          <p class="results-label">For your test plan</p>
+          <div class="table-scroll">
+            <table class="planner-table">
+              <thead><tr><th>Change</th><th>Expected effect</th><th>Because</th><th>Success metric</th></tr></thead>
+              <tbody><tr><td id="plan-change"></td><td id="plan-effect"></td><td id="plan-because"></td><td id="plan-metric"></td></tr></tbody>
+            </table>
+          </div>
+
+          <div class="result-actions">
+            <button type="button" class="hea-btn hea-btn--secondary" id="copy-sentence">Copy hypothesis</button>
+            <button type="button" class="hea-btn hea-btn--secondary" id="copy-row">Copy as a row for your planner</button>
+          </div>
+          <p class="copy-status" id="copy-status" aria-live="polite"></p>
+
+          <div class="validation-note">
+            <p class="validation-note-head">Next: how long does it need to run?</p>
+            <p>Duration is planned before a test starts, not decided when the early numbers look good. We'll pass your hypothesis, baseline and smallest change to the Duration Calculator, so you only need to add your daily sends.</p>
+            <p id="duration-note" style="margin-top:var(--hea-s-2)"></p>
+          </div>
+          <a class="hea-btn hea-btn--primary" id="next-step" href="ab-duration-tool.html">Next: Duration Calculator →</a>
+
+          <div class="tool-crosslink">
+            <span>Step 3, when your test is complete →</span>
+            <a href="sscc.html">Statistical Significance Calculator</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="course-cta">
+        <p class="course-cta-kicker">Go deeper</p>
+        <p>The <strong>Foundation Email A/B Testing</strong> course covers writing a hypothesis in Module 4, "Developing an Effective Hypothesis", and how it fits into a test from start to finish.</p>
+        <a href="https://holisticemailacademy.com/courses/foundation-email-a-b-testing/" class="hea-btn hea-btn--primary" target="_blank" rel="noopener">See the course →</a>
+      </div>
+
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-brand">
+      <img src="/email-tools/assets/logo-icon-Cl9V7EQO.png" alt="" class="footer-logo">
+      <span class="footer-wordmark">Holistic Email Marketing</span>
+    </div>
+    <span class="footer-tagline">Smarter email starts here.</span>
+  </footer>
+
+  <script type="module" crossorigin src="/email-tools/assets/hypothesis-builder.js"></script>
+  <link rel="modulepreload" crossorigin href="/email-tools/assets/utils-jnLFB3bE.js">
+  <link rel="stylesheet" crossorigin href="/email-tools/assets/utils-M5Ds6giI.css">
+  <link rel="stylesheet" crossorigin href="/email-tools/assets/style-CxLNB_9V.css">
+</body>
+</html>

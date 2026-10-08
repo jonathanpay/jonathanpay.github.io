@@ -208,7 +208,7 @@
             <span style="font-weight:400;color:var(--hea-fg-3)"> — optional</span>
           </label>
           <textarea class="hea-textarea" id="hypothesis" rows="3" placeholder="e.g. Replacing our generic subject line with a benefit-led alternative will increase open rate by at least 10%, because it speaks to what the reader gains rather than what we're announcing."></textarea>
-          <p class="field-hint">Your hypothesis doesn't affect the calculation — but writing it before you look at the numbers is the discipline that makes results interpretable and reusable.</p>
+          <p class="field-hint">Your hypothesis doesn't affect the calculation — but writing it before you look at the numbers is the discipline that makes results interpretable and reusable. Not sure how to word it? <a href="hypothesis-tool.html">Use the Hypothesis Builder</a>.</p>
         </div>
 
         <div class="field-group">
@@ -300,5 +300,34 @@
     <span class="footer-tagline">Smarter email starts here.</span>
   </footer>
 
+
+  <script>
+    // Pre-fill from the Hypothesis Builder: ?hypothesis=...&baseline=3.2&lift=10
+    (function () {
+      var q = new URLSearchParams(location.search);
+      function fill(id, value, min, max) {
+        var el = document.getElementById(id);
+        if (!el || !value) return false;
+        if (min !== undefined) {
+          var n = parseFloat(value);
+          if (!isFinite(n) || n < min || n > max) return false;
+        }
+        el.value = value;
+        return true;
+      }
+      var filled = [
+        fill("hypothesis", (q.get("hypothesis") || "").slice(0, 600)),
+        fill("baselineRate", q.get("baseline"), 0.1, 99.9),
+        fill("minEffect", q.get("lift"), 1, 200)
+      ];
+      if (!filled.some(Boolean)) return;
+      var note = document.createElement("p");
+      note.className = "field-hint";
+      note.textContent = "Pre-filled from your hypothesis. Add your daily sends per variant, then calculate.";
+      var button = document.getElementById("calc-btn");
+      button.parentNode.insertBefore(note, button);
+      document.getElementById("dailySends").focus();
+    })();
+  </script>
 </body>
 </html>
