@@ -30,3 +30,4 @@ exclude:
   - readme.md
   - vendor
   - Gemfile.lock
+  - tests
