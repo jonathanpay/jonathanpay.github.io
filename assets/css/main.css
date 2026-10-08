@@ -435,6 +435,12 @@ figcaption, .wp-element-caption {
   color: var(--jp-black);
 }
 .jp-section-slash { color: var(--jp-link-gold); }
+.jp-tools-section + .jp-tools-section {
+  margin-top: 3.5rem;
+  padding-top: 3.5rem;
+  border-top: 1px solid var(--jp-light-grey);
+}
+.jp-section-dek { max-width: 40rem; margin: -0.5rem 0 1.5rem; font-size: 1rem; line-height: 1.7; color: var(--jp-mid-grey); }
 
 .jp-about-headline {
   font-family: var(--font-sans);
