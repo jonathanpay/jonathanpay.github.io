@@ -1,254 +1,755 @@
 <!doctype html>
 <html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>DMARC, SPF & DKIM Checker — Holistic Email Marketing</title>
-  <meta name="description" content="Check your domain's SPF, DKIM, and DMARC email authentication records in plain English — live DNS lookup, no sign-up needed.">
-  <link rel="icon" href="/favicon.ico">
-  <style>
-    body { background: var(--hea-bg-alt); }
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Free DMARC, SPF & DKIM Checker — Holistic Email Marketing</title>
+    <meta
+      name="description"
+      content="Check your domain's SPF, DKIM, and DMARC email authentication records in plain English — live DNS lookup, exact fixes for every issue, no sign-up needed."
+    />
+    <link rel="icon" href="/favicon.ico" />
+    <meta property="og:type" content="website" />
+    <meta
+      property="og:site_name"
+      content="Holistic Email Marketing — Free Email Optimisation Tools"
+    />
+    <meta property="og:title" content="Free DMARC, SPF & DKIM Checker" />
+    <meta
+      property="og:description"
+      content="Check your domain's live SPF, DKIM, and DMARC records in plain English, with exact fixes for every issue. No sign-up, runs in your browser."
+    />
+    <meta
+      property="og:url"
+      content="https://jonathanpay.github.io/email-tools/dmarc-checker-tool.html"
+    />
+    <meta name="twitter:card" content="summary" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "What is SPF?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Sender Policy Framework: a DNS TXT record listing which mail servers are authorised to send email on behalf of your domain. Receiving servers check the sending server against that list before your message gets anywhere near the inbox."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "What is DKIM?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "DomainKeys Identified Mail: a cryptographic signature added to every outgoing message. Your platform signs with a private key, and receiving servers verify it against the public key published in your DNS — proving the message really came from your domain and wasn't altered in transit."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "What is DMARC?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Domain-based Message Authentication, Reporting and Conformance: the policy that ties SPF and DKIM together. It tells receiving servers what to do with mail that fails both checks — nothing (p=none), send it to spam (p=quarantine), or refuse it (p=reject) — and where to send reports about who is sending as your domain."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Why do I need all three?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "They solve different problems: SPF authorises servers, DKIM proves message integrity, and DMARC adds enforcement and visibility. Without DMARC, failing the first two carries no consequence for a spoofer. It's also no longer optional at scale: since 2024, Gmail and Yahoo have required bulk senders to authenticate with SPF, DKIM, and DMARC, and Microsoft introduced matching requirements for Outlook in 2025."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "What's a DKIM selector, and why can't you always find mine?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "The selector is the name your DKIM key is published under — selector._domainkey.yourdomain.com. There's no public registry of selectors, so any checker can only try common ones. If none of the ten we try resolve, that's inconclusive rather than a failure: check your email platform's authentication settings for the selector it uses."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "What is DMARC alignment?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "DMARC doesn't just ask whether SPF or DKIM passed — it asks whether the domain that passed matches the From address your reader actually sees. An SPF pass on your platform's bounce domain does nothing for DMARC if your From address is your own domain."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Does passing all three guarantee inbox placement?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "No. Authentication is the entry ticket, not the ranking — placement still depends on your sending reputation, list quality, engagement, and content. But the reverse is increasingly true: failing authentication does guarantee trouble, from spam-foldering to outright rejection."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Which DMARC policy should I use?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Follow the progression: start at p=none with a rua reporting address and watch the reports; move to p=quarantine once legitimate mail is passing cleanly; finish at p=reject when you're confident. Don't skip the monitoring stage, or you risk quarantining your own mail."
+            }
+          }
+        ]
+      }
+    </script>
+    <script type="module" crossorigin src="/email-tools/assets/dmarc-checker.js"></script>
+    <link rel="modulepreload" crossorigin href="/email-tools/assets/utils-jnLFB3bE.js">
+    <link rel="stylesheet" crossorigin href="/email-tools/assets/utils-M5Ds6giI.css">
+    <link rel="stylesheet" crossorigin href="/email-tools/assets/style-CxLNB_9V.css">
+    <link rel="stylesheet" href="/email-tools/assets/landing.css">
+    <style>
+      body {
+        background: var(--hea-bg-alt);
+      }
 
-    .dmarc-field-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: var(--hea-s-4);
-    }
-    @media (max-width: 560px) {
-      .dmarc-field-row { grid-template-columns: 1fr; }
-    }
+      .dmarc-field-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: var(--hea-s-4);
+      }
+      @media (max-width: 560px) {
+        .dmarc-field-row {
+          grid-template-columns: 1fr;
+        }
+      }
 
-    .dmarc-cards {
-      display: flex;
-      flex-direction: column;
-      gap: var(--hea-s-4);
-    }
-    .dmarc-card {
-      background: var(--hea-bg-warm);
-      border-radius: var(--hea-r-md);
-      padding: var(--hea-s-4) var(--hea-s-5);
-    }
-    .dmarc-card-head {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: var(--hea-s-2);
-    }
-    .dmarc-card-title {
-      font-size: var(--hea-text-sm);
-      font-weight: var(--hea-w-bold);
-      color: var(--hea-fg-1);
-    }
-    .dmarc-status-badge {
-      font-size: var(--hea-text-xs);
-      font-weight: var(--hea-w-bold);
-      letter-spacing: 0.04em;
-      text-transform: uppercase;
-    }
-    .dmarc-message {
-      font-size: var(--hea-text-sm);
-      color: var(--hea-fg-2);
-      line-height: var(--hea-lh-normal);
-      margin: 0 0 var(--hea-s-3);
-    }
-    .dmarc-record-box {
-      display: none;
-      font-family: monospace;
-      font-size: var(--hea-text-xs);
-      background: var(--hea-bg);
-      border: 1px solid var(--hea-divider);
-      border-radius: var(--hea-r-sm);
-      padding: var(--hea-s-3);
-      margin-bottom: var(--hea-s-3);
-      word-break: break-all;
-      color: var(--hea-fg-1);
-    }
-    .dmarc-fallback {
-      display: none;
-      margin-top: var(--hea-s-3);
-      padding-top: var(--hea-s-3);
-      border-top: 1px dashed var(--hea-divider);
-    }
-    .dmarc-fallback.visible { display: block; }
-    .dmarc-fallback label {
-      font-size: var(--hea-text-xs);
-      font-weight: var(--hea-w-semibold);
-      color: var(--hea-fg-3);
-      display: block;
-      margin-bottom: var(--hea-s-2);
-    }
-    .dmarc-manual-input {
-      font-family: monospace;
-      font-size: var(--hea-text-xs);
-      width: 100%;
-      box-sizing: border-box;
-      padding: var(--hea-s-2) var(--hea-s-3);
-      border-radius: var(--hea-r-sm);
-      border: 1.5px solid var(--hea-divider);
-      background: var(--hea-bg);
-      color: var(--hea-fg-1);
-      margin-bottom: var(--hea-s-2);
-    }
-    .dmarc-manual-btn {
-      font-size: var(--hea-text-xs);
-      font-weight: var(--hea-w-semibold);
-      color: var(--hea-purple);
-      background: transparent;
-      border: 1px solid var(--hea-purple);
-      border-radius: var(--hea-r-pill);
-      padding: 6px 14px;
-      cursor: pointer;
-    }
-    .dmarc-manual-btn:hover { background: var(--hea-purple-tint); }
+      .dmarc-cards {
+        display: flex;
+        flex-direction: column;
+        gap: var(--hea-s-4);
+      }
+      .dmarc-card {
+        background: var(--hea-bg-warm);
+        border-radius: var(--hea-r-md);
+        padding: var(--hea-s-4) var(--hea-s-5);
+      }
+      .dmarc-card-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: var(--hea-s-2);
+      }
+      .dmarc-card-title {
+        font-size: var(--hea-text-sm);
+        font-weight: var(--hea-w-bold);
+        color: var(--hea-fg-1);
+      }
+      .dmarc-status-badge {
+        font-size: var(--hea-text-xs);
+        font-weight: var(--hea-w-bold);
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+      }
+      .dmarc-message {
+        font-size: var(--hea-text-sm);
+        color: var(--hea-fg-2);
+        line-height: var(--hea-lh-normal);
+        margin: 0 0 var(--hea-s-3);
+      }
+      .dmarc-record-box {
+        display: none;
+        font-family: monospace;
+        font-size: var(--hea-text-xs);
+        background: var(--hea-bg);
+        border: 1px solid var(--hea-divider);
+        border-radius: var(--hea-r-sm);
+        padding: var(--hea-s-3);
+        margin-bottom: var(--hea-s-3);
+        word-break: break-all;
+        color: var(--hea-fg-1);
+      }
+      .dmarc-fallback {
+        display: none;
+        margin-top: var(--hea-s-3);
+        padding-top: var(--hea-s-3);
+        border-top: 1px dashed var(--hea-divider);
+      }
+      .dmarc-fallback.visible {
+        display: block;
+      }
+      .dmarc-fallback label {
+        font-size: var(--hea-text-xs);
+        font-weight: var(--hea-w-semibold);
+        color: var(--hea-fg-3);
+        display: block;
+        margin-bottom: var(--hea-s-2);
+      }
+      .dmarc-manual-input {
+        font-family: monospace;
+        font-size: var(--hea-text-xs);
+        width: 100%;
+        box-sizing: border-box;
+        padding: var(--hea-s-2) var(--hea-s-3);
+        border-radius: var(--hea-r-sm);
+        border: 1.5px solid var(--hea-divider);
+        background: var(--hea-bg);
+        color: var(--hea-fg-1);
+        margin-bottom: var(--hea-s-2);
+      }
+      .dmarc-manual-btn {
+        font-size: var(--hea-text-xs);
+        font-weight: var(--hea-w-semibold);
+        color: var(--hea-purple);
+        background: transparent;
+        border: 1px solid var(--hea-purple);
+        border-radius: var(--hea-r-pill);
+        padding: 6px 14px;
+        cursor: pointer;
+      }
+      .dmarc-manual-btn:hover {
+        background: var(--hea-purple-tint);
+      }
 
-    /* ---- Course CTA ---- */
-    .course-cta {
-      margin-top: var(--hea-s-6);
-      background: var(--hea-purple-tint, #F4E9F9);
-      border: 1px solid rgba(158,65,191,0.25);
-      border-radius: var(--hea-r-md);
-      padding: var(--hea-s-5) var(--hea-s-6);
-    }
-    .course-cta-kicker {
-      font-size: var(--hea-text-xs);
-      font-weight: var(--hea-w-bold);
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      color: var(--hea-purple-deep);
-      margin: 0 0 var(--hea-s-2);
-    }
-    .course-cta p {
-      font-size: var(--hea-text-sm);
-      color: var(--hea-fg-2);
-      line-height: var(--hea-lh-normal);
-      margin: 0 0 var(--hea-s-4);
-    }
-    .course-cta-links {
-      display: flex;
-      flex-wrap: wrap;
-      gap: var(--hea-s-3);
-    }
-    .course-cta-links a.hea-btn { display: inline-block; }
-  </style>
-  <script type="module" crossorigin src="/email-tools/assets/dmarc-checker.js"></script>
-  <link rel="modulepreload" crossorigin href="/email-tools/assets/utils-jnLFB3bE.js">
-  <link rel="stylesheet" crossorigin href="/email-tools/assets/utils-M5Ds6giI.css">
-  <link rel="stylesheet" crossorigin href="/email-tools/assets/style-CxLNB_9V.css">
-</head>
-<body class="hea">
+      /* ---- Course CTA ---- */
+      .course-cta {
+        margin-top: var(--hea-s-6);
+        background: var(--hea-purple-tint, #f4e9f9);
+        border: 1px solid rgba(158, 65, 191, 0.25);
+        border-radius: var(--hea-r-md);
+        padding: var(--hea-s-5) var(--hea-s-6);
+      }
+      .course-cta-kicker {
+        font-size: var(--hea-text-xs);
+        font-weight: var(--hea-w-bold);
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--hea-purple-deep);
+        margin: 0 0 var(--hea-s-2);
+      }
+      .course-cta p {
+        font-size: var(--hea-text-sm);
+        color: var(--hea-fg-2);
+        line-height: var(--hea-lh-normal);
+        margin: 0 0 var(--hea-s-4);
+      }
+      .course-cta-links {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--hea-s-3);
+      }
+      .course-cta-links a.hea-btn {
+        display: inline-block;
+      }
+    </style>
+  </head>
+  <body class="hea">
+    <header class="site-header">
+      <a href="index.html" class="brand-lockup">
+        <img src="/email-tools/assets/logo-icon-Cl9V7EQO.png" alt="" class="brand-logo" />
+        <span class="brand-name"
+          >Holistic Email Marketing<em>Free optimisation tools</em></span
+        >
+      </a>
+      <a href="index.html" class="back-link">← All Tools</a>
+    </header>
 
-  <header class="site-header">
-    <a href="index.html" class="brand-lockup">
-      <img src="/email-tools/assets/logo-icon-Cl9V7EQO.png" alt="" class="brand-logo">
-      <span class="brand-name">Holistic Email Marketing<em>Free optimisation tools</em></span>
-    </a>
-    <a href="index.html" class="back-link">← All Tools</a>
-  </header>
-
-  <main>
-    <div class="tool-page">
-
-      <header class="tool-header">
-        <span class="hea-pill hea-pill--foundation">● Foundation Deliverability</span>
-        <h1>DMARC, SPF &amp; DKIM Checker</h1>
-        <p class="lead">Enter your sending domain to check your live SPF, DKIM, and DMARC records — explained in plain English.</p>
-      </header>
-
-      <p class="tool-note">
-        <strong>How it works:</strong> We look up your domain's actual DNS records
-        for SPF, DKIM, and DMARC and explain what's configured, what's missing, and
-        what to fix. DKIM has no single fixed location in DNS, so we check the ~10
-        most common selectors — if none resolve, that's inconclusive rather than a
-        confirmed failure, and you can enter your own selector or paste a record
-        directly.
-      </p>
-
-      <div class="tool-card">
-        <div class="dmarc-field-row">
-          <div class="field-group">
-            <label class="field-label" for="domain-input">Your sending domain</label>
-            <input class="hea-input" id="domain-input" type="text" placeholder="example.com">
+    <main>
+      <div class="tool-page">
+        <header class="tool-header">
+          <span class="hea-pill hea-pill--foundation"
+            >● Foundation Deliverability</span
+          >
+          <h1>DMARC, SPF &amp; DKIM Checker</h1>
+          <p class="lead">
+            Enter your sending domain to check your live SPF, DKIM, and DMARC
+            records — explained in plain English.
+          </p>
+          <div class="trust-chips">
+            <span class="trust-chip">Live DNS lookup</span>
+            <span class="trust-chip">No sign-up</span>
+            <span class="trust-chip"
+              >Runs in your browser — nothing stored</span
+            >
           </div>
-          <div class="field-group">
-            <label class="field-label" for="dkim-selector-input">DKIM selector <span style="font-weight:400;color:var(--hea-fg-3)">(optional)</span></label>
-            <input class="hea-input" id="dkim-selector-input" type="text" placeholder="e.g. selector1">
+        </header>
+
+        <p class="tool-note">
+          <strong>How it works:</strong> We look up your domain's actual DNS
+          records for SPF, DKIM, and DMARC and explain what's configured, what's
+          missing, and what to fix. DKIM has no single fixed location in DNS, so
+          we check the ~10 most common selectors — if none resolve, that's
+          inconclusive rather than a confirmed failure, and you can enter your
+          own selector or paste a record directly.
+        </p>
+
+        <div class="tool-card">
+          <div class="dmarc-field-row">
+            <div class="field-group">
+              <label class="field-label" for="domain-input"
+                >Your sending domain</label
+              >
+              <input
+                class="hea-input"
+                id="domain-input"
+                type="text"
+                placeholder="example.com"
+              />
+            </div>
+            <div class="field-group">
+              <label class="field-label" for="dkim-selector-input"
+                >DKIM selector
+                <span style="font-weight: 400; color: var(--hea-fg-3)"
+                  >(optional)</span
+                ></label
+              >
+              <input
+                class="hea-input"
+                id="dkim-selector-input"
+                type="text"
+                placeholder="e.g. selector1"
+              />
+            </div>
+          </div>
+          <p class="error-msg" id="dmarc-error">
+            Please enter a valid domain (e.g. example.com) before checking.
+          </p>
+          <button class="hea-btn hea-btn--primary" id="dmarc-btn">
+            Check Domain →
+          </button>
+
+          <div class="results" id="dmarc-results">
+            <hr class="results-divider" />
+            <p class="results-label">Results</p>
+
+            <div class="dmarc-cards">
+              <div class="dmarc-card" id="spf-card">
+                <div class="dmarc-card-head">
+                  <span class="dmarc-card-title">SPF</span>
+                  <span class="dmarc-status-badge">—</span>
+                </div>
+                <p class="dmarc-message"></p>
+                <div class="dmarc-record-box"></div>
+                <div class="dmarc-fallback">
+                  <label
+                    >Live lookup didn't return a usable result — paste your SPF
+                    record here instead:</label
+                  >
+                  <input
+                    class="dmarc-manual-input"
+                    type="text"
+                    placeholder="v=spf1 include:_spf.example.com -all"
+                  />
+                  <button class="dmarc-manual-btn">Check pasted record</button>
+                </div>
+              </div>
+
+              <div class="dmarc-card" id="dmarc-card">
+                <div class="dmarc-card-head">
+                  <span class="dmarc-card-title">DMARC</span>
+                  <span class="dmarc-status-badge">—</span>
+                </div>
+                <p class="dmarc-message"></p>
+                <div class="dmarc-record-box"></div>
+                <div class="dmarc-fallback">
+                  <label
+                    >Live lookup didn't return a usable result — paste your
+                    DMARC record here instead:</label
+                  >
+                  <input
+                    class="dmarc-manual-input"
+                    type="text"
+                    placeholder="v=DMARC1; p=quarantine; rua=mailto:reports@example.com"
+                  />
+                  <button class="dmarc-manual-btn">Check pasted record</button>
+                </div>
+              </div>
+
+              <div class="dmarc-card" id="dkim-card">
+                <div class="dmarc-card-head">
+                  <span class="dmarc-card-title">DKIM</span>
+                  <span class="dmarc-status-badge">—</span>
+                </div>
+                <p class="dmarc-message"></p>
+                <div class="dmarc-record-box"></div>
+                <div class="dmarc-fallback">
+                  <label
+                    >None of the common selectors resolved — paste your DKIM
+                    record here instead:</label
+                  >
+                  <input
+                    class="dmarc-manual-input"
+                    type="text"
+                    placeholder="v=DKIM1; k=rsa; p=MIGfMA0GCSq..."
+                  />
+                  <button class="dmarc-manual-btn">Check pasted record</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="course-cta">
+              <p class="course-cta-kicker">Go deeper</p>
+              <p>
+                Authentication is covered from the ground up in
+                <strong>Foundation: Email Deliverability Fundamentals</strong>,
+                with BIMI and advanced monitoring in
+                <strong
+                  >Intermediate: Managing and Optimising Deliverability</strong
+                >, and ARC/MTA-level troubleshooting in
+                <strong
+                  >Advanced: Mastering Deliverability Strategy &amp;
+                  Troubleshooting</strong
+                >.
+              </p>
+              <div class="course-cta-links">
+                <a
+                  href="https://holisticemailacademy.com/courses/foundation-email-deliverability-fundamentals/"
+                  class="hea-btn hea-btn--primary"
+                  target="_blank"
+                  rel="noopener"
+                  >Foundation course →</a
+                >
+                <a
+                  href="https://holisticemailacademy.com/courses/intermediate-managing-and-optimising-deliverability/"
+                  class="hea-btn hea-btn--secondary"
+                  target="_blank"
+                  rel="noopener"
+                  >Intermediate course →</a
+                >
+                <a
+                  href="https://holisticemailacademy.com/courses/advanced-mastering-deliverability-strategy-troubleshooting/"
+                  class="hea-btn hea-btn--secondary"
+                  target="_blank"
+                  rel="noopener"
+                  >Advanced course →</a
+                >
+              </div>
+            </div>
           </div>
         </div>
-        <p class="error-msg" id="dmarc-error">Please enter a valid domain (e.g. example.com) before checking.</p>
-        <button class="hea-btn hea-btn--primary" id="dmarc-btn">Check Domain →</button>
 
-        <div class="results" id="dmarc-results">
-          <hr class="results-divider">
-          <p class="results-label">Results</p>
-
-          <div class="dmarc-cards">
-
-            <div class="dmarc-card" id="spf-card">
-              <div class="dmarc-card-head">
-                <span class="dmarc-card-title">SPF</span>
-                <span class="dmarc-status-badge">—</span>
+        <section class="tool-section" id="how-it-works">
+          <span class="kicker">How it works</span>
+          <h2>One domain in. A plain-English report out.</h2>
+          <ol class="step-list">
+            <li>
+              <div>
+                <h3>Enter your sending domain</h3>
+                <p>
+                  Just the domain you send from — no login, no mailbox access,
+                  no API keys. If you know your DKIM selector, add it too; if
+                  not, we'll look for it.
+                </p>
               </div>
-              <p class="dmarc-message"></p>
-              <div class="dmarc-record-box"></div>
-              <div class="dmarc-fallback">
-                <label>Live lookup didn't return a usable result — paste your SPF record here instead:</label>
-                <input class="dmarc-manual-input" type="text" placeholder='v=spf1 include:_spf.example.com -all'>
-                <button class="dmarc-manual-btn">Check pasted record</button>
+            </li>
+            <li>
+              <div>
+                <h3>We read your live DNS records</h3>
+                <p>
+                  Real-time lookups against public DNS: SPF at your root domain,
+                  DMARC at <code>_dmarc</code>, and DKIM across ten common
+                  selectors. Your actual records, not a cached checklist.
+                </p>
+              </div>
+            </li>
+            <li>
+              <div>
+                <h3>Get specific fixes, not jargon</h3>
+                <p>
+                  Each record is explained in plain English — what's configured,
+                  what's missing, and exactly what to add or change, ready to
+                  paste into your DNS.
+                </p>
+              </div>
+            </li>
+          </ol>
+        </section>
+
+        <section class="tool-section" id="common-issues">
+          <span class="kicker">Common failures</span>
+          <h2>Why legitimate email fails authentication</h2>
+          <p class="section-lead">
+            Most authentication problems trace back to a handful of DNS
+            mistakes. These are the five we see most often — each with the exact
+            fix.
+          </p>
+          <div class="issue-list">
+            <div class="issue-card">
+              <h3>No SPF record at all</h3>
+              <p>
+                Without SPF, receiving servers have no way to know which
+                services are allowed to send email as your domain — so spoofed
+                mail looks no different from yours. Publish one SPF TXT record
+                at the root of your sending domain, listing every service that
+                sends on your behalf.
+              </p>
+              <p class="issue-fix-label">Copy-paste fix — TXT record</p>
+              <div class="record-box">
+                <code
+                  >v=spf1 include:_spf.google.com include:servers.mcsv.net
+                  ~all</code
+                >
+                <button class="record-copy" type="button">Copy</button>
+              </div>
+              <p style="margin-top: 12px">
+                Swap the <code>include:</code> entries for your actual providers
+                — these examples cover Google Workspace and Mailchimp.
+              </p>
+            </div>
+
+            <div class="issue-card">
+              <h3>Two or more SPF records</h3>
+              <p>
+                The SPF specification allows exactly one record per domain.
+                Publish two and receiving servers return a permanent error —
+                which is worse than having none, because it fails silently while
+                looking configured. Merge every provider into a single record.
+              </p>
+              <p class="issue-fix-label">Copy-paste fix — one merged record</p>
+              <div class="record-box">
+                <code
+                  >v=spf1 include:_spf.google.com include:sendgrid.net
+                  ~all</code
+                >
+                <button class="record-copy" type="button">Copy</button>
               </div>
             </div>
 
-            <div class="dmarc-card" id="dmarc-card">
-              <div class="dmarc-card-head">
-                <span class="dmarc-card-title">DMARC</span>
-                <span class="dmarc-status-badge">—</span>
-              </div>
-              <p class="dmarc-message"></p>
-              <div class="dmarc-record-box"></div>
-              <div class="dmarc-fallback">
-                <label>Live lookup didn't return a usable result — paste your DMARC record here instead:</label>
-                <input class="dmarc-manual-input" type="text" placeholder='v=DMARC1; p=quarantine; rua=mailto:reports@example.com'>
-                <button class="dmarc-manual-btn">Check pasted record</button>
+            <div class="issue-card">
+              <h3>DKIM never switched on</h3>
+              <p>
+                Most email platforms won't sign with your domain until you add
+                the DNS records they generate and click verify. Until then, your
+                mail is signed with their shared domain — or not at all — and it
+                can't pass DMARC alignment.
+              </p>
+              <p>
+                There's no generic record to paste here, because every provider
+                generates its own keys: open your platform's domain
+                authentication settings, add the CNAME or TXT records it gives
+                you, and verify. Most providers make this a one-click step once
+                the records are in place.
+              </p>
+            </div>
+
+            <div class="issue-card">
+              <h3>No DMARC record</h3>
+              <p>
+                Without a DMARC policy, mail that fails SPF and DKIM can still
+                be delivered as if it were yours, you receive no reports about
+                who is sending as your domain — and bulk senders fail the
+                authentication requirements Gmail and Yahoo have enforced since
+                2024. Start with a monitoring policy and a reporting address.
+              </p>
+              <p class="issue-fix-label">
+                Copy-paste fix — TXT record at _dmarc
+              </p>
+              <div class="record-box">
+                <code
+                  >v=DMARC1; p=none;
+                  rua=mailto:dmarc-reports@yourdomain.com</code
+                >
+                <button class="record-copy" type="button">Copy</button>
               </div>
             </div>
 
-            <div class="dmarc-card" id="dkim-card">
-              <div class="dmarc-card-head">
-                <span class="dmarc-card-title">DKIM</span>
-                <span class="dmarc-status-badge">—</span>
+            <div class="issue-card">
+              <h3>Parked at p=none forever</h3>
+              <p>
+                Monitoring mode is a starting point, not a destination — it
+                tells receiving servers to do nothing when authentication fails,
+                so it offers no protection against spoofing. Once a few weeks of
+                reports show your legitimate mail passing, tighten the policy.
+              </p>
+              <p class="issue-fix-label">Copy-paste fix — tightened policy</p>
+              <div class="record-box">
+                <code
+                  >v=DMARC1; p=quarantine;
+                  rua=mailto:dmarc-reports@yourdomain.com; pct=100</code
+                >
+                <button class="record-copy" type="button">Copy</button>
               </div>
-              <p class="dmarc-message"></p>
-              <div class="dmarc-record-box"></div>
-              <div class="dmarc-fallback">
-                <label>None of the common selectors resolved — paste your DKIM record here instead:</label>
-                <input class="dmarc-manual-input" type="text" placeholder='v=DKIM1; k=rsa; p=MIGfMA0GCSq...'>
-                <button class="dmarc-manual-btn">Check pasted record</button>
-              </div>
+              <p style="margin-top: 12px">
+                Move to <code>p=reject</code> when you're confident nothing
+                legitimate is failing.
+              </p>
             </div>
-
           </div>
+        </section>
 
-          <div class="course-cta">
-            <p class="course-cta-kicker">Go deeper</p>
-            <p>Authentication is covered from the ground up in <strong>Foundation: Email Deliverability Fundamentals</strong>, with BIMI and advanced monitoring in <strong>Intermediate: Managing and Optimising Deliverability</strong>, and ARC/MTA-level troubleshooting in <strong>Advanced: Mastering Deliverability Strategy &amp; Troubleshooting</strong>.</p>
-            <div class="course-cta-links">
-              <a href="https://holisticemailacademy.com/courses/foundation-email-deliverability-fundamentals/" class="hea-btn hea-btn--primary" target="_blank" rel="noopener">Foundation course →</a>
-              <a href="https://holisticemailacademy.com/courses/intermediate-managing-and-optimising-deliverability/" class="hea-btn hea-btn--secondary" target="_blank" rel="noopener">Intermediate course →</a>
-              <a href="https://holisticemailacademy.com/courses/advanced-mastering-deliverability-strategy-troubleshooting/" class="hea-btn hea-btn--secondary" target="_blank" rel="noopener">Advanced course →</a>
-            </div>
+        <section class="tool-section" id="faq">
+          <span class="kicker">Good to know</span>
+          <h2>SPF, DKIM, and DMARC, explained properly</h2>
+          <div class="faq-list">
+            <details>
+              <summary>What is SPF?</summary>
+              <div class="faq-body">
+                <p>
+                  Sender Policy Framework: a DNS TXT record listing which mail
+                  servers are authorised to send email on behalf of your domain.
+                  Receiving servers check the sending server against that list
+                  before your message gets anywhere near the inbox.
+                </p>
+              </div>
+            </details>
+            <details>
+              <summary>What is DKIM?</summary>
+              <div class="faq-body">
+                <p>
+                  DomainKeys Identified Mail: a cryptographic signature added to
+                  every outgoing message. Your platform signs with a private
+                  key, and receiving servers verify it against the public key
+                  published in your DNS — proving the message really came from
+                  your domain and wasn't altered in transit.
+                </p>
+              </div>
+            </details>
+            <details>
+              <summary>What is DMARC?</summary>
+              <div class="faq-body">
+                <p>
+                  Domain-based Message Authentication, Reporting and
+                  Conformance: the policy that ties SPF and DKIM together. It
+                  tells receiving servers what to do with mail that fails both
+                  checks — nothing (<code>p=none</code>), send it to spam
+                  (<code>p=quarantine</code>), or refuse it
+                  (<code>p=reject</code>) — and where to send reports about who
+                  is sending as your domain.
+                </p>
+              </div>
+            </details>
+            <details>
+              <summary>Why do I need all three?</summary>
+              <div class="faq-body">
+                <p>
+                  They solve different problems: SPF authorises servers, DKIM
+                  proves message integrity, and DMARC adds enforcement and
+                  visibility. Without DMARC, failing the first two carries no
+                  consequence for a spoofer.
+                </p>
+                <p>
+                  It's also no longer optional at scale: since 2024, Gmail and
+                  Yahoo have required bulk senders to authenticate with SPF,
+                  DKIM, and DMARC, and Microsoft introduced matching
+                  requirements for Outlook in 2025.
+                </p>
+              </div>
+            </details>
+            <details>
+              <summary>
+                What's a DKIM selector, and why can't you always find mine?
+              </summary>
+              <div class="faq-body">
+                <p>
+                  The selector is the name your DKIM key is published under —
+                  <code>selector._domainkey.yourdomain.com</code>. There's no
+                  public registry of selectors, so any checker can only try
+                  common ones. If none of the ten we try resolve, that's
+                  inconclusive rather than a failure: check your email
+                  platform's authentication settings for the selector it uses,
+                  and enter it in the field above.
+                </p>
+              </div>
+            </details>
+            <details>
+              <summary>What is DMARC alignment?</summary>
+              <div class="faq-body">
+                <p>
+                  DMARC doesn't just ask whether SPF or DKIM passed — it asks
+                  whether the domain that passed matches the From address your
+                  reader actually sees. An SPF pass on your platform's bounce
+                  domain does nothing for DMARC if your From address is your own
+                  domain. This is why "SPF: pass" in a header doesn't guarantee
+                  a DMARC pass, and why DKIM signing with your own domain
+                  matters so much.
+                </p>
+              </div>
+            </details>
+            <details>
+              <summary>
+                Does passing all three guarantee inbox placement?
+              </summary>
+              <div class="faq-body">
+                <p>
+                  No. Authentication is the entry ticket, not the ranking —
+                  placement still depends on your sending reputation, list
+                  quality, engagement, and content. But the reverse is
+                  increasingly true: failing authentication does guarantee
+                  trouble, from spam-foldering to outright rejection.
+                </p>
+              </div>
+            </details>
+            <details>
+              <summary>Which DMARC policy should I use?</summary>
+              <div class="faq-body">
+                <p>
+                  Follow the progression: start at <code>p=none</code> with a
+                  <code>rua</code> reporting address and watch the reports; move
+                  to <code>p=quarantine</code> once legitimate mail is passing
+                  cleanly; finish at <code>p=reject</code> when you're
+                  confident. Each step up closes the door further on anyone
+                  spoofing your domain — just don't skip the monitoring stage,
+                  or you risk quarantining your own mail.
+                </p>
+              </div>
+            </details>
           </div>
-        </div>
+        </section>
+
+        <section class="closing-cta">
+          <span class="kicker">Keep going</span>
+          <h2>Authentication is step one</h2>
+          <p>
+            This checker covers the DNS foundations. Deliverability is a whole
+            discipline — reputation, engagement, infrastructure, monitoring —
+            and it's taught properly at the Holistic Email Academy.
+          </p>
+          <div class="closing-cta-links">
+            <a
+              href="https://holisticemailacademy.com/courses/foundation-email-deliverability-fundamentals/"
+              class="hea-btn hea-btn--primary"
+              target="_blank"
+              rel="noopener"
+              >Foundation course →</a
+            >
+            <a
+              href="https://holisticemailacademy.com/courses/intermediate-managing-and-optimising-deliverability/"
+              class="hea-btn hea-btn--secondary"
+              target="_blank"
+              rel="noopener"
+              >Intermediate course →</a
+            >
+            <a
+              href="https://holisticemailacademy.com/courses/advanced-mastering-deliverability-strategy-troubleshooting/"
+              class="hea-btn hea-btn--secondary"
+              target="_blank"
+              rel="noopener"
+              >Advanced course →</a
+            >
+          </div>
+          <a href="index.html" class="more-tools">
+            Or try the other twelve free tools →
+          </a>
+        </section>
       </div>
+    </main>
 
-    </div>
-  </main>
-
-  <footer class="site-footer">
-    <div class="footer-brand">
-      <img src="/email-tools/assets/logo-icon-Cl9V7EQO.png" alt="" class="footer-logo">
-      <span class="footer-wordmark">Holistic Email Marketing</span>
-    </div>
-    <span class="footer-tagline">Smarter email starts here.</span>
-  </footer>
-
-</body>
+    <footer class="site-footer">
+      <div class="footer-brand">
+        <img src="/email-tools/assets/logo-icon-Cl9V7EQO.png" alt="" class="footer-logo" />
+        <span class="footer-wordmark">Holistic Email Marketing</span>
+      </div>
+      <span class="footer-tagline">Smarter email starts here.</span>
+    </footer>
+    <script>
+      document.addEventListener("click", function (e) {
+        var btn = e.target.closest(".record-copy");
+        if (!btn) return;
+        var code = btn.parentElement.querySelector("code");
+        if (!code) return;
+        navigator.clipboard
+          .writeText(code.textContent.trim())
+          .then(function () {
+            var old = btn.textContent;
+            btn.textContent = "Copied ✓";
+            setTimeout(function () {
+              btn.textContent = old;
+            }, 1600);
+          });
+      });
+    </script>
+  </body>
 </html>
