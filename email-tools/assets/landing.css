@@ -1,0 +1,226 @@
+/* ============================================================
+   Landing sections — shared by all tool pages.
+   Everything below the tool card: how-it-works, common issues,
+   FAQ, closing CTA. Uses HEA tokens throughout.
+   ============================================================ */
+
+/* ---- Trust chips (under the hero lead) ---- */
+.trust-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--hea-s-2);
+  margin-top: var(--hea-s-4);
+}
+.trust-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--hea-text-xs);
+  font-weight: var(--hea-w-semibold);
+  color: var(--hea-fg-2);
+  background: var(--hea-bg);
+  border: 1px solid var(--hea-divider);
+  border-radius: var(--hea-r-pill);
+  padding: 5px 12px;
+}
+.trust-chip::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--hea-level-foundation);
+}
+
+/* ---- Section shell ---- */
+.tool-section { margin-top: var(--hea-s-8); }
+.tool-section > .kicker { display: block; margin-bottom: var(--hea-s-3); }
+.tool-section > h2 { margin-bottom: var(--hea-s-3); }
+.tool-section > .section-lead {
+  font-size: var(--hea-text-base);
+  color: var(--hea-fg-2);
+  line-height: var(--hea-lh-loose);
+  margin: 0 0 var(--hea-s-5);
+}
+
+/* ---- How it works: numbered steps ---- */
+.step-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--hea-s-4);
+  counter-reset: step;
+}
+.step-list li {
+  counter-increment: step;
+  background: var(--hea-bg);
+  border: 1px solid var(--hea-divider);
+  border-radius: var(--hea-r-md);
+  padding: var(--hea-s-4) var(--hea-s-5);
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: var(--hea-s-4);
+  align-items: start;
+}
+.step-list li::before {
+  content: counter(step, decimal-leading-zero);
+  font-size: var(--hea-text-sm);
+  font-weight: var(--hea-w-bold);
+  color: var(--hea-purple);
+  border: 1.5px solid var(--hea-purple-tint);
+  background: var(--hea-purple-tint);
+  border-radius: var(--hea-r-pill);
+  padding: 4px 10px;
+  margin-top: 2px;
+}
+.step-list h3 { margin: 0 0 var(--hea-s-1); }
+.step-list p {
+  font-size: var(--hea-text-sm);
+  line-height: var(--hea-lh-normal);
+  color: var(--hea-fg-2);
+  margin: 0;
+}
+
+/* ---- Common issues ---- */
+.issue-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hea-s-4);
+}
+.issue-card {
+  background: var(--hea-bg);
+  border: 1px solid var(--hea-divider);
+  border-radius: var(--hea-r-md);
+  padding: var(--hea-s-5);
+}
+.issue-card h3 { margin: 0 0 var(--hea-s-2); }
+.issue-card p {
+  font-size: var(--hea-text-sm);
+  line-height: var(--hea-lh-normal);
+  color: var(--hea-fg-2);
+  margin: 0 0 var(--hea-s-3);
+}
+.issue-card p:last-child { margin-bottom: 0; }
+.issue-fix-label {
+  font-size: var(--hea-text-xs);
+  font-weight: var(--hea-w-bold);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #138C28;
+  margin: 0 0 var(--hea-s-2);
+}
+
+/* ---- Copyable record box ---- */
+.record-box {
+  display: flex;
+  align-items: center;
+  gap: var(--hea-s-3);
+  background: var(--hea-bg-warm);
+  border: 1px solid var(--hea-divider);
+  border-radius: var(--hea-r-sm);
+  padding: var(--hea-s-3) var(--hea-s-4);
+}
+.record-box code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: var(--hea-text-xs);
+  color: var(--hea-fg-1);
+  word-break: break-all;
+  flex: 1;
+}
+.record-copy {
+  font-family: var(--hea-font-sans);
+  font-size: var(--hea-text-xs);
+  font-weight: var(--hea-w-semibold);
+  color: var(--hea-purple);
+  background: transparent;
+  border: 1px solid var(--hea-purple);
+  border-radius: var(--hea-r-pill);
+  padding: 5px 12px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background var(--hea-dur-fast) var(--hea-ease);
+}
+.record-copy:hover { background: var(--hea-purple-tint); }
+
+/* ---- FAQ accordion ---- */
+.faq-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hea-s-3);
+}
+.faq-list details {
+  background: var(--hea-bg);
+  border: 1px solid var(--hea-divider);
+  border-radius: var(--hea-r-md);
+  padding: 0;
+}
+.faq-list summary {
+  cursor: pointer;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--hea-s-3);
+  font-size: var(--hea-text-base);
+  font-weight: var(--hea-w-semibold);
+  color: var(--hea-fg-1);
+  padding: var(--hea-s-4) var(--hea-s-5);
+}
+.faq-list summary::-webkit-details-marker { display: none; }
+.faq-list summary::after {
+  content: "+";
+  font-size: var(--hea-text-lg);
+  font-weight: var(--hea-w-regular);
+  color: var(--hea-purple);
+  transition: transform var(--hea-dur-fast) var(--hea-ease);
+}
+.faq-list details[open] summary::after { transform: rotate(45deg); }
+.faq-list .faq-body {
+  padding: 0 var(--hea-s-5) var(--hea-s-4);
+}
+.faq-list .faq-body p {
+  font-size: var(--hea-text-sm);
+  line-height: var(--hea-lh-loose);
+  color: var(--hea-fg-2);
+  margin: 0 0 var(--hea-s-3);
+}
+.faq-list .faq-body p:last-child { margin-bottom: 0; }
+
+/* ---- Closing CTA ---- */
+.closing-cta {
+  margin-top: var(--hea-s-8);
+  background: var(--hea-purple-tint);
+  border: 1px solid rgba(158, 65, 191, 0.25);
+  border-radius: var(--hea-r-lg);
+  padding: var(--hea-s-6) var(--hea-s-6);
+  text-align: center;
+}
+.closing-cta .kicker { display: block; margin-bottom: var(--hea-s-3); color: var(--hea-purple-deep); }
+.closing-cta h2 { margin-bottom: var(--hea-s-3); }
+.closing-cta p {
+  font-size: var(--hea-text-base);
+  color: var(--hea-fg-2);
+  line-height: var(--hea-lh-loose);
+  max-width: 520px;
+  margin: 0 auto var(--hea-s-5);
+}
+.closing-cta-links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--hea-s-3);
+}
+.closing-cta .more-tools {
+  display: block;
+  margin-top: var(--hea-s-5);
+  font-size: var(--hea-text-sm);
+}
+
+@media (max-width: 600px) {
+  .step-list li { grid-template-columns: 1fr; gap: var(--hea-s-2); }
+  .step-list li::before { justify-self: start; }
+  .record-box { flex-direction: column; align-items: stretch; }
+  .record-copy { align-self: flex-start; }
+  .closing-cta { padding: var(--hea-s-5) var(--hea-s-4); }
+}
