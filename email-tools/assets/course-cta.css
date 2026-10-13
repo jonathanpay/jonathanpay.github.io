@@ -27,10 +27,10 @@
 
 .course-cta-cards {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  /* 232px is the narrowest card that fits the "Join the waitlist" button. */
+  grid-template-columns: repeat(auto-fit, minmax(232px, 1fr));
   gap: var(--hea-s-4);
 }
-.course-cta-cards:has(> :only-child) { grid-template-columns: minmax(0, 1fr); }
 
 .course-cta-item {
   --lv: var(--hea-purple);
@@ -46,17 +46,20 @@
   border-top: 4px solid var(--lv);
   border-radius: var(--hea-r-md);
 }
-.course-cta-item.is-foundation {
+.course-cta-item.is-foundation,
+.course-context.is-foundation {
   --lv: var(--hea-level-foundation);
   --lv-ink: #0f7a22;
   --lv-tint: rgba(33, 191, 61, 0.09);
 }
-.course-cta-item.is-intermediate {
+.course-cta-item.is-intermediate,
+.course-context.is-intermediate {
   --lv: var(--hea-level-intermediate);
   --lv-ink: #0a7490;
   --lv-tint: rgba(34, 206, 242, 0.1);
 }
-.course-cta-item.is-advanced {
+.course-cta-item.is-advanced,
+.course-context.is-advanced {
   --lv: var(--hea-level-advanced);
   --lv-ink: #6b2785;
   --lv-tint: rgba(158, 65, 191, 0.09);
@@ -105,6 +108,28 @@
 .course-cta-item .hea-btn { margin-top: auto; align-self: flex-start; }
 
 @media (max-width: 640px) {
-  .course-cta-cards { grid-template-columns: minmax(0, 1fr); }
   .course-cta-item { padding: var(--hea-s-4); }
 }
+
+/* One-line, result-aware pointer shown inside the results panel
+   (course-context.js). Same level colours as the cards. */
+.course-context {
+  --lv: var(--hea-purple);
+  --lv-ink: var(--hea-purple-deep);
+  --lv-tint: rgba(158, 65, 191, 0.07);
+  margin: var(--hea-s-5) 0 0;
+  padding: var(--hea-s-3) var(--hea-s-4);
+  font-size: var(--hea-text-sm);
+  line-height: var(--hea-lh-normal);
+  color: var(--hea-fg-2);
+  background: var(--lv-tint);
+  border-left: 4px solid var(--lv);
+  border-radius: 0 var(--hea-r-md) var(--hea-r-md) 0;
+}
+.course-context a {
+  color: var(--lv-ink);
+  font-weight: var(--hea-w-semibold);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.course-context a:hover { color: var(--hea-fg-1); }
