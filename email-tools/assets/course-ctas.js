@@ -104,7 +104,7 @@ export const TOOLS = {
     nextWhy: TESTING_NEXT_WHY,
   },
   curve: {
-    why: "CURVE is taught in The Buyer's Mind.",
+    why: "CURVE is taught in The Buyer's Mind, alongside System 1 and System 2 thinking.",
     primary: "intermediate-the-buyers-mind",
     next: "foundations-email-copywriting",
   },
@@ -114,7 +114,7 @@ export const TOOLS = {
     next: "foundation-psychology-for-email",
   },
   persona: {
-    why: "Buyer modalities are the subject of Buyer Modalities & GenAI.",
+    why: "Buyer Modalities & GenAI teaches you to write for all four buyer types, including the ones your copy is currently missing.",
     primary: "intermediate-buyer-modalities-genai",
     next: "intermediate-the-buyers-mind",
   },
@@ -132,19 +132,19 @@ export const TOOLS = {
     why: "Writing about the reader rather than the brand is part of email copywriting.",
     primary: "foundations-email-copywriting",
     next: "intermediate-the-buyers-mind",
-    nextWhy: "A related topic, available now: how buyers decide.",
+    nextWhy: "A related topic: how buyers decide.",
   },
   ers: {
     why: "Readable copy is part of email copywriting.",
     primary: "foundations-email-copywriting",
     next: "intermediate-the-buyers-mind",
-    nextWhy: "A related topic, available now: how buyers decide.",
+    nextWhy: "A related topic: how buyers decide.",
   },
   tone: {
     why: "Choosing a tone is part of writing email copy that works.",
     primary: "intermediate-email-copywriting-techniques",
     next: "intermediate-buyer-modalities-genai",
-    nextWhy: "Available now: setting tone by buyer modality.",
+    nextWhy: "This course covers setting tone by buyer modality.",
   },
   accessibility: {
     why: "Accessibility is a module of Foundation: Email Design Excellence.",

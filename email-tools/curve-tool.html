@@ -6,6 +6,7 @@
   <title>CURVE Subject Line Builder — Holistic Email Marketing</title>
   <meta name="description" content="Score your subject line against HEA's CURVE framework — Curiosity, Urgency, Relevance, Value, Emotion — and see exactly which element is missing. No sign-up needed.">
   <link rel="icon" href="/favicon.ico">
+  <script type="module" src="/email-tools/assets/course-ctas.js"></script>
   <style>
     body { background: var(--hea-bg-alt); }
 
@@ -112,39 +113,12 @@
       margin: 0;
     }
 
-    /* ---- Course CTA ---- */
-    .course-cta {
-      margin-top: var(--hea-s-6);
-      background: var(--hea-purple-tint, #F4E9F9);
-      border: 1px solid rgba(158,65,191,0.25);
-      border-radius: var(--hea-r-md);
-      padding: var(--hea-s-5) var(--hea-s-6);
-    }
-    .course-cta-kicker {
-      font-size: var(--hea-text-xs);
-      font-weight: var(--hea-w-bold);
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      color: var(--hea-purple-deep);
-      margin: 0 0 var(--hea-s-2);
-    }
-    .course-cta p {
-      font-size: var(--hea-text-sm);
-      color: var(--hea-fg-2);
-      line-height: var(--hea-lh-normal);
-      margin: 0 0 var(--hea-s-4);
-    }
-    .course-cta-links {
-      display: flex;
-      flex-wrap: wrap;
-      gap: var(--hea-s-3);
-    }
-    .course-cta-links a.hea-btn { display: inline-block; }
   </style>
   <script type="module" crossorigin src="/email-tools/assets/curve-tool.js"></script>
   <link rel="modulepreload" crossorigin href="/email-tools/assets/utils-jnLFB3bE.js">
   <link rel="stylesheet" crossorigin href="/email-tools/assets/utils-M5Ds6giI.css">
   <link rel="stylesheet" crossorigin href="/email-tools/assets/style-CxLNB_9V.css">
+  <link rel="stylesheet" href="/email-tools/assets/course-cta.css">
 </head>
 <body class="hea">
 
@@ -196,17 +170,10 @@
             <p class="curve-tip-title" id="curve-tip-title"></p>
             <p class="curve-tip-body" id="curve-tip-body"></p>
           </div>
-
-          <div class="course-cta">
-            <p class="course-cta-kicker">Learn the full framework</p>
-            <p>CURVE is taught in full in <strong>Foundations: Email Copywriting</strong>, and reappears alongside System 1/2 thinking in <strong>The Buyer's Mind</strong> — both go far beyond what one tool can score.</p>
-            <div class="course-cta-links">
-              <a href="https://holisticemailacademy.com/courses/foundations-email-copywriting/" class="hea-btn hea-btn--primary" target="_blank" rel="noopener">Foundations: Email Copywriting →</a>
-              <a href="https://holisticemailacademy.com/courses/intermediate-the-buyers-mind/" class="hea-btn hea-btn--secondary" target="_blank" rel="noopener">The Buyer's Mind →</a>
-            </div>
-          </div>
         </div>
       </div>
+
+      <div data-course-cta="curve"></div>
 
     </div>
   </main>
