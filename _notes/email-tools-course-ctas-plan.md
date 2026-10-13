@@ -2,7 +2,7 @@
 
 Written 2026-10-12 for whoever builds this (another Claude session or Jon). Nothing here is built yet. Read it top to bottom before touching `email-tools/`.
 
-The tool-to-course mapping and the live/waitlist split come from Jon's Academy wiki review (course roster signed off 2026-08-05) and were relayed in conversation. Course pages could not be fetched from the planning session, so titles and levels not listed below are slug-derived and marked TBC.
+The tool-to-course mapping and the live/waitlist split come from Jon's Academy wiki review (course roster signed off 2026-08-05) and were relayed in conversation. Course pages could not be fetched from the planning session. Titles for the courses not in the confirmed list below use the shorthand names in this note; Jon confirmed on 2026-10-13 that the shorthand is what to use on the site.
 
 ---
 
@@ -39,16 +39,16 @@ Public titles confirmed so far:
 | `intermediate-the-buyers-mind` | The Buyer's Mind — Understanding System 1 & System 2 Thinking | live |
 | `intermediate-buyer-modalities-genai` | Buyer Modalities & GenAI — Scale Personalised Messaging with Precision | live |
 
-Other courses used by the mapping (titles TBC, slug-derived):
+Other courses used by the mapping (shorthand titles, confirmed for use):
 
 | Slug | Status |
 |---|---|
-| `foundation-email-deliverability-fundamentals` | live |
-| `intermediate-managing-and-optimising-deliverability` | waitlist |
-| `foundation-email-a-b-testing` | waitlist |
-| `intermediate-email-copywriting-techniques` | waitlist |
-| `foundation-psychology-for-email` | waitlist |
-| `intermediate-email-design-course` | waitlist |
+| `foundation-email-deliverability-fundamentals` | Foundation Deliverability, live |
+| `intermediate-managing-and-optimising-deliverability` | Intermediate Deliverability, waitlist |
+| `foundation-email-a-b-testing` | Foundation A/B Testing, waitlist |
+| `intermediate-email-copywriting-techniques` | Email Copywriting Techniques, waitlist |
+| `foundation-psychology-for-email` | Foundation Psychology, waitlist |
+| `intermediate-email-design-course` | Intermediate Email Design, waitlist |
 
 Full URL form: `https://holisticemailacademy.com/courses/<slug>/`. The complete 27-course list is in Jon's message; the courses not in the mapping (lifecycle, ecommerce intermediate/advanced, distributed marketing intermediate/advanced, and the remaining advanced courses) are not used yet.
 
@@ -69,7 +69,7 @@ Full URL form: `https://holisticemailacademy.com/courses/<slug>/`. The complete 
 
 Live-led tools (7): CURVE, Emotional Appeal, Persona, Personalisation, Feature-to-Benefit, Accessibility, DMARC. Waitlist-led (6): We-We, Readability, Tone, and the testing trio. Each waitlist-led tool has a live companion so every visitor has something to act on today. Fit notes: Readability is the weakest fit for Buyer's Mind (treat it as a next step, not the same topic); the testing trio's live companion is a reasonable fit, not a perfect one (Strategic Email Marketing covers A/B testing as an audit pillar).
 
-Not yet decided: whether Duration and Significance sit at Foundation or Intermediate level. Foundation leading is a judgement from course titles only.
+Duration and Significance lead with Foundation A/B Testing (Jon confirmed 2026-10-13).
 
 ## Design
 
@@ -79,7 +79,7 @@ Not yet decided: whether Duration and Significance sit at Foundation or Intermed
 
 1. **Index pill:** shows level plus a "Waitlist" tag where it applies. Reads from the data file. CURVE moves from the Foundation (green) pill to the Intermediate (cyan) one.
 2. **Closing block on every tool page:** primary course, then next step. DMARC's existing block (all three levels, shipped in PR #23) is the visual reference. It moves onto the shared data last, as a mixed-status block.
-3. **Contextual line after a result:** closing block first; contextual lines only for live-led tools, because a contextual waitlist line is low value. Open question: Personalisation and Feature-to-Benefit are live-led under this mapping but were not on the original contextual list — confirm with Jon.
+3. **Contextual line after a result:** closing block first; contextual lines only for the seven live-led tools (CURVE, Emotional Appeal, Persona, Personalisation, Feature-to-Benefit, Accessibility, DMARC), because a contextual waitlist line is low value. Jon confirmed 2026-10-13 that Personalisation and Feature-to-Benefit are included.
 
 **Rules:**
 
@@ -99,7 +99,6 @@ Check each page in a browser before pushing: the closing block renders, links ca
 
 ## Open items for Jon
 
-- Public titles for the courses marked TBC.
-- Foundation or Intermediate for the Duration and Significance calculators.
-- Contextual lines: include Personalisation and Feature-to-Benefit?
+None blocking. For later:
+
 - Distributed Marketing and Ecommerce are live but no tool leads to them. Fine to leave, unless the tools should cover the whole live catalogue.
