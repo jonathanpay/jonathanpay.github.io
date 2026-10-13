@@ -39,7 +39,6 @@ function calculate() {
   byId("sscc-validation").style.display = "";
   byId("sscc-crosslink-label").textContent = band.crosslinkLabel;
   byId("sscc-crosslink").style.display = "";
-  byId("sscc-course-cta").style.display = "";
 
   resultsEl.classList.add("visible");
 }
