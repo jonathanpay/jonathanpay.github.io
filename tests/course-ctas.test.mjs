@@ -99,6 +99,14 @@ test("pills show level and flag waitlist courses", () => {
   assert.equal(pillClass(COURSES["intermediate-the-buyers-mind"]), "hea-pill hea-pill--intermediate");
 });
 
+test("all three levels have a name and a pill class", () => {
+  for (const level of ["foundation", "intermediate", "advanced"]) {
+    const course = { level, pill: "Testing", status: "live" };
+    assert.match(pillLabel(course), new RegExp(`^● ${level[0].toUpperCase()}${level.slice(1)} Testing$`));
+    assert.equal(pillClass(course), `hea-pill hea-pill--${level}`);
+  }
+});
+
 test("index cards point at each tool's primary course", () => {
   const html = readFileSync(new URL("../email-tools/index.html", import.meta.url), "utf8");
   const pills = [...html.matchAll(/<a href="([^"]+)"[^>]*data-course-pill="([^"]+)"/g)];

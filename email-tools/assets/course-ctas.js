@@ -15,7 +15,7 @@ const BASE = "https://holisticemailacademy.com/courses/";
 
 export const UTM = { source: "hem-tools", medium: "tool" };
 
-// status: "live" | "waitlist". level: "foundation" | "intermediate" | null.
+// status: "live" | "waitlist". level: "foundation" | "intermediate" | "advanced" | null.
 // pill: the short label on the index card (level and status are added to it).
 // offer: optional line shown under a live course; delete it when it ends.
 export const COURSES = {
@@ -182,7 +182,11 @@ export function courseUrl(slug, tool, content) {
   return `${BASE}${slug}/?${params}`;
 }
 
-const LEVEL_NAMES = { foundation: "Foundation", intermediate: "Intermediate" };
+const LEVEL_NAMES = {
+  foundation: "Foundation",
+  intermediate: "Intermediate",
+  advanced: "Advanced",
+};
 
 export function pillLabel(course) {
   const level = LEVEL_NAMES[course.level];
@@ -211,14 +215,20 @@ function el(tag, className, text) {
 
 function item(slug, tool, isPrimary, note) {
   const course = COURSES[slug];
-  const root = el("div", `course-cta-item${isPrimary ? " is-primary" : ""}`);
+  const level = course.level || "none";
+  const root = el(
+    "div",
+    `course-cta-item is-${level}${isPrimary ? " is-primary" : ""}`,
+  );
 
-  const head = el("div", "course-cta-item-head");
-  head.append(
-    el("strong", "course-cta-title", course.title),
+  const tags = el("div", "course-cta-tags");
+  if (course.level) {
+    tags.append(el("span", "course-cta-level", LEVEL_NAMES[course.level]));
+  }
+  tags.append(
     el("span", `course-cta-status is-${course.status}`, statusLabel(course)),
   );
-  root.append(head);
+  root.append(tags, el("strong", "course-cta-title", course.title));
 
   if (note) root.append(el("p", "course-cta-note", note));
   if (course.status === "live" && course.offer) {
@@ -242,15 +252,18 @@ export function renderCourseCta(host) {
   const config = TOOLS[tool];
   if (!config) return false;
 
+  const cards = el("div", "course-cta-cards");
+  cards.append(item(config.primary, tool, true));
+  if (config.next) cards.append(item(config.next, tool, false, config.nextWhy));
+
   host.classList.add("course-cta");
   host.setAttribute("role", "complementary");
   host.setAttribute("aria-label", "Related Academy courses");
   host.replaceChildren(
     el("p", "course-cta-kicker", "Go deeper"),
     el("p", "course-cta-why", config.why),
-    item(config.primary, tool, true),
+    cards,
   );
-  if (config.next) host.append(item(config.next, tool, false, config.nextWhy));
   return true;
 }
 
