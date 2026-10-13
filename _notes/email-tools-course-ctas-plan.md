@@ -84,8 +84,8 @@ Not yet decided: whether Duration and Significance sit at Foundation or Intermed
 **Rules:**
 
 - Waitlist button copy: "Join the waitlist". No dates, no content promises.
-- The Buyer's Mind is the free front door (free with code `BUYERSMIND` at the time of writing). Carry that in `offer`, not in hard-coded copy, so it can be switched off when the code ends. Do not publish "free" wording until Jon confirms the code is still active.
-- UTMs on every Academy link: `utm_source=hem-tools&utm_medium=tool&utm_campaign=<tool-slug>`. Jon to check `hem-tools` does not clash with an existing `utm_source` in GA4.
+- The Buyer's Mind is the free front door (free with code `BUYERSMIND`; Jon confirmed on 2026-10-13 that the code is active). Carry that in `offer`, not in hard-coded copy, so it can be switched off when the code ends.
+- UTMs on every Academy link: `utm_source=hem-tools&utm_medium=tool&utm_campaign=<tool-slug>`. Jon confirmed on 2026-10-13 that `hem-tools` is free in GA4.
 - Keep existing consulting CTAs.
 - Styles for new blocks go in a hand-authored CSS file (see `email-tools/assets/landing.css` from PR #23), not the hashed `style-*.css` bundle, which a rebuild overwrites.
 
@@ -101,7 +101,5 @@ Check each page in a browser before pushing: the closing block renders, links ca
 
 - Public titles for the courses marked TBC.
 - Foundation or Intermediate for the Duration and Significance calculators.
-- Confirm `BUYERSMIND` is active before any "free" wording goes live.
-- Confirm `hem-tools` is free in GA4.
 - Contextual lines: include Personalisation and Feature-to-Benefit?
 - Distributed Marketing and Ecommerce are live but no tool leads to them. Fine to leave, unless the tools should cover the whole live catalogue.
