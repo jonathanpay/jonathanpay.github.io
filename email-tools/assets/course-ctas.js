@@ -74,6 +74,12 @@ export const COURSES = {
     level: "foundation",
     status: "waitlist",
   },
+  "advanced-mastering-deliverability-strategy-troubleshooting": {
+    title: "Advanced Deliverability",
+    pill: "Deliverability",
+    level: "advanced",
+    status: "waitlist",
+  },
   "intermediate-managing-and-optimising-deliverability": {
     title: "Intermediate Deliverability",
     pill: "Deliverability",
@@ -89,8 +95,9 @@ export const COURSES = {
 };
 
 // Keys are the page name without "-tool" and ".html", and double as
-// utm_campaign. `why` is the line above the buttons; `nextWhy` explains the
-// second course. Keep both to topic level for waitlist courses.
+// utm_campaign. `why` is the line above the cards; `nextWhy` explains the
+// second course; `more` adds further cards. Keep all of it to topic level for
+// waitlist courses.
 const TESTING_PRIMARY = "foundation-email-a-b-testing";
 const TESTING_NEXT = "strategic-email-marketing-from-vision-to-value";
 const TESTING_NEXT_WHY =
@@ -109,11 +116,10 @@ export const TOOLS = {
     next: TESTING_NEXT,
     nextWhy: TESTING_NEXT_WHY,
   },
+  // Waitlist only, on purpose: no live companion (Jon, 2026-10-13).
   sscc: {
     why: "Reading a result correctly is part of testing properly. Foundation A/B Testing is the Academy course on it.",
     primary: TESTING_PRIMARY,
-    next: TESTING_NEXT,
-    nextWhy: TESTING_NEXT_WHY,
   },
   curve: {
     why: "CURVE is taught in The Buyer's Mind, alongside System 1 and System 2 thinking.",
@@ -167,6 +173,7 @@ export const TOOLS = {
     why: "Authentication is step one. Deliverability is a whole discipline — reputation, engagement, infrastructure, monitoring — and it's taught properly at the Holistic Email Academy.",
     primary: "foundation-email-deliverability-fundamentals",
     next: "intermediate-managing-and-optimising-deliverability",
+    more: ["advanced-mastering-deliverability-strategy-troubleshooting"],
   },
 };
 
@@ -255,6 +262,7 @@ export function renderCourseCta(host) {
   const cards = el("div", "course-cta-cards");
   cards.append(item(config.primary, tool, true));
   if (config.next) cards.append(item(config.next, tool, false, config.nextWhy));
+  for (const slug of config.more || []) cards.append(item(slug, tool, false));
 
   host.classList.add("course-cta");
   host.setAttribute("role", "complementary");

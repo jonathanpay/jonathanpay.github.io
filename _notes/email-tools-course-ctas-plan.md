@@ -63,9 +63,10 @@ Full URL form: `https://holisticemailacademy.com/courses/<slug>/`. The complete 
 | Feature-to-Benefit (`f2b-tool.html`) | The Buyer's Mind (live) | Email Copywriting (waitlist) |
 | We-We (`wewe-tool.html`), Readability (`ers-tool-feedback.html`) | Email Copywriting (waitlist) | The Buyer's Mind (live) |
 | Tone Analyzer (`tone-tool.html`) | Email Copywriting Techniques (waitlist) | Buyer Modalities & GenAI (live) |
-| Hypothesis, Duration, Significance | Foundation A/B Testing (waitlist) | Strategic Email Marketing (live) |
+| Hypothesis, Duration | Foundation A/B Testing (waitlist) | Strategic Email Marketing (live) |
+| Significance (`sscc.html`) | Foundation A/B Testing (waitlist) | none, waitlist only by choice (2026-10-13) |
 | Accessibility Checker (`accessibility-tool.html`) | Foundation: Email Design Excellence (live) | Intermediate Email Design (waitlist) |
-| DMARC (`dmarc-checker-tool.html`) | Foundation Deliverability (live) | Intermediate Deliverability (waitlist) |
+| DMARC (`dmarc-checker-tool.html`) | Foundation Deliverability (live) | Intermediate Deliverability (waitlist), plus Advanced Deliverability (waitlist) as a third card |
 
 Live-led tools (7): CURVE, Emotional Appeal, Persona, Personalisation, Feature-to-Benefit, Accessibility, DMARC. Waitlist-led (6): We-We, Readability, Tone, and the testing trio. Each waitlist-led tool has a live companion so every visitor has something to act on today. Fit notes: Readability is the weakest fit for Buyer's Mind (treat it as a next step, not the same topic); the testing trio's live companion is a reasonable fit, not a perfect one (Strategic Email Marketing covers A/B testing as an audit pillar).
 
@@ -79,7 +80,7 @@ Duration and Significance lead with Foundation A/B Testing (Jon confirmed 2026-1
 
 1. **Index pill:** shows level plus a "Waitlist" tag where it applies. Reads from the data file. CURVE moves from the Foundation (green) pill to the Intermediate (cyan) one.
 2. **Closing block on every tool page:** primary course, then next step. DMARC's existing block (all three levels, shipped in PR #23) is the visual reference. It moves onto the shared data last, as a mixed-status block.
-3. **Contextual line after a result:** closing block first; contextual lines only for the seven live-led tools (CURVE, Emotional Appeal, Persona, Personalisation, Feature-to-Benefit, Accessibility, DMARC), because a contextual waitlist line is low value. Jon confirmed 2026-10-13 that Personalisation and Feature-to-Benefit are included.
+3. **Contextual line after a result:** built for the seven live-led tools (CURVE, Emotional Appeal, Persona, Personalisation, Feature-to-Benefit, Accessibility, DMARC), because a contextual waitlist line is low value. `email-tools/assets/course-context.js` watches each tool's results panel and reads what the tool has rendered (the tools' own bundles are minified build output, so they are not edited). It adds one sentence at the foot of the panel with the course as a link (`utm_content=result`), coloured by level. If a panel's markup changes and the reader stops matching, the line simply doesn't appear. Copy lives in `CONTEXT` in that file and is tested in `tests/course-context.test.mjs`. To add one for another tool: add its entry to `CONTEXT` (panel selector, a reader, a line) and load the module on the page.
 
 **Rules:**
 
@@ -91,7 +92,7 @@ Duration and Significance lead with Foundation A/B Testing (Jon confirmed 2026-1
 
 ## Rollout (three PRs)
 
-Status: rollouts 1 to 3 are built and all 13 tools carry the shared block (data file `email-tools/assets/course-ctas.js`, styles `course-cta.css`, tests `tests/course-ctas.test.mjs`). To add a block to a new tool, put `<div data-course-cta="<tool-key>"></div>` below its tool card, outside any results panel that starts hidden, and load `course-cta.css` after the main stylesheet bundle plus `course-ctas.js`. The index pills read from the same file: each is `<a data-course-pill="<tool-key>">`, and a status change in the data file updates the pill, the block and the button copy. Index pill links add `utm_content=index` to tell them apart from the in-page blocks. Not built: the contextual lines after a result (surface 3 above).
+Status: rollouts 1 to 3 are built and all 13 tools carry the shared block (data file `email-tools/assets/course-ctas.js`, styles `course-cta.css`, tests `tests/course-ctas.test.mjs`). To add a block to a new tool, put `<div data-course-cta="<tool-key>"></div>` below its tool card, outside any results panel that starts hidden, and load `course-cta.css` after the main stylesheet bundle plus `course-ctas.js`. The index pills read from the same file: each is `<a data-course-pill="<tool-key>">`, and a status change in the data file updates the pill, the block and the button copy. Index pill links add `utm_content=index` to tell them apart from the in-page blocks. The contextual lines (surface 3) are built too. A tool can list extra cards with `more: [slug, ...]` (DMARC uses it for Advanced Deliverability). Course thumbnails and icons were dropped by Jon on 2026-10-13.
 
 1. Data file, shared component, and the testing trio. Fixes the Foundation/Intermediate disagreement and proves the component.
 2. Copy and psychology tools: We-We, Readability, Tone, Emotional Appeal, CURVE, Persona, Feature-to-Benefit.
@@ -104,5 +105,4 @@ Check each page in a browser before pushing: the closing block renders, links ca
 None blocking. For later:
 
 - Distributed Marketing and Ecommerce are live but no tool leads to them. Fine to leave, unless the tools should cover the whole live catalogue.
-- `sscc.html` shows an Intermediate pill on the page itself while the index lists the Significance Calculator as Foundation (the Duration and Hypothesis pages say Foundation). Not changed in PR 1; decide which is right.
-- DMARC used to show three courses (Foundation, Intermediate, Advanced) in two places, with copy naming BIMI and ARC for the waitlist courses. Rollout 3 follows the mapping instead: Foundation Deliverability plus Intermediate Deliverability, one block, topic-level copy. Advanced Deliverability is no longer linked. Say if it should come back.
+- Hypothesis and Duration still show Strategic Email Marketing as the next step; only Significance dropped it. Say if the other two should be waitlist only as well.

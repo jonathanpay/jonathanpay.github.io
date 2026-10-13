@@ -23,6 +23,7 @@ test("every tool points at courses that exist", () => {
   for (const [tool, cfg] of Object.entries(TOOLS)) {
     assert.ok(COURSES[cfg.primary], `${tool}: unknown primary ${cfg.primary}`);
     if (cfg.next) assert.ok(COURSES[cfg.next], `${tool}: unknown next ${cfg.next}`);
+    for (const slug of cfg.more || []) assert.ok(COURSES[slug], `${tool}: unknown extra course ${slug}`);
     assert.notEqual(cfg.primary, cfg.next, `${tool}: primary and next are the same`);
     assert.ok(cfg.why.length > 0, `${tool}: missing why`);
   }
@@ -46,9 +47,13 @@ test("only live courses carry an offer", () => {
   }
 });
 
-test("every tool has a live course to act on today", () => {
+// Jon chose a waitlist-only block for the Significance Calculator (2026-10-13).
+const WAITLIST_ONLY = new Set(["sscc"]);
+
+test("every tool has a live course to act on today, bar the chosen exceptions", () => {
   for (const [tool, cfg] of Object.entries(TOOLS)) {
-    const statuses = [cfg.primary, cfg.next].filter(Boolean).map((s) => COURSES[s].status);
+    if (WAITLIST_ONLY.has(tool)) continue;
+    const statuses = [cfg.primary, cfg.next, ...(cfg.more || [])].filter(Boolean).map((s) => COURSES[s].status);
     assert.ok(statuses.includes("live"), `${tool}: nothing live to enrol in`);
   }
 });
