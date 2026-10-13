@@ -101,6 +101,8 @@
     <link rel="stylesheet" crossorigin href="/email-tools/assets/utils-M5Ds6giI.css">
     <link rel="stylesheet" crossorigin href="/email-tools/assets/style-CxLNB_9V.css">
     <link rel="stylesheet" href="/email-tools/assets/landing.css">
+    <link rel="stylesheet" href="/email-tools/assets/course-cta.css">
+    <script type="module" src="/email-tools/assets/course-ctas.js"></script>
     <style>
       body {
         background: var(--hea-bg-alt);
@@ -204,36 +206,6 @@
         background: var(--hea-purple-tint);
       }
 
-      /* ---- Course CTA ---- */
-      .course-cta {
-        margin-top: var(--hea-s-6);
-        background: var(--hea-purple-tint, #f4e9f9);
-        border: 1px solid rgba(158, 65, 191, 0.25);
-        border-radius: var(--hea-r-md);
-        padding: var(--hea-s-5) var(--hea-s-6);
-      }
-      .course-cta-kicker {
-        font-size: var(--hea-text-xs);
-        font-weight: var(--hea-w-bold);
-        letter-spacing: 0.14em;
-        text-transform: uppercase;
-        color: var(--hea-purple-deep);
-        margin: 0 0 var(--hea-s-2);
-      }
-      .course-cta p {
-        font-size: var(--hea-text-sm);
-        color: var(--hea-fg-2);
-        line-height: var(--hea-lh-normal);
-        margin: 0 0 var(--hea-s-4);
-      }
-      .course-cta-links {
-        display: flex;
-        flex-wrap: wrap;
-        gap: var(--hea-s-3);
-      }
-      .course-cta-links a.hea-btn {
-        display: inline-block;
-      }
     </style>
   </head>
   <body class="hea">
@@ -377,45 +349,6 @@
                   />
                   <button class="dmarc-manual-btn">Check pasted record</button>
                 </div>
-              </div>
-            </div>
-
-            <div class="course-cta">
-              <p class="course-cta-kicker">Go deeper</p>
-              <p>
-                Authentication is covered from the ground up in
-                <strong>Foundation: Email Deliverability Fundamentals</strong>,
-                with BIMI and advanced monitoring in
-                <strong
-                  >Intermediate: Managing and Optimising Deliverability</strong
-                >, and ARC/MTA-level troubleshooting in
-                <strong
-                  >Advanced: Mastering Deliverability Strategy &amp;
-                  Troubleshooting</strong
-                >.
-              </p>
-              <div class="course-cta-links">
-                <a
-                  href="https://holisticemailacademy.com/courses/foundation-email-deliverability-fundamentals/"
-                  class="hea-btn hea-btn--primary"
-                  target="_blank"
-                  rel="noopener"
-                  >Foundation course →</a
-                >
-                <a
-                  href="https://holisticemailacademy.com/courses/intermediate-managing-and-optimising-deliverability/"
-                  class="hea-btn hea-btn--secondary"
-                  target="_blank"
-                  rel="noopener"
-                  >Intermediate course →</a
-                >
-                <a
-                  href="https://holisticemailacademy.com/courses/advanced-mastering-deliverability-strategy-troubleshooting/"
-                  class="hea-btn hea-btn--secondary"
-                  target="_blank"
-                  rel="noopener"
-                  >Advanced course →</a
-                >
               </div>
             </div>
           </div>
@@ -689,41 +622,8 @@
           </div>
         </section>
 
-        <section class="closing-cta">
-          <span class="kicker">Keep going</span>
-          <h2>Authentication is step one</h2>
-          <p>
-            This checker covers the DNS foundations. Deliverability is a whole
-            discipline — reputation, engagement, infrastructure, monitoring —
-            and it's taught properly at the Holistic Email Academy.
-          </p>
-          <div class="closing-cta-links">
-            <a
-              href="https://holisticemailacademy.com/courses/foundation-email-deliverability-fundamentals/"
-              class="hea-btn hea-btn--primary"
-              target="_blank"
-              rel="noopener"
-              >Foundation course →</a
-            >
-            <a
-              href="https://holisticemailacademy.com/courses/intermediate-managing-and-optimising-deliverability/"
-              class="hea-btn hea-btn--secondary"
-              target="_blank"
-              rel="noopener"
-              >Intermediate course →</a
-            >
-            <a
-              href="https://holisticemailacademy.com/courses/advanced-mastering-deliverability-strategy-troubleshooting/"
-              class="hea-btn hea-btn--secondary"
-              target="_blank"
-              rel="noopener"
-              >Advanced course →</a
-            >
-          </div>
-          <a href="index.html" class="more-tools">
-            Or try the other twelve free tools →
-          </a>
-        </section>
+        <div data-course-cta="dmarc-checker"></div>
+        <a href="index.html" class="more-tools">Or try the other twelve free tools →</a>
       </div>
     </main>
 

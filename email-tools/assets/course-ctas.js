@@ -15,62 +15,74 @@ const BASE = "https://holisticemailacademy.com/courses/";
 
 export const UTM = { source: "hem-tools", medium: "tool" };
 
-// status: "live" | "waitlist". level: "foundation" | "intermediate" | null.
+// status: "live" | "waitlist". level: "foundation" | "intermediate" | "advanced" | null.
+// pill: the short label on the index card (level and status are added to it).
 // offer: optional line shown under a live course; delete it when it ends.
 export const COURSES = {
   "intermediate-the-buyers-mind": {
     title: "The Buyer's Mind",
+    pill: "Buyer's Mind",
     level: "intermediate",
     status: "live",
     offer: "Free with code BUYERSMIND",
   },
   "intermediate-buyer-modalities-genai": {
     title: "Buyer Modalities & GenAI",
+    pill: "Buyer Modalities",
     level: "intermediate",
     status: "live",
   },
   "email-design-course-for-beginners": {
     title: "Foundation: Email Design Excellence",
+    pill: "Design",
     level: "foundation",
     status: "live",
   },
   "strategic-email-marketing-from-vision-to-value": {
     title: "Strategic Email Marketing — From Vision to Value",
-    level: null,
+    pill: "Strategy",
+    level: "intermediate",
     status: "live",
   },
   "foundation-email-deliverability-fundamentals": {
     title: "Foundation Deliverability",
+    pill: "Deliverability",
     level: "foundation",
     status: "live",
   },
   "foundations-email-copywriting": {
     title: "Email Copywriting",
+    pill: "Copywriting",
     level: "foundation",
     status: "waitlist",
   },
   "intermediate-email-copywriting-techniques": {
     title: "Email Copywriting Techniques",
+    pill: "Copywriting",
     level: "intermediate",
     status: "waitlist",
   },
   "foundation-psychology-for-email": {
     title: "Foundation Psychology",
+    pill: "Psychology",
     level: "foundation",
     status: "waitlist",
   },
   "foundation-email-a-b-testing": {
     title: "Foundation A/B Testing",
+    pill: "Testing",
     level: "foundation",
     status: "waitlist",
   },
   "intermediate-managing-and-optimising-deliverability": {
     title: "Intermediate Deliverability",
+    pill: "Deliverability",
     level: "intermediate",
     status: "waitlist",
   },
   "intermediate-email-design-course": {
     title: "Intermediate Email Design",
+    pill: "Design",
     level: "intermediate",
     status: "waitlist",
   },
@@ -152,20 +164,38 @@ export const TOOLS = {
     next: "intermediate-email-design-course",
   },
   "dmarc-checker": {
-    why: "Authentication is step one of deliverability.",
+    why: "Authentication is step one. Deliverability is a whole discipline — reputation, engagement, infrastructure, monitoring — and it's taught properly at the Holistic Email Academy.",
     primary: "foundation-email-deliverability-fundamentals",
     next: "intermediate-managing-and-optimising-deliverability",
   },
 };
 
-// Link to a course with UTM parameters. `tool` is a key of TOOLS.
-export function courseUrl(slug, tool) {
+// Link to a course with UTM parameters. `tool` is a key of TOOLS; `content`
+// (optional) tells placements apart, e.g. "index" for the index-card pills.
+export function courseUrl(slug, tool, content) {
   const params = new URLSearchParams({
     utm_source: UTM.source,
     utm_medium: UTM.medium,
     utm_campaign: tool,
   });
+  if (content) params.set("utm_content", content);
   return `${BASE}${slug}/?${params}`;
+}
+
+const LEVEL_NAMES = {
+  foundation: "Foundation",
+  intermediate: "Intermediate",
+  advanced: "Advanced",
+};
+
+export function pillLabel(course) {
+  const level = LEVEL_NAMES[course.level];
+  const text = level ? `${level} ${course.pill}` : course.pill;
+  return `● ${text}${course.status === "waitlist" ? " · Waitlist" : ""}`;
+}
+
+export function pillClass(course) {
+  return `hea-pill hea-pill--${course.level}`;
 }
 
 export function buttonLabel(course) {
@@ -185,14 +215,20 @@ function el(tag, className, text) {
 
 function item(slug, tool, isPrimary, note) {
   const course = COURSES[slug];
-  const root = el("div", `course-cta-item${isPrimary ? " is-primary" : ""}`);
+  const level = course.level || "none";
+  const root = el(
+    "div",
+    `course-cta-item is-${level}${isPrimary ? " is-primary" : ""}`,
+  );
 
-  const head = el("div", "course-cta-item-head");
-  head.append(
-    el("strong", "course-cta-title", course.title),
+  const tags = el("div", "course-cta-tags");
+  if (course.level) {
+    tags.append(el("span", "course-cta-level", LEVEL_NAMES[course.level]));
+  }
+  tags.append(
     el("span", `course-cta-status is-${course.status}`, statusLabel(course)),
   );
-  root.append(head);
+  root.append(tags, el("strong", "course-cta-title", course.title));
 
   if (note) root.append(el("p", "course-cta-note", note));
   if (course.status === "live" && course.offer) {
@@ -216,20 +252,37 @@ export function renderCourseCta(host) {
   const config = TOOLS[tool];
   if (!config) return false;
 
+  const cards = el("div", "course-cta-cards");
+  cards.append(item(config.primary, tool, true));
+  if (config.next) cards.append(item(config.next, tool, false, config.nextWhy));
+
   host.classList.add("course-cta");
   host.setAttribute("role", "complementary");
   host.setAttribute("aria-label", "Related Academy courses");
   host.replaceChildren(
     el("p", "course-cta-kicker", "Go deeper"),
     el("p", "course-cta-why", config.why),
-    item(config.primary, tool, true),
+    cards,
   );
-  if (config.next) host.append(item(config.next, tool, false, config.nextWhy));
+  return true;
+}
+
+// Index-card pill: <a data-course-pill="tool"> becomes a link to the tool's
+// primary course, labelled with its level and status.
+export function renderPill(link) {
+  const tool = link.dataset.coursePill;
+  const config = TOOLS[tool];
+  if (!config) return false;
+  const course = COURSES[config.primary];
+  link.className = pillClass(course);
+  link.textContent = pillLabel(course);
+  link.href = courseUrl(config.primary, tool, "index");
   return true;
 }
 
 export function renderAll(root = document) {
   root.querySelectorAll("[data-course-cta]").forEach(renderCourseCta);
+  root.querySelectorAll("[data-course-pill]").forEach(renderPill);
 }
 
 if (typeof document !== "undefined") {

@@ -1,14 +1,14 @@
 /* Course CTA block, rendered by course-ctas.js into [data-course-cta].
    Hand-written: kept out of the hashed style bundle so a rebuild can't
-   overwrite it. Uses the --hea-* tokens from that bundle. */
+   overwrite it. Uses the --hea-* tokens from that bundle.
 
-.course-cta {
-  margin-top: var(--hea-s-6);
-  background: var(--hea-purple-tint);
-  border: 1px solid rgba(158, 65, 191, 0.2);
-  border-radius: var(--hea-r-md);
-  padding: var(--hea-s-5) var(--hea-s-6);
-}
+   Each course is its own card, coloured by level: Foundation green,
+   Intermediate cyan, Advanced purple, no level in the brand tint. The
+   accent is the level token; text uses a darker ink so it passes 4.5:1
+   on the tint. Buttons stay brand purple, because white text on the green
+   and cyan tokens would fail contrast. */
+
+.course-cta { margin-top: var(--hea-s-6); }
 .course-cta-kicker {
   font-size: var(--hea-text-xs);
   font-weight: var(--hea-w-bold);
@@ -23,32 +23,60 @@
   line-height: var(--hea-lh-normal);
   margin: 0 0 var(--hea-s-4);
 }
-.course-cta .course-cta-why { margin-bottom: var(--hea-s-5); }
+.course-cta .course-cta-why { margin-bottom: var(--hea-s-5); max-width: 62ch; }
+
+.course-cta-cards {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--hea-s-4);
+}
+.course-cta-cards:has(> :only-child) { grid-template-columns: minmax(0, 1fr); }
 
 .course-cta-item {
-  display: grid;
-  gap: var(--hea-s-2);
-  justify-items: start;
-  padding-top: var(--hea-s-4);
-  margin-top: var(--hea-s-4);
-  border-top: 1px solid rgba(158, 65, 191, 0.2);
+  --lv: var(--hea-purple);
+  --lv-ink: var(--hea-purple-deep);
+  --lv-tint: rgba(158, 65, 191, 0.07);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--hea-s-3);
+  padding: var(--hea-s-5);
+  background: var(--lv-tint);
+  border: 1px solid color-mix(in srgb, var(--lv) 40%, transparent);
+  border-top: 4px solid var(--lv);
+  border-radius: var(--hea-r-md);
 }
-.course-cta-item.is-primary {
-  padding-top: 0;
-  margin-top: 0;
-  border-top: 0;
+.course-cta-item.is-foundation {
+  --lv: var(--hea-level-foundation);
+  --lv-ink: #0f7a22;
+  --lv-tint: rgba(33, 191, 61, 0.09);
 }
-.course-cta-item-head {
+.course-cta-item.is-intermediate {
+  --lv: var(--hea-level-intermediate);
+  --lv-ink: #0a7490;
+  --lv-tint: rgba(34, 206, 242, 0.1);
+}
+.course-cta-item.is-advanced {
+  --lv: var(--hea-level-advanced);
+  --lv-ink: #6b2785;
+  --lv-tint: rgba(158, 65, 191, 0.09);
+}
+
+.course-cta-tags {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: var(--hea-s-2) var(--hea-s-3);
+  gap: var(--hea-s-2);
 }
-.course-cta-title {
-  font-size: var(--hea-text-base);
-  font-weight: var(--hea-w-semibold);
-  color: var(--hea-fg-1);
+.course-cta-level {
+  font-size: var(--hea-text-xs);
+  font-weight: var(--hea-w-bold);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--lv-ink);
 }
+.course-cta-level::before { content: "● "; color: var(--lv); }
+/* Neutral on purpose: green and cyan already mean level here. */
 .course-cta-status {
   font-size: var(--hea-text-xs);
   font-weight: var(--hea-w-bold);
@@ -57,16 +85,26 @@
   padding: 3px 10px;
   border-radius: var(--hea-r-pill);
 }
-.course-cta-status.is-live { background: #21bf3d1f; color: #138c28; }
-.course-cta-status.is-waitlist { background: #e8a53c29; color: #8a5a0c; }
+.course-cta-status.is-live { background: var(--hea-plum); color: #fff; }
+.course-cta-status.is-waitlist {
+  background: transparent;
+  color: var(--hea-plum-soft);
+  border: 1px solid var(--hea-plum-muted);
+}
+
+.course-cta-title {
+  font-size: var(--hea-text-base);
+  font-weight: var(--hea-w-semibold);
+  line-height: var(--hea-lh-snug);
+  color: var(--hea-fg-1);
+}
 .course-cta .course-cta-note,
 .course-cta .course-cta-offer { margin: 0; }
-.course-cta .course-cta-offer {
-  font-weight: var(--hea-w-semibold);
-  color: var(--hea-purple-deep);
-}
-.course-cta .hea-btn { margin-top: var(--hea-s-2); }
+.course-cta .course-cta-offer { font-weight: var(--hea-w-semibold); color: var(--hea-purple-deep); }
+/* Equal-height cards: the button sits at the foot of each. */
+.course-cta-item .hea-btn { margin-top: auto; align-self: flex-start; }
 
-@media (max-width: 480px) {
-  .course-cta { padding: var(--hea-s-5) var(--hea-s-4); }
+@media (max-width: 640px) {
+  .course-cta-cards { grid-template-columns: minmax(0, 1fr); }
+  .course-cta-item { padding: var(--hea-s-4); }
 }
