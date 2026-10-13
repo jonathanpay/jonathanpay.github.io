@@ -1,0 +1,72 @@
+/* Course CTA block, rendered by course-ctas.js into [data-course-cta].
+   Hand-written: kept out of the hashed style bundle so a rebuild can't
+   overwrite it. Uses the --hea-* tokens from that bundle. */
+
+.course-cta {
+  margin-top: var(--hea-s-6);
+  background: var(--hea-purple-tint);
+  border: 1px solid rgba(158, 65, 191, 0.2);
+  border-radius: var(--hea-r-md);
+  padding: var(--hea-s-5) var(--hea-s-6);
+}
+.course-cta-kicker {
+  font-size: var(--hea-text-xs);
+  font-weight: var(--hea-w-bold);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--hea-purple);
+  margin: 0 0 var(--hea-s-2);
+}
+.course-cta p {
+  font-size: var(--hea-text-sm);
+  color: var(--hea-fg-2);
+  line-height: var(--hea-lh-normal);
+  margin: 0 0 var(--hea-s-4);
+}
+.course-cta .course-cta-why { margin-bottom: var(--hea-s-5); }
+
+.course-cta-item {
+  display: grid;
+  gap: var(--hea-s-2);
+  justify-items: start;
+  padding-top: var(--hea-s-4);
+  margin-top: var(--hea-s-4);
+  border-top: 1px solid rgba(158, 65, 191, 0.2);
+}
+.course-cta-item.is-primary {
+  padding-top: 0;
+  margin-top: 0;
+  border-top: 0;
+}
+.course-cta-item-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--hea-s-2) var(--hea-s-3);
+}
+.course-cta-title {
+  font-size: var(--hea-text-base);
+  font-weight: var(--hea-w-semibold);
+  color: var(--hea-fg-1);
+}
+.course-cta-status {
+  font-size: var(--hea-text-xs);
+  font-weight: var(--hea-w-bold);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 3px 10px;
+  border-radius: var(--hea-r-pill);
+}
+.course-cta-status.is-live { background: #21bf3d1f; color: #138c28; }
+.course-cta-status.is-waitlist { background: #e8a53c29; color: #8a5a0c; }
+.course-cta .course-cta-note,
+.course-cta .course-cta-offer { margin: 0; }
+.course-cta .course-cta-offer {
+  font-weight: var(--hea-w-semibold);
+  color: var(--hea-purple-deep);
+}
+.course-cta .hea-btn { margin-top: var(--hea-s-2); }
+
+@media (max-width: 480px) {
+  .course-cta { padding: var(--hea-s-5) var(--hea-s-4); }
+}

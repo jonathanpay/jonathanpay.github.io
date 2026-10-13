@@ -6,6 +6,7 @@
   <title>A/B Test Duration Calculator — Holistic Email Marketing</title>
   <meta name="description" content="Know how long to run your A/B test before you start. Calculate required sample size and test duration with a two-proportion z-test. No sign-up needed.">
   <link rel="icon" href="/favicon.ico">
+  <script type="module" src="/email-tools/assets/course-ctas.js"></script>
   <style>
     body { background: var(--hea-bg-alt); }
 
@@ -147,29 +148,6 @@
     }
     .tool-crosslink a:hover { color: var(--hea-purple-deep); }
 
-    /* ---- Course CTA ---- */
-    .course-cta {
-      margin-top: var(--hea-s-6);
-      background: var(--hea-purple-tint);
-      border: 1px solid rgba(158,65,191,0.2);
-      border-radius: var(--hea-r-md);
-      padding: var(--hea-s-5) var(--hea-s-6);
-    }
-    .course-cta-kicker {
-      font-size: var(--hea-text-xs);
-      font-weight: var(--hea-w-bold);
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      color: var(--hea-purple);
-      margin: 0 0 var(--hea-s-2);
-    }
-    .course-cta p {
-      font-size: var(--hea-text-sm);
-      color: var(--hea-fg-2);
-      line-height: var(--hea-lh-normal);
-      margin: 0 0 var(--hea-s-4);
-    }
-    .course-cta a.hea-btn { display: inline-block; }
 
     @media (max-width: 480px) {
       .field-row       { grid-template-columns: 1fr; }
@@ -180,6 +158,7 @@
   <link rel="modulepreload" crossorigin href="/email-tools/assets/utils-jnLFB3bE.js">
   <link rel="stylesheet" crossorigin href="/email-tools/assets/utils-M5Ds6giI.css">
   <link rel="stylesheet" crossorigin href="/email-tools/assets/style-CxLNB_9V.css">
+  <link rel="stylesheet" href="/email-tools/assets/course-cta.css">
 </head>
 <body class="hea">
 
@@ -282,13 +261,10 @@
             <a href="sscc.html">Statistical Significance Calculator</a>
           </div>
 
-          <div class="course-cta">
-            <p class="course-cta-kicker">Go deeper</p>
-            <p>The <strong>Intermediate Holistic Testing</strong> course covers the full methodology — from writing hypotheses and choosing the right objective metrics, to turning test results into long-term strategic insight rather than one-off wins.</p>
-            <a href="https://holisticemailacademy.com/courses/intermediate-holistic-testing-for-deeper-insights/" class="hea-btn hea-btn--primary" target="_blank" rel="noopener">Join the waitlist →</a>
-          </div>
         </div>
       </div>
+
+      <div data-course-cta="ab-duration"></div>
 
     </div>
   </main>
