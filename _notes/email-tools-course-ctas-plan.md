@@ -91,7 +91,7 @@ Duration and Significance lead with Foundation A/B Testing (Jon confirmed 2026-1
 
 ## Rollout (three PRs)
 
-Status: PR 1 is built (data file `email-tools/assets/course-ctas.js`, styles `course-cta.css`, tests `tests/course-ctas.test.mjs`, testing trio wired). To add a tool, put `<div data-course-cta="<tool-key>"></div>` below its tool card, outside any results panel that starts hidden, and load `course-cta.css` after the main stylesheet bundle plus `course-ctas.js`. All 13 tool entries already exist in the data file; only the three testing ones have been reviewed for copy.
+Status: rollouts 1 to 3 are built and all 13 tools carry the shared block (data file `email-tools/assets/course-ctas.js`, styles `course-cta.css`, tests `tests/course-ctas.test.mjs`). To add a block to a new tool, put `<div data-course-cta="<tool-key>"></div>` below its tool card, outside any results panel that starts hidden, and load `course-cta.css` after the main stylesheet bundle plus `course-ctas.js`. The index pills read from the same file: each is `<a data-course-pill="<tool-key>">`, and a status change in the data file updates the pill, the block and the button copy. Index pill links add `utm_content=index` to tell them apart from the in-page blocks. Not built: the contextual lines after a result (surface 3 above).
 
 1. Data file, shared component, and the testing trio. Fixes the Foundation/Intermediate disagreement and proves the component.
 2. Copy and psychology tools: We-We, Readability, Tone, Emotional Appeal, CURVE, Persona, Feature-to-Benefit.
@@ -105,3 +105,4 @@ None blocking. For later:
 
 - Distributed Marketing and Ecommerce are live but no tool leads to them. Fine to leave, unless the tools should cover the whole live catalogue.
 - `sscc.html` shows an Intermediate pill on the page itself while the index lists the Significance Calculator as Foundation (the Duration and Hypothesis pages say Foundation). Not changed in PR 1; decide which is right.
+- DMARC used to show three courses (Foundation, Intermediate, Advanced) in two places, with copy naming BIMI and ARC for the waitlist courses. Rollout 3 follows the mapping instead: Foundation Deliverability plus Intermediate Deliverability, one block, topic-level copy. Advanced Deliverability is no longer linked. Say if it should come back.
