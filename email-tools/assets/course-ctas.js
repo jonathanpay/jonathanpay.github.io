@@ -40,8 +40,8 @@ export const COURSES = {
   },
   "strategic-email-marketing-from-vision-to-value": {
     title: "Strategic Email Marketing — From Vision to Value",
-    pill: "Strategic Email Marketing",
-    level: null,
+    pill: "Strategy",
+    level: "intermediate",
     status: "live",
   },
   "foundation-email-deliverability-fundamentals": {

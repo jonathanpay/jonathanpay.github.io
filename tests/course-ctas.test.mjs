@@ -99,6 +99,19 @@ test("pills show level and flag waitlist courses", () => {
   assert.equal(pillClass(COURSES["intermediate-the-buyers-mind"]), "hea-pill hea-pill--intermediate");
 });
 
+test("every course has a level, so every card gets a colour", () => {
+  for (const [slug, c] of Object.entries(COURSES)) {
+    assert.ok(["foundation", "intermediate", "advanced"].includes(c.level), `${slug}: no level`);
+  }
+  for (const slug of [
+    "intermediate-the-buyers-mind",
+    "intermediate-buyer-modalities-genai",
+    "strategic-email-marketing-from-vision-to-value",
+  ]) {
+    assert.equal(COURSES[slug].level, "intermediate", `${slug} should be Intermediate`);
+  }
+});
+
 test("all three levels have a name and a pill class", () => {
   for (const level of ["foundation", "intermediate", "advanced"]) {
     const course = { level, pill: "Testing", status: "live" };

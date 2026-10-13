@@ -35,7 +35,7 @@ Public titles confirmed so far:
 |---|---|---|
 | `email-design-course-for-beginners` | Foundation: Email Design Excellence | live |
 | `foundations-email-copywriting` | Email Copywriting | waitlist |
-| `strategic-email-marketing-from-vision-to-value` | Strategic Email Marketing — From Vision to Value | live |
+| `strategic-email-marketing-from-vision-to-value` | Strategic Email Marketing — From Vision to Value (Intermediate) | live |
 | `intermediate-the-buyers-mind` | The Buyer's Mind — Understanding System 1 & System 2 Thinking | live |
 | `intermediate-buyer-modalities-genai` | Buyer Modalities & GenAI — Scale Personalised Messaging with Precision | live |
 
