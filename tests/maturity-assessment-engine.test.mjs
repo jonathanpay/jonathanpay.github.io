@@ -1,5 +1,7 @@
-const assert=require('node:assert/strict');
-const E=require('./engine.js'),D=require('./data.js');
+import assert from 'node:assert/strict';
+import {createRequire} from 'node:module';
+const require=createRequire(import.meta.url);
+const E=require('../pilots/email-maturity-assessment/engine.js'),D=require('../pilots/email-maturity-assessment/data.js');
 assert.equal(D.questions.length,17);assert.equal(D.context.length,3);
 assert.ok(D.questions.every(q=>q.options.length===6));assert.equal(D.obstacles.length,9);
 for(const [sum,n,expect] of [[6,4,1],[10,4,2],[14,4,3],[18,4,4],[20,4,5],[8,3,3],[11,3,4]])assert.equal(E.halfDown(sum,n),expect);

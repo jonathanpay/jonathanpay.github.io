@@ -23,6 +23,10 @@ defaults:
       type: posts
     values:
       layout: post
+  - scope:
+      path: "pilots"
+    values:
+      sitemap: false
 
 exclude:
   - scripts
@@ -31,3 +35,4 @@ exclude:
   - vendor
   - Gemfile.lock
   - tests
+  - pilots/email-maturity-assessment/README.md
