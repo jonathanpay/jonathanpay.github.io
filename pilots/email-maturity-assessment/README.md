@@ -36,7 +36,7 @@ Do not commit exported participant records, contact details or internal raw sour
 
 This version tests the questionnaire, deterministic engine, mobile flow, results explanation, P1 and downloadable records. It does not prove respondent comprehension or the 15–20-minute target. Local browser testing used simulated responses, not external respondents.
 
-Immediate actions and support text are conservative prototype guidance. The full dimension×level action matrix, verified course/resource links and commercial routing remain unfinished. There are no paid-course links. A typographic HEA wordmark is used for this prototype rather than an imported official logo.
+Immediate actions and support text are conservative prototype guidance. The full dimension×level action matrix, verified course/resource links and commercial routing remain unfinished. There are no paid-course links. Styling follows the HEA email tools: CMG Sans (loaded from `/email-tools/assets/`, so opened from disk it falls back to the system sans), the HEA colour tokens and the circular HEA logo icon.
 
 There is no server-side storage, automatic result delivery, HubSpot handoff, marketing/research consent collection or unique persisted results URL. A later production version needs that architecture and its ownership agreed. Do not put HubSpot credentials or private service keys in client JavaScript. A static client is deliberately sufficient for this initial test, not a claim of production readiness.
 
