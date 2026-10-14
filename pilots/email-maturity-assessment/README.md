@@ -10,15 +10,15 @@ Answers are held in memory for this browser tab. Refreshing or closing it clears
 
 The code contains no email/name capture, outbound integration, analytics, browser storage or automated submission. The anonymous pilot code is a reference for the exported record, not a private access token. No participant account or permanent hosted result link exists in this first version.
 
-## Host on GitHub Pages
+## Hosting
 
-1. Create or choose a repository. Upload the files inside this folder to the repository root, including `index.html`, `styles.css`, `data.js`, `engine.js`, `app.js` and the empty `.nojekyll` file. The README and scoring tests can stay with them.
-2. In repository **Settings → Pages**, choose deployment from a branch and select the intended branch and **/(root)**.
-3. Save, wait for publication, then open the displayed site URL. Test that URL on desktop and mobile before inviting external testers.
+This copy lives in the `jonathanpay.github.io` repository at `/pilots/email-maturity-assessment/`, published as https://jonathanpay.com/pilots/email-maturity-assessment/ when merged to `master`. It is deliberately separate from `/email-tools/` and is not linked from the site navigation or tools index.
 
-Relative asset paths support a normal repository project URL. The Pages site is not a private respondent store. Do not upload exported participant records, contact details or internal raw source documents to this repository. The package contains only prototype code, question data and these instructions. Hosting exposes the questionnaire and client-side calculation code; no secret belongs in them.
+- The page carries `noindex,nofollow`, and `_config.yml` sets `sitemap: false` for everything under `/pilots/`. The URL is unlisted, not private: anyone with the link can open it.
+- This README is excluded from the published build. The engine test lives at `tests/maturity-assessment-engine.test.mjs`.
+- All paths are relative, so the folder still works opened directly from disk.
 
-GitHub reference: [Creating a GitHub Pages site](https://docs.github.com/en/pages/getting-started-with-github-pages/creating-a-github-pages-site). Account/plan eligibility and visibility depend on your GitHub setup. Nothing has been pushed, published or connected to an account in preparing this package.
+Do not commit exported participant records, contact details or internal raw source documents to this repository. Hosting exposes the questionnaire and client-side calculation code; no secret belongs in them.
 
 ## Scoring implemented
 
@@ -50,6 +50,6 @@ Treat downloaded records as programme information and share them only through yo
 
 ## Verification
 
-Run `node test-engine.cjs` to verify half-down boundaries, ceilings, complete/partial states, joint constraints, flags and bounds against independent enumeration of all 1,512 dimension patterns. Node is needed only for development checks, not to use or host the prototype.
+From the repository root, run `node --test tests/maturity-assessment-engine.test.mjs` to verify half-down boundaries, ceilings, complete/partial states, joint constraints, flags and bounds against independent enumeration of all 1,512 dimension patterns. Node is needed only for development checks, not to use or host the prototype.
 
 Desktop and 390px-wide browser checks covered the full 20-question flow, required selection, back navigation, keyboard radios, ceiling/risk explanations, optional support, JSON download/reload and all-unknown results. No horizontal overflow, external page requests or JavaScript errors were observed. This is not a comprehensive accessibility audit or mobile-device study.
