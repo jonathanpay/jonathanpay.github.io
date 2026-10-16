@@ -108,6 +108,8 @@ function bindEmailForm(){
    const res=await fetch(submitUrl,{method:'POST',body:JSON.stringify({...exportRecord(),contact})});
    const reply=await res.json();
    if(!reply.ok)throw new Error(reply.error||'Not sent');
+   // A collector without the email feature replies without "emailed".
+   if(!('emailed' in reply))throw new Error('Emailing results is not switched on yet.');
    emailedTo=contact.email;saved=true;
    const box=document.getElementById('email-copy');box.outerHTML=emailBox();
    const h=document.querySelector('#email-copy h2');if(h){h.setAttribute('tabindex','-1');h.focus();}
