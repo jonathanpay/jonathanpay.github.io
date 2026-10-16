@@ -64,6 +64,13 @@ Optionally, copy the column widths and header formatting from the QA sheet. Noth
 
 ## Course suggestions
 
+`advice.js` holds the rules for what the result may say about courses and support (Code.gs keeps a copy for the email; `tests/maturity-assessment-advice.test.mjs` checks both against the QA ledger cases of 16 October):
+
+- An area with any "I don't know" answers has no definitive level, so its course card says "level not yet confirmed" and never claims it holds the result back. An area with no known answers gets no course card.
+- Courses are promoted ("Courses that cover this") only when the obstacle answer is a knowledge or skills gap. Otherwise they are "Optional: courses for this area" below the next step, and for "This is not a priority for us right now" they shrink to a single link for later.
+- The "Get support" copy follows the same obstacle answer and never contradicts the course panel.
+
+
 `courses.js` maps each dimension to Academy courses by the level reached (Ad Hoc or Foundational: foundation; Strategic or Optimised: intermediate; Innovative: advanced). The result page shows up to three, for the areas holding the result back. Titles, live or waitlist status, offers and links come from `email-tools/assets/course-ctas.js`, so launching a course there updates this page as well. Links carry `utm_source=hem-assessment`, `utm_medium=assessment`, `utm_campaign=maturity-assessment` and `utm_content=dimension-N`. `tests/maturity-assessment-courses.test.mjs` checks every slug exists.
 
 ## Scoring implemented

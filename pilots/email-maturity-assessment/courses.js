@@ -49,12 +49,13 @@ export const BY_DIMENSION = [
 
 export const band = level => (level <= 2 ? 'foundation' : level <= 4 ? 'intermediate' : 'advanced');
 
-// targets: [{dimension, level}] for the areas holding the result back.
+// targets: from courseTargets() in advice.js: [{dimension, level, confirmed}].
+// level is only used to choose a band; it is shown only when confirmed.
 // Returns up to `max` courses, without repeats.
 export function suggest(targets, max = 3) {
   const seen = new Set();
   const out = [];
-  for (const {dimension, level} of targets) {
+  for (const {dimension, level, confirmed} of targets) {
     for (const slug of BY_DIMENSION[dimension][band(level)]) {
       if (seen.has(slug) || !COURSES[slug] || out.length >= max) continue;
       seen.add(slug);
@@ -64,7 +65,7 @@ export function suggest(targets, max = 3) {
       url.searchParams.set('utm_medium', 'assessment');
       url.searchParams.set('utm_content', 'dimension-' + (dimension + 1));
       out.push({
-        slug, dimension, level,
+        slug, dimension, level, confirmed,
         title: course.title,
         courseLevel: course.level,
         live: course.status === 'live',

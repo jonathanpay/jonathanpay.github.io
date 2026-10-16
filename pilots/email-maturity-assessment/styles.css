@@ -232,3 +232,5 @@ h1[tabindex]:focus{outline:none}
 .email-copy .form-notice{margin:12px 0 0;font-size:13px}
 .email-copy .error{min-height:0;margin:8px 0 0}
 @media print{.email-copy{display:none!important}}
+.courses-optional>h2{font-size:22px}
+.courses-later p{margin:0}
