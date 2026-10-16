@@ -49,6 +49,19 @@ The result is free on screen. To get a copy by email, the person gives their nam
 
 Before launch, fill in `privacyUrl` in `config.js` and `PRIVACY_URL` (and optionally `REPLY_TO`) at the top of `Code.gs`. Code.gs keeps copies of the next-step actions (`data.js`) and the course mapping (`courses.js` and `email-tools/assets/course-ctas.js`); `tests/maturity-assessment-collector.test.mjs` fails if they drift, so update both when either changes, then deploy a new version.
 
+## Moving to the business Google account (after QA)
+
+During QA the sheet and script run from Jon's personal Gmail. To move them to the Holistic Email Marketing or Academy Google account:
+
+1. In the business account, create a new spreadsheet. Add a tab named `Responses` (the script writes the header row itself on the first save).
+2. In that sheet, go to Extensions → Apps Script, paste `apps-script/Code.gs`, and set `PRIVACY_URL` and `REPLY_TO`.
+3. Deploy → **New deployment** → Web app, Execute as: Me, Who has access: Anyone. Approve the spreadsheet and email permissions. This gives a new `/exec` URL.
+4. Put the new URL in `submitUrl` in `config.js` and merge. From then on, saves and result emails go to the new sheet and come from the business address.
+5. Send one test from the live page and check the row and the email.
+6. Decide what happens to the QA sheet: archive it or delete it. It may hold testers' names and emails.
+
+Optionally, copy the column widths and header formatting from the QA sheet. Nothing in the page or the script refers to the old sheet by ID.
+
 ## Course suggestions
 
 `courses.js` maps each dimension to Academy courses by the level reached (Ad Hoc or Foundational: foundation; Strategic or Optimised: intermediate; Innovative: advanced). The result page shows up to three, for the areas holding the result back. Titles, live or waitlist status, offers and links come from `email-tools/assets/course-ctas.js`, so launching a course there updates this page as well. Links carry `utm_source=hem-assessment`, `utm_medium=assessment`, `utm_campaign=maturity-assessment` and `utm_content=dimension-N`. `tests/maturity-assessment-courses.test.mjs` checks every slug exists.
