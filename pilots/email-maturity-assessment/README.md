@@ -8,7 +8,7 @@ Open `index.html` in a browser. No installation or build is required. All fonts 
 
 Answers are held in memory for this browser tab. Refreshing or closing it clears them. At the result, choose **Download my test record** to save an anonymous JSON record. Send it to your facilitator through your agreed channel if you choose. **Open a saved test result** on the start screen recomputes a downloaded Review 04 record; it does not trust the stored calculated result.
 
-The code contains no email/name capture, outbound integration, analytics, browser storage or automated submission. The anonymous pilot code is a reference for the exported record, not a private access token. No participant account or permanent hosted result link exists in this first version.
+The code contains no email/name capture, analytics or browser storage, and nothing is sent automatically. When `config.js` holds a collector URL, the result page offers an opt-in **Send my result** button (see Collecting responses). The anonymous pilot code is a reference for the exported record, not a private access token. No participant account or permanent hosted result link exists in this first version.
 
 ## Hosting
 
@@ -19,6 +19,23 @@ This copy lives in the `jonathanpay.github.io` repository at `/pilots/email-matu
 - All paths are relative, so the folder still works opened directly from disk.
 
 Do not commit exported participant records, contact details or internal raw source documents to this repository. Hosting exposes the questionnaire and client-side calculation code; no secret belongs in them.
+
+## Collecting responses
+
+Respondents can send their record to a Google Sheet, [HEA maturity assessment pilot responses](https://docs.google.com/spreadsheets/d/1gdTLFaaORQ_Z-_rgy1Lng6NBj4jB0hHGzkOK-54tSPc/edit). Sending needs a ticked consent box, and sending again with the same pilot code updates that row rather than adding a new one.
+
+`apps-script/Code.gs` receives the record, checks it, recalculates the result from the answers (it ignores the result the browser sends), and writes one row per pilot code. Text that would start a formula is stored as plain text. `tests/maturity-assessment-collector.test.mjs` runs it against a stub sheet and compares its scoring with `engine.js`. The folder is excluded from the published site.
+
+To connect it:
+
+1. Open the sheet, then **Extensions → Apps Script**.
+2. Replace the contents of `Code.gs` with `apps-script/Code.gs` from this folder and save.
+3. **Deploy → New deployment**, type **Web app**, *Execute as* **Me**, *Who has access* **Anyone**. Authorise when asked.
+4. Copy the web app URL (it ends in `/exec`) into `submitUrl` in `config.js`.
+
+After changing `Code.gs`, use **Deploy → Manage deployments → Edit → New version** so the URL stays the same. With `submitUrl` empty the send option is hidden and the page behaves as before.
+
+The URL is public by design: anyone who finds it could post a record. The script only accepts well-formed records for this questionnaire, which is enough for a pilot, but check the sheet for junk rows.
 
 ## Scoring implemented
 
@@ -38,7 +55,7 @@ This version tests the questionnaire, deterministic engine, mobile flow, results
 
 Immediate actions and support text are conservative prototype guidance. The full dimension×level action matrix, verified course/resource links and commercial routing remain unfinished. There are no paid-course links. Styling follows the HEA email tools: CMG Sans (loaded from `/email-tools/assets/`, so opened from disk it falls back to the system sans), the HEA colour tokens and the circular HEA logo icon.
 
-There is no server-side storage, automatic result delivery, HubSpot handoff, marketing/research consent collection or unique persisted results URL. A later production version needs that architecture and its ownership agreed. Do not put HubSpot credentials or private service keys in client JavaScript. A static client is deliberately sufficient for this initial test, not a claim of production readiness.
+Apart from the opt-in Google Sheet collector, there is no server-side storage, automatic result delivery, HubSpot handoff, marketing/research consent collection or unique persisted results URL. A later production version needs that architecture and its ownership agreed. Do not put HubSpot credentials or private service keys in client JavaScript. A static client is deliberately sufficient for this initial test, not a claim of production readiness.
 
 ## Test records and timing
 

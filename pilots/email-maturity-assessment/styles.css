@@ -179,3 +179,7 @@ h1[tabindex]:focus{outline:none}
 .hero section>.eyebrow{color:var(--green-deep)}
 .results-bottom section:first-child>.eyebrow{color:var(--cyan-deep)}
 .results-bottom section:last-child>.eyebrow{color:var(--green-deep)}
+.send{border-left:4px solid var(--cyan);margin-top:18px}
+.send h3{color:var(--cyan-deep)}
+.consent{display:flex;gap:10px;align-items:flex-start;font-size:15px;color:var(--plum);margin:12px 0 16px;cursor:pointer}
+.consent input{accent-color:var(--purple);width:18px;height:18px;margin-top:3px;flex-shrink:0}
