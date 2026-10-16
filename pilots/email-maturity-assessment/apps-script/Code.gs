@@ -431,7 +431,7 @@ function buildEmail_(contact, record, answers, res) {
   const textSteps = targets.map(function (i) { const a = actionFor_(i, c2); return DIMENSIONS[i] + '\n  Do now: ' + a[0] + '\n  Build next: ' + a[1]; }).join('\n\n');
   const text = 'Hi ' + first + ',\n\nYour email maturity assessment result (reference ' + record.pilotCode + '):\n\n' + head[0] + '\n' + head[1] + '\n\n'
     + res.dimensions.map(function (d) { return DIMENSIONS[d.index] + ': ' + (d.complete ? LEVELS[d.score.level - 1] : 'Insufficient visibility'); }).join('\n')
-    + (textSteps ? '\n\nA useful next step\n\n' + textSteps : '')
+    + '\n\nA useful next step\n\n' + (textSteps || 'Check the questions you answered “I don’t know” with the colleague or provider responsible, then take the assessment again for a complete profile.')
     + (courseList.length ? '\n\n' + coursesTitle + '\n' + coursesIntro + '\n' + courseList.map(function (c) { return '- ' + c.title + ' (' + (c.status === 'live' ? 'available now' : 'waitlist') + '): ' + c.url; }).join('\n') : '')
     + '\n\nTake the assessment again: ' + ASSESSMENT_URL + '\n\nYou are receiving this because you asked for a copy of your assessment result. This is a one-off email.' + (PRIVACY_URL ? ' Privacy policy: ' + PRIVACY_URL : '');
 

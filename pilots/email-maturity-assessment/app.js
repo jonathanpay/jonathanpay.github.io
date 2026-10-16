@@ -60,9 +60,11 @@ function renderCourses(){
  const host=document.getElementById('courses');
  if(!host||!result)return;
  const mode=A.courseMode(p1);
- if(mode==='link'){host.innerHTML=`<section class="courses courses-later" aria-labelledby="courses-title"><span class="eyebrow">Holistic Email Academy</span><h2 id="courses-title">For later</h2><p>When this area becomes a priority, <a href="${ACADEMY_URL}" target="_blank" rel="noopener">the Academy's courses</a> are there.</p></section>`;return;}
- if(!window.HEA_COURSES)return;
+ const setSupport=shows=>{const el=document.getElementById('support-copy');if(el)el.textContent=A.supportCopy(p1,shows);};
+ if(mode==='link'){setSupport(true);host.innerHTML=`<section class="courses courses-later" aria-labelledby="courses-title"><span class="eyebrow">Holistic Email Academy</span><h2 id="courses-title">For later</h2><p>When this area becomes a priority, <a href="${ACADEMY_URL}" target="_blank" rel="noopener">the Academy's courses</a> are there.</p></section>`;return;}
+ if(!window.HEA_COURSES){setSupport(false);return;}
  const list=window.HEA_COURSES.suggest(A.courseTargets(result));
+ setSupport(list.length>0);
  if(!list.length){host.innerHTML='';return;}
  const names=[...new Set(list.map(c=>c.dimension))].map(name),areas=names.length>1?names.slice(0,-1).join(', ')+' and '+names[names.length-1]:names[0];
  const promoted=mode==='promoted';
@@ -74,7 +76,6 @@ function renderCourses(){
 window.addEventListener('hea-courses-ready',renderCourses);
 // Also redraws the course panel: how prominent courses are depends on the obstacle answer.
 function support(){
- document.getElementById('support-copy').textContent=A.supportCopy(p1);
  renderCourses();
  const hasArea=Number.isInteger(p1.area);
  document.getElementById('p1-status').textContent=p1.status==='skipped'?'Skipped. Your result is unchanged.':p1.status==='answered'?(hasArea?'Your stated obstacle is recorded for '+name(p1.area)+'. Your score is unchanged.':'Your stated obstacle is recorded without a specific area; guidance remains general. Your score is unchanged.'):'You can answer or skip. Your result is already available.';
@@ -88,7 +89,7 @@ function emailBox(){
  if(!submitUrl||imported)return '';
  if(emailedTo)return `<div class="box email-copy" id="email-copy"><h2>Your result is on its way</h2><p>We have emailed it to <strong>${escape(emailedTo)}</strong>. If it has not arrived in a few minutes, check your spam folder.</p></div>`;
  const v=k=>escape(draft[k]||'');
- return `<div class="box email-copy" id="email-copy"><h2>Get your result by email</h2><p class="muted">We will email you this result with your next steps and course links.</p><form id="email-form" novalidate><label class="field-label" for="c-name">Name</label><input type="text" id="c-name" autocomplete="name" maxlength="100" required value="${v('name')}"><label class="field-label" for="c-email">Work email</label><input type="email" id="c-email" autocomplete="email" maxlength="254" required value="${v('email')}"><label class="field-label" for="c-company">Company <span class="optional">(optional)</span></label><input type="text" id="c-company" autocomplete="organization" maxlength="120" value="${v('company')}"><label class="field-label" for="c-role">Job title <span class="optional">(optional)</span></label><input type="text" id="c-role" autocomplete="organization-title" maxlength="120" value="${v('role')}"><label class="consent"><input type="checkbox" id="c-marketing" ${draft.marketing?'checked':''}> Also send me practical email marketing tips and course news from Holistic Email Marketing. I can unsubscribe at any time.</label><button class="primary" type="submit" id="c-send">Email my result</button><p class="muted form-notice">We will use these details to send your result and may contact you about it.${privacyUrl?` <a href="${escape(privacyUrl)}" target="_blank" rel="noopener">Privacy policy</a>.`:''}</p><p class="error" id="c-status" role="status"></p></form></div>`;
+ return `<div class="box email-copy" id="email-copy"><h2>Get your result by email</h2><p class="muted">We will email you a copy of this result and your next steps.</p><form id="email-form" novalidate><label class="field-label" for="c-name">Name</label><input type="text" id="c-name" autocomplete="name" maxlength="100" required value="${v('name')}"><label class="field-label" for="c-email">Work email</label><input type="email" id="c-email" autocomplete="email" maxlength="254" required value="${v('email')}"><label class="field-label" for="c-company">Company <span class="optional">(optional)</span></label><input type="text" id="c-company" autocomplete="organization" maxlength="120" value="${v('company')}"><label class="field-label" for="c-role">Job title <span class="optional">(optional)</span></label><input type="text" id="c-role" autocomplete="organization-title" maxlength="120" value="${v('role')}"><label class="consent"><input type="checkbox" id="c-marketing" ${draft.marketing?'checked':''}> Also send me practical email marketing tips and course news from Holistic Email Marketing. I can unsubscribe at any time.</label><button class="primary" type="submit" id="c-send">Email my result</button><p class="muted form-notice">We will use these details to send your result and may contact you about it.${privacyUrl?` <a href="${escape(privacyUrl)}" target="_blank" rel="noopener">Privacy policy</a>.`:''}</p><p class="error" id="c-status" role="status"></p></form></div>`;
 }
 function bindEmailForm(){
  const form=document.getElementById('email-form');if(!form)return;
