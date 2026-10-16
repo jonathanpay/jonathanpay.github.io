@@ -37,6 +37,18 @@ After changing `Code.gs`, use **Deploy → Manage deployments → Edit → New v
 
 The URL is public by design: anyone who finds it could post a record. The script only accepts well-formed records for this questionnaire, which is enough for a pilot, but check the sheet for junk rows.
 
+## Email copy of the result
+
+The result is free on screen. To get a copy by email, the person gives their name and work email, and optionally company, job title and an unticked marketing consent box. The form sends the record plus these details to the collector, which:
+
+- stores them in the person's row (columns Name to Result emailed at, after the existing ones);
+- emails the result once per pilot code, from the account that owns the script, as "Holistic Email Marketing";
+- builds the email itself from the answers and its own copies of the next-step text and course data, never from text the browser sends;
+- allows at most three result emails per address in six hours;
+- keeps the contact details when later autosaves arrive without them.
+
+Before launch, fill in `privacyUrl` in `config.js` and `PRIVACY_URL` (and optionally `REPLY_TO`) at the top of `Code.gs`. Code.gs keeps copies of the next-step actions (`data.js`) and the course mapping (`courses.js` and `email-tools/assets/course-ctas.js`); `tests/maturity-assessment-collector.test.mjs` fails if they drift, so update both when either changes, then deploy a new version.
+
 ## Course suggestions
 
 `courses.js` maps each dimension to Academy courses by the level reached (Ad Hoc or Foundational: foundation; Strategic or Optimised: intermediate; Innovative: advanced). The result page shows up to three, for the areas holding the result back. Titles, live or waitlist status, offers and links come from `email-tools/assets/course-ctas.js`, so launching a course there updates this page as well. Links carry `utm_source=hem-assessment`, `utm_medium=assessment`, `utm_campaign=maturity-assessment` and `utm_content=dimension-N`. `tests/maturity-assessment-courses.test.mjs` checks every slug exists.
