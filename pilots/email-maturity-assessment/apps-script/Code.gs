@@ -117,6 +117,7 @@ function doPost(e) {
       if (contact && !tail[5]) {
         if (!allowEmail_(contact.email)) throw new Error('Too many emails to this address. Please try again later.');
         sendResult_(contact, record, answers, result);
+        countEmail_(contact.email);
         tail[5] = new Date();
         emailed = true;
       }
@@ -181,13 +182,15 @@ function contact_(c) {
   return out;
 }
 
+// Only emails actually sent count towards the limit, so a failed send (for
+// example before the mail permission is granted) does not use it up.
 function allowEmail_(email) {
+  return Number(CacheService.getScriptCache().get('sent:' + email) || 0) < MAX_EMAILS_PER_ADDRESS;
+}
+function countEmail_(email) {
   const cache = CacheService.getScriptCache();
   const key = 'sent:' + email;
-  const count = Number(cache.get(key) || 0);
-  if (count >= MAX_EMAILS_PER_ADDRESS) return false;
-  cache.put(key, String(count + 1), 6 * 60 * 60);
-  return true;
+  cache.put(key, String(Number(cache.get(key) || 0) + 1), 6 * 60 * 60);
 }
 
 // ---- Scoring: the same rules as engine.js ---------------------------------------------
