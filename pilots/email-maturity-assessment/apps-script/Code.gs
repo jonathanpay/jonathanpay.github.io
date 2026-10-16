@@ -415,3 +415,10 @@ function sendResult_(contact, record, answers, res) {
   if (REPLY_TO) options.replyTo = REPLY_TO;
   MailApp.sendEmail(options);
 }
+
+// Run this once from the Apps Script editor (choose it in the function
+// dropdown, then Run) to grant the permission to send email. It sends
+// nothing; it only reads how many emails the account can still send today.
+function authoriseEmail() {
+  Logger.log('Emails left today: ' + MailApp.getRemainingDailyQuota());
+}
