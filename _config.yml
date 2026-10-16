@@ -36,3 +36,4 @@ exclude:
   - Gemfile.lock
   - tests
   - pilots/email-maturity-assessment/README.md
+  - pilots/email-maturity-assessment/apps-script

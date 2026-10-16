@@ -317,6 +317,13 @@
       "dimension": 4
     }
   ],
+  "actions": [
+ ['Draft the programme objective and propose an owner for one identified gap.','Turn review findings into prioritised actions with follow-up dates.'],
+ ['Ask the sending owner or provider to check the flagged permission, list-health, setup or inbox-visibility practice.','Establish repeatable checks and a process for correcting identified problems.'],
+ ['Review one email against a real customer need, its message, reading order and accessibility checks.','Include those checks in the creative brief and production process.'],
+ ['Write one hypothesis and intended outcome before the next comparison.','Keep an accessible record of results, limitations and what changed because of them.'],
+ ['Map one important relationship stage and identify a missing or conflicting communication.','Coordinate the relevant messages using appropriate customer signals.']
+],
   "obstacles": [
     "We need more knowledge or practical skills in this area.",
     "We do not have enough time or people to work on it.",
