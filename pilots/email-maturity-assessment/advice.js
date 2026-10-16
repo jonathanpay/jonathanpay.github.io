@@ -38,22 +38,26 @@
     return 'optional';
   }
 
-  // "Get support" copy, by obstacle. None of it contradicts the course panel.
-  const SUPPORT_DEFAULT = 'Start with the next step above. The courses below are optional, if you want to build skills in this area. If something is making progress difficult, the optional question further down can tailor this advice.';
+  // "Get support" copy, by obstacle: [advice, sentence about the course
+  // panel]. The second sentence is left out when no course panel is shown,
+  // so the copy never points to courses that are not there.
+  const SUPPORT_DEFAULT = ['Start with the next step above. If something is making progress difficult, the optional question further down can tailor this advice.', 'The courses below are optional, if you want to build skills in this area.'];
   const SUPPORT = [
-    'You said a knowledge or skills gap is making this difficult. The courses below cover this area; the free tools are a good place to try things first.',
-    'Pick the one next step above and agree who has capacity for it. A course will not create time on its own, so the courses below are optional.',
-    'Involve the data or technical owner before changing practice; they can tell you what is possible. The courses below are optional background.',
-    'Start with the free tools and the next step above, and build a case for investment from what you find. The courses below are optional.',
-    'Share this result and one specific proposal with the person who decides. The courses below are optional.',
-    'Start with the next step above: treat it as your first priority. The courses below are optional.',
-    'Keep this result for when this area becomes a priority. There is a link to the Academy below for later.',
-    'Start with the next step above, and work out which of the obstacles matters most. The courses below are optional.',
-    'Start with the next step above. It is fine not to know yet what is making this difficult. The courses below are optional.'
+    ['You said a knowledge or skills gap is making this difficult. The free tools are a good place to try things first.', 'The courses below cover this area.'],
+    ['Pick the one next step above and agree who has capacity for it. A course will not create time on its own.', 'The courses below are optional.'],
+    ['Involve the data or technical owner before changing practice; they can tell you what is possible.', 'The courses below are optional background.'],
+    ['Start with the free tools and the next step above, and build a case for investment from what you find.', 'The courses below are optional.'],
+    ['Share this result and one specific proposal with the person who decides.', 'The courses below are optional.'],
+    ['Start with the next step above: treat it as your first priority.', 'The courses below are optional.'],
+    ['Keep this result for when this area becomes a priority.', 'There is a link to the Academy below for later.'],
+    ['Start with the next step above, and work out which of the obstacles matters most.', 'The courses below are optional.'],
+    ['Start with the next step above. It is fine not to know yet what is making this difficult.', 'The courses below are optional.']
   ];
-  function supportCopy(p1) {
+  // showsCourses: whether a course panel (cards, or the "for later" link) is on screen.
+  function supportCopy(p1, showsCourses) {
     const answered = p1 && p1.status === 'answered' && Number.isInteger(p1.obstacle) && SUPPORT[p1.obstacle];
-    return answered ? SUPPORT[p1.obstacle] : SUPPORT_DEFAULT;
+    const pair = answered ? SUPPORT[p1.obstacle] : SUPPORT_DEFAULT;
+    return showsCourses ? pair[0] + ' ' + pair[1] : pair[0];
   }
 
   const api = {courseTargets: courseTargets, courseMode: courseMode, supportCopy: supportCopy, SUPPORT: SUPPORT, SUPPORT_DEFAULT: SUPPORT_DEFAULT};

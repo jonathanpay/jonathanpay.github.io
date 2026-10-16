@@ -72,9 +72,13 @@ test('course mode and support copy follow the obstacle answer', () => {
   for (const o of [1, 2, 3, 4, 5, 7, 8]) assert.equal(A.courseMode(answered(o)), 'optional');
   assert.equal(A.SUPPORT.length, D.obstacles.length);
   // P01 chose time or people: the support copy must not ask for something the course panel contradicts.
-  assert.match(A.supportCopy(answered(1)), /courses below are optional/);
-  assert.match(A.supportCopy({status: 'skipped'}), /courses below are optional/);
-  for (const text of [A.SUPPORT_DEFAULT, ...A.SUPPORT]) assert.doesNotMatch(text, /rather than a specific course|Without a clear area/);
+  assert.match(A.supportCopy(answered(1), true), /courses below are optional/);
+  assert.match(A.supportCopy({status: 'skipped'}, true), /courses below are optional/);
+  for (const text of [A.SUPPORT_DEFAULT, ...A.SUPPORT].flat()) assert.doesNotMatch(text, /rather than a specific course|Without a clear area/);
+  // F07 (ledger residual): with no course panel, the copy must not point to one.
+  for (const p1 of [{status: 'skipped'}, ...D.obstacles.map((_, o) => answered(o))]) {
+    assert.doesNotMatch(A.supportCopy(p1, false), /below/i);
+  }
 });
 
 function loadScript() {
@@ -113,6 +117,9 @@ test('the result email never states a level for an incomplete area', () => {
   assert.doesNotMatch(f07.html, /currently Ad Hoc|Courses/);
 
   const f09 = mail(CASES.F09, {status: 'skipped'});
+  // Ledger residual: the plain-text body keeps the check-unknowns step too.
+  assert.match(f09.text, /A useful next step\n\nCheck the questions you answered/);
+  assert.match(mail(CASES.F07, {status: 'skipped'}).text, /Check the questions you answered/);
   assert.match(f09.html, /Strategy &amp; Governance\. Some answers here were/);
   assert.doesNotMatch(f09.html, /Strategy &amp; Governance, currently/);
   assert.match(f09.html, /Optional: courses for this area/);
