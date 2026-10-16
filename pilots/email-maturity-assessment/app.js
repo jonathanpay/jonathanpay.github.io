@@ -113,7 +113,10 @@ function bindEmailForm(){
    emailedTo=contact.email;saved=true;
    const box=document.getElementById('email-copy');box.outerHTML=emailBox();
    const h=document.querySelector('#email-copy h2');if(h){h.setAttribute('tabindex','-1');h.focus();}
-  }catch(err){status.textContent=(err&&err.message&&err.message!=='Failed to fetch'?err.message+' ':'')+'Your result is still on this page, and you can download it instead.';button.disabled=false;}
+  }catch(err){
+   // Show the collector's own wording for problems the person can fix; hide anything technical.
+   const msg=err&&err.message||'';
+   status.textContent=(/^(Please |Too many )/.test(msg)?msg:'Sorry, we could not send your result just now.')+' Your result is still on this page, and you can download it instead.';button.disabled=false;}
  };
 }
 // Results are saved automatically (the intro says so). Each save sends the
