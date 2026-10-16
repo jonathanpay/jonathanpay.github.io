@@ -12,7 +12,7 @@ The code contains no email/name capture, outbound integration, analytics, browse
 
 ## Hosting
 
-This copy lives in the `jonathanpay.github.io` repository at `/pilots/email-maturity-assessment/`, published as https://jonathanpay.com/pilots/email-maturity-assessment/ when merged to `master`. It is deliberately separate from `/email-tools/` and is not linked from the site navigation or tools index.
+This copy lives in the `jonathanpay.github.io` repository at `/pilots/email-maturity-assessment/`, published as https://jonathanpay.github.io/pilots/email-maturity-assessment/ when merged to `master` (jonathanpay.com itself is served by WordPress.com, not this repository). It is deliberately separate from `/email-tools/` and is not linked from the site navigation or tools index.
 
 - The page carries `noindex,nofollow`, and `_config.yml` sets `sitemap: false` for everything under `/pilots/`. The URL is unlisted, not private: anyone with the link can open it.
 - This README is excluded from the published build. The engine test lives at `tests/maturity-assessment-engine.test.mjs`.
