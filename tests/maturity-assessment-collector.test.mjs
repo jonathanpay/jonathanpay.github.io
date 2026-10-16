@@ -149,6 +149,15 @@ test('rejects bad contact details and limits emails per address', () => {
   assert.equal(mail.length, 3);
 });
 
+test('a failed send does not use up the per-address limit', () => {
+  const {ctx, mail} = load();
+  let failures = 2;
+  ctx.MailApp.sendEmail = o => { if (failures-- > 0) throw new Error('You do not have permission to call MailApp.sendEmail'); mail.push(o); };
+  for (let i = 0; i < 2; i++) assert.equal(post(ctx, record(Array(17).fill(3), {pilotCode: 'HEA-FAIL' + i, contact: contact()})).ok, false);
+  for (let i = 0; i < 4; i++) post(ctx, record(Array(17).fill(3), {pilotCode: 'HEA-OK' + i, contact: contact()}));
+  assert.equal(mail.length, 3);
+});
+
 test('ignores the browser result and neutralises formula text', () => {
   const {ctx, rows} = load();
   post(ctx, record(Array(17).fill(1), {result: {level: 5}, feedback: '=IMPORTXML("x")', contact: contact({company: '=HYPERLINK("x")'})}));

@@ -117,6 +117,7 @@ function doPost(e) {
       if (contact && !tail[5]) {
         if (!allowEmail_(contact.email)) throw new Error('Too many emails to this address. Please try again later.');
         sendResult_(contact, record, answers, result);
+        countEmail_(contact.email);
         tail[5] = new Date();
         emailed = true;
       }
@@ -181,13 +182,15 @@ function contact_(c) {
   return out;
 }
 
+// Only emails actually sent count towards the limit, so a failed send (for
+// example before the mail permission is granted) does not use it up.
 function allowEmail_(email) {
+  return Number(CacheService.getScriptCache().get('sent:' + email) || 0) < MAX_EMAILS_PER_ADDRESS;
+}
+function countEmail_(email) {
   const cache = CacheService.getScriptCache();
   const key = 'sent:' + email;
-  const count = Number(cache.get(key) || 0);
-  if (count >= MAX_EMAILS_PER_ADDRESS) return false;
-  cache.put(key, String(count + 1), 6 * 60 * 60);
-  return true;
+  cache.put(key, String(Number(cache.get(key) || 0) + 1), 6 * 60 * 60);
 }
 
 // ---- Scoring: the same rules as engine.js ---------------------------------------------
@@ -209,7 +212,7 @@ function calculate_(answers) {
     const unknowns = idx.filter(function (i) { return answers[i] === null; });
     const lower = complete_(values.map(function (v) { return v === null ? 1 : v; }));
     const upper = complete_(values.map(function (v) { return v === null ? 5 : v; }));
-    return {index: index, indices: idx, complete: unknowns.length === 0, score: unknowns.length ? null : lower, lowerLevel: lower.level, upperLevel: upper.level};
+    return {index: index, indices: idx, unknowns: unknowns, complete: unknowns.length === 0, score: unknowns.length ? null : lower, lowerLevel: lower.level, upperLevel: upper.level};
   });
   const lowerLevel = Math.min.apply(null, dims.map(function (d) { return d.lowerLevel; }));
   const upperLevel = Math.min.apply(null, dims.map(function (d) { return d.upperLevel; }));
@@ -300,21 +303,32 @@ function actionFor_(i, c2) {
 
 function band_(level) { return level <= 2 ? 'foundation' : level <= 4 ? 'intermediate' : 'advanced'; }
 
-function targets_(res) {
+// Same rules as courseTargets() and courseMode() in advice.js (a test checks):
+// an area with unknowns never gets a stated level, an area with no known
+// answers gets no course, and courses are promoted only for a knowledge gap.
+function courseTargets_(res) {
   const ids = res.state === 'complete' ? res.constraints : res.possibleConstraints;
   return ids.map(function (i) {
     const d = res.dimensions[i];
-    return {dimension: i, level: d.complete ? d.score.level : d.lowerLevel};
-  });
+    if (d.unknowns.length === d.indices.length) return null;
+    return d.complete ? {dimension: i, level: d.score.level, confirmed: true} : {dimension: i, level: d.lowerLevel, confirmed: false};
+  }).filter(Boolean);
+}
+
+function courseMode_(p1) {
+  const answered = p1 && p1.status === 'answered' && Number.isInteger(p1.obstacle);
+  if (answered && p1.obstacle === 0) return 'promoted';
+  if (answered && p1.obstacle === 6) return 'link';
+  return 'optional';
 }
 
 function courses_(res) {
   const seen = {}, out = [];
-  targets_(res).forEach(function (t) {
+  courseTargets_(res).forEach(function (t) {
     BY_DIMENSION[t.dimension][band_(t.level)].forEach(function (slug) {
       if (seen[slug] || !COURSES[slug] || out.length >= 3) return;
       seen[slug] = true;
-      out.push(Object.assign({slug: slug, dimension: t.dimension, at: t.level,
+      out.push(Object.assign({slug: slug, dimension: t.dimension, at: t.level, confirmed: t.confirmed,
         url: COURSE_BASE + slug + '/?utm_source=hem-assessment&utm_medium=email&utm_campaign=maturity-assessment&utm_content=dimension-' + (t.dimension + 1)}, COURSES[slug]));
     });
   });
@@ -369,19 +383,34 @@ function buildEmail_(contact, record, answers, res) {
       }).join('')
     : '<p style="' + p + '">Check the questions you answered “I don’t know” with the colleague or provider responsible, then take the assessment again for a complete profile.</p>';
 
-  const courseList = courses_(res);
+  const mode = courseMode_(record.p1);
+  const courseList = mode === 'link' ? [] : courses_(res);
+  const uniqueAreas = courseList.map(function (c) { return DIMENSIONS[c.dimension]; }).filter(function (n, i, a) { return a.indexOf(n) === i; });
+  const areaNames = uniqueAreas.length > 1 ? uniqueAreas.slice(0, -1).join(', ') + ' and ' + uniqueAreas[uniqueAreas.length - 1] : (uniqueAreas[0] || '');
+  const coursesIntro = mode === 'promoted'
+    ? 'You said a knowledge or skills gap is making progress difficult. These Academy courses cover ' + areaNames + '.'
+    : 'If you want to build skills in ' + areaNames + ', these Academy courses cover it. Your next step comes first.';
+  const coursesTitle = mode === 'promoted' ? 'Courses that cover this' : 'Optional: courses for this area';
+  const courseNote = function (c) {
+    return c.confirmed
+      ? 'For ' + DIMENSIONS[c.dimension] + ', currently ' + LEVELS[c.at - 1] + '.'
+      : 'For ' + DIMENSIONS[c.dimension] + '. Some answers here were “I don’t know”, so its level is not yet confirmed.';
+  };
+  const later = mode === 'link'
+    ? '<p style="' + p + '">When this area becomes a priority, <a href="' + COURSE_BASE + '?utm_source=hem-assessment&utm_medium=email&utm_campaign=maturity-assessment&utm_content=later" style="color:' + PURPLE + '">the Academy’s courses</a> are there.</p>'
+    : '';
   const courses = courseList.length
-    ? '<h2 style="' + h2 + '">Courses for your next step</h2>' + courseList.map(function (c) {
+    ? '<h2 style="' + h2 + '">' + coursesTitle + '</h2><p style="' + p + '">' + esc_(coursesIntro) + '</p>' + courseList.map(function (c) {
         const b = BAND[c.level];
         const live = c.status === 'live';
         return '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 12px;background:' + b[2] + ';border-top:4px solid ' + b[0] + ';border-radius:8px"><tr><td style="padding:16px 18px">'
           + '<p style="margin:0 0 6px;font:bold 11px Arial,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:' + b[1] + '">' + b[3] + ' · ' + (live ? 'Available now' : 'Waitlist') + '</p>'
           + '<p style="margin:0 0 6px;font:bold 16px Arial,sans-serif;color:' + INK + '">' + esc_(c.title) + '</p>'
-          + '<p style="margin:0 0 12px;font:14px/1.5 Arial,sans-serif;color:' + SOFT + '">For ' + esc_(DIMENSIONS[c.dimension]) + ', currently ' + esc_(LEVELS[c.at - 1]) + '.</p>'
+          + '<p style="margin:0 0 12px;font:14px/1.5 Arial,sans-serif;color:' + SOFT + '">' + esc_(courseNote(c)) + '</p>'
           + '<a href="' + esc_(c.url) + '" style="display:inline-block;padding:10px 18px;border-radius:999px;background:' + PURPLE + ';color:#fff;font:bold 14px Arial,sans-serif;text-decoration:none">' + (live ? 'See the course →' : 'Join the waitlist →') + '</a>'
           + '</td></tr></table>';
       }).join('')
-    : '';
+    : later;
 
   const privacy = PRIVACY_URL ? ' <a href="' + esc_(PRIVACY_URL) + '" style="color:' + MUTED + '">Privacy policy</a>.' : '';
   const html = '<!doctype html><html><body style="margin:0;background:#FBF7FB">'
@@ -403,7 +432,7 @@ function buildEmail_(contact, record, answers, res) {
   const text = 'Hi ' + first + ',\n\nYour email maturity assessment result (reference ' + record.pilotCode + '):\n\n' + head[0] + '\n' + head[1] + '\n\n'
     + res.dimensions.map(function (d) { return DIMENSIONS[d.index] + ': ' + (d.complete ? LEVELS[d.score.level - 1] : 'Insufficient visibility'); }).join('\n')
     + (textSteps ? '\n\nA useful next step\n\n' + textSteps : '')
-    + (courseList.length ? '\n\nCourses for your next step\n' + courseList.map(function (c) { return '- ' + c.title + ' (' + (c.status === 'live' ? 'available now' : 'waitlist') + '): ' + c.url; }).join('\n') : '')
+    + (courseList.length ? '\n\n' + coursesTitle + '\n' + coursesIntro + '\n' + courseList.map(function (c) { return '- ' + c.title + ' (' + (c.status === 'live' ? 'available now' : 'waitlist') + '): ' + c.url; }).join('\n') : '')
     + '\n\nTake the assessment again: ' + ASSESSMENT_URL + '\n\nYou are receiving this because you asked for a copy of your assessment result. This is a one-off email.' + (PRIVACY_URL ? ' Privacy policy: ' + PRIVACY_URL : '');
 
   return {subject: 'Your email maturity result: ' + head[0], html: html, text: text};

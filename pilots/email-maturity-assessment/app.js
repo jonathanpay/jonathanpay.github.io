@@ -54,31 +54,29 @@ function showResult(){
 // Courses for the areas holding the result back (courses.js). It loads as a
 // module, so it may arrive after the result is drawn.
 const LEVEL_BAND={foundation:'Foundation',intermediate:'Intermediate',advanced:'Advanced'};
+const A=window.HEA_ADVICE;
+const ACADEMY_URL='https://holisticemailacademy.com/courses/?utm_source=hem-assessment&utm_medium=assessment&utm_campaign=maturity-assessment&utm_content=later';
 function renderCourses(){
  const host=document.getElementById('courses');
- if(!host||!window.HEA_COURSES||!result)return;
- const ids=result.state==='complete'?result.constraints:result.possibleConstraints;
- const targets=ids.map(i=>{const d=result.dimensions[i];return {dimension:i,level:d.complete?d.score.level:d.lowerLevel};});
- const list=window.HEA_COURSES.suggest(targets);
+ if(!host||!result)return;
+ const mode=A.courseMode(p1);
+ if(mode==='link'){host.innerHTML=`<section class="courses courses-later" aria-labelledby="courses-title"><span class="eyebrow">Holistic Email Academy</span><h2 id="courses-title">For later</h2><p>When this area becomes a priority, <a href="${ACADEMY_URL}" target="_blank" rel="noopener">the Academy's courses</a> are there.</p></section>`;return;}
+ if(!window.HEA_COURSES)return;
+ const list=window.HEA_COURSES.suggest(A.courseTargets(result));
  if(!list.length){host.innerHTML='';return;}
- const areas=[...new Set(list.map(c=>c.dimension))].map(name);
- host.innerHTML=`<section class="courses" aria-labelledby="courses-title"><span class="eyebrow">Holistic Email Academy</span><h2 id="courses-title">Courses for your next step</h2><p>Picked for ${escape(areas.join(' and '))}, the ${areas.length===1?'area':'areas'} holding your result back.</p><div class="course-cards">${list.map((c,n)=>`<div class="course-card is-${c.courseLevel}"><div class="course-tags"><span class="course-level">${LEVEL_BAND[c.courseLevel]||''}</span><span class="course-status ${c.live?'is-live':'is-waitlist'}">${escape(c.status)}</span></div><strong class="course-title">${escape(c.title)}</strong><p class="muted">For ${escape(name(c.dimension))}, currently ${escape(level(c.level))}.</p>${c.offer?`<p class="course-offer">${escape(c.offer)}</p>`:''}<a class="${n===0?'primary':'secondary'} course-link" href="${escape(c.url)}" target="_blank" rel="noopener">${escape(c.button)}</a></div>`).join('')}</div></section>`;
+ const names=[...new Set(list.map(c=>c.dimension))].map(name),areas=names.length>1?names.slice(0,-1).join(', ')+' and '+names[names.length-1]:names[0];
+ const promoted=mode==='promoted';
+ const intro=promoted
+  ?`You said a knowledge or skills gap is making progress difficult. These Academy courses cover ${escape(areas)}.`
+  :`If you want to build skills in ${escape(areas)}, these Academy courses cover it. Your next step above comes first.`;
+ host.innerHTML=`<section class="courses${promoted?'':' courses-optional'}" aria-labelledby="courses-title"><span class="eyebrow">Holistic Email Academy</span><h2 id="courses-title">${promoted?'Courses that cover this':'Optional: courses for this area'}</h2><p>${intro}</p><div class="course-cards">${list.map((c,n)=>`<div class="course-card is-${c.courseLevel}"><div class="course-tags"><span class="course-level">${LEVEL_BAND[c.courseLevel]||''}</span><span class="course-status ${c.live?'is-live':'is-waitlist'}">${escape(c.status)}</span></div><strong class="course-title">${escape(c.title)}</strong><p class="muted">${c.confirmed?`For ${escape(name(c.dimension))}, currently ${escape(level(c.level))}.`:`For ${escape(name(c.dimension))}. Some answers here were “I don’t know”, so its level is not yet confirmed.`}</p>${c.offer?`<p class="course-offer">${escape(c.offer)}</p>`:''}<a class="${promoted&&n===0?'primary':'secondary'} course-link" href="${escape(c.url)}" target="_blank" rel="noopener">${escape(c.button)}</a></div>`).join('')}</div></section>`;
 }
 window.addEventListener('hea-courses-ready',renderCourses);
+// Also redraws the course panel: how prominent courses are depends on the obstacle answer.
 function support(){
- const text=[
- 'Start with relevant free guidance. Confirm the skills gap, existing course access and your ability to apply learning before selecting individual or team training.',
- 'Agree one manageable action and who has capacity to do it. A course does not resolve lack of time or people by itself.',
- 'Involve the data or technical owner to clarify the constraint. Specialist investigation or consultancy may be useful once the problem is understood.',
- 'Choose a useful free first action and a clear case for improvement. Do not treat a paid course as the default response to a budget constraint.',
- 'Share the diagnosis and a specific proposal with the decision-maker. Match the request to your influence and the support needed across teams.',
- 'Agree a short roadmap and an achievable starting action. Clarify the cause before prescribing a specific paid solution.',
- 'Keep this result for when the area becomes a priority. A low-pressure resource or later conversation may be more useful than an immediate offer.',
- 'Start with neutral practical guidance and an optional conversation to understand the causes. Several obstacles do not establish a personal skills gap.',
- 'Start with neutral guidance and identify who can help clarify the cause. It is fine not to know yet.'
- ];
- const hasArea=Number.isInteger(p1.area), eligible=p1.status==='answered'&&hasArea;
- document.getElementById('support-copy').textContent=eligible?text[p1.obstacle]:'Start with practical guidance and the relevant colleague or provider. Without a clear area and obstacle, use a general next step rather than a specific course recommendation.';
+ document.getElementById('support-copy').textContent=A.supportCopy(p1);
+ renderCourses();
+ const hasArea=Number.isInteger(p1.area);
  document.getElementById('p1-status').textContent=p1.status==='skipped'?'Skipped. Your result is unchanged.':p1.status==='answered'?(hasArea?'Your stated obstacle is recorded for '+name(p1.area)+'. Your score is unchanged.':'Your stated obstacle is recorded without a specific area; guidance remains general. Your score is unchanged.'):'You can answer or skip. Your result is already available.';
 }
 function exportRecord(){
