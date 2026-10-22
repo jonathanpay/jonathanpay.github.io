@@ -17,19 +17,21 @@ const D = require(new URL('data.js', dir).pathname);
 const plain = v => JSON.parse(JSON.stringify(v));
 
 function load() {
-  const rows = [], mail = [], cache = {};
+  const rows = [], mail = [], cache = {}, formats = {};
   let maxColumns = 46;
   const sheet = {
     getLastRow: () => rows.length,
     getLastColumn: () => (rows[0] || []).length,
     getMaxColumns: () => maxColumns,
+    getMaxRows: () => 1000,
     insertColumnsAfter: (after, n) => { maxColumns += n; },
     getRange: (r, c, nr, nc) => {
       if (c - 1 + nc > maxColumns) throw new Error('Range out of bounds');
       return {
         setValues(v) { v.forEach((row, i) => { rows[r - 1 + i] = row.slice(); }); return this; },
         getValues: () => Array.from({length: nr}, (_, i) => Array.from({length: nc}, (_, j) => ((rows[r - 1 + i] || [])[c - 1 + j] ?? ''))),
-        setFontWeight() { return this; }
+        setFontWeight() { return this; },
+        setNumberFormat(f) { for (let j = 0; j < nc; j++) formats[c + j] = f; return this; }
       };
     },
     setFrozenRows() {}
@@ -44,7 +46,7 @@ function load() {
   vm.createContext(ctx);
   // Top-level consts are not context properties, so expose the ones tested.
   vm.runInContext(fs.readFileSync(new URL('apps-script/Code.gs', dir), 'utf8') + '\nthis.ACTIONS = ACTIONS; this.COURSES = COURSES; this.BY_DIMENSION = BY_DIMENSION;', ctx);
-  return {ctx, rows, mail};
+  return {ctx, rows, mail, formats};
 }
 
 function record(scores, extra = {}) {
@@ -96,7 +98,7 @@ test('contact details are stored, the result is emailed once, and later saves ke
   const scores = [3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2, 2, 3, 3, 3];
   assert.equal(post(ctx, record(scores)).ok, true);
   const reply = post(ctx, record(scores, {contact: contact({marketing: true})}));
-  assert.deepEqual(plain(reply), {ok: true, emailed: true});
+  assert.deepEqual(plain(reply), {ok: true, emailed: true, stale: false});
   const h = rows[0], col = name => rows[1][h.indexOf(name)];
   assert.equal(col('Name'), 'Sam Lee');
   assert.equal(col('Email'), 'sam@example.com');
@@ -136,7 +138,7 @@ test('header row and grid grow to fit the new contact columns', () => {
   const {ctx, rows} = load();
   rows.push(Array(46).fill('old header'));
   assert.equal(post(ctx, record(Array(17).fill(3))).ok, true);
-  assert.equal(rows[0].length, 52);
+  assert.equal(rows[0].length, 53);
   assert.equal(rows[0][46], 'Name');
 });
 
@@ -156,6 +158,47 @@ test('a failed send does not use up the per-address limit', () => {
   for (let i = 0; i < 2; i++) assert.equal(post(ctx, record(Array(17).fill(3), {pilotCode: 'HEA-FAIL' + i, contact: contact()})).ok, false);
   for (let i = 0; i < 4; i++) post(ctx, record(Array(17).fill(3), {pilotCode: 'HEA-OK' + i, contact: contact()}));
   assert.equal(mail.length, 3);
+});
+
+test('an older save arriving after a newer one does not overwrite it (QA E12)', () => {
+  const {ctx, rows, formats} = load();
+  const s = Array(17).fill(3);
+  post(ctx, record(s, {saveRevision: 1, feedback: 'revision1'}));
+  // Live E12 retest: the added column inherited a date format, so the
+  // revision read back as a date. It must be kept as a plain number.
+  assert.equal(formats[rows[0].indexOf('Save revision') + 1], '0');
+  post(ctx, record(s, {saveRevision: 3, feedback: 'revision3 FINAL'}));
+  const reply = plain(post(ctx, record(s, {saveRevision: 2, feedback: 'revision2'})));
+  assert.equal(reply.ok, true);
+  assert.equal(reply.stale, true);
+  const h = rows[0];
+  assert.equal(rows.length, 2);
+  assert.equal(rows[1][h.indexOf('Feedback')], 'revision3 FINAL');
+  assert.match(rows[1][h.indexOf('Full record (JSON)')], /revision3 FINAL/);
+  assert.equal(rows[1][h.indexOf('Save revision')], 3);
+  // A newer save still replaces it.
+  post(ctx, record(s, {saveRevision: 4, feedback: 'revision4'}));
+  assert.equal(rows[1][h.indexOf('Feedback')], 'revision4');
+});
+
+test('a stale request with contact details still stores them and sends the email', () => {
+  const {ctx, rows, mail} = load();
+  const s = Array(17).fill(3);
+  post(ctx, record(s, {saveRevision: 5, feedback: 'latest'}));
+  const reply = plain(post(ctx, record(s, {saveRevision: 4, feedback: 'older', contact: contact()})));
+  assert.deepEqual([reply.ok, reply.emailed, reply.stale], [true, true, true]);
+  const h = rows[0], col = name => rows[1][h.indexOf(name)];
+  assert.equal(col('Feedback'), 'latest');
+  assert.equal(col('Email'), 'sam@example.com');
+  assert.equal(col('Save revision'), 5);
+  assert.equal(mail.length, 1);
+});
+
+test('records without a save revision (older pages) still save', () => {
+  const {ctx, rows} = load();
+  post(ctx, record(Array(17).fill(3), {feedback: 'first'}));
+  post(ctx, record(Array(17).fill(3), {feedback: 'second'}));
+  assert.equal(rows[1][rows[0].indexOf('Feedback')], 'second');
 });
 
 test('ignores the browser result and neutralises formula text', () => {

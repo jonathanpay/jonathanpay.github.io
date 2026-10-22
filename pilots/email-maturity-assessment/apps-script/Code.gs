@@ -84,10 +84,12 @@ const HEADERS = [
   ['Overall state', 'Overall level', 'Lowest possible level', 'Highest possible level'],
   DIMENSIONS,
   ['Binding constraints', 'Foundational risks', 'Constraining gaps', 'Unknown topics', 'P1 status', 'P1 area', 'P1 obstacle', 'Feedback', 'Timings (ms, JSON)', 'Full record (JSON)'],
-  ['Name', 'Email', 'Company', 'Job title', 'Marketing consent', 'Result emailed at']
+  ['Name', 'Email', 'Company', 'Job title', 'Marketing consent', 'Result emailed at'],
+  ['Save revision']
 );
 const CONTACT_FROM = HEADERS.indexOf('Name');
 const EMAILED_COL = HEADERS.indexOf('Result emailed at');
+const REVISION_COL = HEADERS.indexOf('Save revision');
 
 // ---- Web app -----------------------------------------------------------------
 
@@ -100,7 +102,7 @@ function doPost(e) {
     const contact = record.contact === undefined ? null : contact_(record.contact);
     const result = calculate_(answers);
     const row = toRow_(record, answers, result);
-    let emailed = false;
+    let emailed = false, stale = false;
     const lock = LockService.getScriptLock();
     lock.waitLock(10000);
     try {
@@ -110,10 +112,17 @@ function doPost(e) {
       const found = codes.indexOf(record.pilotCode);
       const at = found >= 0 ? found + 2 : last + 1;
       const old = found >= 0 ? sheet.getRange(at, 1, 1, HEADERS.length).getValues()[0] : [];
+      // The page numbers its saves. If an older save arrives after a newer
+      // one, keep the newer answers, result and notes: requests can reach
+      // Google out of order. Contact details and the email still go through.
+      const oldRevision = Number(old[REVISION_COL]) || 0;
+      const revision = revision_(record.saveRevision);
+      stale = found >= 0 && revision < oldRevision;
+      const data = stale ? old.slice(0, CONTACT_FROM) : row;
       // Keep contact details from an earlier post unless this one brings new ones.
       const tail = contact
         ? [text_(contact.name), contact.email, text_(contact.company), text_(contact.role), contact.marketing ? 'Yes' : 'No', old[EMAILED_COL] || '']
-        : HEADERS.slice(CONTACT_FROM).map(function (_, i) { return old[CONTACT_FROM + i] === undefined ? '' : old[CONTACT_FROM + i]; });
+        : HEADERS.slice(CONTACT_FROM, REVISION_COL).map(function (_, i) { return old[CONTACT_FROM + i] === undefined ? '' : old[CONTACT_FROM + i]; });
       if (contact && !tail[5]) {
         if (!allowEmail_(contact.email)) throw new Error('Too many emails to this address. Please try again later.');
         sendResult_(contact, record, answers, result);
@@ -121,11 +130,11 @@ function doPost(e) {
         tail[5] = new Date();
         emailed = true;
       }
-      sheet.getRange(at, 1, 1, HEADERS.length).setValues([row.concat(tail)]);
+      sheet.getRange(at, 1, 1, HEADERS.length).setValues([data.concat(tail, [stale ? oldRevision : revision])]);
     } finally {
       lock.releaseLock();
     }
-    return reply_({ok: true, emailed: emailed});
+    return reply_({ok: true, emailed: emailed, stale: stale});
   } catch (err) {
     return reply_({ok: false, error: String((err && err.message) || err)});
   }
@@ -147,6 +156,9 @@ function sheet_() {
     sheet.getRange(1, 1, 1, HEADERS.length).setValues([HEADERS]).setFontWeight('bold');
     sheet.setFrozenRows(1);
   }
+  // A column added next to "Result emailed at" inherits its date format,
+  // which would store revision 7 as 06/01/1900 and read it back as a date.
+  sheet.getRange(1, REVISION_COL + 1, sheet.getMaxRows(), 1).setNumberFormat('0');
   return sheet;
 }
 
@@ -180,6 +192,11 @@ function contact_(c) {
   if (!out.name) throw new Error('Please give your name.');
   if (!/^[^\s@<>()",;:]+@[^\s@<>()",;:]+\.[a-z]{2,}$/i.test(out.email)) throw new Error('Please give a valid email address.');
   return out;
+}
+
+// A save's position in the page's sequence; 0 for records without one.
+function revision_(v) {
+  return Number.isInteger(v) && v > 0 && v < 1e9 ? v : 0;
 }
 
 // Only emails actually sent count towards the limit, so a failed send (for
