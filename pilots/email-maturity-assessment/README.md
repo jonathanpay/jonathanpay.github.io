@@ -24,7 +24,9 @@ Do not commit exported participant records, contact details or internal raw sour
 
 Each completed assessment is saved to a Google Sheet, [HEA maturity assessment pilot responses](https://docs.google.com/spreadsheets/d/1gdTLFaaORQ_Z-_rgy1Lng6NBj4jB0hHGzkOK-54tSPc/edit). The intro says so before anyone starts. Later saves with the same pilot code update that row rather than adding a new one. Records opened with **Open a saved test result** are never sent.
 
-`apps-script/Code.gs` receives the record, checks it, recalculates the result from the answers (it ignores the result the browser sends), and writes one row per pilot code. Text that would start a formula is stored as plain text. `tests/maturity-assessment-collector.test.mjs` runs it against a stub sheet and compares its scoring with `engine.js`. The folder is excluded from the published site.
+`apps-script/Code.gs` receives the record, checks it, recalculates the result from the answers (it ignores the result the browser sends), and writes one row per pilot code. Text that would start a formula is stored as plain text.
+
+Saves are numbered. The page sends one save at a time and, if more edits arrive meanwhile, sends the latest state once the current save returns; "saved" only appears once the latest state is stored. The script keeps the highest number in the **Save revision** column and ignores the data columns of any older save that arrives late, though it still stores contact details and sends a requested email (QA E12). `tests/maturity-assessment-collector.test.mjs` runs it against a stub sheet and compares its scoring with `engine.js`. The folder is excluded from the published site.
 
 To connect it:
 
