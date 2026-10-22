@@ -156,6 +156,9 @@ function sheet_() {
     sheet.getRange(1, 1, 1, HEADERS.length).setValues([HEADERS]).setFontWeight('bold');
     sheet.setFrozenRows(1);
   }
+  // A column added next to "Result emailed at" inherits its date format,
+  // which would store revision 7 as 06/01/1900 and read it back as a date.
+  sheet.getRange(1, REVISION_COL + 1, sheet.getMaxRows(), 1).setNumberFormat('0');
   return sheet;
 }
 

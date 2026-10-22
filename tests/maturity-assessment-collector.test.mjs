@@ -17,19 +17,21 @@ const D = require(new URL('data.js', dir).pathname);
 const plain = v => JSON.parse(JSON.stringify(v));
 
 function load() {
-  const rows = [], mail = [], cache = {};
+  const rows = [], mail = [], cache = {}, formats = {};
   let maxColumns = 46;
   const sheet = {
     getLastRow: () => rows.length,
     getLastColumn: () => (rows[0] || []).length,
     getMaxColumns: () => maxColumns,
+    getMaxRows: () => 1000,
     insertColumnsAfter: (after, n) => { maxColumns += n; },
     getRange: (r, c, nr, nc) => {
       if (c - 1 + nc > maxColumns) throw new Error('Range out of bounds');
       return {
         setValues(v) { v.forEach((row, i) => { rows[r - 1 + i] = row.slice(); }); return this; },
         getValues: () => Array.from({length: nr}, (_, i) => Array.from({length: nc}, (_, j) => ((rows[r - 1 + i] || [])[c - 1 + j] ?? ''))),
-        setFontWeight() { return this; }
+        setFontWeight() { return this; },
+        setNumberFormat(f) { for (let j = 0; j < nc; j++) formats[c + j] = f; return this; }
       };
     },
     setFrozenRows() {}
@@ -44,7 +46,7 @@ function load() {
   vm.createContext(ctx);
   // Top-level consts are not context properties, so expose the ones tested.
   vm.runInContext(fs.readFileSync(new URL('apps-script/Code.gs', dir), 'utf8') + '\nthis.ACTIONS = ACTIONS; this.COURSES = COURSES; this.BY_DIMENSION = BY_DIMENSION;', ctx);
-  return {ctx, rows, mail};
+  return {ctx, rows, mail, formats};
 }
 
 function record(scores, extra = {}) {
@@ -159,9 +161,12 @@ test('a failed send does not use up the per-address limit', () => {
 });
 
 test('an older save arriving after a newer one does not overwrite it (QA E12)', () => {
-  const {ctx, rows} = load();
+  const {ctx, rows, formats} = load();
   const s = Array(17).fill(3);
   post(ctx, record(s, {saveRevision: 1, feedback: 'revision1'}));
+  // Live E12 retest: the added column inherited a date format, so the
+  // revision read back as a date. It must be kept as a plain number.
+  assert.equal(formats[rows[0].indexOf('Save revision') + 1], '0');
   post(ctx, record(s, {saveRevision: 3, feedback: 'revision3 FINAL'}));
   const reply = plain(post(ctx, record(s, {saveRevision: 2, feedback: 'revision2'})));
   assert.equal(reply.ok, true);
