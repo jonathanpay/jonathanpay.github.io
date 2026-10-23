@@ -110,7 +110,7 @@ test('contact details are stored, the result is emailed once, and later saves ke
   assert.equal(mail.length, 1);
   const m = mail[0];
   assert.equal(m.to, 'sam@example.com');
-  assert.equal(m.name, 'Holistic Email Marketing');
+  assert.equal(m.name, 'Holistic Email Academy');
   assert.equal(m.subject, 'Your email maturity result: Foundational');
   assert.match(m.htmlBody, /Testing &amp; Learning/);
   assert.match(m.htmlBody, /Foundation A\/B Testing/);

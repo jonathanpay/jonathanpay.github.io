@@ -44,19 +44,19 @@ The URL is public by design: anyone who finds it could post a record. The script
 The result is free on screen. To get a copy by email, the person gives their name and work email, and optionally company, job title and an unticked marketing consent box. The form sends the record plus these details to the collector, which:
 
 - stores them in the person's row (columns Name to Result emailed at, after the existing ones);
-- emails the result once per pilot code, from the account that owns the script, as "Holistic Email Marketing";
+- emails the result once per pilot code, from the account that owns the script, as "Holistic Email Academy";
 - builds the email itself from the answers and its own copies of the next-step text and course data, never from text the browser sends;
 - allows at most three result emails per address in six hours;
 - keeps the contact details when later autosaves arrive without them.
 
-Before launch, fill in `privacyUrl` in `config.js` and `PRIVACY_URL` (and optionally `REPLY_TO`) at the top of `Code.gs`. Code.gs keeps copies of the next-step actions (`data.js`) and the course mapping (`courses.js` and `email-tools/assets/course-ctas.js`); `tests/maturity-assessment-collector.test.mjs` fails if they drift, so update both when either changes, then deploy a new version.
+Holistic Email Academy Ltd is responsible for the data. `privacyUrl` in `config.js` and `PRIVACY_URL` in `Code.gs` point to the [HEA privacy policy](https://holisticemailacademy.com/privacy-policy/), whose section 10 covers the assessment; keep the two in step if the policy moves. `REPLY_TO` at the top of `Code.gs` is optional: left empty, replies go to the account that owns the script. Code.gs keeps copies of the next-step actions (`data.js`) and the course mapping (`courses.js` and `email-tools/assets/course-ctas.js`); `tests/maturity-assessment-collector.test.mjs` fails if they drift, so update both when either changes, then deploy a new version.
 
 ## Moving to the business Google account (after QA)
 
-During QA the sheet and script run from Jon's personal Gmail. To move them to the Holistic Email Marketing or Academy Google account:
+During QA the sheet and script run from Jon's personal Gmail. To move them to the Holistic Email Academy Google account:
 
 1. In the business account, create a new spreadsheet. Add a tab named `Responses` (the script writes the header row itself on the first save).
-2. In that sheet, go to Extensions → Apps Script, paste `apps-script/Code.gs`, and set `PRIVACY_URL` and `REPLY_TO`.
+2. In that sheet, go to Extensions → Apps Script, paste `apps-script/Code.gs`, and set `REPLY_TO` if wanted.
 3. Deploy → **New deployment** → Web app, Execute as: Me, Who has access: Anyone. Approve the spreadsheet and email permissions. This gives a new `/exec` URL.
 4. Put the new URL in `submitUrl` in `config.js` and merge. From then on, saves and result emails go to the new sheet and come from the business address.
 5. Send one test from the live page and check the row and the email.

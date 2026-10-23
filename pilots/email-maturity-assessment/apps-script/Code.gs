@@ -21,13 +21,13 @@
 
 // ---- Settings ---------------------------------------------------------------
 
-const SENDER_NAME = 'Holistic Email Marketing';
+const SENDER_NAME = 'Holistic Email Academy';
 // Replies to the result email go here. Leave empty to reply to the account
 // that owns this script.
 const REPLY_TO = '';
 const ASSESSMENT_URL = 'https://jonathanpay.github.io/pilots/email-maturity-assessment/';
 // Shown in the email footer and linked from the form on the page.
-const PRIVACY_URL = '';
+const PRIVACY_URL = 'https://holisticemailacademy.com/privacy-policy/';
 // Most result emails one address can receive in six hours.
 const MAX_EMAILS_PER_ADDRESS = 3;
 
@@ -433,7 +433,7 @@ function buildEmail_(contact, record, answers, res) {
   const html = '<!doctype html><html><body style="margin:0;background:#FBF7FB">'
     + '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#FBF7FB"><tr><td align="center" style="padding:24px 12px">'
     + '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;background:#fff;border-radius:12px;border-top:4px solid ' + PURPLE + '"><tr><td style="padding:28px 28px 20px">'
-    + '<p style="margin:0 0 20px;font:bold 11px Arial,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:' + INK + '">Holistic Email Marketing · Email maturity assessment</p>'
+    + '<p style="margin:0 0 20px;font:bold 11px Arial,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:' + INK + '">Holistic Email Academy · Email maturity assessment</p>'
     + '<p style="' + p + '">Hi ' + esc_(first) + ', here is the result of your email maturity assessment (reference ' + esc_(record.pilotCode) + ').</p>'
     + '<h1 style="margin:8px 0 10px;font:bold 30px/1.15 Arial,sans-serif;color:' + INK + '">' + esc_(head[0]) + '</h1>'
     + '<p style="' + p + ';color:' + INK + '">' + esc_(head[1]) + '</p>'
