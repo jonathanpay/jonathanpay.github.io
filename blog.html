@@ -9,8 +9,11 @@ permalink: "/blog/"
   <p class="jp-blog-dek">Writing on <a href="/category/work/">work</a>, <a href="/category/faith/">faith</a>, <a href="/category/life/">life</a>, and whatever else <a href="/category/fun/">fun</a> is on my mind.</p>
 </div>
 
+{% include pinned-post.html %}
+
 <div class="jp-image-card-grid jp-writing-grid">
-  {% for post in site.posts %}
+  {% assign unpinned_posts = site.posts | where_exp: "post", "post.pinned != true" %}
+  {% for post in unpinned_posts %}
     <a
       href="{{ post.url | relative_url }}"
       class="jp-image-card"

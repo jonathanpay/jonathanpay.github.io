@@ -1,0 +1,20 @@
+{% comment %}
+  Renders the newest post with `pinned: true` as a highlighted card.
+  Optional front matter: pinned_label (eyebrow text), pinned_dek (card summary).
+  Pass heading="h3" when the card sits under an h2 section heading.
+{% endcomment %}
+{% assign pinned_post = site.posts | where: "pinned", true | first %}
+{% assign pinned_h = include.heading | default: "h2" %}
+{% if pinned_post %}
+  <a href="{{ pinned_post.url | relative_url }}" class="jp-pinned-card">
+    <div class="jp-pinned-card__eyebrow">Pinned{% if pinned_post.pinned_label %} · {{ pinned_post.pinned_label }}{% endif %}</div>
+    <{{ pinned_h }} class="jp-pinned-card__title">{{ pinned_post.title }}</{{ pinned_h }}>
+    {% if pinned_post.pinned_dek %}
+      <p class="jp-pinned-card__body">{{ pinned_post.pinned_dek }}</p>
+    {% else %}
+      {% assign pinned_dek = pinned_post.excerpt | strip_html | strip %}
+      {% if pinned_dek != "" %}<p class="jp-pinned-card__body">{{ pinned_dek | truncate: 220 }}</p>{% endif %}
+    {% endif %}
+    <span class="jp-pinned-card__more">Read it &rarr;</span>
+  </a>
+{% endif %}

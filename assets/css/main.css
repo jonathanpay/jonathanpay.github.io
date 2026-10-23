@@ -579,6 +579,58 @@ figcaption, .wp-element-caption {
 .jp-image-card--wide .jp-image-card__body { -webkit-line-clamp: 3; }
 .jp-writing-list { display: flex; flex-direction: column; gap: var(--space-4); }
 .jp-writing-more { margin-top: 2rem; text-align: right; }
+
+/* Pinned post: text-led navy card that sits above the post lists. */
+.jp-pinned-card {
+  display: block;
+  margin-bottom: var(--space-6);
+  padding: var(--space-6) var(--space-5);
+  border-left: 6px solid var(--jp-highlight-gold);
+  border-radius: var(--radius-2);
+  background: var(--jp-navy);
+  color: var(--jp-white);
+  text-decoration: none;
+  transition: box-shadow 200ms ease, background 200ms ease;
+}
+.jp-writing-list .jp-pinned-card { margin-bottom: 0; }
+.jp-pinned-card:hover { background: var(--jp-mid-navy); box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2); text-decoration: none; }
+.jp-pinned-card__eyebrow {
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--jp-highlight-gold);
+  margin-bottom: var(--space-2);
+}
+.jp-pinned-card__title {
+  font-family: var(--font-sans);
+  font-style: italic;
+  font-weight: 700;
+  font-size: 28px;
+  line-height: var(--lh-tight);
+  color: var(--jp-white);
+  margin: 0 0 var(--space-3);
+}
+.jp-pinned-card__body {
+  font-size: 17px;
+  line-height: 1.55;
+  color: var(--jp-white);
+  margin: 0 0 var(--space-4);
+  max-width: 40rem;
+}
+.jp-pinned-card__more {
+  font-family: var(--font-sans);
+  font-style: italic;
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--jp-highlight-gold);
+}
+@media (max-width: 600px) {
+  .jp-pinned-card { padding: var(--space-5) var(--space-4); }
+  .jp-pinned-card__title { font-size: 23px; }
+}
+
 .jp-link-arrow {
   font-family: var(--font-sans);
   font-style: italic;

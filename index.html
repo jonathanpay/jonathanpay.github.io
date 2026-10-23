@@ -106,7 +106,8 @@ wordpress_url: "https://jonathanpay.com/"
 <h2 class="jp-section-h"><span class="jp-section-h-text">Writing</span><span class="jp-section-slash"> /</span></h2>
 
 <div class="jp-writing-list">
-  {% assign latest_posts = site.posts | slice: 0, 3 %}
+  {% include pinned-post.html heading="h3" %}
+  {% assign latest_posts = site.posts | where_exp: "post", "post.pinned != true" | slice: 0, 3 %}
   {% for post in latest_posts %}
     <a
       href="{{ post.url | relative_url }}"
