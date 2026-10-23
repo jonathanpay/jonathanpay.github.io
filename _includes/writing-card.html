@@ -1,0 +1,20 @@
+{% comment %}
+  One post as an image card. Pass post=<post>; optional heading="h3" (default h2).
+  Shows "via <source>" in the eyebrow when the post has a `source` field.
+{% endcomment %}
+{% assign card_post = include.post %}
+{% assign card_h = include.heading | default: "h2" %}
+<a
+  href="{{ card_post.url | relative_url }}"
+  class="jp-image-card"
+  {% if card_post.image %}style="background-image: url(&quot;{{ card_post.image | relative_url }}&quot;);"{% endif %}
+>
+  <div class="jp-image-card__inner">
+    <div class="jp-image-card__eyebrow">
+      {{ card_post.date | date: "%-d %B %Y" }}{% if card_post.categories and card_post.categories != empty %} · {{ card_post.categories | join: ", " }}{% endif %}{% if card_post.source %} · via {{ card_post.source }}{% endif %}
+    </div>
+    <{{ card_h }} class="jp-image-card__title">{{ card_post.title }}</{{ card_h }}>
+    {% assign dek = card_post.excerpt | strip_html | strip %}
+    {% if dek != "" %}<p class="jp-image-card__body">{{ dek | truncate: 140 }}</p>{% endif %}
+  </div>
+</a>
