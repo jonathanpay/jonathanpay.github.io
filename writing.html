@@ -1,0 +1,46 @@
+---
+layout: "default"
+title: "Writing"
+description: "Essays and notes on email, faith, life, and games. Newer writing first, with the older archive below."
+permalink: "/writing/"
+redirect_from:
+  - /blog/
+---
+{% comment %} Posts dated before this year go in the archive section. {% endcomment %}
+{% assign archive_before = 2025 %}
+
+<div class="jp-blog-head">
+  <h1 class="jp-blog-title"><span class="jp-section-h-text">Writing</span><span class="jp-section-slash"> /</span></h1>
+  <p class="jp-blog-dek">Writing on <a href="{{ '/category/work/' | relative_url }}">work</a>, <a href="{{ '/category/faith/' | relative_url }}">faith</a>, <a href="{{ '/category/life/' | relative_url }}">life</a>, and whatever else <a href="{{ '/category/fun/' | relative_url }}">fun</a> is on my mind.</p>
+</div>
+
+{% include pinned-post.html %}
+
+<div class="jp-image-card-grid jp-writing-grid">
+  {% for post in site.posts %}
+    {% unless post.pinned %}
+      {% assign post_year = post.date | date: "%Y" | plus: 0 %}
+      {% if post_year >= archive_before %}
+        {% include writing-card.html post=post %}
+      {% endif %}
+    {% endunless %}
+  {% endfor %}
+</div>
+
+<section class="jp-archive">
+  <h2 class="jp-section-h"><span class="jp-section-h-text">Archive</span><span class="jp-section-slash"> /</span></h2>
+  <p class="jp-section-dek">Older posts, brought across from my previous blogs, including my old Tumblr. They're here as a record, so expect them to show their age.</p>
+
+  <ul class="jp-archive-list">
+    {% for post in site.posts %}
+      {% assign post_year = post.date | date: "%Y" | plus: 0 %}
+      {% if post_year < archive_before %}
+        <li class="jp-archive-item">
+          <span class="jp-archive-date">{{ post.date | date: "%b %Y" }}</span>
+          <a class="jp-archive-title" href="{{ post.url | relative_url }}">{{ post.title }}</a>
+          <span class="jp-archive-cats">{{ post.categories | join: ", " }}{% if post.source and post.source != "WordPress" %}{% if post.categories and post.categories != empty %} · {% endif %}via {{ post.source }}{% endif %}</span>
+        </li>
+      {% endif %}
+    {% endfor %}
+  </ul>
+</section>

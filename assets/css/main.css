@@ -778,3 +778,24 @@ figcaption, .wp-element-caption {
   .jp-main, .jp-home { padding: 2.5rem 1.25rem 3.5rem; }
   .jp-article-title { font-size: 1.7rem; }
 }
+
+/* ============================================================
+   Writing archive list
+   ============================================================ */
+.jp-archive { margin-top: 3.5rem; padding-top: 3.5rem; border-top: 1px solid var(--jp-light-grey); }
+.jp-archive-list { list-style: none; margin: 0; padding: 0; }
+.jp-archive-item {
+  display: grid;
+  grid-template-columns: 5.5rem 1fr auto;
+  gap: 0.25rem 1rem;
+  align-items: baseline;
+  padding: 0.7rem 0;
+  border-bottom: 1px solid var(--jp-light-grey);
+}
+.jp-archive-date { font-size: var(--fs-meta); letter-spacing: 0.04em; color: var(--jp-mid-grey); }
+.jp-archive-title { font-weight: 600; color: var(--jp-black); text-decoration: none; }
+.jp-archive-title:hover { color: var(--jp-link-gold); text-decoration: underline; }
+.jp-archive-cats { font-size: var(--fs-meta); font-style: italic; color: var(--jp-mid-grey); }
+@media (max-width: 600px) {
+  .jp-archive-item { grid-template-columns: 1fr; }
+}
