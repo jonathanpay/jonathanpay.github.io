@@ -1,6 +1,7 @@
 {% comment %}
   One post as an image card. Pass post=<post>; optional heading="h3" (default h2).
-  Shows "via <source>" in the eyebrow when the post has a `source` field.
+  Shows "via <source>" in the eyebrow when the post came from somewhere other than WordPress
+  (the site this one replaces), e.g. Tumblr or Substack.
 {% endcomment %}
 {% assign card_post = include.post %}
 {% assign card_h = include.heading | default: "h2" %}
@@ -11,7 +12,7 @@
 >
   <div class="jp-image-card__inner">
     <div class="jp-image-card__eyebrow">
-      {{ card_post.date | date: "%-d %B %Y" }}{% if card_post.categories and card_post.categories != empty %} · {{ card_post.categories | join: ", " }}{% endif %}{% if card_post.source %} · via {{ card_post.source }}{% endif %}
+      {{ card_post.date | date: "%-d %B %Y" }}{% if card_post.categories and card_post.categories != empty %} · {{ card_post.categories | join: ", " }}{% endif %}{% if card_post.source and card_post.source != "WordPress" %} · via {{ card_post.source }}{% endif %}
     </div>
     <{{ card_h }} class="jp-image-card__title">{{ card_post.title }}</{{ card_h }}>
     {% assign dek = card_post.excerpt | strip_html | strip %}
