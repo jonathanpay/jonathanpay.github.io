@@ -20,6 +20,8 @@
           <span class="jp-nav-toggle-bar"></span>
         </button>
         <nav class="jp-nav" id="primary-nav" aria-label="Primary navigation">
+          <a class="jp-nav-link{% if page.url == '/about/' %} is-active{% endif %}" href="{{ '/about/' | relative_url }}">About</a>
+          <a class="jp-nav-link{% if page.url contains '/work/' %} is-active{% endif %}" href="{{ '/work/' | relative_url }}">Work</a>
           <a class="jp-nav-link{% if page.url == '/blog/' %} is-active{% endif %}" href="{{ '/blog/' | relative_url }}">Blog</a>
           <a class="jp-nav-link" href="https://www.holisticemailmarketing.com" target="_blank" rel="noopener">Holistic Email Marketing</a>
           <a class="jp-nav-link" href="https://holisticemailacademy.com" target="_blank" rel="noopener">Holistic Email Academy</a>
