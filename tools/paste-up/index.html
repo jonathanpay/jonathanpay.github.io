@@ -1,0 +1,1513 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="/favicon.ico">
+<title>Paste-up</title>
+<meta name="description" content="A collage workbench: find openly licensed images, cut them out precisely, arrange them, and export with credits attached.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,400;0,600;0,700;1,600;1,700&family=Bricolage+Grotesque:opsz,wght@12..96,800&family=Fraunces:opsz,wght@9..144,400;9..144,700&family=Special+Elite&family=Archivo+Black&display=swap" rel="stylesheet">
+<style>
+:root {
+  /* Site palette (Design System/colors_and_type.css). Navy structures, gold highlights, white breathes. */
+  --navy: #2c3d50;
+  --mid-navy: #39536f;
+  --muted-navy: #aab3bf;
+  --gold-hi: #dfb81f;   /* on navy */
+  --gold: #8b7417;      /* on white */
+  /* The work surface: a self-healing cutting mat. */
+  --mat: #2E5A4C;
+  --mat-deep: #244A3E;
+  --mat-line: rgba(255,255,255,.07);
+  --mat-line-strong: rgba(255,255,255,.16);
+  /* Chrome */
+  --paper: #ffffff;
+  --paper-2: #f1f1f1;
+  --ink: #000000;
+  --ink-soft: #6d6d6d;
+  --rule: #dbdbdb;
+  --accent: var(--gold);
+  --accent-ink: #ffffff;
+  --danger: #a63a28;
+  --focus: var(--gold);
+  --radius-s: 0;
+  --radius-f: 2px;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --mat: #1F3D34; --mat-deep: #19322A; --mat-line: rgba(255,255,255,.05); --mat-line-strong: rgba(255,255,255,.11);
+    --paper: #1e2a37; --paper-2: #2c3d50; --ink: #ffffff; --ink-soft: #aab3bf; --rule: #39536f;
+    --accent: var(--gold-hi); --accent-ink: #2c3d50; --focus: var(--gold-hi); --danger: #e8907e; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --mat: #1F3D34; --mat-deep: #19322A; --mat-line: rgba(255,255,255,.05); --mat-line-strong: rgba(255,255,255,.11);
+  --paper: #1e2a37; --paper-2: #2c3d50; --ink: #ffffff; --ink-soft: #aab3bf; --rule: #39536f;
+  --accent: var(--gold-hi); --accent-ink: #2c3d50; --focus: var(--gold-hi); --danger: #e8907e; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html, body { margin: 0; height: 100%; }
+body {
+  background: var(--paper); color: var(--ink);
+  font: 15px/1.5 "Open Sans", system-ui, sans-serif;
+  overflow: hidden;
+}
+button, input, select, textarea { font: inherit; color: inherit; }
+:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+h1, h2 { font-style: italic; font-weight: 700; }
+
+/* Site navigation strip, as on the other design tools */
+#site-nav {
+  height: 32px; background: var(--navy); display: flex; align-items: center; justify-content: space-between;
+  padding: 0 16px; font-size: 12px;
+}
+.snav-brand { font-weight: 700; color: var(--gold-hi); text-decoration: none; }
+.snav-brand:hover { color: #f0ca3a; text-decoration: none; }
+.snav-links { display: flex; gap: 16px; }
+.snav-links a { color: rgba(255,255,255,0.7); }
+.snav-links a:hover { color: #fff; text-decoration: none; }
+
+/* Buttons: bold italic labels, sharp corners, fill on hover */
+.btn {
+  border: 1px solid var(--rule); background: var(--paper); border-radius: var(--radius-s);
+  padding: 5px 11px; cursor: pointer; white-space: nowrap; line-height: 1.3;
+  font-style: italic; font-weight: 600; transition: background-color 120ms ease, color 120ms ease, border-color 120ms ease;
+}
+.btn:hover { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.btn[disabled] { opacity: .45; cursor: default; }
+.btn[disabled]:hover { background: var(--paper); color: inherit; border-color: var(--rule); }
+.btn.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 700; }
+.btn.primary:hover { filter: brightness(1.1); }
+.btn.danger { color: var(--danger); }
+.btn.danger:hover { background: var(--danger); color: #fff; border-color: var(--danger); }
+.btn.small { padding: 3px 8px; font-size: 13px; }
+.icon-btn { border: 0; background: none; padding: 4px; cursor: pointer; display: inline-grid; place-items: center; color: var(--ink-soft); }
+.icon-btn:hover { background: var(--paper-2); color: var(--ink); }
+.icon-btn svg { width: 16px; height: 16px; }
+
+/* App bar */
+.bar {
+  height: 54px; display: flex; align-items: center; gap: 18px; padding: 0 14px;
+  border-bottom: 1px solid var(--rule); background: var(--paper);
+}
+.app-title { margin: 0; font-size: 20px; line-height: 1; display: flex; align-items: baseline; gap: 8px; }
+.build-stamp { font-size: 10px; font-style: normal; font-weight: 400; color: var(--ink-soft); }
+.bar-group { display: flex; align-items: center; gap: 6px; }
+.bar-group label { display: flex; align-items: center; gap: 6px; color: var(--ink-soft); font-size: 14px; }
+.bar .spacer { flex: 1; }
+select, input[type="text"], input[type="search"], input[type="number"], input[type="password"], textarea {
+  border: 1px solid var(--rule); border-radius: var(--radius-f); background: var(--paper); padding: 5px 8px;
+}
+input[type="number"] { width: 72px; }
+input[type="color"] { width: 32px; height: 28px; padding: 0 2px; border: 1px solid var(--rule); border-radius: var(--radius-f); background: var(--paper); }
+input[type="range"], input[type="checkbox"], input[type="radio"] { accent-color: var(--accent); }
+
+/* Layout */
+.layout { display: grid; grid-template-columns: 320px minmax(0,1fr) 300px; height: calc(100vh - 86px); }
+.panel { overflow-y: auto; overflow-x: hidden; padding: 16px; background: var(--paper); min-width: 0; }
+.panel.left { border-right: 1px solid var(--rule); }
+.panel.right { border-left: 1px solid var(--rule); }
+.panel h2 { font-size: 18px; margin: 0 0 10px; }
+.note { font-size: 13px; color: var(--ink-soft); margin: 8px 0; }
+.note button { font-size: 13px; }
+
+/* Search */
+.search { display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; }
+.search select { width: 100%; }
+.search-row { display: flex; gap: 6px; }
+.search-row input { flex: 1; min-width: 0; }
+.search-row .btn { flex-shrink: 0; }
+.chk { display: flex; gap: 8px; align-items: flex-start; font-size: 13px; color: var(--ink-soft); }
+.grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 10px; }
+.thumb { aspect-ratio: 1; border: 0; padding: 0; background: var(--paper-2); overflow: hidden; cursor: pointer; position: relative; }
+.thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.thumb[aria-pressed="true"] { outline: 3px solid var(--accent); outline-offset: 1px; }
+#moreBtn { width: 100%; margin-top: 10px; }
+
+.detail { margin-top: 14px; border-top: 1px solid var(--rule); padding-top: 12px; }
+.detail img { width: 100%; max-height: 220px; object-fit: contain; background: var(--paper-2); display: block; }
+.detail .title { font-weight: 700; margin: 8px 0 2px; }
+.detail .meta { font-size: 13px; color: var(--ink-soft); }
+.detail .warn { font-size: 13px; background: var(--paper-2); border-left: 3px solid var(--accent); padding: 6px 8px; margin-top: 8px; }
+.detail .actions { display: flex; gap: 6px; margin-top: 10px; flex-wrap: wrap; }
+
+/* The mat */
+.mat {
+  position: relative; overflow: hidden;
+  background-color: var(--mat);
+  background-image:
+    linear-gradient(var(--mat-line-strong) 1px, transparent 1px),
+    linear-gradient(90deg, var(--mat-line-strong) 1px, transparent 1px),
+    linear-gradient(var(--mat-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--mat-line) 1px, transparent 1px);
+  background-size: 100px 100px, 100px 100px, 20px 20px, 20px 20px;
+}
+.board-scroll { position: absolute; inset: 0 0 52px 0; overflow: auto; display: grid; }
+.board-wrap { margin: auto; padding: 40px; }
+.board-shadow { box-shadow: 0 1px 0 rgba(0,0,0,.2), 0 12px 30px rgba(0,0,0,.28); position: relative;
+  background-image: linear-gradient(45deg, #d9ddd9 25%, transparent 25%), linear-gradient(-45deg, #d9ddd9 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #d9ddd9 75%), linear-gradient(-45deg, transparent 75%, #d9ddd9 75%);
+  background-size: 16px 16px; background-position: 0 0, 0 8px, 8px -8px, -8px 0; background-color: #f4f6f4; }
+.empty-hint { position: absolute; inset: 0; display: grid; place-items: center; pointer-events: none; text-align: center; color: #6d6d6d; font-size: 15px; padding: 30px; }
+.empty-hint p { max-width: 30ch; margin: 0; }
+.zoombar {
+  position: absolute; left: 0; right: 0; bottom: 0; height: 52px; display: flex; gap: 6px; align-items: center; justify-content: center;
+  background: var(--navy); color: #fff;
+}
+.zoombar .btn { background: transparent; border-color: var(--mid-navy); color: #fff; }
+.zoombar .btn:hover { background: var(--gold-hi); color: var(--navy); border-color: var(--gold-hi); }
+.zoombar .sep { width: 1px; height: 22px; background: var(--mid-navy); margin: 0 6px; }
+#zoomLabel { min-width: 52px; text-align: center; font-variant-numeric: tabular-nums; font-size: 14px; color: var(--muted-navy); }
+
+/* Right panel */
+.sel { border-bottom: 1px solid var(--rule); padding-bottom: 14px; margin-bottom: 14px; }
+.sel-empty { color: var(--ink-soft); font-size: 14px; margin: 0; }
+.sel-actions { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0; }
+.field { display: grid; grid-template-columns: 80px 1fr; gap: 8px; align-items: center; font-size: 14px; margin: 6px 0; }
+.field > span { color: var(--ink-soft); }
+.layers { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
+.layer { display: grid; grid-template-columns: 40px 1fr auto; gap: 8px; align-items: center; padding: 6px; cursor: pointer; border-left: 3px solid transparent; }
+.layer:hover { background: var(--paper-2); }
+.layer.active { border-left-color: var(--accent); background: var(--paper-2); }
+.layer.hidden-layer .layer-text, .layer.hidden-layer .layer-thumb { opacity: .4; }
+.layer-thumb { width: 40px; height: 40px; object-fit: contain; background: var(--paper-2); display: grid; place-items: center; font-style: italic; font-weight: 700; }
+.layer-text { min-width: 0; }
+.layer-name { font-size: 14px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.layer-credit { font-size: 12px; color: var(--ink-soft); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.layer-tools { display: flex; }
+.layers-empty { color: var(--ink-soft); font-size: 14px; }
+
+/* Cut-out editor */
+.editor { position: fixed; inset: 0; z-index: 20; display: grid; grid-template-columns: 250px 1fr; grid-template-rows: 1fr 56px; background: var(--paper); }
+.editor[hidden] { display: none; }
+.ed-tools { grid-row: 1 / 3; border-right: 1px solid var(--rule); padding: 16px 14px; overflow-y: auto; overflow-x: hidden; display: grid; grid-template-columns: minmax(0, 1fr); align-content: start; gap: 14px; }
+.ed-tools h2 { font-size: 20px; margin: 0; }
+.ed-tools .btn { white-space: normal; min-width: 0; }
+.ed-tools fieldset { border: 0; padding: 0; margin: 0; display: grid; gap: 6px; }
+.ed-tools legend { font-size: 13px; color: var(--ink-soft); margin-bottom: 6px; padding: 0; }
+.seg { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
+.seg.three { grid-template-columns: 1fr 1fr 1fr; }
+.seg > * { min-width: 0; }
+.seg input { position: absolute; opacity: 0; pointer-events: none; }
+.seg label { border: 1px solid var(--rule); padding: 6px 4px; text-align: center; cursor: pointer; font-size: 14px; font-style: italic; font-weight: 600; }
+.seg label:hover { border-color: var(--accent); }
+.seg input:checked + label { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 700; }
+.seg input:focus-visible + label { outline: 3px solid var(--focus); outline-offset: 2px; }
+.ed-help { font-size: 13px; color: var(--ink-soft); background: var(--paper-2); padding: 8px 10px; }
+.ed-help kbd, .help kbd { font: 12px/1 "Open Sans", sans-serif; border: 1px solid var(--rule); border-bottom-width: 2px; border-radius: var(--radius-f); padding: 1px 4px; background: var(--paper); }
+.range { display: grid; grid-template-columns: 1fr 44px; gap: 8px; align-items: center; font-size: 14px; }
+.range output { text-align: right; font-variant-numeric: tabular-nums; color: var(--ink-soft); }
+.ed-stage { position: relative; overflow: hidden; background: var(--mat-deep); touch-action: none; }
+.ed-stage canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.ed-status {
+  position: absolute; left: 50%; top: 14px; transform: translateX(-50%); background: var(--navy); color: #fff;
+  padding: 6px 12px; font-size: 14px; pointer-events: none; max-width: 80%; text-align: center; border-left: 3px solid var(--gold-hi);
+}
+.ed-status:empty { display: none; }
+.ed-foot { display: flex; align-items: center; gap: 10px; padding: 0 14px; border-top: 1px solid var(--rule); }
+.ed-foot .credit { flex: 1; font-size: 13px; color: var(--ink-soft); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* Dialogs */
+dialog { border: 1px solid var(--rule); background: var(--paper); color: var(--ink); padding: 0; width: min(560px, calc(100vw - 32px)); }
+dialog::backdrop { background: rgba(44,61,80,.6); }
+.dlg-body { padding: 18px 20px; display: grid; gap: 12px; }
+.dlg-body h2 { font-size: 22px; margin: 0; }
+.dlg-body label.block { display: grid; gap: 4px; font-size: 14px; }
+.dlg-body label.block span { color: var(--ink-soft); }
+.dlg-body textarea { width: 100%; min-height: 150px; resize: vertical; font-size: 13px; line-height: 1.5; }
+.dlg-foot { display: flex; gap: 8px; justify-content: flex-end; padding: 12px 20px; border-top: 1px solid var(--rule); flex-wrap: wrap; }
+.dlg-foot .left { margin-right: auto; }
+.help { font-size: 13px; color: var(--ink-soft); margin: 0; }
+.inline-radio { display: flex; gap: 14px; font-size: 14px; flex-wrap: wrap; }
+.inline-radio label { display: flex; gap: 6px; align-items: center; }
+
+.toast {
+  position: fixed; left: 50%; bottom: 70px; transform: translateX(-50%); background: var(--navy); color: #fff;
+  padding: 8px 14px; font-size: 14px; z-index: 50; max-width: 90vw; border-left: 3px solid var(--gold-hi);
+}
+.toast:empty { display: none; }
+
+@media (max-width: 1000px) {
+  body { overflow: auto; }
+  .layout { grid-template-columns: 1fr; height: auto; }
+  .mat { height: 70vh; }
+  .panel.left, .panel.right { border: 0; border-top: 1px solid var(--rule); }
+  .bar { height: auto; flex-wrap: wrap; padding: 8px 14px; gap: 10px; }
+  .editor { grid-template-columns: 1fr; grid-template-rows: auto 1fr 56px; }
+  .ed-tools { grid-row: auto; max-height: 35vh; border-right: 0; border-bottom: 1px solid var(--rule); }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+</style>
+</head>
+<body>
+
+<div id="site-nav">
+  <a class="snav-brand" href="/">Jonathan Pay</a>
+  <nav class="snav-links">
+    <a href="/tools/">All Tools</a>
+    <a href="https://jonathanpay.com/blog/">Blog</a>
+    <a href="https://jonathanpay.com/holistic-email-marketing/">HEM</a>
+    <a href="https://holisticemailacademy.com">HEA</a>
+  </nav>
+</div>
+<header class="bar">
+  <h1 class="app-title">Paste-up <span class="build-stamp">build 2026-10-29-a</span></h1>
+  <div class="bar-group">
+    <label for="sizeSel">Size</label>
+    <select id="sizeSel">
+      <option value="1080x1350">Portrait 4:5 (1080 × 1350)</option>
+      <option value="1080x1080">Square (1080 × 1080)</option>
+      <option value="1080x1920">Story 9:16 (1080 × 1920)</option>
+      <option value="1920x1080">Landscape 16:9 (1920 × 1080)</option>
+      <option value="1456x1048">Substack header (1456 × 1048)</option>
+      <option value="2480x3508">A4 print (2480 × 3508)</option>
+      <option value="custom">Custom…</option>
+    </select>
+    <span id="customSize" hidden>
+      <input type="number" id="customW" min="100" max="6000" aria-label="Width in pixels"> ×
+      <input type="number" id="customH" min="100" max="6000" aria-label="Height in pixels">
+      <button class="btn small" id="customApply">Apply</button>
+    </span>
+  </div>
+  <div class="bar-group">
+    <label for="bgColor">Background</label>
+    <input type="color" id="bgColor" value="#ffffff">
+    <button class="btn small" id="bgClear" aria-pressed="false" title="Export with a transparent background">Transparent</button>
+  </div>
+  <div class="bar-group">
+    <button class="btn" id="undoBtn" title="Undo (Ctrl/Cmd+Z)">Undo</button>
+    <button class="btn" id="redoBtn" title="Redo (Shift+Ctrl/Cmd+Z)">Redo</button>
+  </div>
+  <div class="spacer"></div>
+  <div class="bar-group">
+    <button class="btn" id="newBtn">New</button>
+    <button class="btn" id="openBtn">Open</button>
+    <button class="btn" id="saveBtn">Save project</button>
+    <button class="btn" id="settingsBtn">Settings</button>
+    <button class="btn primary" id="exportBtn">Export</button>
+  </div>
+</header>
+
+<main class="layout">
+  <aside class="panel left" aria-label="Find images">
+    <h2>Find images</h2>
+    <form class="search" id="searchForm">
+      <select id="sourceSel" aria-label="Image source">
+        <option value="aic">Art Institute of Chicago (public domain)</option>
+        <option value="cma">Cleveland Museum of Art (public domain)</option>
+        <option value="commons">Wikimedia Commons</option>
+        <option value="pexels">Pexels</option>
+        <option value="unsplash">Unsplash</option>
+      </select>
+      <div class="search-row">
+        <input type="search" id="q" placeholder="Botanical plate, moth, cathedral…" aria-label="Search terms" autocomplete="off">
+        <button class="btn primary" type="submit">Search</button>
+      </div>
+      <label class="chk" id="commonsAnyRow" hidden>
+        <input type="checkbox" id="commonsAny">
+        <span>Include Creative Commons images that require attribution or share-alike (public domain only otherwise)</span>
+      </label>
+    </form>
+    <div class="note" id="sourceNote"></div>
+    <div class="grid" id="results" aria-label="Search results"></div>
+    <button class="btn" id="moreBtn" hidden>Load more</button>
+    <section class="detail" id="detail" hidden aria-live="polite"></section>
+  </aside>
+
+  <section class="mat" id="mat" aria-label="Collage">
+    <div class="board-scroll" id="boardScroll">
+      <div class="board-wrap">
+        <div class="board-shadow" id="boardShadow">
+          <canvas id="board"></canvas>
+          <div class="empty-hint" id="emptyHint"><p>Search for images on the left, cut them out, and they'll land here.</p></div>
+        </div>
+      </div>
+    </div>
+    <div class="zoombar">
+      <button class="btn small" id="zoomOut" aria-label="Zoom out">−</button>
+      <span id="zoomLabel">100%</span>
+      <button class="btn small" id="zoomIn" aria-label="Zoom in">+</button>
+      <button class="btn small" id="zoomFit">Fit</button>
+      <span class="sep"></span>
+      <button class="btn small" id="addText">Add text</button>
+    </div>
+  </section>
+
+  <aside class="panel right" aria-label="Layers">
+    <section class="sel" id="selPanel"></section>
+    <h2>Layers and credits</h2>
+    <ol class="layers" id="layers"></ol>
+  </aside>
+</main>
+
+<!-- Cut-out editor -->
+<div class="editor" id="editor" hidden role="dialog" aria-modal="true" aria-labelledby="edTitle">
+  <div class="ed-tools">
+    <h2 id="edTitle">Cut out</h2>
+    <fieldset>
+      <legend>Tool</legend>
+      <div class="seg">
+        <input type="radio" name="edTool" id="tLasso" value="lasso" checked><label for="tLasso">Lasso</label>
+        <input type="radio" name="edTool" id="tHand" value="pan"><label for="tHand">Hand</label>
+        <input type="radio" name="edTool" id="tErase" value="erase"><label for="tErase">Erase</label>
+        <input type="radio" name="edTool" id="tRestore" value="restore"><label for="tRestore">Restore</label>
+      </div>
+    </fieldset>
+    <fieldset id="lassoModes">
+      <legend>Lasso does</legend>
+      <div class="seg three">
+        <input type="radio" name="lassoMode" id="lmKeep" value="keep" checked><label for="lmKeep">Keep</label>
+        <input type="radio" name="lassoMode" id="lmRemove" value="remove"><label for="lmRemove">Remove</label>
+        <input type="radio" name="lassoMode" id="lmAdd" value="add"><label for="lmAdd">Add</label>
+      </div>
+    </fieldset>
+    <div class="range" id="brushRow">
+      <label for="brushSize">Brush size</label><output id="brushOut">40</output>
+      <input type="range" id="brushSize" min="2" max="300" value="40" style="grid-column: 1 / 3">
+    </div>
+    <div class="ed-help" id="edHelp"></div>
+    <fieldset>
+      <legend>Mask</legend>
+      <button class="btn" id="edAuto">Remove background automatically</button>
+      <div class="seg">
+        <button class="btn" id="edInvert" type="button">Invert</button>
+        <button class="btn" id="edReset" type="button">Reset</button>
+        <button class="btn" id="edUndo" type="button">Undo</button>
+        <button class="btn" id="edRedo" type="button">Redo</button>
+      </div>
+    </fieldset>
+    <div class="range">
+      <label for="feather">Soften edges</label><output id="featherOut">1 px</output>
+      <input type="range" id="feather" min="0" max="12" value="1" style="grid-column: 1 / 3">
+    </div>
+    <label class="chk"><input type="checkbox" id="ghost" checked> <span>Show removed areas faintly</span></label>
+    <fieldset>
+      <legend>View</legend>
+      <div class="seg three">
+        <button class="btn" id="edFit" type="button">Fit</button>
+        <button class="btn" id="ed100" type="button">100%</button>
+        <button class="btn" id="edZoomIn" type="button" aria-label="Zoom in">+</button>
+      </div>
+    </fieldset>
+  </div>
+  <div class="ed-stage" id="edStage">
+    <canvas id="edCanvas"></canvas>
+    <div class="ed-status" id="edStatus" role="status" aria-live="polite"></div>
+  </div>
+  <div class="ed-foot">
+    <div class="credit" id="edCredit"></div>
+    <button class="btn" id="edCancel">Cancel</button>
+    <button class="btn primary" id="edDone">Place on collage</button>
+  </div>
+</div>
+
+<!-- Settings -->
+<dialog id="settingsDlg">
+  <form method="dialog">
+    <div class="dlg-body">
+      <h2>Settings</h2>
+      <p class="help">Keys are stored only in this browser. They never go into your GitHub repository, so the page can be public without exposing them.</p>
+      <label class="block"><span>Credit collages to</span><input type="text" id="setName" placeholder="Your name"></label>
+      <label class="block"><span>Pexels API key (<a href="https://www.pexels.com/api/" target="_blank" rel="noopener">get one</a>)</span><input type="password" id="setPexels" autocomplete="off"></label>
+      <label class="block"><span>Unsplash access key (<a href="https://unsplash.com/developers" target="_blank" rel="noopener">get one</a>)</span><input type="password" id="setUnsplash" autocomplete="off"></label>
+      <label class="block"><span>Unsplash application name, exactly as registered (used in attribution links)</span><input type="text" id="setUnsplashApp" placeholder="paste_up"></label>
+      <div>
+        <span class="help">Appearance</span>
+        <div class="inline-radio">
+          <label><input type="radio" name="theme" value="auto" checked> Match system</label>
+          <label><input type="radio" name="theme" value="light"> Light</label>
+          <label><input type="radio" name="theme" value="dark"> Dark</label>
+        </div>
+      </div>
+    </div>
+    <div class="dlg-foot">
+      <button class="btn" value="cancel">Cancel</button>
+      <button class="btn primary" value="save" id="settingsSave">Save settings</button>
+    </div>
+  </form>
+</dialog>
+
+<!-- Export -->
+<dialog id="exportDlg">
+  <form method="dialog" id="exportForm">
+    <div class="dlg-body">
+      <h2>Export</h2>
+      <label class="block"><span>Title (optional)</span><input type="text" id="exTitle" placeholder="Untitled collage"></label>
+      <label class="block"><span>Collage by</span><input type="text" id="exName"></label>
+      <div>
+        <span class="help">Image size</span>
+        <div class="inline-radio" id="exScale">
+          <label><input type="radio" name="scale" value="1" checked> <span id="ex1"></span></label>
+          <label><input type="radio" name="scale" value="2"> <span id="ex2"></span></label>
+        </div>
+      </div>
+      <div>
+        <span class="help">Credits</span>
+        <div class="inline-radio">
+          <label><input type="radio" name="cstyle" value="short" checked> Short, for a caption</label>
+          <label><input type="radio" name="cstyle" value="full"> Full, with links and licences</label>
+        </div>
+      </div>
+      <textarea id="exCredits" aria-label="Credits text"></textarea>
+      <label class="chk"><input type="checkbox" id="exSidecar" checked> <span>Download a credits file alongside the image (full credits, .txt)</span></label>
+      <p class="help">The image file carries the credits in its metadata too. Most social platforms strip metadata on upload, so paste the credits into your post as well.</p>
+    </div>
+    <div class="dlg-foot">
+      <button class="btn left" type="button" id="exCopy">Copy credits</button>
+      <button class="btn" value="cancel">Close</button>
+      <button class="btn primary" type="button" id="exDownload">Download PNG</button>
+    </div>
+  </form>
+</dialog>
+
+<input type="file" id="openFile" accept=".json,application/json" hidden>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/fabric@5.3.0/dist/fabric.min.js"></script>
+<script>
+(() => {
+'use strict';
+
+/* ---------- Utilities ---------- */
+const $ = (s) => document.querySelector(s);
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const stripHtml = (html) => { const d = new DOMParser().parseFromString(String(html || ''), 'text/html'); return (d.body.textContent || '').replace(/\s+/g, ' ').trim(); };
+let toastTimer;
+function toast(msg, ms = 3200) { const t = $('#toast'); t.textContent = msg; clearTimeout(toastTimer); toastTimer = setTimeout(() => t.textContent = '', ms); }
+const store = {
+  get(k, d) { try { const v = localStorage.getItem('pasteup.' + k); return v == null ? d : JSON.parse(v); } catch { return d; } },
+  set(k, v) { try { localStorage.setItem('pasteup.' + k, JSON.stringify(v)); } catch {} }
+};
+const ICONS = {
+  up: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 15 6-6 6 6"/></svg>',
+  down: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>',
+  eye: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg>',
+  eyeOff: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3l18 18M10.6 5.1A10 10 0 0 1 12 5c6.5 0 10 7 10 7a17 17 0 0 1-3.2 4M6.6 6.6A17 17 0 0 0 2 12s3.5 7 10 7a9.8 9.8 0 0 0 5.4-1.6"/></svg>',
+  trash: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg>'
+};
+
+/* ---------- Settings ---------- */
+let settings = Object.assign({ name: '', pexels: '', unsplash: '', unsplashApp: '', theme: 'auto' }, store.get('settings', {}));
+function applyTheme() {
+  if (settings.theme === 'auto') document.documentElement.removeAttribute('data-theme');
+  else document.documentElement.setAttribute('data-theme', settings.theme);
+}
+applyTheme();
+
+/* ---------- Image loading ---------- */
+const MAX_SRC = 2400;
+async function fetchBlob(url, opts = {}) {
+  let r;
+  try { r = await fetch(url, Object.assign({ mode: 'cors', credentials: 'omit' }, opts)); }
+  catch (e) { throw new Error('The image host refused the request (likely a cross-origin restriction).'); }
+  if (!r.ok) throw new Error('The image host returned an error (' + r.status + ').');
+  return r.blob();
+}
+async function blobToCanvas(blob, max = MAX_SRC) {
+  const bmp = await createImageBitmap(blob);
+  const s = Math.min(1, max / Math.max(bmp.width, bmp.height));
+  const c = document.createElement('canvas');
+  c.width = Math.max(1, Math.round(bmp.width * s)); c.height = Math.max(1, Math.round(bmp.height * s));
+  const x = c.getContext('2d'); x.imageSmoothingQuality = 'high';
+  x.drawImage(bmp, 0, 0, c.width, c.height);
+  bmp.close && bmp.close();
+  return c;
+}
+function urlToCanvas(url) {
+  return new Promise((res, rej) => {
+    const im = new Image();
+    im.onload = () => { const c = document.createElement('canvas'); c.width = im.naturalWidth; c.height = im.naturalHeight; c.getContext('2d').drawImage(im, 0, 0); res(c); };
+    im.onerror = () => rej(new Error('Could not read the stored image.'));
+    im.src = url;
+  });
+}
+function canvasToDataURL(c, type = 'image/jpeg', q = 0.92) { return c.toDataURL(type, q); }
+function hasAlpha(c) {
+  const d = c.getContext('2d').getImageData(0, 0, c.width, c.height).data;
+  for (let i = 3; i < d.length; i += 4) if (d[i] < 255) return true;
+  return false;
+}
+
+/* ---------- Sources ---------- */
+const PD = { licence: 'CC0 (public domain)', licenceUrl: 'https://creativecommons.org/publicdomain/zero/1.0/' };
+const utm = () => '?utm_source=' + encodeURIComponent(settings.unsplashApp || 'paste_up') + '&utm_medium=referral';
+
+const SOURCES = {
+  aic: {
+    label: 'Art Institute of Chicago',
+    note: 'Public-domain works from the Art Institute of Chicago. No key needed.',
+    async search(q, page) {
+      const p = new URLSearchParams({ q, page, limit: 30, fields: 'id,title,artist_title,artist_display,date_display,image_id,is_public_domain' });
+      p.set('query[term][is_public_domain]', 'true');
+      const r = await fetch('https://api.artic.edu/api/v1/artworks/search?' + p);
+      if (!r.ok) throw new Error('Art Institute search failed (' + r.status + ').');
+      const j = await r.json();
+      const base = (j.config && j.config.iiif_url) || 'https://www.artic.edu/iiif/2';
+      const items = (j.data || []).filter(a => a.image_id).map(a => {
+        const creator = a.artist_title || (a.artist_display || '').split('\n')[0] || 'Unknown artist';
+        return {
+          id: 'aic-' + a.id,
+          thumb: `${base}/${a.image_id}/full/400,/0/default.jpg`,
+          full: [`${base}/${a.image_id}/full/1686,/0/default.jpg`, `${base}/${a.image_id}/full/843,/0/default.jpg`],
+          credit: Object.assign({
+            title: a.title || 'Untitled', creator, creatorUrl: '', date: a.date_display || '',
+            source: 'Art Institute of Chicago', sourceUrl: 'https://www.artic.edu/artworks/' + a.id,
+            attribution: `${quoteTitle(a.title)}${a.date_display ? ' (' + a.date_display + ')' : ''}, ${creator}. Art Institute of Chicago`
+          }, PD)
+        };
+      });
+      const pg = j.pagination || {};
+      return { items, hasMore: (pg.current_page || page) < Math.min(pg.total_pages || 0, 33) };
+    }
+  },
+  cma: {
+    label: 'Cleveland Museum of Art',
+    note: 'CC0 open-access works from the Cleveland Museum of Art. No key needed.',
+    async search(q, page) {
+      const p = new URLSearchParams({ q, cc0: '', has_image: 1, limit: 30, skip: (page - 1) * 30 });
+      const r = await fetch('https://openaccess-api.clevelandart.org/api/artworks/?' + p);
+      if (!r.ok) throw new Error('Cleveland Museum search failed (' + r.status + ').');
+      const j = await r.json();
+      const items = (j.data || []).filter(a => a.images && a.images.web).map(a => {
+        const creator = (a.creators && a.creators[0] && a.creators[0].description || 'Unknown artist').replace(/\s*\(.*?\)\s*$/, '');
+        return {
+          id: 'cma-' + a.id,
+          thumb: a.images.web.url,
+          full: [a.images.print ? a.images.print.url : a.images.web.url, a.images.web.url],
+          credit: Object.assign({
+            title: a.title || 'Untitled', creator, creatorUrl: '', date: a.creation_date || '',
+            source: 'Cleveland Museum of Art', sourceUrl: a.url || 'https://www.clevelandart.org/art/' + a.accession_number,
+            attribution: `${quoteTitle(a.title)}${a.creation_date ? ' (' + a.creation_date + ')' : ''}, ${creator}. Cleveland Museum of Art`
+          }, PD)
+        };
+      });
+      const total = (j.info && j.info.total) || 0;
+      return { items, hasMore: page * 30 < total };
+    }
+  },
+  commons: {
+    label: 'Wikimedia Commons',
+    note: 'Wikimedia Commons. Licences vary by file; each one is shown before you use it.',
+    async search(q, page, state) {
+      const p = new URLSearchParams({
+        action: 'query', format: 'json', origin: '*', generator: 'search', gsrsearch: q + ' filetype:bitmap',
+        gsrnamespace: 6, gsrlimit: 40, gsroffset: (page - 1) * 40, prop: 'imageinfo',
+        iiprop: 'url|size|mime|extmetadata', iiurlwidth: 400
+      });
+      const r = await fetch('https://commons.wikimedia.org/w/api.php?' + p);
+      if (!r.ok) throw new Error('Wikimedia Commons search failed (' + r.status + ').');
+      const j = await r.json();
+      const pages = Object.values((j.query && j.query.pages) || {}).sort((a, b) => (a.index || 0) - (b.index || 0));
+      const anyLicence = $('#commonsAny').checked;
+      const items = [];
+      for (const pg of pages) {
+        const ii = pg.imageinfo && pg.imageinfo[0]; if (!ii || !ii.thumburl) continue;
+        const m = ii.extmetadata || {};
+        const licence = stripHtml(m.LicenseShortName && m.LicenseShortName.value) || 'Licence not stated';
+        const isPD = /public domain|cc0|^pd|pdm/i.test(licence);
+        if (!isPD && !anyLicence) continue;
+        if (!isPD && /nc|nd/i.test(licence.replace(/\s/g, ''))) continue; // non-commercial / no-derivatives don't suit collage
+        const creator = stripHtml(m.Artist && m.Artist.value) || 'Unknown';
+        const title = stripHtml(m.ObjectName && m.ObjectName.value) || pg.title.replace(/^File:/, '').replace(/\.[a-z0-9]+$/i, '');
+        const okMime = /image\/(jpeg|png|webp|gif)/.test(ii.mime || '');
+        let full;
+        if (okMime && ii.width <= MAX_SRC) full = ii.url;
+        else full = ii.thumburl.replace(/\/\d+px-/, '/' + Math.min(MAX_SRC, ii.width - 1) + 'px-');
+        items.push({
+          id: 'wc-' + pg.pageid,
+          thumb: ii.thumburl,
+          full: [full, ii.thumburl],
+          shareAlike: /sa/i.test(licence.replace(/\s/g, '')) && !isPD,
+          credit: {
+            title, creator, creatorUrl: '', date: stripHtml(m.DateTimeOriginal && m.DateTimeOriginal.value),
+            source: 'Wikimedia Commons', sourceUrl: ii.descriptionurl || 'https://commons.wikimedia.org/wiki/' + encodeURIComponent(pg.title),
+            licence, licenceUrl: (m.LicenseUrl && m.LicenseUrl.value) || '',
+            attribution: `${quoteTitle(title)}, ${creator}, via Wikimedia Commons (${licence})`
+          }
+        });
+      }
+      return { items, hasMore: !!(j.continue && j.continue.gsroffset) };
+    }
+  },
+  pexels: {
+    label: 'Pexels', key: 'pexels',
+    note: 'Photos from Pexels.',
+    async search(q, page) {
+      const p = new URLSearchParams({ query: q, page, per_page: 30 });
+      const r = await fetch('https://api.pexels.com/v1/search?' + p, { headers: { Authorization: settings.pexels } });
+      if (r.status === 401 || r.status === 403) throw new Error('Pexels rejected the API key. Check it in Settings.');
+      if (!r.ok) throw new Error('Pexels search failed (' + r.status + ').');
+      const j = await r.json();
+      const items = (j.photos || []).map(ph => ({
+        id: 'px-' + ph.id,
+        thumb: ph.src.medium,
+        full: [ph.src.original + '?auto=compress&cs=tinysrgb&w=' + MAX_SRC, ph.src.large2x],
+        credit: {
+          title: ph.alt || 'Untitled photo', creator: ph.photographer, creatorUrl: ph.photographer_url,
+          source: 'Pexels', sourceUrl: ph.url, licence: 'Pexels License', licenceUrl: 'https://www.pexels.com/license/',
+          attribution: `Photo by ${ph.photographer} on Pexels`
+        }
+      }));
+      return { items, hasMore: !!j.next_page };
+    }
+  },
+  unsplash: {
+    label: 'Unsplash', key: 'unsplash',
+    note: 'Photos from Unsplash.',
+    async search(q, page) {
+      const p = new URLSearchParams({ query: q, page, per_page: 30 });
+      const r = await fetch('https://api.unsplash.com/search/photos?' + p, { headers: { Authorization: 'Client-ID ' + settings.unsplash, 'Accept-Version': 'v1' } });
+      if (r.status === 401 || r.status === 403) throw new Error('Unsplash rejected the access key, or the hourly limit is used up.');
+      if (!r.ok) throw new Error('Unsplash search failed (' + r.status + ').');
+      const j = await r.json();
+      const items = (j.results || []).map(ph => ({
+        id: 'us-' + ph.id,
+        thumb: ph.urls.small,
+        full: [ph.urls.raw + '&w=' + MAX_SRC + '&fm=jpg&q=85', ph.urls.regular],
+        downloadLocation: ph.links.download_location,
+        credit: {
+          title: ph.alt_description || ph.description || 'Untitled photo', creator: ph.user.name,
+          creatorUrl: ph.user.links.html + utm(), source: 'Unsplash', sourceUrl: ph.links.html + utm(),
+          licence: 'Unsplash License', licenceUrl: 'https://unsplash.com/license',
+          attribution: `Photo by ${ph.user.name} on Unsplash`
+        }
+      }));
+      return { items, hasMore: page < (j.total_pages || 0) };
+    }
+  }
+};
+function quoteTitle(t) { t = (t || 'Untitled').trim(); return '“' + t + '”'; }
+
+/* ---------- Search UI ---------- */
+const search = { source: store.get('source', 'aic'), q: '', page: 1, items: [], selected: null, busy: false };
+$('#sourceSel').value = search.source;
+function updateSourceNote() {
+  const src = SOURCES[search.source];
+  $('#commonsAnyRow').hidden = search.source !== 'commons';
+  const note = $('#sourceNote');
+  if (src.key && !settings[src.key]) {
+    note.innerHTML = `${esc(src.label)} needs a free API key. <button class="btn small" type="button" id="noteKey">Add key</button>`;
+    $('#noteKey').onclick = openSettings;
+  } else note.textContent = src.note;
+}
+updateSourceNote();
+$('#sourceSel').addEventListener('change', e => {
+  search.source = e.target.value; store.set('source', search.source); updateSourceNote();
+  if (search.q) runSearch(true);
+});
+$('#commonsAny').addEventListener('change', () => { if (search.q && search.source === 'commons') runSearch(true); });
+$('#searchForm').addEventListener('submit', e => { e.preventDefault(); const q = $('#q').value.trim(); if (!q) return; search.q = q; runSearch(true); });
+$('#moreBtn').addEventListener('click', () => runSearch(false));
+
+async function runSearch(fresh) {
+  const src = SOURCES[search.source];
+  if (src.key && !settings[src.key]) { openSettings(); return; }
+  if (search.busy) return;
+  search.busy = true;
+  if (fresh) { search.page = 1; search.items = []; $('#results').innerHTML = ''; hideDetail(); }
+  $('#moreBtn').hidden = true;
+  $('#sourceNote').textContent = 'Searching ' + src.label + '…';
+  try {
+    const { items, hasMore } = await src.search(search.q, search.page);
+    search.page++;
+    search.items.push(...items);
+    renderResults(items);
+    $('#moreBtn').hidden = !hasMore;
+    if (!search.items.length) $('#sourceNote').textContent = `Nothing found on ${src.label} for “${search.q}”. Try a broader word, or another source.`;
+    else updateSourceNote();
+  } catch (err) {
+    $('#sourceNote').textContent = err.message || String(err);
+  } finally { search.busy = false; }
+}
+function renderResults(items) {
+  const grid = $('#results');
+  for (const it of items) {
+    const b = document.createElement('button');
+    b.className = 'thumb'; b.type = 'button'; b.setAttribute('aria-pressed', 'false');
+    b.title = `${it.credit.title}, ${it.credit.creator}`;
+    b.innerHTML = `<img loading="lazy" alt="${esc(it.credit.title)}" src="${esc(it.thumb)}">`;
+    b.addEventListener('click', () => showDetail(it, b));
+    grid.appendChild(b);
+  }
+}
+function hideDetail() { $('#detail').hidden = true; search.selected = null; }
+function showDetail(it, btn) {
+  document.querySelectorAll('.thumb[aria-pressed="true"]').forEach(x => x.setAttribute('aria-pressed', 'false'));
+  btn.setAttribute('aria-pressed', 'true');
+  search.selected = it;
+  const c = it.credit, d = $('#detail');
+  const creator = c.creatorUrl ? `<a href="${esc(c.creatorUrl)}" target="_blank" rel="noopener">${esc(c.creator)}</a>` : esc(c.creator);
+  const licence = c.licenceUrl ? `<a href="${esc(c.licenceUrl)}" target="_blank" rel="noopener">${esc(c.licence)}</a>` : esc(c.licence);
+  let warn = '';
+  if (it.shareAlike) warn = `<div class="warn">Share-alike licence: a collage you publish using this image has to carry the same licence.</div>`;
+  else if (c.source === 'Wikimedia Commons' && !/public domain|cc0/i.test(c.licence)) warn = `<div class="warn">This licence requires attribution. The credits on export cover it.</div>`;
+  d.innerHTML = `
+    <img src="${esc(it.thumb)}" alt="">
+    <div class="title">${esc(c.title)}</div>
+    <div class="meta">${creator}${c.date ? ', ' + esc(c.date) : ''}</div>
+    <div class="meta"><a href="${esc(c.sourceUrl)}" target="_blank" rel="noopener">${esc(c.source)}</a>, ${licence}</div>
+    ${warn}
+    <div class="actions">
+      <button class="btn primary" type="button" id="dCut">Cut out</button>
+      <button class="btn" type="button" id="dAdd">Add whole image</button>
+    </div>`;
+  d.hidden = false;
+  $('#dCut').onclick = () => useItem(it, true);
+  $('#dAdd').onclick = () => useItem(it, false);
+}
+async function loadItemCanvas(it) {
+  let lastErr;
+  for (const url of it.full) {
+    try { return await blobToCanvas(await fetchBlob(url)); } catch (e) { lastErr = e; }
+  }
+  throw lastErr || new Error('Could not load the image.');
+}
+async function useItem(it, cut) {
+  const btns = document.querySelectorAll('#detail .actions button'); btns.forEach(b => b.disabled = true);
+  toast('Loading full-size image…', 20000);
+  try {
+    const canvas = await loadItemCanvas(it);
+    toast('');
+    if (it.downloadLocation && settings.unsplash) {
+      // Unsplash API guidelines: register a download whenever a photo is used.
+      fetch(it.downloadLocation, { headers: { Authorization: 'Client-ID ' + settings.unsplash } }).catch(() => {});
+    }
+    const credit = Object.assign({}, it.credit);
+    if (cut) Editor.open({ src: canvas, credit, onDone: (res) => addCutout(res, credit) });
+    else addCutout(wholeImage(canvas), credit);
+  } catch (e) { toast(e.message || String(e), 6000); }
+  finally { btns.forEach(b => b.disabled = false); }
+}
+function wholeImage(canvas) {
+  return {
+    dataURL: canvasToDataURL(canvas, hasAlpha(canvas) ? 'image/png' : 'image/jpeg'),
+    cutout: { src: canvasToDataURL(canvas, 'image/png'), mask: null, crop: { x: 0, y: 0, w: canvas.width, h: canvas.height }, feather: 0 }
+  };
+}
+
+/* ---------- Board ---------- */
+const PROPS = ['credit', 'cutout', 'layerName'];
+// Fabric 5.3 sets an invalid textBaseline value that newer browsers warn about on every frame.
+fabric.Text.prototype._setTextStyles = function (ctx, charStyle, forMeasuring) {
+  ctx.textBaseline = 'alphabetic';
+  if (this.path) ctx.textBaseline = { center: 'middle', ascender: 'top', descender: 'bottom' }[this.pathAlign] || 'alphabetic';
+  ctx.font = this._getFontDeclaration(charStyle, forMeasuring);
+};
+fabric.Object.prototype.set({
+  transparentCorners: false, cornerColor: '#dfb81f', cornerStrokeColor: '#2c3d50', borderColor: '#dfb81f',
+  cornerSize: 12, cornerStyle: 'circle', borderScaleFactor: 2, padding: 2
+});
+const board = new fabric.Canvas('board', { preserveObjectStacking: true, backgroundColor: '#ffffff', selectionColor: 'rgba(223,184,31,.15)', selectionBorderColor: '#dfb81f' });
+let art = { w: 1080, h: 1350 };
+let zoom = 1;
+
+function setView(z) {
+  zoom = clamp(z, 0.05, 4);
+  board.setDimensions({ width: Math.round(art.w * zoom), height: Math.round(art.h * zoom) });
+  board.setZoom(zoom);
+  $('#zoomLabel').textContent = Math.round(zoom * 100) + '%';
+  board.requestRenderAll();
+}
+function fitView() {
+  const r = $('#boardScroll').getBoundingClientRect();
+  setView(Math.min((r.width - 80) / art.w, (r.height - 80) / art.h, 1));
+}
+function setArtSize(w, h, keep) {
+  art = { w: Math.round(w), h: Math.round(h) };
+  const key = art.w + 'x' + art.h;
+  const opt = [...$('#sizeSel').options].find(o => o.value === key);
+  $('#sizeSel').value = opt ? key : 'custom';
+  $('#customSize').hidden = !!opt;
+  $('#customW').value = art.w; $('#customH').value = art.h;
+  fitView();
+  if (!keep) commit();
+}
+$('#sizeSel').addEventListener('change', e => {
+  if (e.target.value === 'custom') { $('#customSize').hidden = false; $('#customW').focus(); return; }
+  const [w, h] = e.target.value.split('x').map(Number); setArtSize(w, h);
+});
+$('#customApply').addEventListener('click', () => {
+  const w = clamp(+$('#customW').value || 1080, 100, 6000), h = clamp(+$('#customH').value || 1080, 100, 6000); setArtSize(w, h);
+});
+$('#zoomIn').onclick = () => setView(zoom * 1.25);
+$('#zoomOut').onclick = () => setView(zoom / 1.25);
+$('#zoomFit').onclick = fitView;
+window.addEventListener('resize', () => { clearTimeout(window.__rf); window.__rf = setTimeout(fitView, 150); });
+
+// Background
+function syncBg() {
+  const bg = board.backgroundColor;
+  const transparent = !bg;
+  $('#bgClear').setAttribute('aria-pressed', String(transparent));
+  $('#bgClear').classList.toggle('primary', transparent);
+  if (!transparent) $('#bgColor').value = toHex(bg);
+}
+function toHex(c) { const x = document.createElement('canvas').getContext('2d'); x.fillStyle = c; return x.fillStyle.startsWith('#') ? x.fillStyle : '#ffffff'; }
+$('#bgColor').addEventListener('input', e => { board.backgroundColor = e.target.value; board.requestRenderAll(); syncBg(); });
+$('#bgColor').addEventListener('change', commit);
+$('#bgClear').addEventListener('click', () => {
+  board.backgroundColor = board.backgroundColor ? '' : $('#bgColor').value; board.requestRenderAll(); syncBg(); commit();
+});
+
+function addCutout(res, credit, opts = {}) {
+  fabric.Image.fromURL(res.dataURL, img => {
+    const maxW = art.w * 0.6, maxH = art.h * 0.6;
+    const s = Math.min(1, maxW / img.width, maxH / img.height);
+    img.set({ credit, cutout: res.cutout, layerName: credit.title, scaleX: s, scaleY: s });
+    board.add(img); board.viewportCenterObject(img); img.setCoords();
+    board.setActiveObject(img); board.requestRenderAll();
+    commit(); renderLayers(); renderSel();
+  });
+}
+
+// Edit an existing layer's cut-out, keeping its placement aligned with the source pixels.
+function editLayerCutout(img) {
+  const cut = img.cutout; if (!cut) return;
+  Promise.all([urlToCanvas(cut.src), cut.mask ? urlToCanvas(cut.mask) : Promise.resolve(null)]).then(([src, mask]) => {
+    Editor.open({
+      src, mask, feather: cut.feather, credit: img.credit, updating: true,
+      onDone: (res) => {
+        const old = cut.crop, nw = res.cutout.crop;
+        const dx = (nw.x + nw.w / 2) - (old.x + old.w / 2), dy = (nw.y + nw.h / 2) - (old.y + old.h / 2);
+        const newCentre = fabric.util.transformPoint(new fabric.Point(dx, dy), img.calcTransformMatrix());
+        img.setSrc(res.dataURL, () => {
+          img.set({ cutout: res.cutout });
+          img.setPositionByOrigin(newCentre, 'center', 'center');
+          img.setCoords(); board.requestRenderAll(); commit(); renderLayers(); renderSel();
+        });
+      }
+    });
+  }).catch(e => toast(e.message));
+}
+
+const TEXT_FONTS = ['Fraunces', 'Open Sans', 'Special Elite', 'Archivo Black', 'Bricolage Grotesque'];
+async function addText() {
+  await document.fonts.load('80px "Fraunces"').catch(() => {});
+  const t = new fabric.IText('Your words', {
+    fontFamily: 'Fraunces', fontSize: Math.round(art.w / 12), fill: '#000000', layerName: 'Text', credit: null, cutout: null
+  });
+  board.add(t); board.viewportCenterObject(t); t.setCoords(); board.setActiveObject(t); board.requestRenderAll();
+  commit(); renderLayers(); renderSel();
+}
+$('#addText').onclick = addText;
+
+/* ---------- History ---------- */
+let hist = [], hi = -1, restoring = false;
+function snapshot() { return { art: Object.assign({}, art), json: board.toJSON(PROPS) }; }
+function commit() {
+  if (restoring) return;
+  hist = hist.slice(0, hi + 1); hist.push(snapshot());
+  if (hist.length > 40) hist.shift();
+  hi = hist.length - 1; updateUndo(); scheduleAutosave();
+}
+function updateUndo() { $('#undoBtn').disabled = hi <= 0; $('#redoBtn').disabled = hi >= hist.length - 1; }
+function restore(snap, cb) {
+  restoring = true;
+  if (snap.art && (snap.art.w !== art.w || snap.art.h !== art.h)) setArtSize(snap.art.w, snap.art.h, true);
+  board.loadFromJSON(snap.json, () => {
+    board.renderAll(); restoring = false; syncBg(); renderLayers(); renderSel(); updateEmpty(); cb && cb();
+  });
+}
+function undo() { if (restoring || hi <= 0) return; hi--; restore(hist[hi], () => { updateUndo(); scheduleAutosave(); }); }
+function redo() { if (restoring || hi >= hist.length - 1) return; hi++; restore(hist[hi], () => { updateUndo(); scheduleAutosave(); }); }
+$('#undoBtn').onclick = undo; $('#redoBtn').onclick = redo;
+
+board.on('object:modified', () => { commit(); renderLayers(); renderSel(); });
+board.on('text:editing:exited', () => { commit(); renderLayers(); });
+board.on('selection:created', () => { renderLayers(); renderSel(); });
+board.on('selection:updated', () => { renderLayers(); renderSel(); });
+board.on('selection:cleared', () => { renderLayers(); renderSel(); });
+board.on('object:added', updateEmpty);
+board.on('object:removed', updateEmpty);
+function updateEmpty() { $('#emptyHint').hidden = board.getObjects().length > 0; }
+
+/* ---------- Autosave (IndexedDB) ---------- */
+function idb() {
+  return new Promise((res, rej) => {
+    const r = indexedDB.open('paste-up', 1);
+    r.onupgradeneeded = () => r.result.createObjectStore('kv');
+    r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error);
+  });
+}
+async function idbSet(k, v) { const db = await idb(); return new Promise((res, rej) => { const tx = db.transaction('kv', 'readwrite'); tx.objectStore('kv').put(v, k); tx.oncomplete = res; tx.onerror = () => rej(tx.error); }); }
+async function idbGet(k) { const db = await idb(); return new Promise((res, rej) => { const tx = db.transaction('kv'); const q = tx.objectStore('kv').get(k); q.onsuccess = () => res(q.result); q.onerror = () => rej(q.error); }); }
+let saveTimer;
+function scheduleAutosave() { clearTimeout(saveTimer); saveTimer = setTimeout(() => { idbSet('project', JSON.stringify(snapshot())).catch(() => {}); }, 800); }
+
+/* ---------- Layers panel ---------- */
+function layerLabel(o) { return o.type === 'i-text' ? (o.text || 'Text').split('\n')[0].slice(0, 40) : (o.layerName || 'Image'); }
+function creditLine(c) { return c ? `${c.creator}, ${c.source}` : 'Your text'; }
+function renderLayers() {
+  const ol = $('#layers'); ol.innerHTML = '';
+  const objs = board.getObjects().slice().reverse();
+  const active = new Set(board.getActiveObjects());
+  if (!objs.length) { ol.innerHTML = '<li class="layers-empty">Nothing on the collage yet. Each image you add appears here with its credit.</li>'; return; }
+  for (const o of objs) {
+    const li = document.createElement('li');
+    li.className = 'layer' + (active.has(o) ? ' active' : '') + (o.visible === false ? ' hidden-layer' : '');
+    const thumb = o.type === 'image'
+      ? `<img class="layer-thumb" alt="" src="${esc(o.getSrc())}">`
+      : `<div class="layer-thumb" aria-hidden="true">T</div>`;
+    li.innerHTML = `${thumb}
+      <div class="layer-text"><div class="layer-name">${esc(layerLabel(o))}</div><div class="layer-credit">${esc(creditLine(o.credit))}</div></div>
+      <div class="layer-tools">
+        <button class="icon-btn" data-a="up" aria-label="Move up">${ICONS.up}</button>
+        <button class="icon-btn" data-a="down" aria-label="Move down">${ICONS.down}</button>
+        <button class="icon-btn" data-a="vis" aria-label="${o.visible === false ? 'Show layer' : 'Hide layer'}">${o.visible === false ? ICONS.eyeOff : ICONS.eye}</button>
+        <button class="icon-btn" data-a="del" aria-label="Delete layer">${ICONS.trash}</button>
+      </div>`;
+    li.addEventListener('click', e => {
+      const a = e.target.closest('button') && e.target.closest('button').dataset.a;
+      if (a === 'up') { board.bringForward(o); commit(); }
+      else if (a === 'down') { board.sendBackwards(o); commit(); }
+      else if (a === 'vis') { o.visible = o.visible === false; if (!o.visible) board.discardActiveObject(); commit(); }
+      else if (a === 'del') { board.remove(o); commit(); }
+      else if (o.visible !== false) { board.setActiveObject(o); }
+      board.requestRenderAll(); renderLayers(); renderSel();
+    });
+    ol.appendChild(li);
+  }
+}
+
+/* ---------- Selection panel ---------- */
+function renderSel() {
+  const p = $('#selPanel');
+  const objs = board.getActiveObjects();
+  if (!objs.length) { p.innerHTML = '<h2>Selected</h2><p class="sel-empty">Click a piece on the collage to adjust it. Drag the corners to scale, the top handle to rotate.</p>'; return; }
+  if (objs.length > 1) {
+    p.innerHTML = `<h2>${objs.length} pieces selected</h2><div class="sel-actions"><button class="btn small" id="sDup">Duplicate</button><button class="btn small danger" id="sDel">Delete</button></div>`;
+    $('#sDup').onclick = duplicate; $('#sDel').onclick = deleteSel; return;
+  }
+  const o = objs[0];
+  const isText = o.type === 'i-text';
+  p.innerHTML = `
+    <h2>${esc(layerLabel(o))}</h2>
+    ${o.credit ? `<p class="sel-empty">${esc(o.credit.attribution || creditLine(o.credit))}</p>` : ''}
+    <div class="sel-actions">
+      ${o.cutout ? '<button class="btn small primary" id="sEdit">Edit cut-out</button>' : ''}
+      <button class="btn small" id="sDup">Duplicate</button>
+      <button class="btn small" id="sFlipH">Flip across</button>
+      <button class="btn small" id="sFlipV">Flip down</button>
+      <button class="btn small" id="sFront">To front</button>
+      <button class="btn small" id="sBack">To back</button>
+      <button class="btn small danger" id="sDel">Delete</button>
+    </div>
+    <label class="field"><span>Opacity</span><input type="range" id="sOpacity" min="0.05" max="1" step="0.01" value="${o.opacity}"></label>
+    <label class="field"><span>Shadow</span><input type="checkbox" id="sShadow" ${o.shadow ? 'checked' : ''} style="justify-self:start"></label>
+    ${isText ? `
+      <label class="field"><span>Font</span><select id="sFont">${TEXT_FONTS.map(f => `<option ${f === o.fontFamily ? 'selected' : ''}>${f}</option>`).join('')}</select></label>
+      <label class="field"><span>Size</span><input type="number" id="sSize" min="8" max="2000" value="${Math.round(o.fontSize)}"></label>
+      <label class="field"><span>Colour</span><input type="color" id="sColor" value="${toHex(o.fill)}"></label>
+      <p class="sel-empty">Double-click the text on the collage to edit it.</p>` : ''}`;
+  if (o.cutout) $('#sEdit').onclick = () => editLayerCutout(o);
+  $('#sDup').onclick = duplicate; $('#sDel').onclick = deleteSel;
+  $('#sFlipH').onclick = () => { o.set('flipX', !o.flipX); board.requestRenderAll(); commit(); };
+  $('#sFlipV').onclick = () => { o.set('flipY', !o.flipY); board.requestRenderAll(); commit(); };
+  $('#sFront').onclick = () => { board.bringToFront(o); commit(); renderLayers(); };
+  $('#sBack').onclick = () => { board.sendToBack(o); commit(); renderLayers(); };
+  $('#sOpacity').oninput = e => { o.set('opacity', +e.target.value); board.requestRenderAll(); };
+  $('#sOpacity').onchange = commit;
+  $('#sShadow').onchange = e => {
+    const k = Math.max(art.w, art.h) / 1080;
+    o.set('shadow', e.target.checked ? new fabric.Shadow({ color: 'rgba(0,0,0,0.35)', blur: 18 * k, offsetX: 5 * k, offsetY: 8 * k }) : null);
+    board.requestRenderAll(); commit();
+  };
+  if (isText) {
+    $('#sFont').onchange = async e => { await document.fonts.load('40px "' + e.target.value + '"').catch(() => {}); o.set('fontFamily', e.target.value); board.requestRenderAll(); commit(); };
+    $('#sSize').onchange = e => { o.set('fontSize', clamp(+e.target.value, 8, 2000)); board.requestRenderAll(); commit(); };
+    $('#sColor').oninput = e => { o.set('fill', e.target.value); board.requestRenderAll(); };
+    $('#sColor').onchange = commit;
+  }
+}
+function duplicate() {
+  const objs = board.getActiveObjects(); if (!objs.length) return;
+  board.discardActiveObject();
+  let pending = objs.length; const made = [];
+  objs.forEach(o => o.clone(c => {
+    c.set({ left: c.left + 24, top: c.top + 24 }); board.add(c); made.push(c);
+    if (--pending === 0) {
+      board.setActiveObject(made.length > 1 ? new fabric.ActiveSelection(made, { canvas: board }) : made[0]);
+      board.requestRenderAll(); commit(); renderLayers(); renderSel();
+    }
+  }, PROPS));
+}
+function deleteSel() {
+  const objs = board.getActiveObjects(); if (!objs.length) return;
+  board.discardActiveObject(); objs.forEach(o => board.remove(o)); board.requestRenderAll(); commit(); renderLayers(); renderSel();
+}
+
+/* ---------- Keyboard (main) ---------- */
+document.addEventListener('keydown', e => {
+  if (!$('#editor').hidden) return;
+  if (document.querySelector('dialog[open]')) return;
+  const tag = (e.target.tagName || '').toLowerCase();
+  if (['input', 'textarea', 'select'].includes(tag)) return;
+  const act = board.getActiveObject();
+  if (act && act.isEditing) return;
+  const mod = e.metaKey || e.ctrlKey;
+  if (mod && e.key.toLowerCase() === 'z') { e.preventDefault(); e.shiftKey ? redo() : undo(); return; }
+  if (mod && e.key.toLowerCase() === 'y') { e.preventDefault(); redo(); return; }
+  if (mod && e.key.toLowerCase() === 'd') { e.preventDefault(); duplicate(); return; }
+  if (!act) return;
+  if (e.key === 'Delete' || e.key === 'Backspace') { e.preventDefault(); deleteSel(); return; }
+  const step = e.shiftKey ? 10 : 1;
+  const mv = { ArrowLeft: [-step, 0], ArrowRight: [step, 0], ArrowUp: [0, -step], ArrowDown: [0, step] }[e.key];
+  if (mv) { e.preventDefault(); act.set({ left: act.left + mv[0], top: act.top + mv[1] }); act.setCoords(); board.requestRenderAll(); clearTimeout(window.__nudge); window.__nudge = setTimeout(commit, 400); return; }
+  if (e.key === ']') { board.bringForward(act); commit(); renderLayers(); }
+  if (e.key === '[') { board.sendBackwards(act); commit(); renderLayers(); }
+});
+
+/* ---------- Cut-out editor ---------- */
+const Editor = (() => {
+  const stage = $('#edStage'), cv = $('#edCanvas'), ctx = cv.getContext('2d');
+  let src, mask, mctx, comp, cctx, W, H, opts;
+  let s = 1, ox = 0, oy = 0, dpr = 1;
+  let tool = 'lasso', lassoMode = 'keep', brush = 40, ghost = true;
+  let lasso = null; // {pts: [], freehand: bool}
+  let drawing = false, panning = false, spaceDown = false, last = null, hover = null, downAt = null;
+  let undoStack = [], redoStack = [];
+  let checker;
+
+  function makeChecker() {
+    const c = document.createElement('canvas'); c.width = c.height = 16;
+    const x = c.getContext('2d'); x.fillStyle = '#f4f6f4'; x.fillRect(0, 0, 16, 16); x.fillStyle = '#d9ddd9'; x.fillRect(0, 0, 8, 8); x.fillRect(8, 8, 8, 8);
+    return ctx.createPattern(c, 'repeat');
+  }
+  function resize() {
+    const r = stage.getBoundingClientRect(); dpr = window.devicePixelRatio || 1;
+    cv.width = Math.max(1, Math.round(r.width * dpr)); cv.height = Math.max(1, Math.round(r.height * dpr));
+    checker = makeChecker(); render();
+  }
+  function fit() {
+    const r = stage.getBoundingClientRect();
+    s = Math.min((r.width - 60) / W, (r.height - 60) / H);
+    ox = (r.width - W * s) / 2; oy = (r.height - H * s) / 2; render();
+  }
+  function zoomAt(f, sx, sy) {
+    const ns = clamp(s * f, 0.02, 16);
+    ox = sx - (sx - ox) * (ns / s); oy = sy - (sy - oy) * (ns / s); s = ns; render();
+  }
+  function updateComp() {
+    cctx.globalCompositeOperation = 'source-over'; cctx.clearRect(0, 0, W, H);
+    cctx.drawImage(src, 0, 0);
+    cctx.globalCompositeOperation = 'destination-in'; cctx.drawImage(mask, 0, 0);
+    cctx.globalCompositeOperation = 'source-over';
+  }
+  function render() {
+    if (!src) return;
+    const r = stage.getBoundingClientRect();
+    ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.clearRect(0, 0, cv.width, cv.height);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.fillStyle = checker; ctx.fillRect(ox, oy, W * s, H * s);
+    ctx.save();
+    ctx.translate(ox, oy); ctx.scale(s, s);
+    ctx.imageSmoothingEnabled = s < 2;
+    if (ghost) { ctx.globalAlpha = 0.22; ctx.drawImage(src, 0, 0); ctx.globalAlpha = 1; }
+    ctx.drawImage(comp, 0, 0);
+    ctx.restore();
+    // Lasso path
+    if (lasso && lasso.pts.length) {
+      ctx.beginPath();
+      lasso.pts.forEach((p, i) => { const x = ox + p.x * s, y = oy + p.y * s; i ? ctx.lineTo(x, y) : ctx.moveTo(x, y); });
+      if (hover && !drawing) ctx.lineTo(hover.sx, hover.sy);
+      ctx.lineWidth = 3; ctx.strokeStyle = '#2c3d50'; ctx.setLineDash([]); ctx.stroke();
+      ctx.lineWidth = 1.5; ctx.strokeStyle = '#dfb81f'; ctx.setLineDash([6, 4]); ctx.stroke(); ctx.setLineDash([]);
+      const p0 = lasso.pts[0]; ctx.beginPath(); ctx.arc(ox + p0.x * s, oy + p0.y * s, 6, 0, Math.PI * 2);
+      ctx.fillStyle = '#dfb81f'; ctx.fill(); ctx.strokeStyle = '#2c3d50'; ctx.lineWidth = 1.5; ctx.stroke();
+    }
+    // Brush cursor
+    if (hover && (tool === 'erase' || tool === 'restore') && !panning && !spaceDown) {
+      ctx.beginPath(); ctx.arc(hover.sx, hover.sy, Math.max(1, brush * s / 2), 0, Math.PI * 2);
+      ctx.lineWidth = 3; ctx.strokeStyle = 'rgba(44,61,80,.9)'; ctx.stroke();
+      ctx.lineWidth = 1.5; ctx.strokeStyle = tool === 'erase' ? '#ffffff' : '#dfb81f'; ctx.stroke();
+    }
+    void r;
+  }
+  function setCursor() {
+    stage.style.cursor = (panning || spaceDown || tool === 'pan') ? (panning ? 'grabbing' : 'grab') : (tool === 'lasso' ? 'crosshair' : 'none');
+  }
+  // Undo stack holds PNG blobs of the mask, which keeps memory reasonable for large images.
+  function pushUndo() {
+    const c = document.createElement('canvas'); c.width = W; c.height = H; c.getContext('2d').drawImage(mask, 0, 0);
+    undoStack.push(c); if (undoStack.length > 20) undoStack.shift(); redoStack = [];
+    updateBtns();
+  }
+  function snapMask() { const c = document.createElement('canvas'); c.width = W; c.height = H; c.getContext('2d').drawImage(mask, 0, 0); return c; }
+  function putMask(c) { mctx.globalCompositeOperation = 'source-over'; mctx.clearRect(0, 0, W, H); mctx.drawImage(c, 0, 0); updateComp(); render(); }
+  function edUndo() { if (!undoStack.length) return; redoStack.push(snapMask()); putMask(undoStack.pop()); updateBtns(); }
+  function edRedo() { if (!redoStack.length) return; undoStack.push(snapMask()); putMask(redoStack.pop()); updateBtns(); }
+  function updateBtns() { $('#edUndo').disabled = !undoStack.length; $('#edRedo').disabled = !redoStack.length; }
+
+  function toImg(e) {
+    const r = stage.getBoundingClientRect(); const sx = e.clientX - r.left, sy = e.clientY - r.top;
+    return { sx, sy, x: (sx - ox) / s, y: (sy - oy) / s };
+  }
+  function strokeTo(p) {
+    mctx.save();
+    mctx.globalCompositeOperation = tool === 'erase' ? 'destination-out' : 'source-over';
+    mctx.strokeStyle = '#fff'; mctx.fillStyle = '#fff'; mctx.lineWidth = brush; mctx.lineCap = 'round'; mctx.lineJoin = 'round';
+    mctx.beginPath();
+    if (last) { mctx.moveTo(last.x, last.y); mctx.lineTo(p.x, p.y); mctx.stroke(); }
+    else { mctx.arc(p.x, p.y, brush / 2, 0, Math.PI * 2); mctx.fill(); }
+    mctx.restore();
+    last = p; updateComp(); render();
+  }
+  function closeLasso() {
+    if (!lasso || lasso.pts.length < 3) { lasso = null; render(); return; }
+    pushUndo();
+    const path = new Path2D();
+    lasso.pts.forEach((p, i) => i ? path.lineTo(p.x, p.y) : path.moveTo(p.x, p.y)); path.closePath();
+    mctx.save(); mctx.fillStyle = '#fff';
+    mctx.globalCompositeOperation = lassoMode === 'keep' ? 'destination-in' : lassoMode === 'remove' ? 'destination-out' : 'source-over';
+    mctx.fill(path); mctx.restore();
+    lasso = null; updateComp(); render();
+  }
+  function nearStart(p) { const p0 = lasso.pts[0]; return Math.hypot((p.x - p0.x) * s, (p.y - p0.y) * s) < 10; }
+
+  stage.addEventListener('pointerdown', e => {
+    if (e.button === 2) return;
+    stage.setPointerCapture(e.pointerId);
+    const p = toImg(e); downAt = p;
+    if (e.button === 1 || spaceDown || tool === 'pan') { panning = true; last = p; setCursor(); return; }
+    if (tool === 'lasso') {
+      if (lasso && lasso.pts.length >= 3 && nearStart(p)) { closeLasso(); return; }
+      if (!lasso) lasso = { pts: [], dragged: false, fresh: true };
+      lasso.pts.push({ x: p.x, y: p.y }); drawing = true; render(); return;
+    }
+    pushUndo(); drawing = true; last = null; strokeTo(p);
+  });
+  stage.addEventListener('pointermove', e => {
+    const p = toImg(e); hover = p;
+    if (panning) { ox += p.sx - last.sx; oy += p.sy - last.sy; last = p; render(); return; }
+    if (drawing && tool === 'lasso' && lasso) {
+      const lp = lasso.pts[lasso.pts.length - 1];
+      if (Math.hypot((p.x - lp.x) * s, (p.y - lp.y) * s) > 2) { lasso.pts.push({ x: p.x, y: p.y }); }
+      if (Math.hypot(p.sx - downAt.sx, p.sy - downAt.sy) > 8) lasso.dragged = true;
+      render(); return;
+    }
+    if (drawing) { strokeTo(p); return; }
+    render();
+  });
+  const endPointer = (e) => {
+    if (panning) { panning = false; setCursor(); return; }
+    if (drawing && tool === 'lasso' && lasso) {
+      drawing = false;
+      // A single freehand drag from a fresh start closes itself; otherwise keep adding points by clicking.
+      if (lasso.fresh && lasso.dragged && lasso.pts.length > 8) { closeLasso(); return; }
+      lasso.fresh = false; render(); return;
+    }
+    if (drawing) { drawing = false; last = null; }
+  };
+  stage.addEventListener('pointerup', endPointer);
+  stage.addEventListener('pointercancel', endPointer);
+  stage.addEventListener('pointerleave', () => { hover = null; render(); });
+  stage.addEventListener('dblclick', e => { if (tool === 'lasso' && lasso) { e.preventDefault(); closeLasso(); } });
+  stage.addEventListener('contextmenu', e => e.preventDefault());
+  stage.addEventListener('wheel', e => {
+    e.preventDefault();
+    const p = toImg(e);
+    if (e.ctrlKey || e.metaKey) zoomAt(Math.exp(-e.deltaY * 0.01), p.sx, p.sy);
+    else { ox -= e.deltaX; oy -= e.deltaY; render(); }
+  }, { passive: false });
+
+  function onKey(e) {
+    if ($('#editor').hidden) return;
+    if (e.target.tagName === 'INPUT' && e.target.type !== 'range' && e.target.type !== 'radio' && e.target.type !== 'checkbox') return;
+    const mod = e.metaKey || e.ctrlKey;
+    if (e.type === 'keyup') { if (e.code === 'Space') { spaceDown = false; setCursor(); render(); } return; }
+    if (e.code === 'Space') { e.preventDefault(); spaceDown = true; setCursor(); return; }
+    if (mod && e.key.toLowerCase() === 'z') { e.preventDefault(); e.shiftKey ? edRedo() : edUndo(); return; }
+    if (e.key === 'Escape') { e.preventDefault(); if (lasso) { lasso = null; render(); } else close(); return; }
+    if (e.key === 'Enter' && lasso) { e.preventDefault(); closeLasso(); return; }
+    if (e.key === 'Backspace' && lasso && lasso.pts.length > 1) { e.preventDefault(); lasso.pts.pop(); render(); return; }
+    if (e.key === '+' || e.key === '=') { const r = stage.getBoundingClientRect(); zoomAt(1.25, r.width / 2, r.height / 2); }
+    if (e.key === '-') { const r = stage.getBoundingClientRect(); zoomAt(0.8, r.width / 2, r.height / 2); }
+    if (e.key === '0') fit();
+    if (!mod) {
+      const k = e.key.toLowerCase();
+      if (k === 'l') setTool('lasso'); if (k === 'h') setTool('pan'); if (k === 'e') setTool('erase'); if (k === 'r') setTool('restore');
+      if (e.key === '[') setBrush(brush / 1.25); if (e.key === ']') setBrush(brush * 1.25);
+    }
+  }
+  document.addEventListener('keydown', onKey); document.addEventListener('keyup', onKey);
+
+  const HELP = {
+    lasso: 'Drag to draw freehand. Or click point by point for straight edges, then click the first point, double-click, or press <kbd>Enter</kbd> to close. <kbd>Backspace</kbd> removes the last point; <kbd>Esc</kbd> cancels.',
+    pan: 'Drag to move around the image. Hold <kbd>Space</kbd> with any tool to do the same.',
+    erase: 'Paint over anything you want gone. <kbd>[</kbd> and <kbd>]</kbd> change the brush size.',
+    restore: 'Paint back anything removed by mistake. <kbd>[</kbd> and <kbd>]</kbd> change the brush size.'
+  };
+  function setTool(t) {
+    tool = t; const id = { lasso: 'tLasso', pan: 'tHand', erase: 'tErase', restore: 'tRestore' }[t]; $('#' + id).checked = true;
+    $('#lassoModes').hidden = t !== 'lasso'; $('#brushRow').hidden = !(t === 'erase' || t === 'restore');
+    $('#edHelp').innerHTML = HELP[t] + ' Scroll to pan; pinch, or hold <kbd>⌘</kbd> or <kbd>Ctrl</kbd> and scroll, to zoom.';
+    if (t !== 'lasso') lasso = null;
+    setCursor(); render();
+  }
+  function setBrush(v) { brush = Math.round(clamp(v, 2, 300)); $('#brushSize').value = brush; $('#brushOut').textContent = brush; render(); }
+  document.querySelectorAll('input[name="edTool"]').forEach(r => r.addEventListener('change', e => setTool(e.target.value)));
+  document.querySelectorAll('input[name="lassoMode"]').forEach(r => r.addEventListener('change', e => { lassoMode = e.target.value; }));
+  $('#brushSize').addEventListener('input', e => setBrush(+e.target.value));
+  $('#feather').addEventListener('input', e => { $('#featherOut').textContent = e.target.value + ' px'; });
+  $('#ghost').addEventListener('change', e => { ghost = e.target.checked; render(); });
+  $('#edFit').onclick = fit;
+  $('#ed100').onclick = () => { const r = stage.getBoundingClientRect(); zoomAt(1 / s, r.width / 2, r.height / 2); };
+  $('#edZoomIn').onclick = () => { const r = stage.getBoundingClientRect(); zoomAt(1.5, r.width / 2, r.height / 2); };
+  $('#edUndo').onclick = edUndo; $('#edRedo').onclick = edRedo;
+  $('#edInvert').onclick = () => {
+    pushUndo(); mctx.save(); mctx.globalCompositeOperation = 'xor'; mctx.fillStyle = '#fff'; mctx.fillRect(0, 0, W, H); mctx.restore(); updateComp(); render();
+  };
+  $('#edReset').onclick = () => { pushUndo(); mctx.globalCompositeOperation = 'source-over'; mctx.fillStyle = '#fff'; mctx.fillRect(0, 0, W, H); updateComp(); render(); };
+  $('#edCancel').onclick = () => close();
+  $('#edDone').onclick = () => finish();
+  window.addEventListener('resize', () => { if (!$('#editor').hidden) resize(); });
+
+  let bgModule = null;
+  $('#edAuto').onclick = async () => {
+    const btn = $('#edAuto'); btn.disabled = true;
+    const status = $('#edStatus');
+    try {
+      status.textContent = 'Loading the cut-out model. The first run downloads about 40 MB, then it is cached.';
+      if (!bgModule) bgModule = await import('https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.7.0/+esm');
+      const blob = await new Promise(r => src.toBlob(r, 'image/png'));
+      const out = await bgModule.removeBackground(blob, {
+        model: 'isnet_fp16', output: { format: 'image/png' },
+        progress: (key, cur, total) => { if (total) status.textContent = 'Downloading model ' + Math.round(cur / total * 100) + '%'; }
+      });
+      status.textContent = 'Finding the subject…';
+      const bmp = await createImageBitmap(out);
+      pushUndo();
+      mctx.save(); mctx.globalCompositeOperation = 'destination-in'; mctx.drawImage(bmp, 0, 0, W, H); mctx.restore();
+      updateComp(); render();
+      status.textContent = 'Done. Tidy the edges with Erase, Restore, or the lasso.';
+      setTimeout(() => { if (status.textContent.startsWith('Done')) status.textContent = ''; }, 4000);
+    } catch (err) {
+      console.error(err);
+      status.textContent = 'Automatic removal failed: ' + (err.message || err) + '. The lasso and brushes still work.';
+      setTimeout(() => status.textContent = '', 8000);
+    } finally { btn.disabled = false; }
+  };
+
+  function featheredMask() {
+    const f = +$('#feather').value;
+    if (!f) return mask;
+    const c = document.createElement('canvas'); c.width = W; c.height = H; const x = c.getContext('2d');
+    if ('filter' in x) { x.filter = `blur(${f}px)`; }
+    x.drawImage(mask, 0, 0);
+    // Blur softens both ways; trim the outer half back so edges don't grow a halo.
+    if ('filter' in x) { x.filter = 'none'; x.globalCompositeOperation = 'destination-in'; x.drawImage(mask, 0, 0); }
+    return c;
+  }
+  function alphaBox(c) {
+    const d = c.getContext('2d').getImageData(0, 0, c.width, c.height).data;
+    let x0 = c.width, y0 = c.height, x1 = -1, y1 = -1;
+    for (let y = 0; y < c.height; y++) {
+      const row = y * c.width * 4;
+      for (let x = 0; x < c.width; x++) {
+        if (d[row + x * 4 + 3] > 8) { if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; y1 = y; }
+      }
+    }
+    return x1 < 0 ? null : { x: x0, y: y0, w: x1 - x0 + 1, h: y1 - y0 + 1 };
+  }
+  function finish() {
+    if (lasso && lasso.pts.length >= 3) closeLasso();
+    const fm = featheredMask();
+    const out = document.createElement('canvas'); out.width = W; out.height = H; const x = out.getContext('2d');
+    x.drawImage(src, 0, 0); x.globalCompositeOperation = 'destination-in'; x.drawImage(fm, 0, 0);
+    const box = alphaBox(out);
+    if (!box) { $('#edStatus').textContent = 'Everything has been removed. Use Reset or Undo to bring some back.'; setTimeout(() => $('#edStatus').textContent = '', 4000); return; }
+    const crop = document.createElement('canvas'); crop.width = box.w; crop.height = box.h;
+    crop.getContext('2d').drawImage(out, box.x, box.y, box.w, box.h, 0, 0, box.w, box.h);
+    const res = {
+      dataURL: crop.toDataURL('image/png'),
+      cutout: { src: opts.srcURL, mask: mask.toDataURL('image/png'), crop: box, feather: +$('#feather').value }
+    };
+    const cb = opts.onDone; close(); cb(res);
+  }
+  function open(o) {
+    opts = o;
+    src = o.src; W = src.width; H = src.height;
+    opts.srcURL = canvasToDataURL(src, hasAlpha(src) ? 'image/png' : 'image/jpeg', 0.92);
+    mask = document.createElement('canvas'); mask.width = W; mask.height = H; mctx = mask.getContext('2d');
+    if (o.mask) mctx.drawImage(o.mask, 0, 0, W, H); else { mctx.fillStyle = '#fff'; mctx.fillRect(0, 0, W, H); }
+    comp = document.createElement('canvas'); comp.width = W; comp.height = H; cctx = comp.getContext('2d');
+    undoStack = []; redoStack = []; updateBtns(); lasso = null;
+    $('#feather').value = o.feather != null ? o.feather : 1; $('#featherOut').textContent = $('#feather').value + ' px';
+    $('#edCredit').textContent = o.credit ? (o.credit.attribution || creditLine(o.credit)) : '';
+    $('#edDone').textContent = o.updating ? 'Update layer' : 'Place on collage';
+    $('#edStatus').textContent = '';
+    $('#editor').hidden = false;
+    updateComp(); setTool('lasso'); setBrush(Math.round(Math.max(W, H) / 40));
+    requestAnimationFrame(() => { resize(); fit(); $('#tLasso').focus(); });
+  }
+  function close() { $('#editor').hidden = true; src = mask = comp = null; lasso = null; }
+  return { open, close };
+})();
+
+/* ---------- Credits ---------- */
+function collectCredits() {
+  const seen = new Map();
+  for (const o of board.getObjects()) {
+    if (o.visible === false || !o.credit) continue;
+    const k = o.credit.sourceUrl || (o.credit.title + '|' + o.credit.creator);
+    if (!seen.has(k)) seen.set(k, o.credit);
+  }
+  return [...seen.values()];
+}
+function creditsText(style, title, name) {
+  const list = collectCredits();
+  if (style === 'short') {
+    const head = title ? `${quoteTitle(title)}${name ? ', a collage by ' + name : ''}.` : (name ? `Collage by ${name}.` : '');
+    if (!list.length) return head;
+    const pd = (c) => /cc0|public domain/i.test(c.licence) && c.source !== 'Wikimedia Commons' ? ' (public domain)' : '';
+    return (head ? head + ' ' : '') + 'Source images: ' + list.map(c => c.attribution + pd(c)).join('; ') + '.';
+  }
+  const date = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+  const lines = [];
+  if (title) lines.push(title);
+  lines.push((name ? `Collage by ${name}, ` : 'Collage, ') + date + '.');
+  if (list.length) {
+    lines.push('', 'Source images');
+    list.forEach((c, i) => {
+      lines.push('', `${i + 1}. ${c.attribution}`);
+      lines.push(c.sourceUrl);
+      if (c.creatorUrl) lines.push('Creator: ' + c.creatorUrl);
+      lines.push('Licence: ' + c.licence + (c.licenceUrl ? ' (' + c.licenceUrl + ')' : ''));
+    });
+  }
+  return lines.join('\n');
+}
+
+/* ---------- PNG metadata ---------- */
+const CRC_TABLE = (() => { const t = new Uint32Array(256); for (let n = 0; n < 256; n++) { let c = n; for (let k = 0; k < 8; k++) c = c & 1 ? 0xEDB88320 ^ (c >>> 1) : c >>> 1; t[n] = c >>> 0; } return t; })();
+function crc32(bytes) { let c = 0xFFFFFFFF; for (let i = 0; i < bytes.length; i++) c = CRC_TABLE[(c ^ bytes[i]) & 0xFF] ^ (c >>> 8); return (c ^ 0xFFFFFFFF) >>> 0; }
+function u32(n) { return new Uint8Array([(n >>> 24) & 255, (n >>> 16) & 255, (n >>> 8) & 255, n & 255]); }
+function concat(arrs) { const len = arrs.reduce((a, b) => a + b.length, 0); const o = new Uint8Array(len); let p = 0; for (const a of arrs) { o.set(a, p); p += a.length; } return o; }
+function chunk(type, data) { const t = new TextEncoder().encode(type); const body = concat([t, data]); return concat([u32(data.length), body, u32(crc32(body))]); }
+function iTXt(keyword, text) {
+  const enc = new TextEncoder();
+  return chunk('iTXt', concat([enc.encode(keyword), new Uint8Array([0, 0, 0, 0, 0]), enc.encode(text)]));
+}
+function xmlEsc(s) { return String(s).replace(/[<>&'"]/g, c => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;', "'": '&apos;', '"': '&quot;' }[c])); }
+function xmp(title, name, desc) {
+  return `<?xpacket begin="﻿" id="W5M0MpCehiHzreSzNTczkc9d"?>
+<x:xmpmeta xmlns:x="adobe:ns:meta/"><rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+<rdf:Description rdf:about="" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xmp="http://ns.adobe.com/xap/1.0/">
+${title ? `<dc:title><rdf:Alt><rdf:li xml:lang="x-default">${xmlEsc(title)}</rdf:li></rdf:Alt></dc:title>` : ''}
+${name ? `<dc:creator><rdf:Seq><rdf:li>${xmlEsc(name)}</rdf:li></rdf:Seq></dc:creator>` : ''}
+<dc:description><rdf:Alt><rdf:li xml:lang="x-default">${xmlEsc(desc)}</rdf:li></rdf:Alt></dc:description>
+<xmp:CreatorTool>Paste-up</xmp:CreatorTool>
+</rdf:Description></rdf:RDF></x:xmpmeta>
+<?xpacket end="w"?>`;
+}
+async function withMetadata(blob, { title, name, short, full }) {
+  const buf = new Uint8Array(await blob.arrayBuffer());
+  const ihdrEnd = 8 + 4 + 4 + 13 + 4;
+  const extra = [];
+  if (title) extra.push(iTXt('Title', title));
+  if (name) extra.push(iTXt('Author', name));
+  extra.push(iTXt('Description', short));
+  extra.push(iTXt('Comment', full));
+  extra.push(iTXt('Software', 'Paste-up'));
+  extra.push(iTXt('XML:com.adobe.xmp', xmp(title, name, short)));
+  return new Blob([concat([buf.slice(0, ihdrEnd), ...extra, buf.slice(ihdrEnd)])], { type: 'image/png' });
+}
+function download(blob, name) {
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name;
+  document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+}
+function slug(s) { return (s || '').toLowerCase().normalize('NFKD').replace(/[^\w\s-]/g, '').trim().replace(/[\s_]+/g, '-').slice(0, 60); }
+function fileBase(title) { const d = new Date().toISOString().slice(0, 10); return (slug(title) || 'collage') + '-' + d; }
+
+/* ---------- Export dialog ---------- */
+function refreshCredits() {
+  const style = document.querySelector('input[name="cstyle"]:checked').value;
+  $('#exCredits').value = creditsText(style, $('#exTitle').value.trim(), $('#exName').value.trim());
+}
+$('#exportBtn').onclick = () => {
+  if (!board.getObjects().length) { toast('Add something to the collage first.'); return; }
+  $('#exName').value = $('#exName').value || settings.name;
+  $('#exTitle').value = $('#exTitle').value || store.get('lastTitle', '');
+  $('#ex1').textContent = `${art.w} × ${art.h}`; $('#ex2').textContent = `${art.w * 2} × ${art.h * 2} (sharper, larger file)`;
+  refreshCredits(); $('#exportDlg').showModal();
+};
+['#exTitle', '#exName'].forEach(s => $(s).addEventListener('input', refreshCredits));
+document.querySelectorAll('input[name="cstyle"]').forEach(r => r.addEventListener('change', refreshCredits));
+$('#exCopy').onclick = async () => {
+  try { await navigator.clipboard.writeText($('#exCredits').value); toast('Credits copied.'); }
+  catch { $('#exCredits').select(); document.execCommand('copy'); toast('Credits copied.'); }
+};
+$('#exDownload').onclick = async () => {
+  const title = $('#exTitle').value.trim(), name = $('#exName').value.trim();
+  store.set('lastTitle', title);
+  const scale = +document.querySelector('input[name="scale"]:checked').value;
+  board.discardActiveObject(); board.renderAll(); renderSel(); renderLayers();
+  const prevZoom = zoom; setView(1);
+  const url = board.toDataURL({ format: 'png', multiplier: scale, enableRetinaScaling: false });
+  setView(prevZoom);
+  const raw = await (await fetch(url)).blob();
+  const short = creditsText('short', title, name), full = creditsText('full', title, name);
+  const png = await withMetadata(raw, { title, name, short, full });
+  const base = fileBase(title);
+  download(png, base + '.png');
+  if ($('#exSidecar').checked) setTimeout(() => download(new Blob([full + '\n'], { type: 'text/plain;charset=utf-8' }), base + '-credits.txt'), 400);
+  toast('Downloaded ' + base + '.png');
+};
+
+/* ---------- Settings dialog ---------- */
+function openSettings() {
+  $('#setName').value = settings.name; $('#setPexels').value = settings.pexels; $('#setUnsplash').value = settings.unsplash; $('#setUnsplashApp').value = settings.unsplashApp;
+  document.querySelectorAll('input[name="theme"]').forEach(r => r.checked = r.value === settings.theme);
+  $('#settingsDlg').showModal();
+}
+$('#settingsBtn').onclick = openSettings;
+$('#settingsDlg').addEventListener('close', () => {
+  if ($('#settingsDlg').returnValue !== 'save') return;
+  settings = {
+    name: $('#setName').value.trim(), pexels: $('#setPexels').value.trim(), unsplash: $('#setUnsplash').value.trim(),
+    unsplashApp: $('#setUnsplashApp').value.trim(), theme: document.querySelector('input[name="theme"]:checked').value
+  };
+  store.set('settings', settings); applyTheme(); updateSourceNote(); toast('Settings saved in this browser.');
+});
+
+/* ---------- Project files ---------- */
+$('#saveBtn').onclick = () => {
+  const data = JSON.stringify({ app: 'paste-up', version: 1, saved: new Date().toISOString(), art, canvas: board.toJSON(PROPS) });
+  download(new Blob([data], { type: 'application/json' }), fileBase(store.get('lastTitle', '')) + '.pasteup.json');
+};
+$('#openBtn').onclick = () => $('#openFile').click();
+$('#openFile').addEventListener('change', async e => {
+  const f = e.target.files[0]; e.target.value = ''; if (!f) return;
+  try {
+    const data = JSON.parse(await f.text());
+    if (data.app !== 'paste-up') throw new Error('That file is not a Paste-up project.');
+    restore({ art: data.art, json: data.canvas }, () => { commit(); fitView(); toast('Opened ' + f.name); });
+  } catch (err) { toast(err.message || 'Could not open that file.', 5000); }
+});
+$('#newBtn').onclick = () => {
+  if (board.getObjects().length && !confirm('Start a new collage? Anything you haven\'t saved as a project file will be lost (Undo can still bring it back).')) return;
+  board.clear(); board.backgroundColor = '#ffffff'; syncBg(); board.requestRenderAll(); commit(); renderLayers(); renderSel(); updateEmpty();
+};
+
+/* ---------- Start ---------- */
+async function start() {
+  setArtSize(1080, 1350, true);
+  syncBg(); renderLayers(); renderSel(); updateEmpty();
+  try {
+    const saved = await idbGet('project');
+    if (saved) { const snap = JSON.parse(saved); restore(snap, () => { commit(); fitView(); }); return; }
+  } catch {}
+  commit();
+}
+window.PasteUp = { board, addCutout, Editor, creditsText, withMetadata, wholeImage }; // handy for debugging in the console
+start();
+})();
+</script>
+</body>
+</html>
