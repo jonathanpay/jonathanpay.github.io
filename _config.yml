@@ -44,3 +44,4 @@ exclude:
   - workshops/london-forum/README.md
   - workshops/london-forum/docs
   - workshops/london-forum/apps-script
+  - workshops/london-forum/tools
