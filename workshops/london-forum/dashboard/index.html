@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex,nofollow"><meta name="description" content="Facilitator view of combined results for one London Forum workshop session."><title>Room patterns · London Forum workshop</title><link rel="icon" href="../email-maturity-assessment/assets/hea-logo-icon.png"><link rel="stylesheet" href="./dashboard.css"></head>
+<body>
+<section id="controls" class="controls" aria-label="Facilitator controls">
+  <form id="connect" autocomplete="off">
+    <label>Session <select id="session"></select></label>
+    <label>Facilitator key <input id="key" type="password" autocomplete="off" spellcheck="false" aria-describedby="keyhelp"></label>
+    <button class="primary" type="submit" id="connect-btn">Connect</button>
+    <span id="keyhelp" class="hint">Checked by the collector. Never put it in the address bar.</span>
+  </form>
+  <div class="actions">
+    <button id="refresh" type="button" disabled>Refresh <kbd>R</kbd></button>
+    <button id="freeze" type="button" aria-pressed="false" disabled>Freeze <kbd>F</kbd></button>
+    <button id="synthetic" type="button" aria-pressed="false">Synthetic example</button>
+    <button id="disconnect" type="button" disabled>Disconnect</button>
+    <button id="hide" type="button">Hide controls <kbd>H</kbd></button>
+  </div>
+</section>
+<main id="stage" class="stage">
+  <header class="top">
+    <div class="brand"><img src="../email-maturity-assessment/assets/hea-logo-icon.png" alt="" width="40" height="40"><div><p class="eyebrow">Holistic Email Academy</p><h1 id="title">Room patterns</h1></div></div>
+    <dl class="facts">
+      <div><dt>Submitted assessments</dt><dd id="count">–</dd></div>
+      <div><dt>Snapshot</dt><dd id="snapshot">–</dd></div>
+      <div><dt>View</dt><dd id="mode">Not connected</dd></div>
+    </dl>
+  </header>
+  <p id="banner" class="banner" role="status" hidden></p>
+  <div id="board"></div>
+  <footer class="foot"><p>These patterns describe the assessments submitted in this workshop session only. They are not an industry benchmark and do not explain why a pattern exists. “Unconfirmed” means people could not confirm that area; it is a visibility gap, not a low score.</p></footer>
+</main>
+<script src="./config.js"></script><script src="./dashboard.js"></script>
+</body></html>
