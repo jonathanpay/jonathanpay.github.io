@@ -15,7 +15,7 @@ Fits the one-hour script (`aggregate dashboard` at minutes 35–45). Times are t
 ## Rehearsal plan (synthetic data only)
 
 1. Use `lf-rehearsal`. Tell participants to answer with made-up details.
-2. Submit at least 5, including: one answering "I don't know" throughout, one with two tied lowest areas, one partial. Make them across devices.
+2. Fastest route: `node workshops/london-forum/tools/seed-rehearsal.mjs` sends 30 synthetic records (every result state, ties, boundaries, all nine obstacles, skipped and unanswered) through the real collector. It refuses any session that is not an open rehearsal, and `--dry-run` prints the counts the dashboard should show. Re-running a batch rewrites the same rows; use `--batch B` for more. Or submit by hand, at least 5, including: one answering "I don't know" throughout, one with two tied lowest areas, one partial. Make them across devices.
 3. On the dashboard check against the sheet: submitted = rows not marked `Excluded`; each area row adds up to the submitted count; result-state counts add up; limiting-area bars may add up to more than the complete count (ties).
 4. Mark one row `Excluded`; Refresh; the count drops by one.
 5. Complete one response and, while it saves, switch the phone to airplane mode: the page must say it has not saved, keep the result, and say "saved" only after reconnecting.
