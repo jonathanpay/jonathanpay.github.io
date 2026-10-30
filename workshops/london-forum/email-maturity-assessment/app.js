@@ -4,7 +4,7 @@ const D=window.HEA_DATA,E=window.HEA_ENGINE,app=document.getElementById('app'),W
 // Workshop collector only. The pilot's collector is refused by ID and by shape, so a copied
 // config can never send workshop answers to the pilot sheet. Empty means submission is off.
 const PILOT_COLLECTOR_ID='AKfycbyGgFzMvzFunL9MXWww0rAq14PYqkbJ-6Xnc5DctBqLYxUCWRT1W0vadCzkZ0PoVCz3';
-const collectorUrl=(u=>/^https:\/\/script\.google\.com\/macros\/s\/[A-Za-z0-9_-]{20,}\/exec$/.test(u)&&!u.includes(PILOT_COLLECTOR_ID)?u:'')(String(W.collectorUrl||'').trim());
+const collectorUrl=(u=>/^https:\/\/script\.google\.com\/(?:a\/macros\/[a-z0-9.-]+|macros)\/s\/[A-Za-z0-9_-]{20,}\/exec$/.test(u)&&!u.includes(PILOT_COLLECTOR_ID)?u:'')(String(W.collectorUrl||'').trim());
 const eventId=String(W.eventId||'').trim(),buildVersion=String(W.buildVersion||'').trim(),privacyUrl=String(W.privacyUrl||'').trim(),retentionNotice=String(W.retentionNotice||'').trim();
 const sessionId=(new URLSearchParams(location.search).get('session')||'').trim();
 // 'checking' | 'open' | 'closed' | 'unknown' | 'unreachable' | 'off' (no collector or no session link)

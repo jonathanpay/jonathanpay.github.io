@@ -5,7 +5,7 @@
 //   Empty means the dashboard cannot read anything. It is never the pilot's collector (dashboard.js refuses it).
 // sessions: labels for the picker. The collector's answer is the authority for the label and environment shown.
 window.HEA_DASHBOARD={
-  collectorUrl:'',
+  collectorUrl:'https://script.google.com/a/macros/holisticemail.academy/s/AKfycby3D4ySsDNcr1P8rwnYNFROsAC8KB-6k-ZJgPuvltIcbj96BQ-oxVUtDQcYpzObsa3WdA/exec',
   sessions:[
     {id:'lf-rehearsal',label:'London Forum workshop (rehearsal)'},
     {id:'lf-live-1',label:'London Forum workshop'}

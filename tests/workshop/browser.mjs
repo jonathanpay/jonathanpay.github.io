@@ -40,7 +40,7 @@ export async function wire(context, c, {collectorUrl = COLLECTOR_URL, dashboard 
   await context.route(/^https:\/\/script\.google\.com\//, async route => {
     const req = route.request();
     log.external.push(req.url());
-    if (req.url().startsWith(COLLECTOR_URL.replace(/\/exec$/, '')) && c) {
+    if (req.url().startsWith(collectorUrl.replace(/\/exec$/, '')) && !req.url().includes('AKfycbyGg') && c) {
       if (req.method() === 'POST') {
         const body = req.postData() || '';
         log.posts.push(body); log.bodies.push(body);

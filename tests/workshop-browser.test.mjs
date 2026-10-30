@@ -53,6 +53,19 @@ test('participant: full 390px flow saves to the workshop session only; result is
   await context.close();
 });
 
+test('Workspace-form collector URL (/a/macros/<domain>/s/<id>/exec) is accepted and saves', async () => {
+  const c = collector();
+  const url = 'https://script.google.com/a/macros/example.academy/s/WORKSHOP_TEST_DEPLOYMENT_0002/exec';
+  const {context, page, log} = await fresh(c, {collectorUrl: url});
+  await page.goto(srv.origin + PARTICIPANT + '?session=lf-rehearsal');
+  await page.waitForSelector('.env-tag');
+  await complete(page, GOOD);
+  await page.waitForSelector('#save-status:has-text("saved to this workshop session")');
+  assert.ok(log.external.every(u => u.startsWith(url.replace(/\/exec$/, ''))));
+  assert.equal(c.responses().length, 2);
+  await context.close();
+});
+
 test('T02 missing config, pilot URL, no session, unknown and closed sessions: nothing is submitted', async () => {
   const cases = [
     ['empty collector URL', {collectorUrl: ''}, '?session=lf-rehearsal', /collector is not set up/],

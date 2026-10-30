@@ -1,6 +1,6 @@
 # London Forum workshop: setup and deployment
 
-Owner steps. Nothing here has been done for you: no spreadsheet, script, deployment or sharing change exists yet, and the participant page and dashboard ship with the collector address **empty**, so submissions and reads stay off until you complete step 6.
+Owner steps. Nothing here has been done for you: no spreadsheet, script, deployment or sharing change exists yet, and the participant page and dashboard ship with the collector address **empty**, so submissions and reads stay off until you complete step 5 (the PR now carries the collector URL you supplied; it takes effect only on merge).
 
 ## What gets built
 
@@ -69,7 +69,7 @@ Edit, commit and merge:
 - `workshops/london-forum/email-maturity-assessment/config.js`: set `collectorUrl`. Check `eventId` equals the `Event ID` on your Sessions rows.
 - `workshops/london-forum/dashboard/config.js`: set `collectorUrl` (same URL) and the `sessions` list.
 
-Both pages refuse the pilot's collector URL, so pasting the wrong one leaves them switched off rather than writing to the pilot sheet. Do not commit the facilitator key or the sheet ID.
+Both URL forms are accepted: `/macros/s/<id>/exec` and the Workspace form `/a/macros/<domain>/s/<id>/exec`. Workspace admins can limit *Who has access: Anyone* to the domain; participants outside the domain then cannot save, so check this from a non-domain account in the smoke test. Both pages refuse the pilot's collector URL, so pasting the wrong one leaves them switched off rather than writing to the pilot sheet. Do not commit the facilitator key or the sheet ID.
 
 Also decide `privacyUrl` and `retentionNotice` in the participant `config.js` (see `PRIVACY-NOTICE-DRAFT.md`). They are empty because nothing about retention has been decided.
 

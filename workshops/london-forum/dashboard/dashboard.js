@@ -5,7 +5,7 @@
 // POST body. Nothing here is a control: hiding a button or a URL would not protect any data.
 const C=window.HEA_DASHBOARD||{};
 const PILOT_COLLECTOR_ID='AKfycbyGgFzMvzFunL9MXWww0rAq14PYqkbJ-6Xnc5DctBqLYxUCWRT1W0vadCzkZ0PoVCz3';
-const collectorUrl=(u=>/^https:\/\/script\.google\.com\/macros\/s\/[A-Za-z0-9_-]{20,}\/exec$/.test(u)&&!u.includes(PILOT_COLLECTOR_ID)?u:'')(String(C.collectorUrl||'').trim());
+const collectorUrl=(u=>/^https:\/\/script\.google\.com\/(?:a\/macros\/[a-z0-9.-]+|macros)\/s\/[A-Za-z0-9_-]{20,}\/exec$/.test(u)&&!u.includes(PILOT_COLLECTOR_ID)?u:'')(String(C.collectorUrl||'').trim());
 const TIMEOUT=30000,KEY_STORE='hea-lf-dashboard-key';
 const $=id=>document.getElementById(id);
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));

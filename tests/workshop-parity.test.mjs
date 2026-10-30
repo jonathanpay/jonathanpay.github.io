@@ -43,7 +43,16 @@ test('public workshop files never name the pilot collector except as a refusal, 
     assert.ok(!text.includes('1gdTLFaaORQ') || f.endsWith('Code.gs') || f.endsWith('SETUP.md'), f + ' names the pilot sheet');
     assert.ok(!/FACILITATOR_KEY(?!_HASH)\s*[:=]\s*['"][0-9a-f]{20,}/i.test(text), f + ' looks like a key');
   }
-  for (const f of ['email-maturity-assessment/config.js', 'dashboard/config.js']) assert.match(fs.readFileSync(new URL(f, W), 'utf8'), /collectorUrl:''/, f + ' ships with the collector empty');
+  for (const f of ['email-maturity-assessment/config.js', 'dashboard/config.js']) {
+    const cfg = fs.readFileSync(new URL(f, W), 'utf8');
+    const m = cfg.match(/collectorUrl:'([^']*)'/);
+    assert.ok(m, f);
+    assert.ok(m[1] === '' || /^https:\/\/script\.google\.com\/(?:a\/macros\/[a-z0-9.-]+|macros)\/s\/[A-Za-z0-9_-]{20,}\/exec$/.test(m[1]), f + ' holds a malformed collector URL');
+    assert.ok(!m[1].includes('AKfycbyGg'), f + ' points at the pilot collector');
+  }
+  const a = fs.readFileSync(new URL('email-maturity-assessment/config.js', W), 'utf8').match(/collectorUrl:'([^']*)'/)[1];
+  const b = fs.readFileSync(new URL('dashboard/config.js', W), 'utf8').match(/collectorUrl:'([^']*)'/)[1];
+  assert.equal(a, b, 'participant page and dashboard must use the same workshop collector');
   const app = fs.readFileSync(new URL('email-maturity-assessment/app.js', W), 'utf8');
   for (const bad of ['c-email', 'marketing', 'emailedTo', 'contact:', "mode:'no-cors'", 'no-cors', 'localStorage']) assert.ok(!app.includes(bad), 'app.js: ' + bad);
 });
