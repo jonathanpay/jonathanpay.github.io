@@ -1,0 +1,578 @@
+{
+  "baseline": "V2-questionnaire-review-04",
+  "answerOrder": "Q1–Q17; null = unknown",
+  "indexing": "dimension/question indices in expected fields are zero-based",
+  "oracle": "Independently derived from Review04: half-down mean label; final=min(initial,lowest+1,5); overall=min(final); unknown extrema apply identical rules to 1/5 completions. Not fitted to deployed outputs.",
+  "fixtures": [
+    {
+      "id": "F01",
+      "title": "Lowest anchor",
+      "answers": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "expected": {
+        "state": "complete",
+        "dimensionLevels": [
+          1,
+          1,
+          1,
+          1,
+          1
+        ],
+        "lowerLevel": 1,
+        "upperLevel": 1,
+        "completeConstraints": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ],
+        "foundationalRisks": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16
+        ],
+        "ceilingReasons": []
+      },
+      "executionStatus": "live-scoring-pass-sheet-verified-2026-10-22"
+    },
+    {
+      "id": "F02",
+      "title": "Highest anchor",
+      "answers": [
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "expected": {
+        "state": "complete",
+        "dimensionLevels": [
+          5,
+          5,
+          5,
+          5,
+          5
+        ],
+        "lowerLevel": 5,
+        "upperLevel": 5,
+        "completeConstraints": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ],
+        "foundationalRisks": [],
+        "ceilingReasons": []
+      },
+      "executionStatus": "live-scoring-pass-sheet-verified-2026-10-22"
+    },
+    {
+      "id": "F03",
+      "title": "Exact-half boundaries",
+      "answers": [
+        5,
+        5,
+        5,
+        2,
+        2,
+        3,
+        3,
+        3,
+        3,
+        4,
+        4,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "expected": {
+        "state": "complete",
+        "dimensionLevels": [
+          5,
+          2,
+          3,
+          5,
+          5
+        ],
+        "lowerLevel": 2,
+        "upperLevel": 2,
+        "completeConstraints": [
+          1
+        ],
+        "foundationalRisks": [],
+        "ceilingReasons": []
+      },
+      "executionStatus": "live-scoring-pass-sheet-verified-2026-10-16"
+    },
+    {
+      "id": "F04",
+      "title": "Ceiling creates tie despite different means",
+      "answers": [
+        1,
+        5,
+        5,
+        2,
+        2,
+        2,
+        3,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "expected": {
+        "state": "complete",
+        "dimensionLevels": [
+          2,
+          2,
+          5,
+          5,
+          5
+        ],
+        "lowerLevel": 2,
+        "upperLevel": 2,
+        "completeConstraints": [
+          0,
+          1
+        ],
+        "foundationalRisks": [
+          0
+        ],
+        "ceilingReasons": [
+          0
+        ]
+      },
+      "executionStatus": "live-scoring-pass-sheet-verified-2026-10-16"
+    },
+    {
+      "id": "F05",
+      "title": "Certain overall with incomplete dimension",
+      "answers": [
+        2,
+        2,
+        2,
+        null,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "expected": {
+        "state": "confirmed-partial",
+        "dimensionLevels": [
+          2,
+          null,
+          5,
+          5,
+          5
+        ],
+        "lowerLevel": 2,
+        "upperLevel": 2,
+        "completeConstraints": null,
+        "foundationalRisks": [],
+        "ceilingReasons": []
+      },
+      "executionStatus": "live-scoring-pass-sheet-verified-2026-10-22"
+    },
+    {
+      "id": "F06",
+      "title": "Ceiling affects partial lower bound",
+      "answers": [
+        null,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "expected": {
+        "state": "range",
+        "dimensionLevels": [
+          null,
+          5,
+          5,
+          5,
+          5
+        ],
+        "lowerLevel": 2,
+        "upperLevel": 5,
+        "completeConstraints": null,
+        "foundationalRisks": [],
+        "ceilingReasons": []
+      },
+      "executionStatus": "live-scoring-pass-sheet-verified-2026-10-22"
+    },
+    {
+      "id": "F07",
+      "title": "All unknown",
+      "answers": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "expected": {
+        "state": "insufficient-visibility",
+        "dimensionLevels": [
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        "lowerLevel": 1,
+        "upperLevel": 5,
+        "completeConstraints": null,
+        "foundationalRisks": [],
+        "ceilingReasons": []
+      },
+      "executionStatus": "live-scoring-pass-sheet-verified-2026-10-16"
+    },
+    {
+      "id": "F08",
+      "title": "Known weak dimension despite fourteen unknowns",
+      "answers": [
+        1,
+        1,
+        1,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "expected": {
+        "state": "confirmed-partial",
+        "dimensionLevels": [
+          1,
+          null,
+          null,
+          null,
+          null
+        ],
+        "lowerLevel": 1,
+        "upperLevel": 1,
+        "completeConstraints": null,
+        "foundationalRisks": [
+          0,
+          1,
+          2
+        ],
+        "ceilingReasons": []
+      },
+      "executionStatus": "live-scoring-pass-sheet-verified-2026-10-22"
+    },
+    {
+      "id": "F09",
+      "title": "Invariant incomplete dimension stays unscored",
+      "answers": [
+        1,
+        5,
+        null,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "expected": {
+        "state": "confirmed-partial",
+        "dimensionLevels": [
+          null,
+          5,
+          5,
+          5,
+          5
+        ],
+        "lowerLevel": 2,
+        "upperLevel": 2,
+        "completeConstraints": null,
+        "foundationalRisks": [
+          0
+        ],
+        "ceilingReasons": []
+      },
+      "executionStatus": "live-scoring-pass-sheet-verified-2026-10-16"
+    },
+    {
+      "id": "F10",
+      "title": "Whole dimension missing with narrow overall range",
+      "answers": [
+        null,
+        null,
+        null,
+        2,
+        2,
+        2,
+        2,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "expected": {
+        "state": "range",
+        "dimensionLevels": [
+          null,
+          2,
+          5,
+          5,
+          5
+        ],
+        "lowerLevel": 1,
+        "upperLevel": 2,
+        "completeConstraints": null,
+        "foundationalRisks": [],
+        "ceilingReasons": []
+      },
+      "executionStatus": "live-scoring-pass-sheet-verified-2026-10-22"
+    },
+    {
+      "id": "F11",
+      "title": "Uniform level 2 anchor",
+      "answers": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "expected": {
+        "state": "complete",
+        "dimensionLevels": [
+          2,
+          2,
+          2,
+          2,
+          2
+        ],
+        "lowerLevel": 2,
+        "upperLevel": 2,
+        "completeConstraints": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ],
+        "foundationalRisks": [],
+        "ceilingReasons": []
+      },
+      "executionStatus": "live-scoring-pass-sheet-verified-2026-10-22"
+    },
+    {
+      "id": "F12",
+      "title": "Uniform level 3 anchor",
+      "answers": [
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3
+      ],
+      "expected": {
+        "state": "complete",
+        "dimensionLevels": [
+          3,
+          3,
+          3,
+          3,
+          3
+        ],
+        "lowerLevel": 3,
+        "upperLevel": 3,
+        "completeConstraints": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ],
+        "foundationalRisks": [],
+        "ceilingReasons": []
+      },
+      "executionStatus": "live-scoring-pass-sheet-verified-2026-10-22"
+    },
+    {
+      "id": "F13",
+      "title": "Uniform level 4 anchor",
+      "answers": [
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4
+      ],
+      "expected": {
+        "state": "complete",
+        "dimensionLevels": [
+          4,
+          4,
+          4,
+          4,
+          4
+        ],
+        "lowerLevel": 4,
+        "upperLevel": 4,
+        "completeConstraints": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ],
+        "foundationalRisks": [],
+        "ceilingReasons": []
+      },
+      "executionStatus": "live-scoring-pass-sheet-verified-2026-10-22"
+    }
+  ]
+}

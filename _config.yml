@@ -27,6 +27,10 @@ defaults:
       path: "pilots"
     values:
       sitemap: false
+  - scope:
+      path: "workshops"
+    values:
+      sitemap: false
 
 exclude:
   - scripts
@@ -37,3 +41,6 @@ exclude:
   - tests
   - pilots/email-maturity-assessment/README.md
   - pilots/email-maturity-assessment/apps-script
+  - workshops/london-forum/README.md
+  - workshops/london-forum/docs
+  - workshops/london-forum/apps-script
