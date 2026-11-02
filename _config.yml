@@ -31,6 +31,11 @@ defaults:
       path: "workshops"
     values:
       sitemap: false
+  - scope:
+      path: ""
+      type: now
+    values:
+      sitemap: false
 
 exclude:
   - scripts
@@ -45,3 +50,8 @@ exclude:
   - workshops/london-forum/docs
   - workshops/london-forum/apps-script
   - workshops/london-forum/tools
+
+collections:
+  now:
+    output: true
+    permalink: /now/:name/
