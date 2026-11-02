@@ -48,4 +48,13 @@ permalink: "/now/"
 
 <p>I finished <em>The Celebrity Traitors</em>, season 2, and came away underwhelmed. It was entertaining, but the stakes felt low. Celebrities playing for charity don't have the personal drama of people playing for life-changing money.</p>
 
+{% assign archive = site.now | sort: 'month' | reverse %}
+{% if archive.size > 0 %}
+<h2 class="jp-section-h"><span class="jp-section-h-text">Previous months</span><span class="jp-section-slash"> /</span></h2>
+
+<ul>
+{% for entry in archive %}  <li><a href="{{ entry.url | relative_url }}">{{ entry.month | append: '-01' | date: '%B %Y' }}</a></li>
+{% endfor %}</ul>
+{% endif %}
+
 </div>
