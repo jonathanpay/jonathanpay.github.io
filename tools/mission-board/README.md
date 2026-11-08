@@ -96,7 +96,7 @@ JSON with `"format": "mission-board-data/1"`. Every field is optional.
 | `misfortunes` | `{ captain, sensor, gunner, engineer, pilot, group: [[name, text] × 6] }` | Crew misfortunes by position |
 | `development` | `[[name, text]]` | Development actions listed on the Travel tab |
 | `cards` | `{ "11": title, … "66": title }` | Icon card titles |
-| `systems` | `[{ id?, n, portal?, bodies: [[name, AD?]] }]` | Bodies and distances for the 36 map systems, or extra systems (off the map, so jumps are set by hand) |
+| `systems` | `[{ id?, n, portal?, bodies?: [[name, AD?, kind?, star?]], known?: [], exports?, imports?, note? }]` | Bodies, distances and notes for the 36 map systems (shown on the system chart), or extra systems (off the map, so jumps are set by hand) |
 
 Row flags: `birr: true` on a reward row rolls the Birr bonus; `dark: true` on an
 encounter row rolls Table 49; `count` on a Table 16 row is the number of factions

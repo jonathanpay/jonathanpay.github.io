@@ -519,7 +519,7 @@ const BASE_SYSTEMS = MAP.map(([id, n, x, y, region]) => ({ id, n, x, y, region, 
 const extraSystems = store.get("mb-systems", []);
 const SYSTEMS = (() => {
   const list = clone(BASE_SYSTEMS);
-  const merge = s => { if (!s || !s.n) return; const id = s.id || s.n.toLowerCase().replace(/[^a-z0-9]+/g, ""); const have = list.find(x => x.id === id); if (have) { if (s.bodies && s.bodies.length) have.bodies = s.bodies; if (s.portal != null) have.portal = s.portal; if (s.note) have.note = s.note; } else list.push({ id, n:s.n, bodies:s.bodies || [], portal:s.portal, note:s.note }); };
+  const merge = s => { if (!s || !s.n) return; const id = s.id || s.n.toLowerCase().replace(/[^a-z0-9]+/g, ""); const have = list.find(x => x.id === id); if (have) { if (s.bodies && s.bodies.length) have.bodies = s.bodies; if (s.portal != null) have.portal = s.portal; ["note","known","exports","imports"].forEach(k => { if (s[k]) have[k] = s[k]; }); } else list.push({ id, n:s.n, bodies:s.bodies || [], portal:s.portal, note:s.note, known:s.known, exports:s.exports, imports:s.imports }); };
   (DATA && DATA.systems || []).forEach(merge); extraSystems.forEach(merge);
   // Every map system gets a portal body for each of its links.
   list.forEach(sy => { const links = LINKS.filter(l => l[0] === sy.id || l[1] === sy.id).map(l => l[0] === sy.id ? l[1] : l[0]);
@@ -1063,6 +1063,9 @@ function systemChart(sy, opt = {}) {
     wrap.append(h("div", { class:"holokey" }, counts ? h("span", { text:`On the Horizon map: ${counts}.` }) : null,
       sketch ? h("span", { text:"Not charted in the books: the bodies are sketched from the count, with no positions. Name and place them as you need, or roll them on the Worlds tab." }) : h("span", { text:"Distances in AD from each star, spaced by square root." }),
       sy.chartNote ? h("span", { text:sy.chartNote }) : null,
+      sy.known && sy.known.length ? h("span", { text:`Known for: ${sy.known.join("; ")}.` }) : null,
+      sy.exports || sy.imports ? h("span", { text:[sy.exports ? `Exports: ${sy.exports}` : "", sy.imports ? `Imports: ${sy.imports}` : ""].filter(Boolean).join(" · ") + "." }) : null,
+      sy.note ? h("span", { text:sy.note }) : null,
       sy.gaps ? h("span", { text:"Between the stars: " + sy.gaps.map((g, i) => i && g != null ? `${(sy.stars || [])[i]} ${g} AD` : null).filter(Boolean).join(", ") + "." }) : null));
   }
   return wrap;
