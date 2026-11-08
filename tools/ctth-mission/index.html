@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Mission Board</title>
-<meta name="description" content="An unofficial mission and travel generator for Coriolis: The Third Horizon: post jobs to the board, roll the trip there, and generate the world at the end of it.">
+<meta name="description" content="An unofficial mission and travel generator for Coriolis: The Third Horizon: post jobs to the board and roll the trip there. The system and the world at the far end live in the System tool.">
 <link rel="icon" href="/favicon.ico">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -184,13 +184,6 @@ textarea{resize:vertical;min-height:60px}
 .syschart .tiny{fill:var(--holo);font-family:var(--font-data);font-size:9px;letter-spacing:1px;opacity:.85}
 #board-map,#travel-map{padding:0;border:0;background:none}
 
-/* world */
-.world{display:grid;grid-template-columns:minmax(0,1fr) 220px;gap:14px;align-items:start}
-@media (max-width:700px){.world{grid-template-columns:minmax(0,1fr)}}
-.globe{width:100%;height:auto;display:block}
-.globe .rim{fill:none;stroke:var(--line);stroke-width:1.5}
-.globe .orb{fill:none;stroke:var(--line-soft);stroke-width:1;stroke-dasharray:3 5}
-
 /* log */
 .logentry{border:1px solid var(--line-soft);background:var(--sheet);padding:12px 14px}
 .logentry pre{white-space:pre-wrap;font-family:var(--font-body);margin:6px 0 0;font-size:var(--step--1)}
@@ -204,6 +197,10 @@ footer.notice a{color:inherit}
   <a class="snav-brand" href="/">Jonathan Pay</a>
   <nav class="snav-links" aria-label="Site">
     <a href="/tools/">All Tools</a>
+    <a href="/tools/ctth-sheets/">Sheets</a>
+    <a href="/tools/ctth-mission/" aria-current="page">Mission</a>
+    <a href="/tools/ctth-system/">System</a>
+    <a href="/tools/ctth-spreads/">Icon Spreads</a>
     <a href="https://jonathanpay.com/blog/">Blog</a>
     <a href="https://jonathanpay.com/holistic-email-marketing/">HEM</a>
     <a href="https://holisticemailacademy.com">HEA</a>
@@ -214,12 +211,11 @@ footer.notice a{color:inherit}
   <div>
     <div class="issued">Free League field office · Bulletin terminal</div>
     <h1>Mission Board</h1>
-    <p class="sub">An unofficial mission and travel generator for <i>Coriolis: The Third Horizon</i></p>
+    <p class="sub">An unofficial mission and travel generator for <i>Coriolis: The Third Horizon</i>. The system at the far end, and the world itself, live in <a href="/tools/ctth-system/">the System tool</a>.</p>
   </div>
   <nav class="tabs" role="tablist" aria-label="Sections">
     <button class="tab" role="tab" id="tab-board" type="button">Board</button>
     <button class="tab" role="tab" id="tab-travel" type="button">Travel</button>
-    <button class="tab" role="tab" id="tab-world" type="button">Worlds</button>
     <button class="tab" role="tab" id="tab-log" type="button">Log</button>
     <button class="tab" role="tab" id="tab-data" type="button">Data</button>
   </nav>
@@ -311,34 +307,16 @@ footer.notice a{color:inherit}
     <div class="card" id="v-crewrolls"></div>
   </div>
 </section>
-
-<section class="view" id="view-world" role="tabpanel" aria-labelledby="tab-world" hidden>
-  <aside class="side">
-    <div class="card stack">
-      <h2>Generate a world</h2>
-      <label class="field"><span>Name</span><input type="text" id="w-name" placeholder="Quidar"></label>
-      <label class="field"><span>System</span><select id="w-sys"></select></label>
-      <label class="field"><span>Body</span><select id="w-kind"><option value="planet">Planet or moon</option><option value="gas">Gas giant</option><option value="belt">Asteroid belt</option></select></label>
-      <label class="field"><span>Hooks</span><input type="number" id="w-hooks" min="0" max="6" value="2"></label>
-      <div class="row"><button class="btn primary" type="button" id="w-roll">Roll a world</button><button class="btn quiet" type="button" id="w-save">Save to the log</button><button class="btn quiet" type="button" id="w-camp">Save to the campaign</button></div>
-      <p class="status" id="w-status" role="status"></p>
-      <p class="note">Modifiers chain as you go: atmosphere moves temperature and geosphere, size moves population, population moves the spaceport. Rerolling a line reworks the lines below it.</p>
-    </div>
-  </aside>
-  <div class="main"><div class="card" id="world"></div></div>
-</section>
-
 <section class="view" id="view-log" role="tabpanel" aria-labelledby="tab-log" hidden>
   <aside class="side">
     <div class="card stack">
       <h2>The log</h2>
-      <p class="small">Jobs you accept, voyages and worlds you save. Copy any entry as Markdown for your notes.</p>
-      <label class="field"><span>Show</span><select id="log-filter"><option value="">Everything</option><option value="job">Jobs</option><option value="voyage">Voyages</option><option value="world">Worlds</option></select></label>
+      <p class="small">Jobs you accept and voyages you save. Copy any entry as Markdown for your notes. Worlds saved in the <a href="/tools/ctth-system/">System tool</a> are logged there.</p>
+      <label class="field"><span>Show</span><select id="log-filter"><option value="">Everything</option><option value="job">Jobs</option><option value="voyage">Voyages</option></select></label>
     </div>
   </aside>
   <div class="main" id="log"></div>
 </section>
-
 <section class="view" id="view-data" role="tabpanel" aria-labelledby="tab-data" hidden>
   <aside class="side" id="data-side"></aside>
   <div class="main" id="data-main"></div>
@@ -347,7 +325,7 @@ footer.notice a{color:inherit}
 <footer class="notice">
   <p>An unofficial fan tool. It is not affiliated with, sponsored or endorsed by Free League Publishing (Fria Ligan AB). <i>Coriolis: The Third Horizon</i> and its names are theirs. No rules text, table entries, art or setting text from the books is included: the page carries dice, table numbers and place names, and anything more comes from a data file you make and keep yourself. What you save stays in this browser.</p>
 </footer>
-
+<script src="/tools/ctth-horizon.js"></script>
 <script src="/tools/ctth-campaign.js"></script>
 <script>
 (() => {
@@ -365,6 +343,10 @@ const clone = o => JSON.parse(JSON.stringify(o));
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
 const fmtBirr = n => n.toLocaleString("en-GB") + " birr";
 const plural = (n, w, p) => `${n} ${n === 1 ? w : (p || w + "s")}`;
+
+/* The map, the portal links, the routes and the zone tables live in /tools/ctth-horizon.js, which the System tool loads too. */
+const H = window.CtthHorizon;
+if (!H) { document.body.append(h("p", { class:"nodata", text:"The horizon file (/tools/ctth-horizon.js) didn't load, so the map, the routes and the tables can't run. Reload the page; if it keeps failing, the file is missing from the server." })); return; }
 
 /* Book data: nothing from the books' table text ships with this page. Your data file, imported on the Data tab, lives in this browser. */
 const FORMAT = "mission-board-data/1";
@@ -452,8 +434,6 @@ const CONCEPTS = [
 ];
 const conceptOf = id => CONCEPTS.find(c => c.id === id) || CONCEPTS[0];
 
-// Zones by distance from the portal (table 46): name, upper bound in AD, encounters per day, reaction modifier
-const ZONES = [["Portal zone",0.5,12,2],["Core zone",3,2,0],["Habitable zone",10,1,0],["Fringe zone",40,1/3,-1],["Deep space zone",Infinity,1/7,-2]];
 const SPACE = { faction:"Faction space", civilized:"Civilized space", fringe:"Fringe space", uncharted:"Uncharted space" };
 const LAND = { city:["City",2], countryside:["Countryside",0], wilderness:["Wilderness",-2] };
 const POSITIONS = ["Captain","Sensor operator","Gunner","Engineer","Pilot","Entire group"];
@@ -467,132 +447,24 @@ const JUMP = {
 const ICONS = ["The Judge","The Dancer","The Merchant","The Deckhand","The Lady of Tears","The Gambler","The Messenger","The Traveler","The Faceless"];
 const iconOfCard = num => ICONS[Math.floor(d66Values().indexOf(num) / 4)];
 
-/* The Third Horizon's portal map, redrawn: 36 systems at rough map positions, the portal links between them,
-   the four systems with unstable portals and the two dangerous areas. Orbital distances in AD from the star only where the core rules give them (Kua). */
-const MAP = [["menkar","Menkar",232,409,"sadaal"],["daybul","Daybul",289,337,"sadaal"],["ghodar","Ghodar",389,284,"sadaal"],["dziban","Dziban",489,245,"sadaal"],
-  ["sadaal","Sadaal",437,387,"sadaal"],["nagar","Nagar",393,428,"sadaal"],["errai","Errai",542,331,"sadaal"],["aiwaz","Aiwaz",673,401,""],
-  ["tarazug","Tarazug",680,216,"miran"],["zib","Zib",669,274,"miran"],["mira","Mira",722,331,"miran"],["zalos","Zalos",773,382,"miran"],["odacon","Odacon",814,206,"miran"],
-  ["zhau","Zhau",955,254,"pillar"],["sivas","Sivas",896,312,"pillar"],["ordana","Ordana",971,337,"pillar"],["altai","Altai",899,401,"pillar"],
-  ["kua","Kua",823,455,""],["awadhi","Awadhi",968,446,"algol"],["algol","Algol",1053,494,"algol"],["zamusa","Zamusa",1143,491,"algol"],["nharmada","Nharmada",1240,481,"algol"],
-  ["anaspora","Anaspora",1130,596,"algol"],["yastapol","Yastapol",1210,602,"algol"],["erequ","Erequ",1336,587,"algol"],["eanu","Eanu",1356,676,"algol"],
-  ["caph","Caph",898,519,"dabaran"],["marfik","Marfik",972,578,"dabaran"],["amedo","Amedo",1016,672,"dabaran"],["algebar","Algebar",997,773,"dabaran"],
-  ["melik","Melik",933,843,"dabaran"],["rigel","Rigel",856,853,"dabaran"],["dabaran","Dabaran",791,857,"dabaran"],["uharu","Uharu",725,806,"dabaran"],
-  ["taoan","Taoan",682,728,"dabaran"],["hamura","Hamura",712,606,"dabaran"]];
-const LINKS = [["menkar","daybul"],["daybul","ghodar"],["ghodar","dziban"],["ghodar","sadaal"],["sadaal","nagar"],["sadaal","errai"],["dziban","errai"],
-  ["errai","aiwaz"],["aiwaz","kua"],["aiwaz","zalos"],["zalos","mira"],["mira","zib"],["zib","tarazug"],["tarazug","odacon"],["odacon","zhau","danger"],
-  ["zhau","sivas"],["zhau","ordana"],["sivas","altai"],["ordana","altai"],["altai","kua"],["altai","awadhi"],["awadhi","algol"],["algol","zamusa"],
-  ["zamusa","nharmada"],["algol","anaspora"],["anaspora","yastapol"],["yastapol","nharmada"],["nharmada","erequ"],["erequ","eanu"],
-  ["kua","caph"],["caph","marfik"],["marfik","amedo"],["amedo","algebar"],["algebar","melik"],["melik","rigel"],["rigel","dabaran"],
-  ["dabaran","uharu"],["uharu","taoan","danger"],["taoan","hamura","danger"],["hamura","kua"]];
-const REGIONS = [["The Sadaal Route",330,470],["The Miran Chain",801,287],["The Quadrant of the Pillar",1060,212],["The Algol Route",1260,650],["The Dabaran Circle",841,695]];
-// Label placements where the default (up and to the right) collides: [dx, dy, anchor]
-const LABEL_AT = { dabaran:[0,24,"middle"], rigel:[0,-12,"middle"], yastapol:[8,22,"start"], anaspora:[-8,22,"end"], zalos:[12,20,"start"], kua:[14,18,"start"] };
-/* From the Horizon map (issued by the Foundation, CC61): star, planets per star (A: asteroid belt, G: gas giant), the kind of space, and a major spaceport. */
-const INFO = {
-  altai:["White","7AG","observandum"], zhau:["Trinary yellow/white/blue","6/4G/3A","border"], sivas:["Yellow","5G","civilized"], ordana:["Binary blue/white","7G/6A","civilized"],
-  odacon:["Red","5AG","observandum"], tarazug:["White dwarf","4G","observandum"], zib:["Red","4A","border"], mira:["Trinary yellow/white/white","6AG/4G/5G","faction",1],
-  zalos:["Binary yellow/white","3A/4G","observandum",1], aiwaz:["Binary white/yellow","3G/5AG","civilized"],
-  errai:["Binary yellow/yellow","6A/2AG","border"], dziban:["Red","3AG","border"], sadaal:["Binary yellow/red","9G/3A","civilized",1], ghodar:["White","3AG","border"],
-  nagar:["Binary red/black hole","4G/0","observandum"], daybul:["Binary yellow/red giant","3AG/2G","border"], menkar:["Binary yellow/white","4G/3AG","border"],
-  awadhi:["Trinary white/yellow/black hole","3/7AG/0","border"], algol:["Trinary white/white dwarf/yellow","6AG/0/2","civilized",1], zamusa:["Hypergiant","2","observandum"],
-  anaspora:["Yellow","3AG","border"], yastapol:["White dwarf","2G","border"], nharmada:["Trinary white/white/red giant","2/7/4AG","border"], erequ:["Red giant","5A","border"],
-  eanu:["Binary yellow/red","6AG/3G","observandum"], kua:["White","6AG","faction",1], hamura:["White dwarf","2G","border"], taoan:["Red giant","3G","observandum"],
-  uharu:["Binary yellow/brown dwarf","3/26A","observandum"], dabaran:["Red giant","7G","civilized",1], rigel:["White hypergiant","A","observandum"], melik:["White","5G","civilized"],
-  algebar:["Yellow","12AG","border"], amedo:["Binary yellow/red","10AG/3","border"], marfik:["Red","4","observandum"], caph:["Binary blue/yellow","4/5AG","observandum"]
-};
-const SPACE_NAME = { faction:"Faction space", civilized:"Civilized space", border:"Border space", observandum:"Observandum" };
-const SPACE_COL = { faction:"faction", civilized:"civilized", border:"fringe", observandum:"uncharted" };
-// "6AG" → six bodies, one an asteroid belt and one a gas giant
-function parseCount(part) { const m = String(part).match(/^(\d*)([AG]*)$/); if (!m) return null; const a = m[2].includes("A"), g = m[2].includes("G"); const n = m[1] ? +m[1] : (a ? 1 : 0) + (g ? 1 : 0); return { n, a, g }; }
-function countText(c) { if (!c) return ""; if (!c.n) return "no planets"; const extra = [c.a ? "an asteroid belt" : null, c.g ? "a gas giant" : null].filter(Boolean); return `${c.n} ${c.n === 1 ? "body" : "bodies"}${extra.length ? `, with ${extra.join(" and ")}` : ""}`; }
-const DANGER = new Set(LINKS.filter(l => l[2] === "danger").flatMap(l => l.slice(0, 2)));
-const CORE = new Set(["kua","algol","dabaran","mira","sadaal","zalos"]);
-/* Bodies: [name, AD from its star, kind, star index]. Kinds: planet, giant, belt, station, moon, field. Star 0 is the primary; 1 and 2 are companions.
-   Distances from the system charts in the core rules (Kua) and the Quadrant of the Pillar and Sadaal charts. Portals sit at 0.5 AD unless a system says otherwise. */
-const BODIES = {
-  kua:{ portal:0.5, bodies:[["Lubau",1.5,"planet"],["Jina",3,"planet"],["Kua (Coriolis)",5,"planet"],["The asteroid belt",10,"belt"],["Xene",18,"giant"],["Surha",40,"planet"],["The Rimward Reach",47,"field"]] },
-  altai:{ bodies:[["Imanon",3,"planet"],["The Black Sector",5,"belt"],["Altai",6,"planet"],["Marakanda (Khorsabad)",6.5,"moon"],["Zanjire",7.5,"planet"],["Baatar",10,"planet"],["Elajh",20,"giant"],["Maraabra",32,"planet"]] },
-  ordana:{ stars:["Ordana","Yuisin (Ordana B)"], gaps:[0,200], bodies:[["Kermaz",2,"planet"],["Ordana",4,"planet"],["Hayrangi Station",6,"station"],["Barah",7,"planet"],["Butangë",9,"planet"],["O-21",11,"planet"],["Qargarin",23,"giant"],["Musfat",40,"planet"],["Irike",52,"planet"],
-    ["Moshte",3,"planet",1],["Yuisin",4,"planet",1],["The Hawran Belt",10,"belt",1],["Murat",16,"planet",1],["Dayr",20,"planet",1],["Tal Afsar",30,"planet",1]] },
-  sivas:{ bodies:[["Kala",4,"planet"],["Sivas",6,"planet"],["Karast",6,"moon"],["Loulan Station",6,"station"],["Yovani",11,"planet"],["Nurija",33,"planet"],["Gamhija",41,"planet"],["Comija",51,"planet"]] },
-  zhau:{ stars:["Zhau A","Zhau B","Zhau C"], gaps:[0,80,400], bodies:[["The Lance Station",0.6,"station"],["Z3",4,"planet"],["Zhau (Z6)",6.5,"planet"],["Z9",8,"planet"],["Z29",9,"planet"],["Z45",17,"giant"],["Z60",43,"planet"],
-    ["ZB3",4,"planet",1],["Zorana (ZB4)",6,"planet",1],["ZB7",15,"planet",1],["Yivae (ZB10)",22,"planet",1],["ZB46",32,"planet",1],
-    ["ZC4",5,"planet",2],["The ZC asteroid belt",12,"belt",2],["ZCX",21,"planet",2]] },
-  sadaal:{ stars:["Sadaal A","Bahram (Sadaal B)"], gaps:[0,50], bodies:[["Vanzur",3,"planet"],["Auf",5,"planet"],["Ramasi",6,"planet"],["Sadaal",8,"planet"],["Chathu",10,"planet"],["Marasta",16,"planet"],["Urmani",20,"planet"],["Buyasta",25,"giant"],["Beletser Station",26,"station"],["Choma",35,"planet"],["Hadladar",48,"planet"],
-    ["The Portal Belt",2,"belt",1],["Bahram",4,"planet",1],["Sanfir",6,"planet",1],["The Outer Belt",7.5,"belt",1]] },
-  algol:{ stars:["Algol (A)","Persei (B)","Rhaas (C)"], gaps:[0,null,150], bodies:[["Yavan",4,"planet"],["Ermeru",6,"planet"],["Algol",6.5,"planet"],["The Cloud Belt",15,"belt"],["Taus",30,"planet"],["Marakir",38,"planet"],["Younos",42,"planet"],
-    ["Ghul",4,"planet",2],["Mining Station Rhaas-Mohra",6,"station",2],["Zabra",12,"planet",2]] },
-  dabaran:{ stars:["Dabaran","Exilion (B)"], bodies:[["Arara",3,"planet"],["Dabaran",6,"planet"],["Karbana",7,"planet"],["Sumei",10,"planet"],["Mahmet",20,"planet"],["Salamanx",25,"giant"],["Yafir",30,"planet"],["Marfuk",40,"planet"]] },
-  mira:{ stars:["Mira (A)","Antmira (B)","Menau (C)"], gaps:[0,75,1000], bodies:[["Inos",2,"planet"],["Mira",5,"planet"],["Gherbis Station",5,"station"],["Zamih",8,"planet"],["Khora",9,"planet"],["The asteroid belt",30,"belt"],["Jazaar",40,"giant"],["Nahid",52,"planet"],
-    ["Trigon",4,"planet",1],["Antmira",6,"planet",1],["Zhir",10,"planet",1],["Makom",12,"giant",1],["Ofaared",25,"planet",1],
-    ["M1",2,"planet",2],["Menau",3.5,"planet",2],["M3",5,"planet",2],["Moshtari",15,"giant",2],["Yahin",25,"planet",2],["Sufra",30,"planet",2],["The comet Vaarnathar",46,"field",2]] },
-  zalos:{ stars:["Zalos (A)","Zahedan (B)"], bodies:[["Benagia",3,"giant"],["Karrmerruk",3,"moon"],["The asteroid belt",6,"belt"],["Zalos",8,"planet"],["The Monastery Fortress of Amshaar",18,"station"],
-    ["Naftar",3,"planet",1],["Zahedan",6,"planet",1],["Monastery Station Manaat",6,"station",1],["Hamshir",15,"planet",1],["Ishan",25,"planet",1],["Korda's Eye",32,"giant",1]] },
-  odacon:{ bodies:[["Khôban Portal Station",0.5,"station"],["Sethlan",2,"planet"],["Echron Station",2,"station"],["Rusah",4,"planet"],["The Ash Belt",6,"belt"],["Khurshid",8,"planet"],["Qayna",15,"planet"],["Chandra",25,"giant"]] },
-  hamura:{ bodies:[["Portal Station Hamurabi",0.5,"station"],["Nestero",2.5,"planet"],["Hamura",3,"planet"],["Yublai",4.5,"planet"]] },
-  // Zuhal's worlds are given from Uharu (13 to 17 AD); here they sit by their distance from Zuhal, which lies 15 AD out.
-  uharu:{ stars:["Uharu","Zuhal (B)"], gaps:[0,15], chartNote:"Zuhal's worlds are shown by their distance from Zuhal; the books give them from Uharu, between 13 and 17 AD.", bodies:[["Albah",3,"planet"],["Rih",4,"planet"],["Yurja",7,"planet"],
-    ["Pyre 1–6",0.2,"planet",1],["Ayn 1–6",0.25,"planet",1],["Azraq 1–5",0.5,"planet",1],["Oasa & Ouma",0.5,"planet",1],["Najila & Warah",1,"planet",1],["Alri & Harara",1,"planet",1],["Jadesh 1–6",1.5,"planet",1],["Bayd 1–5",1.7,"planet",1],["The asteroid belt",2,"belt",1]] }
-};
-const BASE_SYSTEMS = MAP.map(([id, n, x, y, region]) => ({ id, n, x, y, region, bodies:[], ...(BODIES[id] || {}) }));
-
 /* ---------- the campaign ---------- */
 /* This page shares one campaign with Coriolis Sheets and Icon Spreads: /tools/ctth-campaign.js keeps it in
    localStorage. Every use is guarded, so the page works as before when that script fails to load. */
 function campaign() { const C = window.CtthCampaign; return C && typeof C.upsert === "function" ? C : null; }
 function campaignAll(kind) { const C = campaign(); if (!C) return []; try { return C.all(kind) || []; } catch { return []; } }
-function campaignSystemId(id) { return "camp-" + id; }
-// A campaign body is an object; the charts and the pickers here read rows of [name, AD from the star, kind].
-const BODY_KIND = { planet:"planet", moon:"moon", "gas giant":"giant", giant:"giant", gas:"giant", "asteroid belt":"belt", belt:"belt", station:"station", comet:"field", field:"field", star:"star" };
-function campaignBodyRow(b) {
-  if (!b || typeof b !== "object") return null;
-  const name = String(b.name || "").trim(); if (!name) return null;
-  const kind = BODY_KIND[String(b.kind || "").trim().toLowerCase()] || "planet";
-  const d = b.distance === "" || b.distance == null ? NaN : parseFloat(b.distance);
-  return [name, isFinite(d) ? d : null, kind];
-}
+
 function say(id, msg) { const el = document.getElementById(id); if (el) el.textContent = msg; }
 
+/* ---------- the horizon ---------- */
+/* The map, the charts, the portal links and the zone tables come from the shared horizon file. Nothing about the
+   Horizon is stored on this page, and the System tool draws the same map from the same file. */
+const { MAP, LINKS, REGIONS, LABEL_AT, INFO, CORE, DANGER, UNSTABLE, SPACE_NAME, SPACE_COL, STAR_LOOK, ZONES } = H;
+const { parseCount, countText, starKind, starCount, sysName, onMap, linkFlag, unstableAt, bfs, route, routeText, portalBody, buildSystems } = H;
+
 const extraSystems = store.get("mb-systems", []);
-const onMapId = id => MAP.some(m => m[0] === id);
-const SYSTEMS = (() => {
-  const list = clone(BASE_SYSTEMS);
-  const merge = s => { if (!s || !s.n) return; const id = s.id || s.n.toLowerCase().replace(/[^a-z0-9]+/g, ""); const have = list.find(x => x.id === id); if (have) { if (s.bodies && s.bodies.length) have.bodies = s.bodies; if (s.portal != null) have.portal = s.portal; ["note","known","exports","imports","portalStation"].forEach(k => { if (s[k]) have[k] = s[k]; }); } else list.push({ id, n:s.n, bodies:s.bodies || [], portal:s.portal, note:s.note, known:s.known, exports:s.exports, imports:s.imports }); };
-  (DATA && DATA.systems || []).forEach(merge); extraSystems.forEach(merge);
-  // Systems from the campaign (shared from Coriolis Sheets, or a world saved here) join the list read-only:
-  // they are never written back to mb-systems, and a system already known by name is left as it is.
-  campaignAll("system").forEach(e => {
-    const d = e.data || {}, n = String(d.name || e.name || "").trim(); if (!n) return;
-    const id = campaignSystemId(e.id);
-    if (list.some(x => x.id === id || String(x.n).toLowerCase() === n.toLowerCase())) return;
-    list.push({ id, n, bodies:(Array.isArray(d.bodies) ? d.bodies : []).map(campaignBodyRow).filter(Boolean), campaign:true });
-  });
-  // Every map system gets a portal body for each of its links.
-  list.forEach(sy => { const links = LINKS.filter(l => l[0] === sy.id || l[1] === sy.id).map(l => l[0] === sy.id ? l[1] : l[0]);
-    const pa = sy.portal != null ? sy.portal : 0.5;
-    sy.bodies = [...links.map(o => [`Portal to ${(MAP.find(m => m[0] === o) || [])[1]}`, pa, "portal"]), ...sy.bodies.filter(b => b[2] !== "portal")];
-    // Every system has a portal station beside its portals. Only a few are named in print: a data file or your own
-    // systems list can name the rest (a station at the portals' distance, or "portalStation" on the system).
-    if (onMapId(sy.id)) {
-      let st = sy.bodies.find(b => (b[2] === "station" || (!b[2] && /station/i.test(b[0]))) && (b[1] === pa || /portal/i.test(b[0])) && !(b[3] > 0)); if (st) st[2] = "station";
-      if (sy.portalStation) { if (st) st[0] = sy.portalStation; else sy.bodies.push(st = [sy.portalStation, pa, "station"]); }
-      if (!st) { st = [`${sy.n} portal station`, pa, "station"]; sy.unnamedStation = true; sy.bodies.push(st); }
-      sy.portalStationName = st[0];
-    } });
-  return list;
-})();
-const sysName = id => (SYSTEMS.find(s => s.id === id) || {}).n || id || "—";
-const onMap = id => MAP.some(m => m[0] === id);
-const ADJ = {}; LINKS.forEach(([a, b, f]) => { (ADJ[a] ||= []).push({ to:b, f }); (ADJ[b] ||= []).push({ to:a, f }); });
-// Unstable portals belong to a system, not a link: every jump into or out of these systems uses one.
-const UNSTABLE = new Set(["dziban","zamusa","yastapol","algebar"]);
-const linkFlag = (a, b) => (LINKS.find(l => (l[0] === a && l[1] === b) || (l[0] === b && l[1] === a)) || [])[2] || (UNSTABLE.has(a) || UNSTABLE.has(b) ? "unstable" : "");
-const unstableAt = (a, b) => [a, b].filter(x => UNSTABLE.has(x)).map(sysName).join(" and ");
-function bfs(from) { const dist = { [from]:0 }, prev = {}; const q = [from]; while (q.length) { const u = q.shift(); (ADJ[u] || []).forEach(({ to }) => { if (dist[to] == null) { dist[to] = dist[u] + 1; prev[to] = u; q.push(to); } }); } return { dist, prev }; }
-// Fewest jumps, and of those, the fewest unstable portals and dangerous links.
-function safest(from) { const cost = { [from]:0 }, prev = {}, done = new Set(); for (;;) { let u = null; for (const k in cost) if (!done.has(k) && (u === null || cost[k] < cost[u])) u = k; if (u === null) break; done.add(u); (ADJ[u] || []).forEach(({ to }) => { const c = cost[u] + 1 + (linkFlag(u, to) ? 0.01 : 0); if (cost[to] == null || c < cost[to]) { cost[to] = c; prev[to] = u; } }); } return { prev, dist:cost }; }
-function route(from, to) { if (!onMap(from) || !onMap(to)) return null; if (from === to) return [from]; const { prev, dist } = safest(from); if (dist[to] == null) return null; const p = [to]; while (p[0] !== from) p.unshift(prev[p[0]]); return p; }
-const routeText = p => p.map((id, i) => i ? `${({ unstable:" ⇢ ", danger:" ⇝ " })[linkFlag(p[i - 1], id)] || " → "}${sysName(id)}` : sysName(id)).join("");
+/* One system list, built by the horizon file: the map's own systems, your data file's, your extra systems and the
+   campaign's, each map system given a portal body per link and a portal station beside them. */
+const SYSTEMS = buildSystems({ data:DATA, extra:extraSystems, campaign:campaignAll("system") });
 
 /* ---------- state ---------- */
 const S = {
@@ -601,10 +473,13 @@ const S = {
   board: store.get("mb-board", []),
   deck: store.get("mb-deck", null),
   voyage: store.get("mb-voyage", null),
-  world: store.get("mb-world", null),
   log: store.get("mb-log", [])
 };
 const save = k => store.set("mb-" + k, S[k]);
+/* One log, two tools. This page owns the jobs and the voyages; the System tool owns the worlds. Writes merge the
+   log back with whatever is in storage, so a world saved in the other tab or the other tool is never lost. */
+const LOG_KINDS = new Set(["job", "voyage"]);
+function saveLog() { const mine = S.log.filter(e => LOG_KINDS.has(e.kind)), theirs = store.get("mb-log", []).filter(e => !LOG_KINDS.has(e.kind)); store.set("mb-log", [...mine, ...theirs]); }
 
 /* ---------- Icon deck ---------- */
 function freshDeck() { const d = d66Values(); for (let i = d.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [d[i], d[j]] = [d[j], d[i]]; } return d; }
@@ -780,7 +655,7 @@ function missionMd(m) {
 }
 function accept(m) {
   S.log.unshift({ id:uid(), kind:"job", title:missionTitle(m), status:"Accepted", notes:"", md:missionMd(m), saved:new Date().toISOString(), mission:clone(m) });
-  save("log");
+  saveLog();
   S.board = S.board.filter(x => x.id !== m.id); save("board"); renderBoard();
   S.voyage = voyageForMission(m); applyDark(); save("voyage"); renderTravel();
   go("travel");
@@ -805,7 +680,6 @@ function voyageForMission(m) {
   return v;
 }
 function startBody(sysObj) { const real = sysObj.bodies.filter(b => b[2] !== "portal" && b[0] !== sysObj.portalStationName); return real.find(b => b[0].startsWith(sysObj.n)) || real[0]; }
-function portalBody(sysObj, otherId) { return sysObj.bodies.find(b => b[0] === `Portal to ${sysName(otherId)}`) || sysObj.bodies.find(b => b[2] === "portal"); }
 // The encounter column follows the kind of space on the Horizon map: border space reads as fringe, observandum as uncharted.
 function colFor(id) { const i = INFO[id]; return i ? SPACE_COL[i[2]] : "civilized"; }
 // One leg out to the portal, a jump per link with a day's transit through each system on the way, the flight in, and the ground at the end.
@@ -1078,7 +952,7 @@ function renderTravel() {
     v.legs.length && t.service ? serviceBlock(v, t) : null,
     v.legs.length ? h("div", { class:"row", style:"margin-top:8px" },
       h("button", { class:"mini", type:"button", text:"Copy as Markdown", onclick:e => copy(voyageMd(v), e.target) }),
-      h("button", { class:"mini", type:"button", text:"Save to the log", onclick:e => { S.log.unshift({ id:uid(), kind:"voyage", title:v.name || "Voyage", status:"Planned", notes:"", md:voyageMd(v), saved:new Date().toISOString() }); save("log"); flashBtn(e.target, "Saved"); } })) : null]));
+      h("button", { class:"mini", type:"button", text:"Save to the log", onclick:e => { S.log.unshift({ id:uid(), kind:"voyage", title:v.name || "Voyage", status:"Planned", notes:"", md:voyageMd(v), saved:new Date().toISOString() }); saveLog(); flashBtn(e.target, "Saved"); } })) : null]));
   const cr = $("#v-crewrolls"); cr.replaceChildren(h("h2", { text:"Crew on the trip" }));
   const dev = DATA && DATA.development;
   cr.append(h("h3", { text:"Development" }), dev ? h("ul", { class:"small", style:"margin:0;padding-left:1.2em" }, dev.map(d => h("li", {}, h("b", { text:d[0] }), d[1] ? ` — ${d[1]}` : ""))) :
@@ -1165,23 +1039,7 @@ function drawMap(box, opt = {}) {
   box.replaceChildren(h("div", { class:"holo" }, h("div", { class:"holocap", text:"The Third Horizon · portal links" }), svg,
     h("div", { class:"holokey" }, h("span", { text:"— portal link" }), h("span", { text:"◌ red etching: unstable portals" }), h("span", { text:"▬ dangerous area" }), h("span", { text:"· companion stars" }), opt.legend ? h("span", { text:opt.legend }) : null)));
 }
-/* Star classes from the Horizon map, coloured on the system charts: [core, glow, ring, core radius].
-   A dwarf is small and hard, a giant swollen, a black hole a dark disc with a burning ring. */
-const STAR_LOOK = {
-  "white":["#f6f8ff","#d6e0ff","#e4eaff",9], "yellow":["#fff0b0","#ffc54a","#ffd77a",9], "red":["#ffa07a","#e2481f","#ff8a5c",9],
-  "blue":["#cfe3ff","#4f86e8","#9cc2ff",9], "white dwarf":["#ffffff","#b8c8ff","#dfe6ff",5.5], "brown dwarf":["#c98a5a","#7a3e1a","#b07048",6],
-  "red giant":["#ff8a5c","#d03a14","#ff7a48",13], "hypergiant":["#fff3d6","#ffb04a","#ffd28a",15], "white hypergiant":["#ffffff","#c8d4ff","#e8eeff",15],
-  "black hole":["#050403","#ff9a3c","#ffb45a",8]
-};
-// "Trinary white/white dwarf/yellow" → the class of each star in order; "Vit/Gul" is the Swedish the map left in for white/yellow
-function starKind(id, i) {
-  const t = (INFO[id] || ["white"])[0].toLowerCase().replace(/^(binary|trinary)\s+/, "").replace("vit", "white").replace("gul", "yellow");
-  const parts = t.split("/").map(x => x.trim());
-  const k = parts[Math.min(i, parts.length - 1)] || "white";
-  return STAR_LOOK[k] ? k : Object.keys(STAR_LOOK).find(x => k.includes(x)) || "white";
-}
-// How many stars the Horizon map gives the system (a single class, or a binary or trinary list)
-const starCount = id => { const t = (INFO[id] || [""])[0]; return /^Trinary/.test(t) ? 3 : /^Binary/.test(t) ? 2 : 1; };
+
 let starGrad = 0;
 function drawStar(svg, x, y, kind) {
   const [core, glow, ring, r] = STAR_LOOK[kind], id = "sg" + (++starGrad);
@@ -1288,7 +1146,7 @@ function systemChart(sy, opt = {}) {
     wrap.prepend(h("div", { class:"holocap", text:`System chart · ${sy.n}${info ? ` · ${info[0]} · ${SPACE_NAME[info[2]]}${info[3] ? " · major spaceport" : ""}` : ""}` }));
     wrap.append(chartKey(sy, rows.map(i => starKind(sy.id, i))));
     wrap.append(h("div", { class:"holokey" }, counts ? h("span", { text:`On the Horizon map: ${counts}.` }) : null,
-      sketch ? h("span", { text:"Not charted in the books: the bodies are sketched from the count, with no positions. Name and place them as you need, or roll them on the Worlds tab." }) : h("span", { text:"Distances in AD from each star, spaced by square root." }),
+      sketch ? h("span", { text:"Not charted in the books: the bodies are sketched from the count, with no positions. Name and place them as you need, or roll one in the System tool." }) : h("span", { text:"Distances in AD from each star, spaced by square root." }),
       sy.chartNote ? h("span", { text:sy.chartNote }) : null,
       sy.unnamedStation ? h("span", { text:`${sy.n}'s portal station isn't named in print: give it a name with "portalStation" in your data file, or as a station at 0.5 AD in your systems list.` }) : null,
       sy.known && sy.known.length ? h("span", { text:`Known for: ${sy.known.join("; ")}.` }) : null,
@@ -1310,180 +1168,26 @@ function renderTravelMap() {
   drawMap($("#travel-map"), { path, here: path[0] || (first && first.sys) || S.here, legend: path.length > 1 ? routeText(path) : "" });
 }
 
-/* ---------- worlds ---------- */
-const ATMO_TEMP = { 9:1, 10:6, 11:6 }, ATMO_GEO = { 3:-4, 9:-4, 10:-4, 11:-4 };
-const tempGeo = r => r >= 12 ? -4 : r >= 10 ? -2 : 0;
-const POP_PORT = r => r <= 3 ? -8 : r <= 5 ? -6 : r <= 7 ? -4 : r <= 9 ? 0 : r <= 11 ? 1 : 4;
-function rollWorld(kind, from) {
-  const w = from ? clone(from) : { id:uid(), kind, lines:{}, hooks:[], factions:[] };
-  w.kind = kind; const L = w.lines;
-  const order = kind === "gas" ? ["gasSize","gasColour","gasTemp","gasChar","moons","population","spaceport"] :
-    kind === "belt" ? ["beltSize","beltComp","beltChar","population","spaceport"] :
-    ["size","orbit","atmosphere","temperature","geosphere","population","spaceport"];
-  w.order = order;
-  const start = !from ? 0 : from.redoFrom ? order.indexOf(from.redoFrom) : order.length;
-  order.slice(Math.max(0, start)).forEach(k => {
-    if (k === "moons") { const r = roll("3D6"); L.moons = { r:r.total, text:r.text }; return; }
-    if (k === "atmosphere") {
-      if (L.size && L.size.r <= 3) { const r = roll("D6").total <= 3 ? 2 : 3; L.atmosphere = { id:"w.atmosphere", r, raw:r, mod:0, text:"small world", small:true }; return; }
-      L.atmosphere = rollOn("w.atmosphere"); return;
-    }
-    if (k === "temperature") { L.temperature = rollOn("w.temperature", ATMO_TEMP[L.atmosphere.r] || 0); return; }
-    if (k === "geosphere") { L.geosphere = rollOn("w.geosphere", (ATMO_GEO[L.atmosphere.r] || 0) + tempGeo(L.temperature.r)); return; }
-    if (k === "population") {
-      const small = kind === "belt" || (L.size && L.size.r <= 3);
-      if (kind === "gas") { const r = roll("D6"); L.population = { id:"w.population", r:r.total, raw:r.total, mod:0, text:r.text, gas:true }; return; }
-      L.population = rollOn("w.population", small ? -4 : 0); return;
-    }
-    if (k === "spaceport") { L.spaceport = rollOn("w.spaceport", POP_PORT(L.population.r)); return; }
-    L[k] = rollOn("w." + k);
-  });
-  delete w.redoFrom;
-  if (!from || from.rerollHooks) { const n = Math.max(0, +$("#w-hooks").value || 0); w.hooks = Array.from({ length:n }, () => rollOn("w.hook")); delete w.rerollHooks; }
-  if (!from || from.rerollFactions) { w.factionCount = rollOn("w.factionCount"); w.factions = factionsFor(w.factionCount.r); delete w.rerollFactions; }
-  return w;
-}
-function factionsFor(c) {
-  const row = lookup("w.factionCount", c);
-  let n = row && row.count != null ? (typeof row.count === "string" ? roll(row.count).total : row.count) : (c === 1 ? 1 : c <= 4 ? 2 : c === 5 ? 3 : d6());
-  const out = []; const seen = new Set(); let guard = 0;
-  while (out.length < n && guard++ < 50) { const f = rollOn("w.faction"); if (seen.has(f.r) && guard < 40) continue; seen.add(f.r); if (c === 6) f.strength = d6(); out.push(f); }
-  return out;
-}
-const WORLD_LABELS = { size:"Size", orbit:"In orbit", atmosphere:"Atmosphere", temperature:"Temperature", geosphere:"Geosphere", population:"Population", spaceport:"Spaceport",
-  gasSize:"Size", gasColour:"Colour", gasTemp:"Temperature", gasChar:"Character", moons:"Moons", beltSize:"Size", beltComp:"Composition", beltChar:"Character" };
-function renderWorld() {
-  const box = $("#world"); box.replaceChildren();
-  const w = S.world;
-  $("#w-name").value = w ? w.name || "" : $("#w-name").value;
-  if (!w) { box.append(h("h2", { text:"No world yet" }), h("p", { class:"small", text:"Roll a planet, gas giant or asteroid belt using the system generator's tables. Use it for the far end of a job, or for the system the crew just jumped into." })); return; }
-  const kindName = { planet:"Planet", gas:"Gas giant", belt:"Asteroid belt" }[w.kind];
-  const lines = h("div", {});
-  w.order.forEach(k => {
-    const x = w.lines[k]; if (!x) return;
-    if (k === "moons") { lines.append(h("div", { class:"line" }, h("span", { class:"tag", text:"Moons" }), h("div", { class:"val" }, h("b", { text:String(x.r) }), h("span", { class:"roll", text:`3d6 ${x.text}` })), h("div", { class:"ctl" }, h("button", { class:"mini", type:"button", text:"Reroll", onclick:() => { S.world.redoFrom = "moons"; S.world = rollWorld(S.world.kind, S.world); save("world"); renderWorld(); } })))); return; }
-    const id = "w." + k;
-    const notes = [];
-    if (x.mod) notes.push(`Rolled ${x.raw}, ${x.mod > 0 ? "+" : "−"}${Math.abs(x.mod)} = ${x.r}`);
-    if (x.small) notes.push("Small world: toxic or thin only, picked at random");
-    if (x.gas) notes.push("Gas giant: population rolled on D6");
-    const redo = v => { S.world.lines[k] = v; const i = S.world.order.indexOf(k); if (i < S.world.order.length - 1) { S.world.redoFrom = S.world.order[i + 1]; S.world = rollWorld(S.world.kind, S.world); } save("world"); renderWorld(); };
-    lines.append(h("div", { class:"line" }, h("span", { class:"tag", text:WORLD_LABELS[k] }),
-      valueView(id, x, notes.length ? h("span", { class:"d", text:notes.join(" · ") }) : null),
-      rollPicker(id, x.r, v => redo({ ...x, r:v, raw:v - (x.mod || 0) }), () => { S.world.redoFrom = k; S.world = rollWorld(S.world.kind, S.world); save("world"); renderWorld(); })));
-  });
-  const hooks = h("div", {}, h("h3", { text:"Hooks" }), w.hooks.length ? w.hooks.map((x, i) => h("div", { class:"line" }, h("span", { class:"tag", text:hookGroup(x.r) }), valueView("w.hook", x),
-    rollPicker("w.hook", x.r, v => { S.world.hooks[i].r = v; save("world"); renderWorld(); }, () => { S.world.hooks[i] = rollOn("w.hook"); save("world"); renderWorld(); }))) : h("p", { class:"small muted", text:"None. Set how many in the sidebar." }));
-  const fac = h("div", {}, h("h3", { text:"Factions" }),
-    h("div", { class:"line" }, h("span", { class:"tag", text:"Balance" }), valueView("w.factionCount", w.factionCount),
-      h("div", { class:"ctl" }, h("button", { class:"mini", type:"button", text:"Reroll", onclick:() => { S.world.rerollFactions = true; S.world = rollWorld(S.world.kind, S.world); save("world"); renderWorld(); } }))),
-    w.factions.map((f, i) => h("div", { class:"line" }, h("span", { class:"tag", text:f.strength ? `Strength ${f.strength}` : `Faction ${i + 1}` }), valueView("w.faction", f),
-      rollPicker("w.faction", f.r, v => { S.world.factions[i].r = v; save("world"); renderWorld(); }, () => { S.world.factions[i] = { ...rollOn("w.faction"), strength:f.strength }; save("world"); renderWorld(); }))));
-  const art = worldArt(w);
-  box.append(h("div", { class:"eyebrow", text:`${kindName}${w.sys ? ` · ${sysName(w.sys)}` : ""}` }), h("h2", { text:w.name || "Unnamed world" }),
-    h("div", { class:"world" }, h("div", {}, lines, hooks, fac), art),
-    h("div", { class:"row", style:"margin-top:10px" }, h("button", { class:"mini", type:"button", text:"Copy as Markdown", onclick:e => copy(worldMd(w), e.target) })));
-}
-function hookGroup(r) { return ["Ruins","Weather","Inhabitants","Threats","Politics","Events"][Math.floor(r / 10) - 1] || "Hook"; }
-// A small orrery-style sketch: body size from the size roll, rings or moons from orbit, haze for atmosphere.
-function worldArt(w) {
-  const s = sv("svg", { viewBox:"0 0 220 220", class:"globe", role:"img", "aria-label":"Sketch of the body" });
-  const L = w.lines;
-  if (w.kind === "belt") { for (let i = 0; i < 160; i++) { const a = Math.random() * Math.PI * 2, rr = 55 + Math.random() * 40; sv("circle", { cx:110 + rr * Math.cos(a), cy:110 + rr * Math.sin(a) * .45, r:Math.random() * 2 + .6, fill:"var(--line)", opacity:.4 + Math.random() * .5 }, s); } sv("circle", { cx:110, cy:110, r:6, fill:"var(--accent)" }, s); return s; }
-  const size = w.kind === "gas" ? 70 : 22 + ((L.size ? L.size.r : 7) - 2) * 4.5;
-  sv("ellipse", { cx:110, cy:110, rx:100, ry:34, class:"orb" }, s);
-  const thick = L.atmosphere ? ({ 2:2, 3:1, 9:9, 10:7, 11:7, 12:5 }[L.atmosphere.r] || 4) : 6;
-  sv("circle", { cx:110, cy:110, r:size + thick, fill:"var(--teal)", opacity:.15 }, s);
-  const geo = L.geosphere ? L.geosphere.r : 7, temp = L.temperature ? L.temperature.r : 7;
-  const fill = w.kind === "gas" ? "var(--accent)" : temp <= 2 ? "#cfd8e3" : geo >= 11 ? "#2f5f8a" : geo <= 4 ? "#b88a4a" : "#4f7d5a";
-  sv("circle", { cx:110, cy:110, r:size, fill, stroke:"var(--line)", "stroke-width":1.5 }, s);
-  for (let i = 1; i <= 3; i++) sv("ellipse", { cx:110, cy:110, rx:size, ry:size * (.22 * i), fill:"none", stroke:"var(--line)", "stroke-width":.6, opacity:.35 }, s);
-  const orbit = L.orbit ? L.orbit.r : 0;
-  if (w.kind === "gas" ? L.gasChar && L.gasChar.r <= 3 : orbit === 11 || orbit === 12) sv("ellipse", { cx:110, cy:110, rx:size * 1.75, ry:size * .38, fill:"none", stroke:"var(--line)", "stroke-width":3, opacity:.6 }, s);
-  const moons = w.kind === "gas" ? Math.min(8, L.moons ? L.moons.r : 0) : orbit === 9 || orbit === 10 ? 2 : 0;
-  for (let i = 0; i < moons; i++) { const a = i / Math.max(1, moons) * Math.PI * 2 + .4; sv("circle", { cx:110 + 100 * Math.cos(a), cy:110 + 34 * Math.sin(a), r:4, fill:"var(--line)" }, s); }
-  if (orbit === 3 || orbit === 4 || orbit === 5) for (let i = 0; i < 3; i++) { const a = i * 2.1 + 1; sv("rect", { x:110 + 100 * Math.cos(a) - 3, y:110 + 34 * Math.sin(a) - 3, width:6, height:6, fill:"none", stroke:"var(--accent)", "stroke-width":1.5 }, s); }
-  return s;
-}
-/* ---------- the world in the campaign ---------- */
-/* A world becomes one body of a campaign system, in the shape Coriolis Sheets writes a system with: flat strings, one row per body. */
-function campaignWorldBody(w) {
-  const L = w.lines || {};
-  const pick = (...keys) => { for (const k of keys) { const x = L[k]; if (x) return rowLabel("w." + k, x.r); } return ""; };
-  const extras = [
-    L.gasColour ? `Colour: ${rowLabel("w.gasColour", L.gasColour.r)}` : null,
-    L.gasChar ? `Character: ${rowLabel("w.gasChar", L.gasChar.r)}` : null,
-    L.beltComp ? `Composition: ${rowLabel("w.beltComp", L.beltComp.r)}` : null,
-    L.beltChar ? `Character: ${rowLabel("w.beltChar", L.beltChar.r)}` : null,
-    L.moons ? `Moons: ${L.moons.r}` : null
-  ].filter(Boolean);
-  return {
-    name: w.name || "Unnamed world",
-    kind: { planet:"Planet", gas:"Gas giant", belt:"Asteroid belt" }[w.kind] || "Planet",
-    distance: "",
-    size: pick("size", "gasSize", "beltSize"),
-    atmosphere: pick("atmosphere"),
-    geosphere: pick("geosphere"),
-    temperature: pick("temperature", "gasTemp"),
-    orbit: pick("orbit"),
-    population: pick("population"),
-    spaceport: pick("spaceport"),
-    factions: (w.factions || []).map(f => rowLabel("w.faction", f.r) + (f.strength ? ` (${f.strength})` : "")).join("\n"),
-    other: extras.join("\n"),
-    hooks: (w.hooks || []).map(x => rowLabel("w.hook", x.r)).join("\n")
-  };
-}
-// A system of the same name already in the campaign takes the body rather than a second copy of itself.
-function saveWorldToCampaign() {
-  const w = S.world;
-  if (!w) { say("w-status", "Roll a world first, then save it."); return; }
-  const C = campaign();
-  if (!C) { say("w-status", "The campaign store is not loaded, so the world stays on this page."); return; }
-  const body = campaignWorldBody(w), name = body.name;
-  const same = x => String(x || "").trim().toLowerCase() === name.trim().toLowerCase();
-  const target = (w.cid ? C.get("system", w.cid) : null) || campaignAll("system").find(e => same(e.name) || same((e.data || {}).name)) || null;
-  const base = target && target.data ? target.data : { name, star:"", notes:"" };
-  const bodies = (Array.isArray(base.bodies) ? base.bodies : []).slice();
-  const at = bodies.findIndex(b => b && same(b.name));
-  if (at >= 0) bodies[at] = { ...bodies[at], ...body }; else bodies.push(body);
-  const id = target ? target.id : (C.makeId ? C.makeId("mb-sys") : "mb-sys-" + uid());
-  const entity = C.upsert("system", { id, name: base.name || name, source:"mission-board", data: { ...base, name: base.name || name, star: base.star || "", notes: base.notes || "", bodies } });
-  if (!entity) { say("w-status", "The campaign refused that world: the store may be full."); return; }
-  w.cid = entity.id; save("world");
-  // The new system joins this page's lists at once, so a job or a leg can be sent to it before the next reload.
-  const row = campaignBodyRow(body);
-  if (row && !SYSTEMS.some(s => s.id === campaignSystemId(entity.id) || same(s.n))) { SYSTEMS.push({ id: campaignSystemId(entity.id), n: entity.name || name, bodies:[row], campaign:true }); renderBoard(); renderTravel(); }
-  say("w-status", `${target ? "Updated" : "Saved"} "${name}": ${plural(bodies.length, "body", "bodies")} in the campaign system ${entity.name || name}. It shows in Coriolis Sheets.`);
-}
-
-function worldMd(w) {
-  const out = [`## ${w.name || "Unnamed world"}`, "", `${{ planet:"Planet", gas:"Gas giant", belt:"Asteroid belt" }[w.kind]}${w.sys ? ` in ${sysName(w.sys)}` : ""}`, ""];
-  w.order.forEach(k => { const x = w.lines[k]; if (!x) return; out.push(`- **${WORLD_LABELS[k]}:** ${k === "moons" ? x.r : rowLabel("w." + k, x.r)}`); });
-  if (w.hooks.length) out.push(`- **Hooks:** ${w.hooks.map(x => rowLabel("w.hook", x.r)).join("; ")}`);
-  out.push(`- **Factions:** ${rowLabel("w.factionCount", w.factionCount.r)}: ${w.factions.map(f => rowLabel("w.faction", f.r) + (f.strength ? ` (${f.strength})` : "")).join(", ")}`);
-  return out.join("\n");
-}
-
 /* ---------- log ---------- */
 function renderLog() {
   const box = $("#log"); box.replaceChildren();
   const f = $("#log-filter").value;
-  const items = S.log.filter(x => !f || x.kind === f);
-  if (!items.length) { box.append(h("div", { class:"card" }, h("h2", { text:"Nothing logged yet" }), h("p", { class:"small", text:"Accept a job on the Board, or save a voyage or a world, and it lands here." }))); return; }
+  const items = S.log.filter(x => LOG_KINDS.has(x.kind) && (!f || x.kind === f));
+  if (!items.length) { box.append(h("div", { class:"card" }, h("h2", { text:"Nothing logged yet" }), h("p", { class:"small", text:"Accept a job on the Board, or save a voyage, and it lands here. Worlds are logged in the System tool." }))); return; }
   items.forEach(x => {
     const conf = h("div", { class:"confirm" });
-    const status = h("select", { "aria-label":"Status", style:"width:auto", onchange:e => { x.status = e.target.value; save("log"); } },
+    const status = h("select", { "aria-label":"Status", style:"width:auto", onchange:e => { x.status = e.target.value; saveLog(); } },
       ["Offered","Accepted","Planned","Under way","Done","Failed","Abandoned"].map(s => h("option", { value:s, text:s })));
     status.value = x.status || "Accepted";
     box.append(h("article", { class:"logentry" },
       h("div", { class:"jobhead" }, h("div", {}, h("div", { class:"ref", text:`${x.kind} · ${new Date(x.saved).toLocaleDateString("en-GB", { day:"numeric", month:"short", year:"numeric" })}` }), h("h3", { text:x.title })), status),
       h("pre", { text:x.md.split("\n").slice(1).join("\n").trim() }),
-      h("label", { class:"field", style:"margin-top:8px" }, h("span", { text:"Notes" }), h("textarea", { rows:"2", value:x.notes || "", oninput:e => { x.notes = e.target.value; save("log"); } })),
+      h("label", { class:"field", style:"margin-top:8px" }, h("span", { text:"Notes" }), h("textarea", { rows:"2", value:x.notes || "", oninput:e => { x.notes = e.target.value; saveLog(); } })),
       h("div", { class:"jobfoot" },
         x.kind === "job" && x.mission ? h("button", { class:"mini", type:"button", text:"Plan the trip again", onclick:() => { S.voyage = voyageForMission(x.mission); applyDark(); save("voyage"); renderTravel(); go("travel"); } }) : null,
         h("button", { class:"mini", type:"button", text:"Copy as Markdown", onclick:e => copy(x.md + (x.notes ? `\n\n${x.notes}` : ""), e.target) }),
         h("button", { class:"mini", type:"button", text:"Delete", onclick:() => conf.replaceChildren(h("span", { class:"small", text:"Delete this entry?" }),
-          h("button", { class:"mini", type:"button", text:"Delete", onclick:() => { S.log = S.log.filter(y => y.id !== x.id); save("log"); renderLog(); } }),
+          h("button", { class:"mini", type:"button", text:"Delete", onclick:() => { S.log = S.log.filter(y => y.id !== x.id); saveLog(); renderLog(); } }),
           h("button", { class:"mini", type:"button", text:"Keep", onclick:() => conf.replaceChildren() })) })), conf));
   });
 }
@@ -1505,26 +1209,21 @@ function renderData() {
       h("button", { class:"btn quiet", type:"button", text:"Remove data file", onclick:() => conf.replaceChildren(h("span", { class:"small", text:"Remove the data file from this browser? Your log stays." }),
         h("button", { class:"btn", type:"button", text:"Remove", onclick:() => { store.del("mb-data"); location.reload(); } }), h("button", { class:"btn quiet", type:"button", text:"Keep", onclick:() => conf.replaceChildren() })) })), conf);
   } else {
-    book.append(h("p", { class:"small", text:"The page works without one: it rolls every die, applies the mission type, travel times, encounter rates, jump modifiers and world-building modifiers, and tells you which table and result to read. A data file adds the table text from your own books, so the board shows employers, missions and complications by name. It stays in this browser and is never uploaded." }),
+    book.append(h("p", { class:"small", text:"The page works without one: it rolls every die, applies the mission type, travel times, encounter rates and jump modifiers, and tells you which table and result to read. A data file adds the table text from your own books, so the board shows employers, missions and complications by name. It stays in this browser and is never uploaded, and the System tool reads the same file." }),
       h("div", { class:"row", style:"margin-top:8px" }, h("button", { class:"btn primary", type:"button", text:"Import a data file", onclick:() => importData(st) })));
   }
   book.append(st); M.append(book);
-  const sys = h("div", { class:"card" }, h("h2", { text:"Your systems" }),
-    h("p", { class:"small", text:"The page knows the systems named in the core rules and setting chapters. Add the rest of your Horizon here, one per line. Add bodies after a colon with their distance from the star in AD, if you know it." }),
-    h("textarea", { id:"sys-extra", rows:"6", placeholder:"Hamura\nLalande: Inner moon 2, Outer giant 22", value: extraSystems.map(s => s.n + (s.bodies && s.bodies.length ? ": " + s.bodies.map(b => b[0] + (b[1] != null ? " " + b[1] : "")).join(", ") : "")).join("\n") }),
-    h("div", { class:"row", style:"margin-top:8px" }, h("button", { class:"btn", type:"button", text:"Save systems", onclick:() => {
-      const list = $("#sys-extra").value.split("\n").map(x => x.trim()).filter(Boolean).map(line => { const [n, rest] = line.split(":"); const bodies = (rest || "").split(",").map(b => b.trim()).filter(Boolean).map(b => { const m = b.match(/^(.*?)\s+([\d.]+)$/); return m ? [m[1], parseFloat(m[2])] : [b]; }); return { n:n.trim(), bodies }; });
-      store.set("mb-systems", list); location.reload(); } })));
-  M.append(sys);
-  const bk = h("div", { class:"card" }, h("h2", { text:"Backup" }), h("p", { class:"small", text:"The board, the voyage, the world, the log and your systems are saved in this browser only. Export a backup to keep them or move them to another device." }),
+  const bk = h("div", { class:"card" }, h("h2", { text:"Backup" }), h("p", { class:"small", text:"The board, the voyage, the deck and the log are saved in this browser only. Export a backup to keep them or move them to another device. The System tool keeps its own backup of the worlds, the systems and the world log." }),
     h("div", { class:"row", style:"margin-top:8px" },
-      h("button", { class:"btn", type:"button", text:"Export a backup", onclick:() => download(`mission-board-backup-${new Date().toISOString().slice(0, 10)}.json`, JSON.stringify({ format:"mission-board-backup/1", saved:new Date().toISOString(), board:S.board, voyage:S.voyage, world:S.world, log:S.log, systems:extraSystems, deck:S.deck }, null, 1)) }),
-      h("button", { class:"btn quiet", type:"button", text:"Restore a backup", onclick:() => readFile(text => { try { const x = JSON.parse(text); if (x.format !== "mission-board-backup/1") throw 0;
-        const ids = new Set(S.log.map(e => e.id)); store.set("mb-log", [...(x.log || []).filter(e => !ids.has(e.id)), ...S.log]);
-        ["board","voyage","world","deck"].forEach(k => { if (x[k]) store.set("mb-" + k, x[k]); }); if (x.systems) store.set("mb-systems", x.systems); location.reload(); } catch { st.textContent = "That file isn't a backup from this page."; } }) })),
-    h("p", { class:"note", text:"Restoring adds the backup's log entries to yours and replaces the board, voyage and world." }));
+      h("button", { class:"btn", type:"button", text:"Export a backup", onclick:() => download(`mission-board-backup-${new Date().toISOString().slice(0, 10)}.json`, JSON.stringify({ format:"mission-board-backup/2", saved:new Date().toISOString(), board:S.board, voyage:S.voyage, log:S.log.filter(e => LOG_KINDS.has(e.kind)), deck:S.deck }, null, 1)) }),
+      h("button", { class:"btn quiet", type:"button", text:"Restore a backup", onclick:() => readFile(text => { try { const x = JSON.parse(text); if (x.format !== "mission-board-backup/2" && x.format !== "mission-board-backup/1") throw 0;
+        const mine = S.log.filter(e => LOG_KINDS.has(e.kind)), theirs = store.get("mb-log", []).filter(e => !LOG_KINDS.has(e.kind));
+        const ids = new Set(mine.map(e => e.id)), incoming = (x.log || []).filter(e => e && e.id && LOG_KINDS.has(e.kind) && !ids.has(e.id));
+        store.set("mb-log", [...incoming, ...mine, ...theirs]);
+        ["board","voyage","deck"].forEach(k => { if (x[k]) store.set("mb-" + k, x[k]); }); location.reload(); } catch { st.textContent = "That file isn't a backup from this page."; } }) })),
+    h("p", { class:"note", text:"Restoring adds the backup's log entries to yours and replaces the board, the voyage and the deck. The worlds and the system list are left alone. A backup from the older single-page tool still restores its jobs and its trip, but not its worlds." }));
   M.append(bk);
-  Sd.append(h("div", { class:"card" }, h("h2", { text:"The data file" }), h("p", { class:"small", text:`A JSON file with format "${FORMAT}". Every part is optional. The README beside this page describes each field: the mission tables for each concept, travel encounters, misfortunes, failed jumps, the system generator and Icon card titles.` }),
+  Sd.append(h("div", { class:"card" }, h("h2", { text:"The data file" }), h("p", { class:"small", text:`A JSON file with format "${FORMAT}". Every part is optional. The README beside this page describes each field: the mission tables for each concept, travel encounters, misfortunes, failed jumps and Icon card titles. The world tables it carries are read in the System tool.` }),
     h("p", { class:"small" }, h("a", { href:"https://github.com/jonathanpay/jonathanpay.github.io/tree/master/tools/ctth-mission", text:"Read the README on GitHub" }))));
 }
 function importData(st) { readFile(text => { try { const x = JSON.parse(text); if (x.format !== FORMAT) throw 0; if (!store.set("mb-data", x)) throw 0; location.reload(); } catch { st.textContent = "That file isn't a data file for this page, or this browser couldn't store it."; } }); }
@@ -1535,7 +1234,8 @@ function fallbackCopy(text, done) { const t = h("textarea", { value:text, style:
 function flashBtn(btn, msg) { const old = btn.textContent; btn.textContent = msg; setTimeout(() => { btn.textContent = old; }, 1400); }
 
 /* ---------- tabs and wiring ---------- */
-const TABS = ["board","travel","world","log","data"];
+const TABS = ["board","travel","log","data"];
+
 function setTab(t) { if (!TABS.includes(t)) t = "board"; TABS.forEach(x => { $("#view-" + x).hidden = x !== t; $("#tab-" + x).setAttribute("aria-selected", String(x === t)); }); if (t === "log") renderLog(); if (t === "data") renderData(); if (t === "travel") renderTravel(); }
 function go(t) { if (location.hash.slice(1) === t) setTab(t); else location.hash = t; window.scrollTo(0, 0); }
 TABS.forEach(t => $("#tab-" + t).addEventListener("click", () => go(t)));
@@ -1549,7 +1249,7 @@ $("#here").append(...sysOpts()); $("#here").value = S.here;
 $("#here").addEventListener("change", e => { S.here = e.target.value; save("here"); renderBoardMap(); });
 ["#p-from","#p-to"].forEach((q, i) => { $(q).append(...sysOpts()); $(q).value = i ? "dabaran" : S.here; });
 $("#plot").addEventListener("click", () => { const a = $("#p-from").value, b = $("#p-to").value; const p = route(a, b); S.voyage = buildVoyage(a, b, p, p ? p.length - 1 : 0); S.voyage.name = `${sysName(a)} to ${sysName(b)}`; applyDark(); save("voyage"); renderTravel(); });
-$("#w-sys").append(h("option", { value:"", text:"—" }), ...sysOpts());
+
 const howMany = () => Math.min(6, Math.max(1, parseInt($("#howmany").value, 10) || 3));
 $("#post").addEventListener("click", () => { S.board = Array.from({ length:howMany() }, () => newMission(S.concept, S.here)); save("board"); renderBoard(); });
 $("#post-one").addEventListener("click", () => { S.board.push(newMission(S.concept, S.here)); save("board"); renderBoard(); });
@@ -1571,16 +1271,11 @@ $("#add-land").addEventListener("click", () => setV(v => v.legs.push(landLeg()))
 $("#roll-voyage").addEventListener("click", () => setV(v => { v.legs.forEach(l => rollLeg(l, v)); v.crewRolls = crewRolls(); }));
 $("#clear-voyage").addEventListener("click", () => { S.voyage = blankVoyage(); save("voyage"); renderTravel(); });
 
-$("#w-roll").addEventListener("click", () => { const w = rollWorld($("#w-kind").value); w.name = $("#w-name").value.trim(); w.sys = $("#w-sys").value; S.world = w; save("world"); renderWorld(); });
-$("#w-name").addEventListener("change", e => { if (S.world) { S.world.name = e.target.value.trim(); save("world"); renderWorld(); } });
-$("#w-save").addEventListener("click", e => { if (!S.world) return; S.log.unshift({ id:uid(), kind:"world", title:S.world.name || "Unnamed world", status:"Done", notes:"", md:worldMd(S.world), saved:new Date().toISOString() }); save("log"); flashBtn(e.target, "Saved"); });
-$("#w-camp").addEventListener("click", saveWorldToCampaign);
-if (S.world) { $("#w-kind").value = S.world.kind; $("#w-sys").value = S.world.sys || ""; }
 $("#log-filter").addEventListener("change", renderLog);
 $("#go-data").addEventListener("click", () => go("data"));
 $("#nodata").hidden = !!DATA;
 
-renderDeck(); renderBoard(); renderTravel(); renderWorld();
+renderDeck(); renderBoard(); renderTravel();
 setTab(location.hash.slice(1));
 })();
 </script>

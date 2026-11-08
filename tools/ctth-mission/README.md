@@ -2,30 +2,42 @@
 
 An unofficial mission and travel generator for *Coriolis: The Third Horizon*. Opened at
 `/tools/ctth-mission/`. One self-contained HTML file, no build step, no dependencies
-beyond Google Fonts. Everything runs and is saved in the browser.
+beyond Google Fonts and one shared script for the Horizon itself. Everything runs and
+is saved in the browser.
+
+It is one of a pair. **System** at `/tools/ctth-system/` charts the systems and rolls
+the worlds; this page posts the jobs and rolls the trip between them. The two share one
+log, one campaign and one data file, so the job and the world at the end of it belong
+to the same campaign.
 
 Not affiliated with, sponsored or endorsed by Free League Publishing (Fria Ligan AB).
 *Coriolis: The Third Horizon* and its names are theirs.
 
 ## What's in the page, and what isn't
 
-The same split as the Voyage Chart Table. The page carries dice, table numbers, the
-numbers that drive the mechanics (the mission type table, encounter rates by zone,
-reaction and jump modifiers, Darkness Point rates, service costs, the system
-generator's modifiers), system and planet names, the Kua system's orbital
-distances, my own redrawing of the Third Horizon's portal map, and orbital distances
-from the published system charts: Kua, Altai, Ordana and Yuisin, Sivas, Zhau A to C,
-Sadaal and Bahram, Zalos and Zahedan, Mira, Antmira and Menau, Odacon, Dabaran,
-Algol and Rhaas, Hamura, and Uharu with Zuhal. Where a chart gives the distance
-between a system's stars, the page carries that too. From the Horizon map it takes
-each system's star type, its planet count per star (with asteroid belts and gas
-giants), the kind of space and whether it has a major spaceport. Systems the books
-don't chart are drawn as a sketch from that count, with no positions, and their
-flights' encounter column follows the kind of space (border reads as fringe,
-observandum as uncharted). It carries no table text. Employers, missions, locations, complications,
-rewards, encounters, misfortunes and so on come from a **data file** you write and
-keep yourself, imported on the Data tab. It is stored in that browser and never
-uploaded.
+The same split as the Voyage Chart Table. The page carries dice, table numbers and the
+numbers that drive the mechanics: the mission type table, encounter rates by zone,
+reaction and jump modifiers, Darkness Point rates, service costs, and the ids of the
+mission and travel tables.
+
+The Horizon itself lives in `/tools/ctth-horizon.js` and is shared with the System
+tool: the portal map drawn in the printed map's colours, the portal links and the
+dangerous areas, the unstable portals, each system's star type and planet count per
+star (with asteroid belts and gas giants), the kind of space and which systems have a
+major spaceport, my own redrawing of the map, the zones of Table 46, and the orbital
+distances from the published system charts: Kua, Altai, Ordana and Yuisin, Sivas, Zhau
+A to C, Sadaal and Bahram, Zalos and Zahedan, Mira, Antmira and Menau, Odacon, Dabaran,
+Algol and Rhaas, Hamura, and Uharu with Zuhal. Where a chart gives the distance between
+a system's stars, that is there too. This page loads that script before its own and
+checks for it at every use: if it fails to load, the page says so rather than drawing a
+broken map.
+
+Systems the books don't chart are drawn as a sketch from the planet count, with no
+positions, and their flights' encounter column follows the kind of space (border reads
+as fringe, observandum as uncharted). It carries no table text. Employers, missions,
+locations, complications, rewards, encounters, misfortunes and so on come from a
+**data file** you write and keep yourself, imported on the Data tab. It is stored in
+that browser and never uploaded.
 
 Without a data file every line still rolls, chains its modifiers and tells you which
 table and result to read.
@@ -76,33 +88,41 @@ table and result to read.
   (Table 7.12). Crew
   misfortunes roll Table 44 for the position and a d6 for the misfortune, and name the
   PC in that seat if you list your crew.
-- **Worlds.** The system generator: planets, gas giants and asteroid belts.
-  Atmosphere moves temperature and geosphere, temperature moves geosphere, size moves
-  population (small worlds can only be toxic or thin), population moves the
-  spaceport. Rerolling or picking a line reworks everything below it. Hooks and
-  factions are rolled separately. A small sketch shows the body.
-- **Log.** Accepted jobs, saved voyages and worlds, with a status, notes and a
-  Markdown copy for your campaign notes.
-- **Data.** Import or remove the data file, add the rest of your Horizon's systems,
-  and export or restore a backup.
+- **Log.** Accepted jobs and saved voyages, with a status, notes and a Markdown copy for
+  your campaign notes. The log is one array shared with the System tool, which owns the
+  world entries; this page shows and writes only its own two kinds and leaves the rest
+  as it finds them.
+- **Data.** Import or remove the data file, and export or restore this page's backup.
+  The list of extra systems is edited in the System tool, since the systems are what
+  that page is for.
 
 ## Storage
 
-Everything lives in `localStorage` under `mb-*` keys: `mb-data` (the data file),
-`mb-board`, `mb-voyage`, `mb-world`, `mb-log`, `mb-deck`, `mb-systems` and a few view
-settings. A backup is a JSON file with `"format": "mission-board-backup/1"`. Restoring
-adds the backup's log entries to yours and replaces the board, voyage and world. The one
-exception is the campaign below, which lives under `ctth-campaign-v1`.
+Everything lives in `localStorage` under the `mb-*` keys, which the System tool reads
+and writes too: `mb-data` (the data file), `mb-systems` (your systems list, read here
+and edited there), `mb-board`, `mb-voyage`, `mb-world` (the System tool's), `mb-log`,
+`mb-deck`, `mb-vset` and a few more view settings. This page owns the board, the
+voyage, the deck and its half of the log. No key is renamed and neither page keeps a
+copy of the other's.
+
+A backup is a JSON file with `"format": "mission-board-backup/2"`, holding the board,
+the voyage, the deck and the job and voyage log entries. Restoring adds the backup's
+log entries to yours and replaces the board, the voyage and the deck. The world, the
+systems list and the world log entries are left exactly as they are. A file from the
+older single-page tool (`mission-board-backup/1`) still restores its jobs and its trip,
+but its world and its systems list are not written back.
+
+The one exception to `mb-*` is the campaign below, which lives under `ctth-campaign-v1`.
 
 ## The campaign
 
-The three Coriolis tools on this site share one campaign: this board, Coriolis Sheets and
+The Coriolis tools on this site share one campaign: this board, Coriolis Sheets and
 Icon Spreads run on the same origin and keep their entities under one key,
-`ctth-campaign-v1`, read through `/tools/ctth-campaign.js`. This page loads that
-script before its own and checks for it at every hand-off, so the page works as before
+`ctth-campaign-v1`, read through `/tools/ctth-campaign.js`. This page loads that script
+before its own and checks for it at every hand-off, so the page works as before
 without it.
 
-Three hand-offs run from here:
+Two hand-offs run from here:
 
 - **A job to a mission sheet.** "Send to the campaign" in a job's foot writes the job as a
   mission: concept, employer, task, location, destination, jumps, type, base pay, total
@@ -113,14 +133,11 @@ Three hand-offs run from here:
   from the campaign" list at the top of the ship card. Picking one sets the voyage's speed
   from the ship's own and fills the crew positions from its stations, and a note under the
   list gives the ship's hull and energy. Every other line stays yours to change.
-- **A world to a system sheet.** "Save to the campaign" on the Worlds tab writes the world
-  as a body of a campaign system, with size, atmosphere, temperature, geosphere,
-  population, spaceport, hooks and factions as they read here. A campaign system of the
-  same name takes the body rather than a second copy of it.
 
-Systems in the campaign also join this page's system lists, so a system drawn in the sheets
-can be a job's destination or a leg of the voyage. They are read only: nothing is written
-back to `mb-systems`, and your data file and systems list are untouched.
+Systems in the campaign also join this page's system lists, so a system drawn in the sheets,
+or a world saved in the System tool, can be a job's destination or a leg of the voyage.
+They are read only: nothing is written back to `mb-systems`, and your data file and
+systems list are untouched.
 
 Nothing leaves the browser. The campaign sits in `localStorage` beside the `mb-*` keys, so
 a campaign belongs to a browser rather than an account, and clearing the site's storage
@@ -128,7 +145,8 @@ clears it with everything else.
 
 ## The data file
 
-JSON with `"format": "mission-board-data/1"`. Every field is optional.
+JSON with `"format": "mission-board-data/1"`. Every field is optional. The System tool
+reads the same file, and the world tables in it belong to that page.
 
 | Field | Shape | Used for |
 |---|---|---|
@@ -150,8 +168,6 @@ each of `agents`, `mercenaries`, `explorers`, `pilgrims`, `entertainers`, `nomad
 `traders` (pilgrims, entertainers and nomads have no `location.*`; traders' `task` is
 Goods and `location` is Destination). Travel: `land.misfortune`, `reaction`,
 `space.faction`, `space.civilized`, `space.fringe`, `space.uncharted`, `dark`,
-`planet.city`, `planet.countryside`, `planet.wilderness`, `jump.fail`, `ship.wear`. Worlds:
-`w.size`, `w.gasSize`, `w.gasColour`, `w.gasTemp`, `w.gasChar`, `w.beltSize`,
-`w.beltComp`, `w.beltChar`, `w.orbit`, `w.atmosphere`, `w.temperature`, `w.geosphere`,
-`w.population`, `w.spaceport`, `w.hook`, `w.factionCount`, `w.faction`. The Data tab
-lists any your file leaves out.
+`planet.city`, `planet.countryside`, `planet.wilderness`, `jump.fail`, `ship.wear`.
+The world tables (`w.*`) are described in the System tool's README and are read there.
+The Data tab lists any tables your file leaves out.
