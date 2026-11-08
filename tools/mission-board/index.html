@@ -273,6 +273,14 @@ footer.notice a{color:inherit}
         <label class="field"><span>Ship value (birr)</span><input type="number" id="v-value" min="0" step="1000" value="1435000"></label>
         <label class="field"><span>Service at</span><select id="v-port"><option value="500">Small or primitive port (−3)</option><option value="1000" selected>Standard port (±0)</option><option value="2000">Large or advanced (+1)</option></select></label>
       </div>
+      <div class="row">
+        <label class="check"><input type="checkbox" id="v-curse"> Cursed ship (−1 to jumps, darkness one level worse)</label>
+        <label class="check"><input type="checkbox" id="v-am"> Antimatter rockets (service costs double)</label>
+        <label class="check"><input type="checkbox" id="v-svc"> Service station aboard (no −3 at small ports)</label>
+      </div>
+      <div class="row">
+        <label class="field"><span>Engineer's dice for service</span><input type="number" id="v-tech" min="0" max="15" value="5"></label>
+      </div>
       <label class="field"><span>Misfortunes on this trip</span><input type="number" id="v-misf" min="0" max="6" value="1"></label>
       <label class="field"><span>Most encounters to roll per leg</span><input type="number" id="v-cap" min="0" max="12" value="2"></label>
     </div>
@@ -391,7 +399,7 @@ const META = {
   "space.fringe":{num:48,title:"Encounters in fringe space",dice:"D66"}, "space.uncharted":{num:48,title:"Encounters in uncharted space",dice:"D66"},
   "dark":{num:49,title:"The Dark between the Stars",dice:"D6"},
   "planet.city":{num:50,title:"Encounters in the city",dice:"D66"}, "planet.countryside":{num:50,title:"Encounters in the countryside",dice:"D66"}, "planet.wilderness":{num:50,title:"Encounters in the wilderness",dice:"D66"},
-  "jump.fail":{num:"7.2",title:"Failed portal jumps",dice:"D66"},
+  "jump.fail":{num:"7.2",title:"Failed portal jumps",dice:"D66"}, "ship.wear":{num:"7.12",title:"Ship wear",dice:"2D6"},
   "w.size":{num:1,title:"Planet size",dice:"2D6"}, "w.gasSize":{num:2,title:"Gas giant size",dice:"2D6"}, "w.gasColour":{num:3,title:"Gas giant colour",dice:"2D6"},
   "w.gasTemp":{num:4,title:"Gas giant temperature",dice:"2D6"}, "w.gasChar":{num:5,title:"Gas giant characteristics",dice:"2D6"},
   "w.beltSize":{num:6,title:"Asteroid belt size",dice:"D6"}, "w.beltComp":{num:7,title:"Asteroid belt composition",dice:"D6"}, "w.beltChar":{num:8,title:"Asteroid belt characteristics",dice:"2D6"},
@@ -796,7 +804,7 @@ function landEncounter(terrain) { const enc = rollOn("planet." + terrain); const
 function rollLeg(l, v) {
   const speed = +$("#v-speed").value || 2, cap = Math.max(0, +$("#v-cap").value || 0);
   if (l.kind === "jump") {
-    const j = JUMP[l.method]; const mod = j.mod + (l.chapel ? 1 : 0) + (l.priest ? 2 : 0) + (l.prayer ? 1 : 0) + (l.blessed ? 1 : 0);
+    const j = JUMP[l.method]; const mod = j.mod + (l.chapel ? 1 : 0) + (l.priest ? 2 : 0) + (l.prayer ? 1 : 0) + (l.blessed ? 1 : 0) - ($("#v-curse").checked ? 1 : 0);
     const pool = Math.max(0, (+l.pool || 0) + mod);
     const dice = Array.from({ length:pool }, d6); const sixes = dice.filter(x => x === 6).length;
     l.out = { mod, pool, dice, sixes, fail:null, enc:[] };
@@ -915,17 +923,35 @@ function renderLeg(l, idx, v) {
     body, results);
 }
 function fmtDays(d) { if (!d) return "0 h"; if (d < 1) return `${Math.round(d * 24)} h`; return `${d.toFixed(d < 10 ? 1 : 0)} days`; }
+// Service (core rules 7.11): a TECHNOLOGY roll at the port's modifier; a failure costs half and rolls ship wear (7.12).
+function serviceBlock(v, t) {
+  const div = +$("#v-port").value || 1000, mod = div === 500 ? ($("#v-svc").checked ? 0 : -3) : div === 2000 ? 1 : 0;
+  const box = h("div", { style:"margin-top:8px" });
+  const out = v.service;
+  box.append(h("div", { class:"row" }, h("button", { class:"mini", type:"button", text:"Roll the service", onclick:() => setV(vv => {
+      const pool = Math.max(0, (+$("#v-tech").value || 0) + mod), dice = Array.from({ length:pool }, d6), ok = dice.includes(6);
+      vv.service = { pool, mod, dice, ok, cost: ok ? t.serviceCost : Math.round(t.serviceCost / 2), wear: ok ? null : rollOn("ship.wear") }; }) }),
+    out ? h("button", { class:"mini", type:"button", text:"Clear", onclick:() => setV(vv => { delete vv.service; }) }) : null,
+    h("span", { class:"small muted", text:`Engineer's dice ${mod ? `${mod > 0 ? "+" : "−"}${Math.abs(mod)} for the port` : "at this port"}.` })));
+  if (out) {
+    const w = out.wear && lookup("ship.wear", out.wear.r);
+    box.append(h("p", { class:"small", style:"margin:6px 0 0" }, h("b", { text: out.ok ? "Serviced." : "The service fails." }), ` ${out.pool} dice: `, h("span", { class:"data", text:out.dice.join(" ") || "none" }), ` · paid ${fmtBirr(out.cost)}`),
+      out.wear ? h("p", { class:"small", style:"margin:2px 0 0;color:var(--accent)" }, h("b", { text:`Wear: ${w ? w.n : `Table 7.12, result ${out.wear.r}`}` }), w && w.d ? ` — ${w.d}` : "", h("span", { class:"muted", text:` (2d6 ${out.wear.r}). Rolling the same system twice disables the ship until repaired.` })) : null);
+  }
+  return box;
+}
 function voyageTotals(v) {
   const speed = +$("#v-speed").value || 2, pcs = +$("#v-pcs").value || 0, rate = +$("#v-route").value || 1;
   const days = v.legs.reduce((a, l) => a + legDays(l, speed), 0);
   const spaceDays = v.legs.filter(l => l.kind !== "land").reduce((a, l) => a + legDays(l, speed), 0);
   const jumps = v.legs.filter(l => l.kind === "jump").length;
   const au = v.legs.filter(l => l.kind === "space" && !l.transit).reduce((a, l) => { const d = legDist(l); return a + (isFinite(d) ? d : 0); }, 0);
-  const dpTravel = rate * pcs * spaceDays / 7;
+  const lvl = Math.min(3, rate + ($("#v-curse").checked ? 1 : 0)), dpTravel = lvl * pcs * spaceDays / 7;
   const dpAwake = v.legs.filter(l => l.kind === "jump").reduce((a, l) => a + 3 * (+l.awake || 0), 0);
   const service = jumps > 0 || au >= 10;
   const value = +$("#v-value").value || 0, div = +$("#v-port").value || 1000;
-  return { days, spaceDays, jumps, au, dpTravel, dpAwake, service, serviceCost: value ? Math.round(value / div) : 0 };
+  const mult = $("#v-am").checked ? 2 : 1;
+  return { days, spaceDays, jumps, au, dpTravel, dpAwake, service, serviceCost: value ? Math.round(value / div) * mult : 0, lvl };
 }
 function applyDark() { if (S.voyage.darkRoute) { $("#v-route").value = String(S.voyage.darkRoute); vset["v-route"] = $("#v-route").value; store.set("mb-vset", vset); } }
 function renderTravel() {
@@ -943,7 +969,8 @@ function renderTravel() {
       h("div", {}, h("b", { text:String(Math.round(t.dpTravel + t.dpAwake)) }), h("span", { text:`Darkness Points (${t.dpTravel.toFixed(1)} travel${t.dpAwake ? ` + ${t.dpAwake} awake` : ""})` })),
       h("div", {}, h("b", { text: t.service ? fmtBirr(t.serviceCost) : "Not yet" }), h("span", { text:"Service due" }))) :
       h("p", { class:"small", text:"Add legs from the sidebar, or accept a job on the Board to have the trip laid out for you: out to the portal, each jump, the flight in, and the ground at the end." }),
-    v.legs.length ? h("p", { class:"note", text:"Travel time is AD ÷ speed in days. Darkness is counted per PC per week in space. Service is due after 10 AD or more, or any jump; a failed service roll still costs half." }) : null,
+    v.legs.length ? h("p", { class:"note", text:`Travel time is AD ÷ speed in days. Darkness is counted per PC per week in space${t.lvl > (+$("#v-route").value || 1) ? ", one level worse for the curse" : ""}; a PC who suffers bad stasis after a jump adds 1 DP. Service is due after 10 AD or more, or any jump; a failed service roll still costs half and wears the ship. Messages take 8 minutes per AD each way, and none cross a portal: a probe must carry them. Landing from orbit takes one to a few hours.` }) : null,
+    v.legs.length && t.service ? serviceBlock(v, t) : null,
     v.legs.length ? h("div", { class:"row", style:"margin-top:8px" },
       h("button", { class:"mini", type:"button", text:"Copy as Markdown", onclick:e => copy(voyageMd(v), e.target) }),
       h("button", { class:"mini", type:"button", text:"Save to the log", onclick:e => { S.log.unshift({ id:uid(), kind:"voyage", title:v.name || "Voyage", status:"Planned", notes:"", md:voyageMd(v), saved:new Date().toISOString() }); save("log"); flashBtn(e.target, "Saved"); } })) : null]));
@@ -1373,7 +1400,8 @@ $("#post-one").addEventListener("click", () => { S.board.push(newMission(S.conce
 $("#draw").addEventListener("click", () => { $("#drawn").replaceChildren(cardView(drawCard())); });
 $("#shuffle").addEventListener("click", () => { S.deck = freshDeck(); save("deck"); renderDeck(); $("#drawn").replaceChildren(); });
 
-const VKEYS = ["v-speed","v-pcs","v-route","v-crew","v-value","v-port","v-misf","v-cap"];
+const VKEYS = ["v-speed","v-pcs","v-route","v-crew","v-value","v-port","v-misf","v-cap","v-tech"];
+["v-curse","v-am","v-svc"].forEach(k => { const el = document.getElementById(k); try { el.checked = JSON.parse(localStorage.getItem("mb-" + k) || "false"); } catch {} el.addEventListener("change", () => { try { localStorage.setItem("mb-" + k, JSON.stringify(el.checked)); } catch {} renderTravel(); }); });
 const vset = store.get("mb-vset", {});
 VKEYS.forEach(k => { if (vset[k] != null) $("#" + k).value = vset[k]; $("#" + k).addEventListener("change", () => { vset[k] = $("#" + k).value; store.set("mb-vset", vset); renderTravel(); }); });
 $("#v-name").addEventListener("change", e => setV(v => { v.name = e.target.value; }));
