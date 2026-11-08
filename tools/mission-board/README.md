@@ -69,7 +69,11 @@ table and result to read.
   pilot's dice with the method and blessing modifiers, and Table 7.2 on a failure
   (+1 to the tens die when jumping blind). Planetside legs roll a land misfortune and
   Table 50 encounters with the city, countryside or wilderness modifier. The summary
-  gives total time, distance, jumps, Darkness Points and the service bill. Crew
+  gives total time, distance, jumps, Darkness Points and the service bill.
+  A cursed ship takes −1 on jumps and counts darkness one level worse; antimatter
+  rockets double the service bill. The service can be rolled at the port's modifier
+  (no −3 with a service station aboard): a failure costs half and rolls ship wear
+  (Table 7.12). Crew
   misfortunes roll Table 44 for the position and a d6 for the misfortune, and name the
   PC in that seat if you list your crew.
 - **Worlds.** The system generator: planets, gas giants and asteroid belts.
@@ -113,7 +117,7 @@ each of `agents`, `mercenaries`, `explorers`, `pilgrims`, `entertainers`, `nomad
 `traders` (pilgrims, entertainers and nomads have no `location.*`; traders' `task` is
 Goods and `location` is Destination). Travel: `land.misfortune`, `reaction`,
 `space.faction`, `space.civilized`, `space.fringe`, `space.uncharted`, `dark`,
-`planet.city`, `planet.countryside`, `planet.wilderness`, `jump.fail`. Worlds:
+`planet.city`, `planet.countryside`, `planet.wilderness`, `jump.fail`, `ship.wear`. Worlds:
 `w.size`, `w.gasSize`, `w.gasColour`, `w.gasTemp`, `w.gasChar`, `w.beltSize`,
 `w.beltComp`, `w.beltChar`, `w.orbit`, `w.atmosphere`, `w.temperature`, `w.geosphere`,
 `w.population`, `w.spaceport`, `w.hook`, `w.factionCount`, `w.faction`. The Data tab
