@@ -971,6 +971,24 @@ function holoBase(svg, x0, y0, w, hgt, seed) {
   for (let i = 0; i < (w * hgt) / 1800; i++) sv("circle", { cx:x0 + rnd() * w, cy:y0 + rnd() * hgt, r:rnd() < .92 ? .7 : 1.4, class:"speck", opacity:(.15 + rnd() * .55).toFixed(2) }, svg);
   return { star:`url(#${id}s)`, neb:`url(#${id}n)` };
 }
+// Companion stars sit in the widest open angles round their system: away from its portal links and its name.
+function companionSpots(id, n) {
+  if (!n) return [];
+  const me = MAP.find(m => m[0] === id), P = o => MAP.find(m => m[0] === o);
+  const avoid = LINKS.filter(l => l[0] === id || l[1] === id).map(l => { const o = P(l[0] === id ? l[1] : l[0]); return Math.atan2(o[3] - me[3], o[2] - me[2]); });
+  const [ldx, ldy] = LABEL_AT[id] || [10, -9]; avoid.push(Math.atan2(ldy - 4, ldx + 20));
+  const gap = (a, b) => { const d = Math.abs(a - b) % (2 * Math.PI); return Math.min(d, 2 * Math.PI - d); };
+  let seed = [...id].reduce((t, c) => t * 31 + c.charCodeAt(0), 7); const rnd = () => (seed = (seed * 9301 + 49297) % 233280) / 233280;
+  const out = [], placed = [];
+  for (let k = 0; k < n; k++) {
+    let best = 0, bestScore = -1;
+    // a companion already placed counts as more crowded than a link, so a second one moves well clear of it
+    for (let a = -Math.PI; a < Math.PI; a += Math.PI / 36) { const score = Math.min(...avoid.map(v => gap(a, v)), ...placed.map(v => gap(a, v) * .6)); if (score > bestScore) { bestScore = score; best = a; } }
+    const r = 10 + rnd() * 5, a = best + (rnd() - .5) * .3;
+    out.push([r * Math.cos(a), r * Math.sin(a)]); placed.push(a);
+  }
+  return out;
+}
 function drawMap(box, opt = {}) {
   const svg = sv("svg", { viewBox:"180 175 1230 715", class:"hmap", role:"img", "aria-label":"Map of the Third Horizon's portal links" });
   const G = holoBase(svg, 180, 175, 1230, 715, 11);
@@ -989,7 +1007,7 @@ function drawMap(box, opt = {}) {
     if (UNSTABLE.has(id)) { sv("circle", { cx:x, cy:y, r:20, class:"etch" }, g); sv("circle", { cx:x, cy:y, r:20, class:"etch-line" }, g); }
     // companion stars, as the small dots beside a binary or trinary system
     const ns = INFO[id] && /^Trinary/.test(INFO[id][0]) ? 2 : INFO[id] && /^Binary/.test(INFO[id][0]) ? 1 : 0;
-    [[-10, -9], [-10, 9]].slice(0, ns).forEach(([dx, dy]) => sv("circle", { cx:x + dx, cy:y + dy, r:2.4, class:"star" }, g));
+    companionSpots(id, ns).forEach(([dx, dy]) => sv("circle", { cx:(x + dx).toFixed(1), cy:(y + dy).toFixed(1), r:2.4, class:"star" }, g));
     sv("circle", { cx:x, cy:y, r: CORE.has(id) ? 6 : 4, class:"star" }, g);
     if (CORE.has(id)) sv("circle", { cx:x, cy:y, r:10, class:"halo" }, g);
     const [ldx, ldy, la] = LABEL_AT[id] || [10, -9, "start"];
