@@ -14,8 +14,15 @@ numbers that drive the mechanics (the mission type table, encounter rates by zon
 reaction and jump modifiers, Darkness Point rates, service costs, the system
 generator's modifiers), system and planet names, the Kua system's orbital
 distances, my own redrawing of the Third Horizon's portal map, and orbital distances
-from the system charts for Kua, Altai, Ordana, Sivas, Zhau and Sadaal (with their
-companion stars). It carries no table text. Employers, missions, locations, complications,
+from the published system charts: Kua, Altai, Ordana and Yuisin, Sivas, Zhau A to C,
+Sadaal and Bahram, Zalos and Zahedan, Mira, Antmira and Menau, Odacon, Dabaran,
+Algol and Rhaas, Hamura, and Uharu with Zuhal. Where a chart gives the distance
+between a system's stars, the page carries that too. From the Horizon map it takes
+each system's star type, its planet count per star (with asteroid belts and gas
+giants), the kind of space and whether it has a major spaceport. Systems the books
+don't chart are drawn as a sketch from that count, with no positions, and their
+flights' encounter column follows the kind of space (border reads as fringe,
+observandum as uncharted). It carries no table text. Employers, missions, locations, complications,
 rewards, encounters, misfortunes and so on come from a **data file** you write and
 keep yourself, imported on the Data tab. It is stored in that browser and never
 uploaded.
