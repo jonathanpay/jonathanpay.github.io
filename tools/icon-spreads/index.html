@@ -212,7 +212,7 @@ footer.notice{margin-top:24px;padding-top:10px;border-top:1px solid var(--line-s
   <aside class="side">
     <div class="card stack">
       <h2>The deck</h2>
-      <p class="small">Thirty-six cards: four for each of the nine Icons, numbered 11 to 66 like a d66. The colours run green, blue, ochre and violet down each Icon's four.</p>
+      <p class="small">Thirty-six cards: four for each of the nine Icons, numbered 11 to 66 like a d66. The colours run green, blue, ochre and red down each Icon's four.</p>
       <p class="small">Each card has a short gloss. Read it against its position: the same card reads differently as the Surface than as the Secret.</p>
     </div>
   </aside>
@@ -235,9 +235,9 @@ footer.notice{margin-top:24px;padding-top:10px;border-top:1px solid var(--line-s
   <aside class="side">
     <div class="card stack">
       <h2>Your card images</h2>
-      <p class="small">The page draws its own cards. To use your own scans instead, choose them here. Each file is matched to a card by the number in its name (<code>11</code> to <code>66</code>, so <code>card-43.jpg</code> or <code>43 Gambler.png</code>); a file with <code>back</code> in its name becomes the card back.</p>
+      <p class="small">The page draws its own cards. To use your own scans instead, choose them here. Choose the folder of scans, or the files. Each one is matched to a card by the number in its name (<code>11</code> to <code>66</code>, so <code>43 Gambler.png</code>), or failing that by the card's title (<code>the-gambler-debt.jpg</code>). A file with <code>back</code> in its name becomes the card back.</p>
       <p class="small">They stay in this browser and are never uploaded.</p>
-      <div class="row"><button class="btn primary" type="button" id="pick-scans">Choose images</button><button class="btn quiet" type="button" id="clear-scans">Remove all</button></div>
+      <div class="row"><button class="btn primary" type="button" id="pick-folder">Choose a folder</button><button class="btn" type="button" id="pick-scans">Choose images</button><button class="btn quiet" type="button" id="clear-scans">Remove all</button></div>
       <label class="check"><input type="checkbox" id="use-scans" checked> Use my images where I have them</label>
       <p class="status" id="scan-status" role="status"></p>
     </div>
@@ -315,8 +315,8 @@ const dd = sv("defs", {}, defs);
   const gb = sv("g", { fill:"none", stroke:"#d7ad5a", "stroke-width":.45, opacity:.5 }, pb);
   sv("path", { d:"M8 2 L9.6 6.4 14 8 9.6 9.6 8 14 6.4 9.6 2 8 6.4 6.4Z M0 8H2M14 8H16M8 0V2M8 14V16" }, gb);
 })();
-// Suits in the deck's order: green, blue, ochre, violet. [ground, star line, highlight, banner]
-const SUIT = [["#141c10","#4a6a2c","#8fae55","#22301a"],["#0e1730","#2f5590","#6f9bd6","#172645"],["#25130a","#94511f","#d38a3e","#3a1d0e"],["#22091b","#7f2840","#c0566c","#3d1029"]];
+// Suits in the deck's order: green, blue, ochre, red. [ground, star line, highlight, banner]
+const SUIT = [["#141c10","#4a6a2c","#8fae55","#22301a"],["#0e1730","#2f5590","#6f9bd6","#172645"],["#25130a","#94511f","#d38a3e","#3a1d0e"],["#240a0e","#8c2a30","#c9585c","#43121a"]];
 // A twelve-point star of the kind set into tilework, with its inner rings and spokes
 function star12(g, cx, cy, R, r, cls) { let d = ""; for (let k = 0; k < 24; k++) { const a = -Math.PI / 2 + k * Math.PI / 12, rr = k % 2 ? r : R; d += (k ? "L" : "M") + (cx + rr * Math.cos(a)).toFixed(2) + " " + (cy + rr * Math.sin(a)).toFixed(2); } return sv("path", { d:d + "Z", ...cls }, g); }
 function tileground(g, cx, cy, su) {
@@ -600,13 +600,22 @@ $("#copy").addEventListener("click", e => { if (S.cards.length) copy(markdown(),
 $("#save-npc").addEventListener("click", () => { if (!S.cards.length) { $("#draw-status").textContent = "Draw a spread first."; return; } const x = JSON.parse(JSON.stringify(S)); const i = NPCS.findIndex(n => n.id === x.id); if (i >= 0) { x.notes = NPCS[i].notes || x.notes; NPCS[i] = x; } else NPCS.unshift(x); saveNpcs(); $("#draw-status").textContent = `Saved ${x.name || "the NPC"} to the NPCs tab.`; });
 $("#export").addEventListener("click", () => download(`icon-spreads-${new Date().toISOString().slice(0, 10)}.json`, JSON.stringify({ format:"icon-spreads-backup/1", saved:new Date().toISOString(), npcs:NPCS }, null, 1)));
 $("#import").addEventListener("click", () => { const i = h("input", { type:"file", accept:".json,application/json" }); i.addEventListener("change", () => { const f = i.files[0]; if (!f) return; f.text().then(t => { try { const x = JSON.parse(t); if (x.format !== "icon-spreads-backup/1") throw 0; const have = new Set(NPCS.map(n => n.id)); NPCS = [...NPCS, ...x.npcs.filter(n => !have.has(n.id))]; saveNpcs(); renderNpcs(); $("#npc-status").textContent = "Backup restored."; } catch { $("#npc-status").textContent = "That file isn't a backup from this page."; } }); }); i.click(); });
-$("#pick-scans").addEventListener("click", () => {
-  const i = h("input", { type:"file", accept:"image/*", multiple:"" });
-  i.addEventListener("change", async () => { let ok = 0, skipped = [];
-    for (const f of i.files) { const name = f.name.toLowerCase(); let key = /back/.test(name) ? "back" : null; if (!key) { const m = name.match(/(?:^|\D)([1-6][1-6])(?:\D|$)/); if (m) key = +m[1]; }
-      if (key == null) { skipped.push(f.name); continue; } try { await putScan(key, f); if (SCANS[key]) URL.revokeObjectURL(SCANS[key]); SCANS[key] = URL.createObjectURL(f); ok++; } catch { skipped.push(f.name); } }
-    renderScans(); render(); $("#scan-status").textContent = `${ok} image${ok === 1 ? "" : "s"} loaded.${skipped.length ? ` Not matched: ${skipped.slice(0, 5).join(", ")}${skipped.length > 5 ? "…" : ""}` : ""}`; });
-  i.click(); });
+// Match a file to a card: "back" anywhere, else a card number (11 to 66), else the card's title as whole words.
+const TITLE_RX = NUMS.map(n => [n, new RegExp("(^|[^a-z])" + CARD[n].title.toLowerCase().replace(/[^a-z ]/g, "").split(" ").join("[\\s_.-]*") + "([^a-z]|$)")]).sort((a, b) => CARD[b[0]].title.length - CARD[a[0]].title.length);
+function matchKey(fileName) {
+  const name = fileName.toLowerCase().replace(/\.[a-z0-9]+$/, "");
+  if (/(^|[^a-z])back([^a-z]|$)/.test(name)) return "back";
+  const m = name.match(/(?:^|\D)([1-6][1-6])(?:\D|$)/); if (m) return +m[1];
+  const t = TITLE_RX.find(([, rx]) => rx.test(name)); return t ? t[0] : null;
+}
+async function loadFiles(files) {
+  let ok = 0; const skipped = [];
+  for (const f of files) { if (!/^image\//.test(f.type)) continue; const key = matchKey(f.name);
+    if (key == null) { skipped.push(f.name); continue; } try { await putScan(key, f); if (SCANS[key]) URL.revokeObjectURL(SCANS[key]); SCANS[key] = URL.createObjectURL(f); ok++; } catch { skipped.push(f.name); } }
+  renderScans(); render(); $("#scan-status").textContent = `${ok} image${ok === 1 ? "" : "s"} loaded.${skipped.length ? ` Not matched: ${skipped.slice(0, 5).join(", ")}${skipped.length > 5 ? "…" : ""}` : ""}`;
+}
+$("#pick-scans").addEventListener("click", () => { const i = h("input", { type:"file", accept:"image/*", multiple:"" }); i.addEventListener("change", () => loadFiles(i.files)); i.click(); });
+$("#pick-folder").addEventListener("click", () => { const i = h("input", { type:"file", webkitdirectory:"", multiple:"" }); i.addEventListener("change", () => loadFiles(i.files)); i.click(); });
 $("#clear-scans").addEventListener("click", async () => { await clearScans(); Object.keys(SCANS).forEach(k => { URL.revokeObjectURL(SCANS[k]); delete SCANS[k]; }); renderScans(); render(); });
 $("#use-scans").checked = useScans;
 $("#use-scans").addEventListener("change", e => { useScans = e.target.checked; store.set("is-use-scans", useScans); renderScans(); render(); });
