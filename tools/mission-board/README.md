@@ -50,7 +50,7 @@ table and result to read.
   the system chart with its two ends lit. A flight between bodies of different stars
   asks for the distance between the stars, which the charts don't give. Unstable portals are flagged; how
   much harder they make the jump is left to your table. Flights take
-  AU ÷ speed days and split their time across the zones in Table 46, measured from the
+  AD ÷ speed days and split their time across the zones in Table 46, measured from the
   portal; the encounter count follows the book's rates, capped at a number you choose.
   Each encounter rolls Table 48 in the column you pick, a reaction with the zone's
   modifier, and Table 49 when the Dark between the Stars turns up. Jumps roll the
@@ -89,7 +89,7 @@ JSON with `"format": "mission-board-data/1"`. Every field is optional.
 | `misfortunes` | `{ captain, sensor, gunner, engineer, pilot, group: [[name, text] × 6] }` | Crew misfortunes by position |
 | `development` | `[[name, text]]` | Development actions listed on the Travel tab |
 | `cards` | `{ "11": title, … "66": title }` | Icon card titles |
-| `systems` | `[{ id?, n, portal?, bodies: [[name, AU?]] }]` | Bodies and distances for the 36 map systems, or extra systems (off the map, so jumps are set by hand) |
+| `systems` | `[{ id?, n, portal?, bodies: [[name, AD?]] }]` | Bodies and distances for the 36 map systems, or extra systems (off the map, so jumps are set by hand) |
 
 Row flags: `birr: true` on a reward row rolls the Birr bonus; `dark: true` on an
 encounter row rolls Table 49; `count` on a Table 16 row is the number of factions
