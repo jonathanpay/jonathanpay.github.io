@@ -39,6 +39,9 @@ table and result to read.
   rolls its bonus by difficulty. Any line can be rerolled or picked by hand. Nearby
   jobs go to a system one jump away on the map, faraway jobs to one two or three jumps
   away, and the card shows the route with any unstable portals or dangerous area on it.
+  Every system has a portal station at 0.5 AD beside its portals. Print names only a
+  few (Khôban at Odacon, Hamurabi at Hamura); the rest are called "<system> portal
+  station" until you name them.
   Unstable portals belong to a system (Dziban, Zamusa, Yastapol and Algebar), which
   the map rings in red; companion stars show as small dots beside their system.
   The map above the board shows the crew and the jobs; click a system to move the crew.
@@ -98,7 +101,7 @@ JSON with `"format": "mission-board-data/1"`. Every field is optional.
 | `misfortunes` | `{ captain, sensor, gunner, engineer, pilot, group: [[name, text] × 6] }` | Crew misfortunes by position |
 | `development` | `[[name, text]]` | Development actions listed on the Travel tab |
 | `cards` | `{ "11": title, … "66": title }` | Icon card titles |
-| `systems` | `[{ id?, n, portal?, bodies?: [[name, AD?, kind?, star?]], known?: [], exports?, imports?, note? }]` | Bodies, distances and notes for the 36 map systems (shown on the system chart), or extra systems (off the map, so jumps are set by hand) |
+| `systems` | `[{ id?, n, portal?, portalStation?, bodies?: [[name, AD?, kind?, star?]], known?: [], exports?, imports?, note? }]` | Bodies, distances and notes for the 36 map systems (shown on the system chart), or extra systems (off the map, so jumps are set by hand) |
 
 Row flags: `birr: true` on a reward row rolls the Birr bonus; `dark: true` on an
 encounter row rolls Table 49; `count` on a Table 16 row is the number of factions

@@ -515,22 +515,31 @@ const BODIES = {
     ["M1",2,"planet",2],["Menau",3.5,"planet",2],["M3",5,"planet",2],["Moshtari",15,"giant",2],["Yahin",25,"planet",2],["Sufra",30,"planet",2],["The comet Vaarnathar",46,"field",2]] },
   zalos:{ stars:["Zalos (A)","Zahedan (B)"], bodies:[["Benagia",3,"giant"],["Karrmerruk",3,"moon"],["The asteroid belt",6,"belt"],["Zalos",8,"planet"],["The Monastery Fortress of Amshaar",18,"station"],
     ["Naftar",3,"planet",1],["Zahedan",6,"planet",1],["Monastery Station Manaat",6,"station",1],["Hamshir",15,"planet",1],["Ishan",25,"planet",1],["Korda's Eye",32,"giant",1]] },
-  odacon:{ bodies:[["Khôban portal station",0.6,"station"],["Sethlan",2,"planet"],["Echron Station",2,"station"],["Rusah",4,"planet"],["The Ash Belt",6,"belt"],["Khurshid",8,"planet"],["Qayna",15,"planet"],["Chandra",25,"giant"]] },
-  hamura:{ bodies:[["Portal Station Hamurabi",0.6,"station"],["Nestero",2.5,"planet"],["Hamura",3,"planet"],["Yublai",4.5,"planet"]] },
+  odacon:{ bodies:[["Khôban Portal Station",0.5,"station"],["Sethlan",2,"planet"],["Echron Station",2,"station"],["Rusah",4,"planet"],["The Ash Belt",6,"belt"],["Khurshid",8,"planet"],["Qayna",15,"planet"],["Chandra",25,"giant"]] },
+  hamura:{ bodies:[["Portal Station Hamurabi",0.5,"station"],["Nestero",2.5,"planet"],["Hamura",3,"planet"],["Yublai",4.5,"planet"]] },
   // Zuhal's worlds are given from Uharu (13 to 17 AD); here they sit by their distance from Zuhal, which lies 15 AD out.
   uharu:{ stars:["Uharu","Zuhal (B)"], gaps:[0,15], chartNote:"Zuhal's worlds are shown by their distance from Zuhal; the books give them from Uharu, between 13 and 17 AD.", bodies:[["Albah",3,"planet"],["Rih",4,"planet"],["Yurja",7,"planet"],
     ["Pyre 1–6",0.2,"planet",1],["Ayn 1–6",0.25,"planet",1],["Azraq 1–5",0.5,"planet",1],["Oasa & Ouma",0.5,"planet",1],["Najila & Warah",1,"planet",1],["Alri & Harara",1,"planet",1],["Jadesh 1–6",1.5,"planet",1],["Bayd 1–5",1.7,"planet",1],["The asteroid belt",2,"belt",1]] }
 };
 const BASE_SYSTEMS = MAP.map(([id, n, x, y, region]) => ({ id, n, x, y, region, bodies:[], ...(BODIES[id] || {}) }));
 const extraSystems = store.get("mb-systems", []);
+const onMapId = id => MAP.some(m => m[0] === id);
 const SYSTEMS = (() => {
   const list = clone(BASE_SYSTEMS);
-  const merge = s => { if (!s || !s.n) return; const id = s.id || s.n.toLowerCase().replace(/[^a-z0-9]+/g, ""); const have = list.find(x => x.id === id); if (have) { if (s.bodies && s.bodies.length) have.bodies = s.bodies; if (s.portal != null) have.portal = s.portal; ["note","known","exports","imports"].forEach(k => { if (s[k]) have[k] = s[k]; }); } else list.push({ id, n:s.n, bodies:s.bodies || [], portal:s.portal, note:s.note, known:s.known, exports:s.exports, imports:s.imports }); };
+  const merge = s => { if (!s || !s.n) return; const id = s.id || s.n.toLowerCase().replace(/[^a-z0-9]+/g, ""); const have = list.find(x => x.id === id); if (have) { if (s.bodies && s.bodies.length) have.bodies = s.bodies; if (s.portal != null) have.portal = s.portal; ["note","known","exports","imports","portalStation"].forEach(k => { if (s[k]) have[k] = s[k]; }); } else list.push({ id, n:s.n, bodies:s.bodies || [], portal:s.portal, note:s.note, known:s.known, exports:s.exports, imports:s.imports }); };
   (DATA && DATA.systems || []).forEach(merge); extraSystems.forEach(merge);
   // Every map system gets a portal body for each of its links.
   list.forEach(sy => { const links = LINKS.filter(l => l[0] === sy.id || l[1] === sy.id).map(l => l[0] === sy.id ? l[1] : l[0]);
     const pa = sy.portal != null ? sy.portal : 0.5;
-    sy.bodies = [...links.map(o => [`Portal to ${(MAP.find(m => m[0] === o) || [])[1]}`, pa, "portal"]), ...sy.bodies.filter(b => b[2] !== "portal")]; });
+    sy.bodies = [...links.map(o => [`Portal to ${(MAP.find(m => m[0] === o) || [])[1]}`, pa, "portal"]), ...sy.bodies.filter(b => b[2] !== "portal")];
+    // Every system has a portal station beside its portals. Only a few are named in print: a data file or your own
+    // systems list can name the rest (a station at the portals' distance, or "portalStation" on the system).
+    if (onMapId(sy.id)) {
+      let st = sy.bodies.find(b => (b[2] === "station" || (!b[2] && /station/i.test(b[0]))) && (b[1] === pa || /portal/i.test(b[0])) && !(b[3] > 0)); if (st) st[2] = "station";
+      if (sy.portalStation) { if (st) st[0] = sy.portalStation; else sy.bodies.push(st = [sy.portalStation, pa, "station"]); }
+      if (!st) { st = [`${sy.n} portal station`, pa, "station"]; sy.unnamedStation = true; sy.bodies.push(st); }
+      sy.portalStationName = st[0];
+    } });
   return list;
 })();
 const sysName = id => (SYSTEMS.find(s => s.id === id) || {}).n || id || "—";
@@ -724,7 +733,7 @@ function voyageForMission(m) {
   v.name = `${missionTitle(m)} (${sysName(m.dest)})`;
   return v;
 }
-function startBody(sysObj) { const real = sysObj.bodies.filter(b => b[2] !== "portal"); return real.find(b => b[0].startsWith(sysObj.n)) || real[0]; }
+function startBody(sysObj) { const real = sysObj.bodies.filter(b => b[2] !== "portal" && b[0] !== sysObj.portalStationName); return real.find(b => b[0].startsWith(sysObj.n)) || real[0]; }
 function portalBody(sysObj, otherId) { return sysObj.bodies.find(b => b[0] === `Portal to ${sysName(otherId)}`) || sysObj.bodies.find(b => b[2] === "portal"); }
 // The encounter column follows the kind of space on the Horizon map: border space reads as fringe, observandum as uncharted.
 function colFor(id) { const i = INFO[id]; return i ? SPACE_COL[i[2]] : "civilized"; }
@@ -1079,7 +1088,7 @@ function systemChart(sy, opt = {}) {
   const info = INFO[sy.id];
   // Not charted: sketch the bodies the Horizon map counts, without positions
   if (real.length < 2 && info && info[1]) {
-    sketch = true; real = [];
+    sketch = true; real = real.filter(b => b[0] === sy.portalStationName);
     info[1].split("/").forEach((part, si) => { const c = parseCount(part); if (!c) return;
       const kinds = Array.from({ length:c.n }, () => "planet"); if (c.a && c.n) kinds[Math.min(c.n - 1, Math.floor(c.n / 2))] = "belt"; if (c.g && c.n) kinds[c.n - 1 - (c.a && c.n > 1 && Math.floor(c.n / 2) === c.n - 1 ? 1 : 0)] = "giant";
       kinds.forEach((k, j) => real.push(["", (j + 1) * (j + 1) * 1.5, k, si, true])); });
@@ -1149,6 +1158,7 @@ function systemChart(sy, opt = {}) {
     wrap.append(h("div", { class:"holokey" }, counts ? h("span", { text:`On the Horizon map: ${counts}.` }) : null,
       sketch ? h("span", { text:"Not charted in the books: the bodies are sketched from the count, with no positions. Name and place them as you need, or roll them on the Worlds tab." }) : h("span", { text:"Distances in AD from each star, spaced by square root." }),
       sy.chartNote ? h("span", { text:sy.chartNote }) : null,
+      sy.unnamedStation ? h("span", { text:`${sy.n}'s portal station isn't named in print: give it a name with "portalStation" in your data file, or as a station at 0.5 AD in your systems list.` }) : null,
       sy.known && sy.known.length ? h("span", { text:`Known for: ${sy.known.join("; ")}.` }) : null,
       sy.exports || sy.imports ? h("span", { text:[sy.exports ? `Exports: ${sy.exports}` : "", sy.imports ? `Imports: ${sy.imports}` : ""].filter(Boolean).join(" · ") + "." }) : null,
       sy.note ? h("span", { text:sy.note }) : null,
