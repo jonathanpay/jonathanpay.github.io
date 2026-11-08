@@ -1,0 +1,1068 @@
+{
+  "format": "coriolis-sheets-presets/1",
+  "npcs": [
+    {
+      "label": "Agent",
+      "values": {
+        "concept": "Agent",
+        "strength": 2,
+        "agility": 4,
+        "wits": 3,
+        "empathy": 4,
+        "reputation": 4,
+        "skills": "Manipulation 3, Observation 2, Ranged Combat 1"
+      }
+    },
+    {
+      "label": "Data Spider",
+      "values": {
+        "concept": "Data Spider",
+        "strength": 2,
+        "agility": 3,
+        "wits": 5,
+        "empathy": 3,
+        "reputation": 4,
+        "skills": "Data Djinn 3, Manipulation 2, Culture 1"
+      }
+    },
+    {
+      "label": "Negotiator",
+      "values": {
+        "concept": "Negotiator",
+        "strength": 2,
+        "agility": 2,
+        "wits": 4,
+        "empathy": 5,
+        "reputation": 5,
+        "skills": "Manipulation 3, Culture 2, Command 1"
+      }
+    },
+    {
+      "label": "Fugitive",
+      "values": {
+        "concept": "Fugitive",
+        "strength": 3,
+        "agility": 4,
+        "wits": 2,
+        "empathy": 4,
+        "reputation": 2,
+        "skills": "Mystic powers 3, Infiltration 2, Melee Combat 1"
+      }
+    },
+    {
+      "label": "Scientist",
+      "values": {
+        "concept": "Scientist",
+        "strength": 2,
+        "agility": 3,
+        "wits": 5,
+        "empathy": 3,
+        "reputation": 5,
+        "skills": "Science 3, Technology 2, Observation 1"
+      }
+    },
+    {
+      "label": "Ship Worker",
+      "values": {
+        "concept": "Ship Worker",
+        "strength": 5,
+        "agility": 3,
+        "wits": 3,
+        "empathy": 3,
+        "reputation": 3,
+        "skills": "Force 3, Dexterity 2, Melee combat 1"
+      }
+    },
+    {
+      "label": "Artist",
+      "values": {
+        "concept": "Artist",
+        "strength": 2,
+        "agility": 3,
+        "wits": 2,
+        "empathy": 5,
+        "reputation": 5,
+        "skills": "Manipulation 3, Dexterity 2, Culture 1"
+      }
+    },
+    {
+      "label": "Soldier",
+      "values": {
+        "concept": "Soldier",
+        "strength": 3,
+        "agility": 5,
+        "wits": 2,
+        "empathy": 2,
+        "reputation": 3,
+        "skills": "Ranged combat 3, Melee Combat 2, Command 1"
+      }
+    },
+    {
+      "label": "Pilot",
+      "values": {
+        "concept": "Pilot",
+        "strength": 3,
+        "agility": 4,
+        "wits": 4,
+        "empathy": 2,
+        "reputation": 4,
+        "skills": "Pilot 3, Data Djinn 2, Technology 1"
+      }
+    },
+    {
+      "label": "Preacher",
+      "values": {
+        "concept": "Preacher",
+        "strength": 2,
+        "agility": 2,
+        "wits": 4,
+        "empathy": 4,
+        "reputation": 5,
+        "skills": "Manipulation 3, Culture 2, Survival 1"
+      }
+    },
+    {
+      "label": "Trailblazer",
+      "values": {
+        "concept": "Trailblazer",
+        "strength": 3,
+        "agility": 4,
+        "wits": 4,
+        "empathy": 2,
+        "reputation": 4,
+        "skills": "Survival 3, Observation 2, Dexterity 1"
+      }
+    }
+  ],
+  "ships": [
+    {
+      "label": "Light Freighter, Scarab · Standard model",
+      "values": {
+        "classType": "III · Light Freighter, Scarab · Standard model",
+        "shipyard": "Chelebs, CC 46",
+        "energy": 5,
+        "hull": 6,
+        "manoeuvrability": 1,
+        "signature": 1,
+        "armour": 5,
+        "speed": 2,
+        "problem": "Worn-out ship computer"
+      },
+      "tables": {
+        "modules": [
+          {
+            "name": "Docking station"
+          },
+          {
+            "name": "Cabins"
+          },
+          {
+            "name": "Cabins"
+          },
+          {
+            "name": "Stasis hold"
+          },
+          {
+            "name": "Chapel"
+          },
+          {
+            "name": "Cargo hold"
+          },
+          {
+            "name": "Cargo hold"
+          },
+          {
+            "name": "Medlab"
+          },
+          {
+            "name": "Accelerator cannon"
+          },
+          {
+            "name": "Countermeasure dispenser"
+          }
+        ],
+        "features": [
+          {
+            "name": "Arboretum"
+          },
+          {
+            "name": "Atmospheric Entry"
+          },
+          {
+            "name": "Precise Thrusters"
+          }
+        ]
+      }
+    },
+    {
+      "label": "Light Freighter, Scarab · Passenger ship",
+      "values": {
+        "classType": "III · Light Freighter, Scarab · Passenger ship",
+        "shipyard": "Chelebs, CC 46",
+        "energy": 5,
+        "hull": 6,
+        "manoeuvrability": 1,
+        "signature": 1,
+        "armour": 5,
+        "speed": 2,
+        "problem": "Unreliable sensors"
+      },
+      "tables": {
+        "modules": [
+          {
+            "name": "Docking station"
+          },
+          {
+            "name": "Cabins"
+          },
+          {
+            "name": "Cabins"
+          },
+          {
+            "name": "Cabins"
+          },
+          {
+            "name": "Cabins"
+          },
+          {
+            "name": "Stasis hold"
+          },
+          {
+            "name": "Chapel"
+          },
+          {
+            "name": "Cargo hold"
+          },
+          {
+            "name": "Medlab"
+          },
+          {
+            "name": "Countermeasure dispenser"
+          }
+        ],
+        "features": [
+          {
+            "name": "Arboretum"
+          },
+          {
+            "name": "Atmospheric Entry"
+          },
+          {
+            "name": "Blessed Ship"
+          }
+        ]
+      }
+    },
+    {
+      "label": "Light Freighter, Scarab · Blockade runner",
+      "values": {
+        "classType": "III · Light Freighter, Scarab · Blockade runner",
+        "shipyard": "Chelebs, CC 46",
+        "energy": 5,
+        "hull": 6,
+        "manoeuvrability": 2,
+        "signature": 0,
+        "armour": 5,
+        "speed": 3,
+        "problem": "Curse"
+      },
+      "tables": {
+        "modules": [
+          {
+            "name": "Docking station"
+          },
+          {
+            "name": "Cabins"
+          },
+          {
+            "name": "Stasis hold"
+          },
+          {
+            "name": "Chapel"
+          },
+          {
+            "name": "Cargo hold"
+          },
+          {
+            "name": "Medlab"
+          },
+          {
+            "name": "Accelerator cannon"
+          },
+          {
+            "name": "Countermeasure dispenser"
+          },
+          {
+            "name": "Data pulse"
+          }
+        ],
+        "features": [
+          {
+            "name": "Tuned Accelerator"
+          },
+          {
+            "name": "Turbo Projector"
+          },
+          {
+            "name": "Stealth Technology"
+          }
+        ]
+      }
+    },
+    {
+      "label": "Gunship, Azuk · Standard model",
+      "values": {
+        "classType": "III · Gunship, Azuk · Standard model",
+        "shipyard": "Daharab, CC 32",
+        "energy": 5,
+        "hull": 7,
+        "manoeuvrability": 0,
+        "signature": 0,
+        "armour": 6,
+        "speed": 2,
+        "problem": "Obvious signature",
+        "cargo": "Space scooter"
+      },
+      "tables": {
+        "modules": [
+          {
+            "name": "Docking station"
+          },
+          {
+            "name": "Hangar"
+          },
+          {
+            "name": "Cabins"
+          },
+          {
+            "name": "Cargo hold"
+          },
+          {
+            "name": "Medlab"
+          },
+          {
+            "name": "Stasis hold"
+          },
+          {
+            "name": "Accelerator cannon"
+          },
+          {
+            "name": "Torpedo room"
+          },
+          {
+            "name": "Countermeasure dispenser"
+          }
+        ],
+        "features": [
+          {
+            "name": "Atmospheric Entry"
+          },
+          {
+            "name": "Robust Hull"
+          },
+          {
+            "name": "Heavy Armor"
+          }
+        ]
+      }
+    },
+    {
+      "label": "Gunship, Azuk · Patrol ship model",
+      "values": {
+        "classType": "III · Gunship, Azuk · Patrol ship model",
+        "shipyard": "Daharab, CC 32",
+        "energy": 5,
+        "hull": 6,
+        "manoeuvrability": 1,
+        "signature": 1,
+        "armour": 5,
+        "speed": 4,
+        "problem": "Obvious signature",
+        "cargo": "Space scooter"
+      },
+      "tables": {
+        "modules": [
+          {
+            "name": "Docking station"
+          },
+          {
+            "name": "Hangar"
+          },
+          {
+            "name": "Cabins"
+          },
+          {
+            "name": "Cargo hold"
+          },
+          {
+            "name": "Medlab"
+          },
+          {
+            "name": "Stasis hold"
+          },
+          {
+            "name": "Accelerator cannon"
+          },
+          {
+            "name": "Data pulse"
+          },
+          {
+            "name": "Countermeasure dispenser"
+          }
+        ],
+        "features": [
+          {
+            "name": "Atmospheric Entry"
+          },
+          {
+            "name": "Turbo Projector"
+          },
+          {
+            "name": "Tuned Accelerator"
+          }
+        ]
+      }
+    },
+    {
+      "label": "Gunship, Azuk · Flying circus",
+      "values": {
+        "classType": "III · Gunship, Azuk · Flying circus",
+        "shipyard": "Daharab, CC 32",
+        "energy": 5,
+        "hull": 7,
+        "manoeuvrability": 0,
+        "signature": 1,
+        "armour": 5,
+        "speed": 2,
+        "problem": "Obvious signature",
+        "cargo": "Space scooter"
+      },
+      "tables": {
+        "modules": [
+          {
+            "name": "Docking station"
+          },
+          {
+            "name": "Hangar"
+          },
+          {
+            "name": "Cabins"
+          },
+          {
+            "name": "Medlab"
+          },
+          {
+            "name": "Stasis hold"
+          },
+          {
+            "name": "Countermeasure dispenser"
+          },
+          {
+            "name": "Accelerator cannon"
+          },
+          {
+            "name": "Autocannon"
+          },
+          {
+            "name": "Torpedo room"
+          }
+        ],
+        "features": [
+          {
+            "name": "Atmospheric Entry"
+          },
+          {
+            "name": "Advanced Torpedoes"
+          },
+          {
+            "name": "Tuned Accelerator"
+          }
+        ]
+      }
+    },
+    {
+      "label": "Courier Ship, Oryx · Standard model",
+      "values": {
+        "classType": "III · Courier Ship, Oryx · Standard model",
+        "shipyard": "Chelebs, CC 33",
+        "energy": 6,
+        "hull": 6,
+        "manoeuvrability": 2,
+        "signature": 0,
+        "armour": 5,
+        "speed": 3,
+        "problem": "Unreliable sensors"
+      },
+      "tables": {
+        "modules": [
+          {
+            "name": "Docking station"
+          },
+          {
+            "name": "Cabins"
+          },
+          {
+            "name": "Cabins"
+          },
+          {
+            "name": "Chapel"
+          },
+          {
+            "name": "Medlab"
+          },
+          {
+            "name": "Cargo hold"
+          },
+          {
+            "name": "Stasis hold"
+          },
+          {
+            "name": "Workshop"
+          },
+          {
+            "name": "Countermeasure dispenser"
+          },
+          {
+            "name": "Accelerator cannon"
+          }
+        ],
+        "features": [
+          {
+            "name": "Atmospheric Entry"
+          },
+          {
+            "name": "Turbo Projector"
+          },
+          {
+            "name": "Supercharged Reactor"
+          }
+        ]
+      }
+    },
+    {
+      "label": "Courier Ship, Oryx · Patrol ship model",
+      "values": {
+        "classType": "III · Courier Ship, Oryx · Patrol ship model",
+        "shipyard": "Chelebs, CC 33",
+        "energy": 5,
+        "hull": 6,
+        "manoeuvrability": 1,
+        "signature": 0,
+        "armour": 5,
+        "speed": 2,
+        "problem": "Slow accelerator"
+      },
+      "tables": {
+        "modules": [
+          {
+            "name": "Docking station"
+          },
+          {
+            "name": "Cabins"
+          },
+          {
+            "name": "Chapel"
+          },
+          {
+            "name": "Medlab"
+          },
+          {
+            "name": "Stasis hold"
+          },
+          {
+            "name": "Workshop"
+          },
+          {
+            "name": "Countermeasure dispenser"
+          },
+          {
+            "name": "Accelerator cannon"
+          },
+          {
+            "name": "Torpedo room"
+          }
+        ],
+        "features": [
+          {
+            "name": "Atmospheric Entry"
+          },
+          {
+            "name": "Sensitive Sensors"
+          },
+          {
+            "name": "Advanced Accelerator Cannon"
+          }
+        ]
+      }
+    },
+    {
+      "label": "Courier Ship, Oryx · Express freighter",
+      "values": {
+        "classType": "III · Courier Ship, Oryx · Express freighter",
+        "shipyard": "Chelebs, CC 33",
+        "energy": 5,
+        "hull": 6,
+        "manoeuvrability": 2,
+        "signature": 0,
+        "armour": 5,
+        "speed": 3,
+        "problem": "Faulty thrusters"
+      },
+      "tables": {
+        "modules": [
+          {
+            "name": "Docking station"
+          },
+          {
+            "name": "Cabins"
+          },
+          {
+            "name": "Chapel"
+          },
+          {
+            "name": "Medlab"
+          },
+          {
+            "name": "Cargo hold"
+          },
+          {
+            "name": "Cargo hold"
+          },
+          {
+            "name": "Stasis hold"
+          },
+          {
+            "name": "Workshop"
+          },
+          {
+            "name": "Countermeasure dispenser"
+          },
+          {
+            "name": "Accelerator cannon"
+          }
+        ],
+        "features": [
+          {
+            "name": "Atmospheric Entry"
+          },
+          {
+            "name": "Sensitive Sensors"
+          },
+          {
+            "name": "Turbo Projector"
+          }
+        ]
+      }
+    },
+    {
+      "label": "Salvage Ship, Kamruk · Mining model",
+      "values": {
+        "classType": "IV · Salvage Ship, Kamruk · Mining model",
+        "shipyard": "Darkos, Kua, CC 41",
+        "energy": 6,
+        "hull": 10,
+        "manoeuvrability": -1,
+        "signature": 2,
+        "armour": 7,
+        "speed": 1,
+        "problem": "Curse",
+        "cargo": "Shuttle"
+      },
+      "tables": {
+        "modules": [
+          {
+            "name": "Mining station"
+          },
+          {
+            "name": "Docking station"
+          },
+          {
+            "name": "Hangar"
+          },
+          {
+            "name": "Cabins"
+          },
+          {
+            "name": "Cabins"
+          },
+          {
+            "name": "Cargo hold"
+          },
+          {
+            "name": "Cargo hold"
+          },
+          {
+            "name": "Cargo hold"
+          },
+          {
+            "name": "Medlab"
+          },
+          {
+            "name": "Escape pods"
+          },
+          {
+            "name": "Stasis hold"
+          },
+          {
+            "name": "Service station"
+          },
+          {
+            "name": "Workshop"
+          },
+          {
+            "name": "Accelerator cannon"
+          }
+        ],
+        "features": [
+          {
+            "name": "Research Computer"
+          },
+          {
+            "name": "Ship Intelligence"
+          },
+          {
+            "name": "Sensitive Sensors"
+          }
+        ]
+      }
+    },
+    {
+      "label": "Salvage Ship, Kamruk · Salvage model",
+      "values": {
+        "classType": "IV · Salvage Ship, Kamruk · Salvage model",
+        "shipyard": "Darkos, Kua, CC 41",
+        "energy": 6,
+        "hull": 10,
+        "manoeuvrability": -1,
+        "signature": 2,
+        "armour": 7,
+        "speed": 1,
+        "problem": "Obvious signature",
+        "cargo": "Shuttle"
+      },
+      "tables": {
+        "modules": [
+          {
+            "name": "Salvage module"
+          },
+          {
+            "name": "Docking station"
+          },
+          {
+            "name": "Hangar"
+          },
+          {
+            "name": "Hangar"
+          },
+          {
+            "name": "Cabins"
+          },
+          {
+            "name": "Cargo hold"
+          },
+          {
+            "name": "Medlab"
+          },
+          {
+            "name": "Escape pods"
+          },
+          {
+            "name": "Stasis hold"
+          },
+          {
+            "name": "Service station"
+          },
+          {
+            "name": "Workshop"
+          },
+          {
+            "name": "Accelerator cannon"
+          }
+        ],
+        "features": [
+          {
+            "name": "Ship System"
+          },
+          {
+            "name": "Robust Hull"
+          },
+          {
+            "name": "External Cargo"
+          }
+        ]
+      }
+    },
+    {
+      "label": "Salvage Ship, Kamruk · Flying circus",
+      "values": {
+        "classType": "IV · Salvage Ship, Kamruk · Flying circus",
+        "shipyard": "Darkos, Kua, CC 41",
+        "energy": 6,
+        "hull": 11,
+        "manoeuvrability": -1,
+        "signature": 2,
+        "armour": 7,
+        "speed": 1,
+        "problem": "Slow accelerator",
+        "cargo": "Shuttle"
+      },
+      "tables": {
+        "modules": [
+          {
+            "name": "Docking station"
+          },
+          {
+            "name": "Hangar"
+          },
+          {
+            "name": "Cabins"
+          },
+          {
+            "name": "Cabins"
+          },
+          {
+            "name": "Cabins"
+          },
+          {
+            "name": "Cabins"
+          },
+          {
+            "name": "Cargo hold"
+          },
+          {
+            "name": "Cargo hold"
+          },
+          {
+            "name": "Cargo hold"
+          },
+          {
+            "name": "Medlab"
+          },
+          {
+            "name": "Escape pods"
+          },
+          {
+            "name": "Stasis hold"
+          },
+          {
+            "name": "Service station"
+          },
+          {
+            "name": "Workshop"
+          },
+          {
+            "name": "Accelerator cannon"
+          },
+          {
+            "name": "Countermeasure dispenser"
+          }
+        ],
+        "features": [
+          {
+            "name": "Blessed Ship"
+          },
+          {
+            "name": "Robust Hull"
+          }
+        ]
+      }
+    },
+    {
+      "label": "Space scooter",
+      "values": {
+        "classType": "I · Space scooter",
+        "energy": 3,
+        "hull": 2,
+        "manoeuvrability": 2,
+        "signature": -2,
+        "armour": 3,
+        "speed": 4
+      },
+      "tables": {
+        "modules": [],
+        "features": []
+      }
+    },
+    {
+      "label": "Shuttle",
+      "values": {
+        "classType": "II · Shuttle",
+        "energy": 4,
+        "hull": 4,
+        "manoeuvrability": 1,
+        "signature": -1,
+        "armour": 4,
+        "speed": 4
+      },
+      "tables": {
+        "modules": [
+          {
+            "name": "Docking station"
+          },
+          {
+            "name": "Cargo hold"
+          }
+        ],
+        "features": [
+          {
+            "name": "Atmospheric Entry"
+          }
+        ]
+      }
+    },
+    {
+      "label": "Corsair ship",
+      "values": {
+        "classType": "III · Corsair ship",
+        "energy": 5,
+        "hull": 6,
+        "manoeuvrability": 1,
+        "signature": 0,
+        "armour": 6,
+        "speed": 3
+      },
+      "tables": {
+        "modules": [
+          {
+            "name": "Docking station"
+          },
+          {
+            "name": "Hangar"
+          },
+          {
+            "name": "Cabins"
+          },
+          {
+            "name": "Medlab"
+          },
+          {
+            "name": "Stasis hold"
+          },
+          {
+            "name": "Countermeasure dispenser"
+          },
+          {
+            "name": "Accelerator cannon"
+          },
+          {
+            "name": "Autocannon"
+          },
+          {
+            "name": "Torpedo room"
+          }
+        ],
+        "features": [
+          {
+            "name": "Heavy Armor"
+          },
+          {
+            "name": "Turbo Projector"
+          }
+        ]
+      }
+    },
+    {
+      "label": "Fighter",
+      "values": {
+        "classType": "I · Fighter",
+        "energy": 3,
+        "hull": 3,
+        "manoeuvrability": 2,
+        "signature": -2,
+        "armour": 3,
+        "speed": 4
+      },
+      "tables": {
+        "modules": [
+          {
+            "name": "Autocannon"
+          }
+        ],
+        "features": [
+          {
+            "name": "Ejector"
+          },
+          {
+            "name": "Tuned Accelerator"
+          },
+          {
+            "name": "Robust Hull"
+          }
+        ]
+      }
+    },
+    {
+      "label": "Destroyer",
+      "values": {
+        "classType": "IV · Destroyer",
+        "energy": 6,
+        "hull": 10,
+        "manoeuvrability": -1,
+        "signature": 2,
+        "armour": 8,
+        "speed": 2,
+        "cargo": "Shuttle"
+      },
+      "tables": {
+        "modules": [
+          {
+            "name": "Docking station"
+          },
+          {
+            "name": "Hangar"
+          },
+          {
+            "name": "Hangar"
+          },
+          {
+            "name": "Cabins"
+          },
+          {
+            "name": "Medlab"
+          },
+          {
+            "name": "Stasis hold"
+          },
+          {
+            "name": "Countermeasure dispenser"
+          },
+          {
+            "name": "Accelerator cannon"
+          },
+          {
+            "name": "Accelerator cannon"
+          },
+          {
+            "name": "Autocannon"
+          },
+          {
+            "name": "Torpedo room"
+          },
+          {
+            "name": "Escape pods"
+          },
+          {
+            "name": "Data pulse"
+          }
+        ],
+        "features": [
+          {
+            "name": "Heavy Armor"
+          },
+          {
+            "name": "Turbo Projector"
+          },
+          {
+            "name": "Sensitive Sensors"
+          },
+          {
+            "name": "Robust Hull"
+          },
+          {
+            "name": "Super Sensors"
+          }
+        ]
+      }
+    }
+  ]
+}
