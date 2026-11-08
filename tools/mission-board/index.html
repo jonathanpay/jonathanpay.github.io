@@ -134,6 +134,23 @@ textarea{resize:vertical;min-height:60px}
 .totals span{font-size:.68rem;font-family:var(--font-data);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
 .fail{border:1px dashed var(--accent);background:var(--accent-soft);padding:8px;margin-top:8px}
 
+/* Horizon map */
+.hmap{display:block;width:100%;height:auto}
+.hmap .region{fill:var(--muted);font-family:var(--font-data);font-size:13px;letter-spacing:3px;opacity:.75}
+.hmap .link{stroke:var(--line);stroke-width:2;opacity:.6}
+.hmap .link.unstable{stroke-dasharray:6 6}
+.hmap .danger{stroke:var(--accent);stroke-width:22;stroke-linecap:round;opacity:.16}
+.hmap .route{stroke:var(--accent);stroke-width:6;stroke-linecap:round;opacity:.85}
+.hmap .star{fill:var(--line)}
+.hmap .on .star{fill:var(--accent)}
+.hmap .lbl{fill:var(--ink);font-family:var(--font-display);font-size:17px;letter-spacing:1px}
+.hmap .here{fill:none;stroke:var(--accent);stroke-width:3}
+.hmap .mark{fill:var(--accent)}
+.hmap .markn{fill:var(--sheet);font-family:var(--font-data);font-size:12px;font-weight:500}
+.hmap .hit{cursor:pointer}
+.hmap .hit:hover .lbl,.hmap .hit:focus .lbl{fill:var(--accent)}
+.hmap .hit:focus{outline:none}
+
 /* world */
 .world{display:grid;grid-template-columns:minmax(0,1fr) 220px;gap:14px;align-items:start}
 @media (max-width:700px){.world{grid-template-columns:minmax(0,1fr)}}
@@ -200,6 +217,7 @@ footer.notice a{color:inherit}
     </div>
   </aside>
   <div class="main">
+    <div class="card" id="board-map"></div>
     <div class="board" id="board" aria-live="polite"></div>
   </div>
 </section>
@@ -226,6 +244,12 @@ footer.notice a{color:inherit}
       <label class="field"><span>Most encounters to roll per leg</span><input type="number" id="v-cap" min="0" max="12" value="2"></label>
     </div>
     <div class="card stack">
+      <h2>Plot a route</h2>
+      <div class="row"><label class="field"><span>From</span><select id="p-from"></select></label><label class="field"><span>To</span><select id="p-to"></select></label></div>
+      <button class="btn" type="button" id="plot">Lay out the trip</button>
+      <p class="note">Takes the fewest jumps on the map, with a day's transit through each system in between. Replaces the legs below.</p>
+    </div>
+    <div class="card stack">
       <h2>Add a leg</h2>
       <div class="row">
         <button class="btn" type="button" id="add-space">In-system flight</button>
@@ -237,6 +261,7 @@ footer.notice a{color:inherit}
     </div>
   </aside>
   <div class="main">
+    <div class="card" id="travel-map"></div>
     <div class="card" id="v-summary"></div>
     <ol class="legs" id="legs"></ol>
     <div class="card" id="v-crewrolls"></div>
@@ -396,19 +421,37 @@ const JUMP = {
 const ICONS = ["The Judge","The Dancer","The Merchant","The Deckhand","The Lady of Tears","The Gambler","The Messenger","The Traveler","The Faceless"];
 const iconOfCard = num => ICONS[Math.floor(d66Values().indexOf(num) / 4)];
 
-/* Systems: names from the setting, and orbital distances in AU from the star where the core rules give them (only Kua). Add your own on the Data tab. */
-const BASE_SYSTEMS = [
-  { id:"kua", n:"Kua", portal:0.5, bodies:[["The portals",0.5],["Lubau",1.5],["Jina",3],["Kua and Coriolis",5],["The asteroid belt",10],["Xene",18],["Surha",40],["The Rimward Reach",47]] },
-  { id:"algol", n:"Algol", bodies:[["Yavan"],["Algol"],["Ermenu"],["Taus"]] },
-  { id:"dabaran", n:"Dabaran", bodies:[["Dabaran"],["Salamanx"],["Arara"]] },
-  { id:"mira", n:"Mira", bodies:[["Mira"],["Trigon (Antmira)"],["Menau"]] },
-  { id:"sadaal", n:"Sadaal", bodies:[["Sadaal"],["Bahram"]] },
-  { id:"zalos", n:"Zalos", bodies:[["Zalos-A"],["Zalos-B"],["Benagia and Karrmerruk"]] },
-  { id:"odacon", n:"Odacon", bodies:[["Khôban portal station"],["Sethlan"],["Rusah"],["The Ash Belt"],["Khurshid"],["Qayna"],["Chandra"]] },
-  { id:"altai", n:"Altai", bodies:[["Imanon"],["The Black Sector"],["Altai"],["Marakanda (Khorsabad)"],["Zanjire"],["Baatar"],["Elajh"],["Maraabra"]] },
-  { id:"menkar", n:"Menkar", bodies:[] }, { id:"eanu", n:"Eanu", bodies:[] }, { id:"caph", n:"Caph", bodies:[] },
-  { id:"uharu", n:"Uharu", bodies:[] }, { id:"taoan", n:"Taoan", bodies:[] }
-];
+/* The Third Horizon's portal map, redrawn: 36 systems at rough map positions, the portal links between them,
+   the four unstable portals and the two dangerous areas. Orbital distances in AU from the star only where the core rules give them (Kua). */
+const MAP = [["menkar","Menkar",232,409,"sadaal"],["daybul","Daybul",289,337,"sadaal"],["ghodar","Ghodar",389,284,"sadaal"],["dziban","Dziban",489,245,"sadaal"],
+  ["sadaal","Sadaal",437,387,"sadaal"],["nagar","Nagar",393,428,"sadaal"],["errai","Errai",542,331,"sadaal"],["aiwaz","Aiwaz",673,401,""],
+  ["tarazug","Tarazug",680,216,"miran"],["zib","Zib",669,274,"miran"],["mira","Mira",722,331,"miran"],["zalos","Zalos",773,382,"miran"],["odacon","Odacon",814,206,"miran"],
+  ["zhau","Zhau",955,254,"pillar"],["sivas","Sivas",896,312,"pillar"],["ordana","Ordana",971,337,"pillar"],["altai","Altai",899,401,"pillar"],
+  ["kua","Kua",823,455,""],["awadhi","Awadhi",968,446,"algol"],["algol","Algol",1053,494,"algol"],["zamusa","Zamusa",1143,491,"algol"],["nharmada","Nharmada",1240,481,"algol"],
+  ["anaspora","Anaspora",1130,596,"algol"],["yastapol","Yastapol",1210,602,"algol"],["erequ","Erequ",1336,587,"algol"],["eanu","Eanu",1356,676,"algol"],
+  ["caph","Caph",898,519,"dabaran"],["marfik","Marfik",972,578,"dabaran"],["amedo","Amedo",1016,672,"dabaran"],["algebar","Algebar",997,773,"dabaran"],
+  ["melik","Melik",933,843,"dabaran"],["rigel","Rigel",856,853,"dabaran"],["dabaran","Dabaran",791,857,"dabaran"],["uharu","Uharu",725,806,"dabaran"],
+  ["taoan","Taoan",682,728,"dabaran"],["hamura","Hamura",712,606,"dabaran"]];
+const LINKS = [["menkar","daybul"],["daybul","ghodar"],["ghodar","dziban"],["ghodar","sadaal"],["sadaal","nagar"],["sadaal","errai"],["dziban","errai","unstable"],
+  ["errai","aiwaz"],["aiwaz","kua"],["aiwaz","zalos"],["zalos","mira"],["mira","zib"],["zib","tarazug"],["tarazug","odacon"],["odacon","zhau","danger"],
+  ["zhau","sivas"],["zhau","ordana"],["sivas","altai"],["ordana","altai"],["altai","kua"],["altai","awadhi"],["awadhi","algol"],["algol","zamusa","unstable"],
+  ["zamusa","nharmada"],["algol","anaspora"],["anaspora","yastapol"],["yastapol","nharmada","unstable"],["nharmada","erequ"],["erequ","eanu"],
+  ["kua","caph"],["caph","marfik"],["marfik","amedo"],["amedo","algebar","unstable"],["algebar","melik"],["melik","rigel"],["rigel","dabaran"],
+  ["dabaran","uharu"],["uharu","taoan","danger"],["taoan","hamura","danger"],["hamura","kua"]];
+const REGIONS = [["The Sadaal Route",330,470],["The Miran Chain",801,287],["The Quadrant of the Pillar",1060,212],["The Algol Route",1260,650],["The Dabaran Circle",841,695]];
+// Label placements where the default (up and to the right) collides: [dx, dy, anchor]
+const LABEL_AT = { dabaran:[0,24,"middle"], rigel:[0,-12,"middle"], yastapol:[8,22,"start"], anaspora:[-8,22,"end"], zalos:[12,20,"start"], kua:[14,18,"start"] };
+const DANGER = new Set(LINKS.filter(l => l[2] === "danger").flatMap(l => l.slice(0, 2)));
+const CORE = new Set(["kua","algol","dabaran","mira","sadaal","zalos"]);
+const BODIES = {
+  kua:{ portal:0.5, bodies:[["The portals",0.5],["Lubau",1.5],["Jina",3],["Kua and Coriolis",5],["The asteroid belt",10],["Xene",18],["Surha",40],["The Rimward Reach",47]] },
+  algol:{ bodies:[["Yavan"],["Algol"],["Ermenu"],["Taus"]] }, dabaran:{ bodies:[["Dabaran"],["Salamanx"],["Arara"]] },
+  mira:{ bodies:[["Mira"],["Trigon (Antmira)"],["Menau"]] }, sadaal:{ bodies:[["Sadaal"],["Bahram"]] },
+  zalos:{ bodies:[["Zalos-A"],["Zalos-B"],["Benagia and Karrmerruk"]] },
+  odacon:{ bodies:[["Khôban portal station"],["Sethlan"],["Rusah"],["The Ash Belt"],["Khurshid"],["Qayna"],["Chandra"]] },
+  altai:{ bodies:[["Imanon"],["The Black Sector"],["Altai"],["Marakanda (Khorsabad)"],["Zanjire"],["Baatar"],["Elajh"],["Maraabra"]] }
+};
+const BASE_SYSTEMS = MAP.map(([id, n, x, y, region]) => ({ id, n, x, y, region, bodies:[], ...(BODIES[id] || {}) }));
 const extraSystems = store.get("mb-systems", []);
 const SYSTEMS = (() => {
   const list = clone(BASE_SYSTEMS);
@@ -417,6 +460,14 @@ const SYSTEMS = (() => {
   return list;
 })();
 const sysName = id => (SYSTEMS.find(s => s.id === id) || {}).n || id || "—";
+const onMap = id => MAP.some(m => m[0] === id);
+const ADJ = {}; LINKS.forEach(([a, b, f]) => { (ADJ[a] ||= []).push({ to:b, f }); (ADJ[b] ||= []).push({ to:a, f }); });
+const linkFlag = (a, b) => (LINKS.find(l => (l[0] === a && l[1] === b) || (l[0] === b && l[1] === a)) || [])[2] || "";
+function bfs(from) { const dist = { [from]:0 }, prev = {}; const q = [from]; while (q.length) { const u = q.shift(); (ADJ[u] || []).forEach(({ to }) => { if (dist[to] == null) { dist[to] = dist[u] + 1; prev[to] = u; q.push(to); } }); } return { dist, prev }; }
+// Fewest jumps, and of those, the fewest unstable portals and dangerous links.
+function safest(from) { const cost = { [from]:0 }, prev = {}, done = new Set(); for (;;) { let u = null; for (const k in cost) if (!done.has(k) && (u === null || cost[k] < cost[u])) u = k; if (u === null) break; done.add(u); (ADJ[u] || []).forEach(({ to, f }) => { const c = cost[u] + 1 + (f ? 0.01 : 0); if (cost[to] == null || c < cost[to]) { cost[to] = c; prev[to] = u; } }); } return { prev, dist:cost }; }
+function route(from, to) { if (!onMap(from) || !onMap(to)) return null; if (from === to) return [from]; const { prev, dist } = safest(from); if (dist[to] == null) return null; const p = [to]; while (p[0] !== from) p.unshift(prev[p[0]]); return p; }
+const routeText = p => p.map((id, i) => i ? `${({ unstable:" ⇢ ", danger:" ⇝ " })[linkFlag(p[i - 1], id)] || " → "}${sysName(id)}` : sysName(id)).join("");
 
 /* ---------- state ---------- */
 const S = {
@@ -469,11 +520,18 @@ function applyType(m) {
 function rewardRoll(m, c) { const x = rollOn("reward." + c.id); birrIfNeeded(m, x); return x; }
 function birrIfNeeded(m, x) { const row = lookup(x.id, x.r); delete x.birr; if (row && row.birr) { const b = roll(BIRR_BONUS[m.type.diff]); x.birr = { dice:BIRR_BONUS[m.type.diff], text:b.text, total:b.total * 1000 }; } }
 function setDestination(m) {
-  if (m.type.dest === "within") { m.dest = m.here; m.jumps = 0; return; }
-  const others = SYSTEMS.filter(s => s.id !== m.here);
-  m.dest = others[Math.floor(Math.random() * others.length)].id;
+  if (m.type.dest === "within") { m.dest = m.here; m.jumps = 0; m.route = [m.here]; return; }
+  const pick = a => a[Math.floor(Math.random() * a.length)];
+  if (onMap(m.here)) {
+    const { dist } = bfs(m.here); const ids = Object.keys(dist);
+    const pool = m.type.dest === "nearby" ? ids.filter(id => dist[id] === 1) : (ids.filter(id => dist[id] >= 2 && dist[id] <= 3).length ? ids.filter(id => dist[id] >= 2 && dist[id] <= 3) : ids.filter(id => dist[id] >= 2));
+    m.dest = pick(pool); setRoute(m); return;
+  }
+  m.dest = pick(SYSTEMS.filter(s => s.id !== m.here)).id; m.route = null;
   m.jumps = m.type.dest === "nearby" ? 1 : 2;
 }
+function setRoute(m) { const r = route(m.here, m.dest); m.route = r; if (r) m.jumps = r.length - 1; }
+function routeFlags(p) { const out = []; p.forEach((id, i) => { if (!i) return; const f = linkFlag(p[i - 1], id); if (f === "unstable") out.push(`Unstable portal, ${sysName(p[i - 1])}–${sysName(id)}`); if (f === "danger") out.push(`Dangerous area, ${sysName(p[i - 1])}–${sysName(id)}`); }); return out; }
 function totalBirr(m) { return m.base.birr + m.rewards.reduce((a, x) => a + (x.birr ? x.birr.total : 0), 0); }
 
 function rollPicker(id, current, onPick, onReroll) {
@@ -500,8 +558,9 @@ function missionTitle(m) {
 }
 function renderMission(m, i) {
   const c = conceptOf(m.concept);
+  if (m.route === undefined && m.type.dest !== "within") setRoute(m);
   const L = (tag, id, key, x, onPick, onReroll, extra) => h("div", { class:"line" }, h("span", { class:"tag", text:tag }), valueView(id, x, extra), rollPicker(id, x.r, onPick, onReroll));
-  const destSel = h("select", { "aria-label":"Destination system", onchange:e => updateMission(m.id, mm => { mm.dest = e.target.value; }) }, SYSTEMS.map(s => h("option", { value:s.id, text:s.n })));
+  const destSel = h("select", { "aria-label":"Destination system", onchange:e => updateMission(m.id, mm => { mm.dest = e.target.value; setRoute(mm); }) }, SYSTEMS.map(s => h("option", { value:s.id, text:s.n })));
   destSel.value = m.dest;
   const jumpsIn = h("input", { type:"number", min:"0", max:"9", value:String(m.jumps), style:"width:4.2em", "aria-label":"Portal jumps", onchange:e => updateMission(m.id, mm => { mm.jumps = Math.max(0, parseInt(e.target.value, 10) || 0); }) });
   const typeSel = h("select", { "aria-label":"Pick mission type", onchange:e => updateMission(m.id, mm => { mm.typeRoll = parseInt(e.target.value, 10); applyType(mm); }) },
@@ -525,8 +584,9 @@ function renderMission(m, i) {
     L(c.locLabel || "Location", locId(c), "location", m.lines.location, v => updateMission(m.id, mm => { mm.lines.location.r = v; }), () => updateMission(m.id, mm => { mm.lines.location = rollOn(locId(c)); }),
       c.loc ? h("span", { class:"d", text:`Pilgrims have no location table of their own; this borrows ${tableName(c.loc)}.` }) : null),
     m.type.dest !== "within" ? h("div", { class:"line" }, h("span", { class:"tag", text:"System" }),
-      h("div", { class:"val" }, h("b", { text:sysName(m.dest) }), h("span", { class:"d", text:"Picked at random from the systems list. The page doesn't know the portal map: set the jumps from yours." })),
-      h("div", { class:"ctl" }, destSel, jumpsIn)) : null,
+      h("div", { class:"val" }, h("b", { text:sysName(m.dest) }), m.route ? h("span", { class:"d", text:routeText(m.route) }) : h("span", { class:"d", text:"Off the map: set the jumps yourself." }),
+        m.route && routeFlags(m.route).length ? h("span", { class:"d", style:"color:var(--accent)", text:routeFlags(m.route).join(" · ") }) : null),
+      h("div", { class:"ctl" }, destSel, m.route ? null : jumpsIn)) : null,
     m.comps.map((x, k) => L(`Complication${m.comps.length > 1 ? " " + (k + 1) : ""}`, x.id, null, x,
       v => updateMission(m.id, mm => { mm.comps[k].r = v; }), () => updateMission(m.id, mm => { mm.comps[k] = rollOn(x.id); }))),
     m.rewards.map((x, k) => L(`Reward${m.rewards.length > 1 ? " " + (k + 1) : ""}`, x.id, null, x,
@@ -543,6 +603,7 @@ function renderMission(m, i) {
 }
 function rewardNote(x) { const row = lookup(x.id, x.r); if (!row) return null; const d = DATA && DATA.rewards && DATA.rewards[row.n]; return d ? h("span", { class:"d", text:d }) : null; }
 function renderBoard() {
+  renderBoardMap();
   const b = $("#board"); b.replaceChildren();
   if (!S.board.length) { b.append(h("div", { class:"card" }, h("h2", { text:"The board is empty" }), h("p", { class:"small", text:"Pick the crew's concept and where they are, then refresh the board. Each job rolls a mission type (Table 18) for difficulty, travel and pay, then an employer, the work, a place, complications and rewards from the concept's own tables." }))); return; }
   S.board.forEach((m, i) => b.append(renderMission(m, i)));
@@ -564,7 +625,7 @@ function accept(m) {
   S.log.unshift({ id:uid(), kind:"job", title:missionTitle(m), status:"Accepted", notes:"", md:missionMd(m), saved:new Date().toISOString(), mission:clone(m) });
   save("log");
   S.board = S.board.filter(x => x.id !== m.id); save("board"); renderBoard();
-  S.voyage = voyageForMission(m); save("voyage"); renderTravel();
+  S.voyage = voyageForMission(m); applyDark(); save("voyage"); renderTravel();
   go("travel");
 }
 
@@ -575,20 +636,30 @@ function jumpLeg(from, to) { return { id:uid(), kind:"jump", from, to, method:"c
 function landLeg() { return { id:uid(), kind:"land", terrain:"wilderness", days:2, out:null }; }
 function auOf(s, body) { const b = (s.bodies || []).find(x => x[0] === body); return b && b[1] != null ? b[1] : ""; }
 function voyageForMission(m) {
-  const v = blankVoyage(); v.name = `${missionTitle(m)} (${sysName(m.dest)})`;
-  const here = SYSTEMS.find(s => s.id === m.here) || SYSTEMS[0];
-  const start = here.bodies.find(b => b[0].startsWith(here.n)) || here.bodies.find(b => !/portal/i.test(b[0])) || here.bodies[0];
-  if (!m.jumps) { v.legs.push(spaceLeg(here.id, start ? start[0] : "", "")); }
+  const v = buildVoyage(m.here, m.dest, m.route, m.jumps);
+  v.name = `${missionTitle(m)} (${sysName(m.dest)})`;
+  return v;
+}
+function startBody(sysObj) { return sysObj.bodies.find(b => b[0].startsWith(sysObj.n)) || sysObj.bodies.find(b => !/portal/i.test(b[0])) || sysObj.bodies[0]; }
+function portalBody(sysObj) { return sysObj.bodies.find(b => /portal/i.test(b[0])); }
+function colFor(id) { return DANGER.has(id) ? "fringe" : CORE.has(id) ? "civilized" : "civilized"; }
+// One leg out to the portal, a jump per link with a day's transit through each system on the way, the flight in, and the ground at the end.
+function buildVoyage(fromId, toId, path, jumps) {
+  const v = blankVoyage();
+  const here = SYSTEMS.find(s => s.id === fromId) || SYSTEMS[0], there = SYSTEMS.find(s => s.id === toId) || here;
+  const st = startBody(here);
+  path = path || (jumps ? [fromId, ...Array.from({ length:jumps - 1 }, () => ""), toId] : [fromId]);
+  if (path.length < 2) { const l = spaceLeg(here.id, st ? st[0] : "", ""); l.space = colFor(here.id); v.legs.push(l); }
   else {
-    v.legs.push(spaceLeg(here.id, start ? start[0] : "", here.bodies.find(b => /portal/i.test(b[0])) ? here.bodies.find(b => /portal/i.test(b[0]))[0] : ""));
-    for (let j = 0; j < m.jumps; j++) {
-      const toId = j === m.jumps - 1 ? m.dest : "";
-      v.legs.push(jumpLeg(j === 0 ? here.id : "", toId));
-      if (j < m.jumps - 1) v.legs.push({ ...spaceLeg("", "", ""), sys:"", transit:true, fromAU:0.5, toAU:0.5 });
+    const pb = portalBody(here); const l0 = spaceLeg(here.id, st ? st[0] : "", pb ? pb[0] : ""); l0.space = colFor(here.id); v.legs.push(l0);
+    for (let j = 1; j < path.length; j++) {
+      const jl = jumpLeg(path[j - 1], path[j]); jl.flag = path[j - 1] && path[j] ? linkFlag(path[j - 1], path[j]) : ""; v.legs.push(jl);
+      if (j < path.length - 1) { const t = spaceLeg(path[j] || "", "", ""); Object.assign(t, { sys:path[j] || "", transit:true, fromAU:0.5, toAU:0.5, space:colFor(path[j]) }); v.legs.push(t); }
     }
-    v.legs.push(spaceLeg(m.dest, "", ""));
+    const pin = portalBody(there); const lz = spaceLeg(there.id, pin ? pin[0] : "", ""); lz.space = colFor(there.id); v.legs.push(lz);
   }
   v.legs.push(landLeg());
+  v.darkRoute = CORE.has(fromId) && CORE.has(toId) ? 1 : 2;
   return v;
 }
 if (!S.voyage) S.voyage = blankVoyage();
@@ -687,6 +758,7 @@ function renderLeg(l, idx, v) {
   if (l.kind === "space") {
     const s = SYSTEMS.find(x => x.id === l.sys);
     title = l.transit ? `Transit to the next portal${s ? `, ${s.n}` : ""}` : `In-system flight${s ? `, ${s.n}` : ""}`;
+    if (DANGER.has(l.sys)) title += " · dangerous area";
     const zd = zoneDays(l, speed); const tot = zd.reduce((a, b) => a + b, 0);
     body = h("div", {},
       h("div", { class:"grid3" },
@@ -709,7 +781,9 @@ function renderLeg(l, idx, v) {
         legField("Pilot's dice", h("input", { type:"number", min:"0", max:"15", value:String(l.pool), onchange:e => editLeg(l, L => { L.pool = parseInt(e.target.value, 10) || 0; }) })),
         legField("PCs awake (3 DP each)", h("input", { type:"number", min:"0", max:"12", value:String(l.awake || 0), onchange:e => editLeg(l, L => { L.awake = parseInt(e.target.value, 10) || 0; }) }))),
       h("div", { class:"row", style:"margin-top:8px" }, ck("chapel", "Chapel aboard +1"), ck("priest", "Anointed priest +2"), ck("prayer", "Prayer and sacrifice +1 (4 h)"), ck("blessed", "Blessed Ship +1")),
-      h("p", { class:"note", text:j.prep + "." }));
+      h("p", { class:"note", text:j.prep + "." }),
+      l.flag === "unstable" ? h("p", { class:"note", style:"color:var(--accent)", text:"The map marks this portal unstable. Make the jump harder, or riskier, as your table rules it." }) : null,
+      l.flag === "danger" ? h("p", { class:"note", style:"color:var(--accent)", text:"This link runs through a dangerous area on the map." }) : null);
   } else {
     title = `Planetside, ${LAND[l.terrain][0].toLowerCase()}`;
     body = h("div", { class:"grid3" },
@@ -752,9 +826,11 @@ function voyageTotals(v) {
   const value = +$("#v-value").value || 0, div = +$("#v-port").value || 1000;
   return { days, spaceDays, jumps, au, dpTravel, dpAwake, service, serviceCost: value ? Math.round(value / div) : 0 };
 }
+function applyDark() { if (S.voyage.darkRoute) { $("#v-route").value = String(S.voyage.darkRoute); vset["v-route"] = $("#v-route").value; store.set("mb-vset", vset); } }
 function renderTravel() {
   const v = V();
   $("#v-name").value = v.name || "";
+  renderTravelMap();
   const legs = $("#legs"); legs.replaceChildren(...v.legs.map((l, i) => renderLeg(l, i, v)));
   const t = voyageTotals(v);
   const sum = $("#v-summary"); sum.replaceChildren(...keep([
@@ -794,6 +870,36 @@ function voyageMd(v) {
   });
   if (v.crewRolls && v.crewRolls.length) { out.push("", "**Misfortunes**"); v.crewRolls.forEach(m => out.push(`- ${POSITIONS[m.pos - 1]}${crewOf(m.pos) ? ` (${crewOf(m.pos)})` : ""}: ${m.n || `list item ${m.k}`}`)); }
   return out.join("\n");
+}
+
+/* ---------- the Horizon map ---------- */
+function drawMap(box, opt = {}) {
+  const svg = sv("svg", { viewBox:"180 175 1230 715", class:"hmap", role:"img", "aria-label":"Map of the Third Horizon's portal links" });
+  REGIONS.forEach(([n, x, y]) => { const t = sv("text", { x, y, class:"region", "text-anchor":"middle" }, svg); t.textContent = n.toUpperCase(); });
+  const P = id => MAP.find(m => m[0] === id);
+  LINKS.forEach(([a, b, f]) => { const A = P(a), B = P(b); if (f === "danger") sv("line", { x1:A[2], y1:A[3], x2:B[2], y2:B[3], class:"danger" }, svg); sv("line", { x1:A[2], y1:A[3], x2:B[2], y2:B[3], class:"link" + (f === "unstable" ? " unstable" : "") }, svg); });
+  const path = opt.path || [];
+  for (let i = 1; i < path.length; i++) { const A = P(path[i - 1]), B = P(path[i]); if (A && B) sv("line", { x1:A[2], y1:A[3], x2:B[2], y2:B[3], class:"route" }, svg); }
+  MAP.forEach(([id, n, x, y]) => {
+    const g = sv("g", { class:"sys" + (opt.onPick ? " hit" : "") + (path.includes(id) ? " on" : ""), tabindex: opt.onPick ? "0" : "-1" }, svg);
+    if (id === opt.here) sv("circle", { cx:x, cy:y, r:15, class:"here" }, g);
+    sv("circle", { cx:x, cy:y, r: CORE.has(id) ? 7 : 5, class:"star" }, g);
+    const [ldx, ldy, la] = LABEL_AT[id] || [10, -9, "start"];
+    const t = sv("text", { x:x + ldx, y:y + ldy, class:"lbl", "text-anchor":la }, g); t.textContent = n;
+    const tt = sv("title", {}, g); tt.textContent = n + (opt.onPick ? " — click to set" : "");
+    if (opt.onPick) { g.setAttribute("role", "button"); g.addEventListener("click", () => opt.onPick(id)); g.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); opt.onPick(id); } }); }
+  });
+  (opt.marks || []).forEach(([id, label], k) => { const m = P(id); if (!m) return; const dx = -12 - (k % 3) * 4, dy = 14 + Math.floor(k / 3) * 4; sv("circle", { cx:m[2] + dx, cy:m[3] + dy, r:9, class:"mark" }, svg); const t = sv("text", { x:m[2] + dx, y:m[3] + dy + 4, class:"markn", "text-anchor":"middle" }, svg); t.textContent = label; });
+  box.replaceChildren(svg, h("div", { class:"zonekey", style:"margin-top:6px" }, h("span", { text:"— portal link" }), h("span", { text:"┄ unstable portal" }), h("span", {}, h("i", { class:"z0", style:"opacity:.35" }), "dangerous area"), opt.legend ? h("span", { text:opt.legend }) : null));
+}
+function renderBoardMap() {
+  const marks = []; S.board.forEach((m, i) => { if (m.dest && m.dest !== m.here) marks.push([m.dest, String(i + 1)]); });
+  drawMap($("#board-map"), { here:S.here, marks, onPick:id => { S.here = id; save("here"); $("#here").value = id; renderBoardMap(); }, legend:"Ringed: the crew. Numbers: jobs. Click a system to move the crew." });
+}
+function renderTravelMap() {
+  const path = []; S.voyage.legs.forEach(l => { if (l.kind === "jump") { if (l.from && !path.length) path.push(l.from); if (l.to) path.push(l.to); } });
+  const first = S.voyage.legs.find(l => l.kind === "space");
+  drawMap($("#travel-map"), { path, here: path[0] || (first && first.sys) || S.here, legend: path.length > 1 ? routeText(path) : "" });
 }
 
 /* ---------- worlds ---------- */
@@ -915,7 +1021,7 @@ function renderLog() {
       h("pre", { text:x.md.split("\n").slice(1).join("\n").trim() }),
       h("label", { class:"field", style:"margin-top:8px" }, h("span", { text:"Notes" }), h("textarea", { rows:"2", value:x.notes || "", oninput:e => { x.notes = e.target.value; save("log"); } })),
       h("div", { class:"jobfoot" },
-        x.kind === "job" && x.mission ? h("button", { class:"mini", type:"button", text:"Plan the trip again", onclick:() => { S.voyage = voyageForMission(x.mission); save("voyage"); renderTravel(); go("travel"); } }) : null,
+        x.kind === "job" && x.mission ? h("button", { class:"mini", type:"button", text:"Plan the trip again", onclick:() => { S.voyage = voyageForMission(x.mission); applyDark(); save("voyage"); renderTravel(); go("travel"); } }) : null,
         h("button", { class:"mini", type:"button", text:"Copy as Markdown", onclick:e => copy(x.md + (x.notes ? `\n\n${x.notes}` : ""), e.target) }),
         h("button", { class:"mini", type:"button", text:"Delete", onclick:() => conf.replaceChildren(h("span", { class:"small", text:"Delete this entry?" }),
           h("button", { class:"mini", type:"button", text:"Delete", onclick:() => { S.log = S.log.filter(y => y.id !== x.id); save("log"); renderLog(); } }),
@@ -981,7 +1087,9 @@ $("#concept").value = S.concept;
 $("#concept").addEventListener("change", e => { S.concept = e.target.value; save("concept"); });
 const sysOpts = () => SYSTEMS.map(s => h("option", { value:s.id, text:s.n }));
 $("#here").append(...sysOpts()); $("#here").value = S.here;
-$("#here").addEventListener("change", e => { S.here = e.target.value; save("here"); });
+$("#here").addEventListener("change", e => { S.here = e.target.value; save("here"); renderBoardMap(); });
+["#p-from","#p-to"].forEach((q, i) => { $(q).append(...sysOpts()); $(q).value = i ? "dabaran" : S.here; });
+$("#plot").addEventListener("click", () => { const a = $("#p-from").value, b = $("#p-to").value; const p = route(a, b); S.voyage = buildVoyage(a, b, p, p ? p.length - 1 : 0); S.voyage.name = `${sysName(a)} to ${sysName(b)}`; applyDark(); save("voyage"); renderTravel(); });
 $("#w-sys").append(h("option", { value:"", text:"—" }), ...sysOpts());
 const howMany = () => Math.min(6, Math.max(1, parseInt($("#howmany").value, 10) || 3));
 $("#post").addEventListener("click", () => { S.board = Array.from({ length:howMany() }, () => newMission(S.concept, S.here)); save("board"); renderBoard(); });

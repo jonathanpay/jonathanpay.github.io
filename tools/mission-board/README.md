@@ -12,8 +12,8 @@ Not affiliated with, sponsored or endorsed by Free League Publishing (Fria Ligan
 The same split as the Voyage Chart Table. The page carries dice, table numbers, the
 numbers that drive the mechanics (the mission type table, encounter rates by zone,
 reaction and jump modifiers, Darkness Point rates, service costs, the system
-generator's modifiers), system and planet names, and the Kua system's orbital
-distances. It carries no table text. Employers, missions, locations, complications,
+generator's modifiers), system and planet names, the Kua system's orbital
+distances, and my own redrawing of the Third Horizon's portal map. It carries no table text. Employers, missions, locations, complications,
 rewards, encounters, misfortunes and so on come from a **data file** you write and
 keep yourself, imported on the Data tab. It is stored in that browser and never
 uploaded.
@@ -28,12 +28,18 @@ table and result to read.
   for difficulty, destination, base pay, complications and extra rewards, then the
   concept's employer, task, location, complication and reward tables. A Birr reward
   rolls its bonus by difficulty. Any line can be rerolled or picked by hand. Nearby
-  and faraway jobs pick a system at random; the page doesn't know the portal map, so
-  set the jumps yourself. An Icon card can be drawn for each job as an omen, from a
+  jobs go to a system one jump away on the map, faraway jobs to one two or three jumps
+  away, and the card shows the route with any unstable portal or dangerous area on it.
+  The map above the board shows the crew and the jobs; click a system to move the crew. An Icon card can be drawn for each job as an omen, from a
   shuffled deck that remembers what's been drawn. Pilgrims have no location table of
   their own, so they borrow the agents' (Table 22), as the book's own example does.
 - **Travel.** A voyage as a list of legs: in-system flights, portal jumps and
-  planetside stretches. Accepting a job lays the trip out for you. Flights take
+  planetside stretches. Accepting a job, or plotting a route between any two systems,
+  lays the trip out along the fewest jumps (preferring stable links when there's a
+  tie), with a day's transit through each system on the way. Legs in the map's
+  dangerous areas default to the fringe encounter column, and the darkness route is
+  set to well-trafficked only between core systems. Unstable portals are flagged; how
+  much harder they make the jump is left to your table. Flights take
   AU ÷ speed days and split their time across the zones in Table 46, measured from the
   portal; the encounter count follows the book's rates, capped at a number you choose.
   Each encounter rolls Table 48 in the column you pick, a reaction with the zone's
@@ -73,7 +79,7 @@ JSON with `"format": "mission-board-data/1"`. Every field is optional.
 | `misfortunes` | `{ captain, sensor, gunner, engineer, pilot, group: [[name, text] × 6] }` | Crew misfortunes by position |
 | `development` | `[[name, text]]` | Development actions listed on the Travel tab |
 | `cards` | `{ "11": title, … "66": title }` | Icon card titles |
-| `systems` | `[{ id?, n, portal?, bodies: [[name, AU?]] }]` | Extra systems, or bodies and distances for the built-in ones |
+| `systems` | `[{ id?, n, portal?, bodies: [[name, AU?]] }]` | Bodies and distances for the 36 map systems, or extra systems (off the map, so jumps are set by hand) |
 
 Row flags: `birr: true` on a reward row rolls the Birr bonus; `dark: true` on an
 encounter row rolls Table 49; `count` on a Table 16 row is the number of factions
