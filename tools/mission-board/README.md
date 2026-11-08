@@ -13,7 +13,9 @@ The same split as the Voyage Chart Table. The page carries dice, table numbers, 
 numbers that drive the mechanics (the mission type table, encounter rates by zone,
 reaction and jump modifiers, Darkness Point rates, service costs, the system
 generator's modifiers), system and planet names, the Kua system's orbital
-distances, and my own redrawing of the Third Horizon's portal map. It carries no table text. Employers, missions, locations, complications,
+distances, my own redrawing of the Third Horizon's portal map, and orbital distances
+from the system charts for Kua, Altai, Ordana, Sivas, Zhau and Sadaal (with their
+companion stars). It carries no table text. Employers, missions, locations, complications,
 rewards, encounters, misfortunes and so on come from a **data file** you write and
 keep yourself, imported on the Data tab. It is stored in that browser and never
 uploaded.
@@ -30,7 +32,11 @@ table and result to read.
   rolls its bonus by difficulty. Any line can be rerolled or picked by hand. Nearby
   jobs go to a system one jump away on the map, faraway jobs to one two or three jumps
   away, and the card shows the route with any unstable portal or dangerous area on it.
-  The map above the board shows the crew and the jobs; click a system to move the crew. An Icon card can be drawn for each job as an omen, from a
+  The map above the board shows the crew and the jobs; click a system to move the crew.
+  The map is drawn as an amber hologram in both themes. Under it, the crew's system has
+  a chart in the Great Dark's manner: the star with its portals, then each body along
+  the line at its distance (spaced by square root so the inner system stays legible),
+  with companion stars on rows of their own. An Icon card can be drawn for each job as an omen, from a
   shuffled deck that remembers what's been drawn. Pilgrims have no location table of
   their own, so they borrow the agents' (Table 22), as the book's own example does.
 - **Travel.** A voyage as a list of legs: in-system flights, portal jumps and
@@ -38,7 +44,10 @@ table and result to read.
   lays the trip out along the fewest jumps (preferring stable links when there's a
   tie), with a day's transit through each system on the way. Legs in the map's
   dangerous areas default to the fringe encounter column, and the darkness route is
-  set to well-trafficked only between core systems. Unstable portals are flagged; how
+  set to well-trafficked only between core systems. Every map system has a portal
+  body for each of its links, so flights run from the named portal; each flight shows
+  the system chart with its two ends lit. A flight between bodies of different stars
+  asks for the distance between the stars, which the charts don't give. Unstable portals are flagged; how
   much harder they make the jump is left to your table. Flights take
   AU ÷ speed days and split their time across the zones in Table 46, measured from the
   portal; the encounter count follows the book's rates, capped at a number you choose.

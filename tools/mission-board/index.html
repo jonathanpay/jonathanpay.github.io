@@ -134,22 +134,46 @@ textarea{resize:vertical;min-height:60px}
 .totals span{font-size:.68rem;font-family:var(--font-data);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
 .fail{border:1px dashed var(--accent);background:var(--accent-soft);padding:8px;margin-top:8px}
 
-/* Horizon map */
-.hmap{display:block;width:100%;height:auto}
-.hmap .region{fill:var(--muted);font-family:var(--font-data);font-size:13px;letter-spacing:3px;opacity:.75}
-.hmap .link{stroke:var(--line);stroke-width:2;opacity:.6}
-.hmap .link.unstable{stroke-dasharray:6 6}
-.hmap .danger{stroke:var(--accent);stroke-width:22;stroke-linecap:round;opacity:.16}
-.hmap .route{stroke:var(--accent);stroke-width:6;stroke-linecap:round;opacity:.85}
-.hmap .star{fill:var(--line)}
-.hmap .on .star{fill:var(--accent)}
-.hmap .lbl{fill:var(--ink);font-family:var(--font-display);font-size:17px;letter-spacing:1px}
-.hmap .here{fill:none;stroke:var(--accent);stroke-width:3}
-.hmap .mark{fill:var(--accent)}
-.hmap .markn{fill:var(--sheet);font-family:var(--font-data);font-size:12px;font-weight:500}
+/* Holographic projection: amber light on near-black, in both themes, as the ship's holotable would show it */
+.holo{--holo:#ff9d45;--holo-hi:#ffd9a6;--holo-dim:rgba(255,157,69,.38);--holo-faint:rgba(255,157,69,.12);
+  position:relative;background:radial-gradient(ellipse at 50% 40%,#21140b 0%,#0b0806 70%);border:1px solid var(--holo-dim);padding:10px 12px;color:var(--holo-hi);overflow:hidden}
+.holo + .holo{margin-top:10px}
+.holo::after{content:"";position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(0deg,rgba(255,170,90,.045) 0 1px,transparent 1px 3px)}
+.holo svg{display:block;width:100%;height:auto;filter:drop-shadow(0 0 2px rgba(255,140,50,.75))}
+.holocap,.holokey{font-family:var(--font-data);font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;color:var(--holo)}
+.holokey{display:flex;flex-wrap:wrap;gap:4px 14px;margin-top:4px;opacity:.85;text-transform:none;letter-spacing:.04em}
+.holo.compact{padding:4px 8px;margin-top:8px}
+.hmap .grid{stroke:var(--holo-faint);stroke-width:1}
+.hmap .region{fill:var(--holo);font-family:var(--font-data);font-size:12px;letter-spacing:4px;opacity:.55}
+.hmap .link{stroke:var(--holo);stroke-width:1.6;opacity:.75}
+.hmap .link.unstable{stroke-dasharray:5 6}
+.hmap .danger{stroke:#ff4f2e;stroke-width:22;stroke-linecap:round;opacity:.18}
+.hmap .route{stroke:var(--holo-hi);stroke-width:4.5;stroke-linecap:round}
+.hmap .star{fill:var(--holo)}
+.hmap .halo{fill:none;stroke:var(--holo);stroke-width:1;opacity:.6}
+.hmap .on .star{fill:#fff3e0}
+.hmap .lbl{fill:var(--holo-hi);font-family:var(--font-data);font-size:13px;letter-spacing:2px;text-transform:uppercase}
+.hmap .here{fill:none;stroke:#fff3e0;stroke-width:2;stroke-dasharray:4 3}
+.hmap .mark{fill:none;stroke:var(--holo-hi);stroke-width:1.5}
+.hmap .markn{fill:var(--holo-hi);font-family:var(--font-data);font-size:11px}
 .hmap .hit{cursor:pointer}
-.hmap .hit:hover .lbl,.hmap .hit:focus .lbl{fill:var(--accent)}
+.hmap .hit:hover .lbl,.hmap .hit:focus .lbl{fill:#fff}
 .hmap .hit:focus{outline:none}
+.syschart .orbit{fill:none;stroke:var(--holo-faint);stroke-width:1}
+.syschart .axis{stroke:var(--holo-dim);stroke-width:1}
+.syschart .sym{fill:none;stroke:var(--holo);stroke-width:1.4}
+.syschart .sym.dash{stroke-dasharray:3 4}
+.syschart .sym.faint{opacity:.5}
+.syschart .core{fill:var(--holo)}
+.syschart .ring{stroke:#fff3e0;stroke-dasharray:4 3}
+.syschart .hl .core,.syschart .sym.hl{fill:#fff3e0;stroke:#fff3e0}
+.syschart .leg{stroke:var(--holo-hi);stroke-width:4;stroke-linecap:round;opacity:.8}
+.syschart .name{fill:var(--holo-hi);font-family:var(--font-data);font-size:11px;letter-spacing:1.5px}
+.syschart .hl .name,.syschart .tiny.hl{fill:#fff}
+.syschart .au{fill:var(--holo);font-family:var(--font-data);font-size:10px}
+.syschart .cap{fill:var(--holo);font-family:var(--font-data);font-size:11px;letter-spacing:3px}
+.syschart .tiny{fill:var(--holo);font-family:var(--font-data);font-size:9px;letter-spacing:1px;opacity:.85}
+#board-map,#travel-map{padding:0;border:0;background:none}
 
 /* world */
 .world{display:grid;grid-template-columns:minmax(0,1fr) 220px;gap:14px;align-items:start}
@@ -443,13 +467,22 @@ const REGIONS = [["The Sadaal Route",330,470],["The Miran Chain",801,287],["The 
 const LABEL_AT = { dabaran:[0,24,"middle"], rigel:[0,-12,"middle"], yastapol:[8,22,"start"], anaspora:[-8,22,"end"], zalos:[12,20,"start"], kua:[14,18,"start"] };
 const DANGER = new Set(LINKS.filter(l => l[2] === "danger").flatMap(l => l.slice(0, 2)));
 const CORE = new Set(["kua","algol","dabaran","mira","sadaal","zalos"]);
+/* Bodies: [name, AU from its star, kind, star index]. Kinds: planet, giant, belt, station, moon, field. Star 0 is the primary; 1 and 2 are companions.
+   Distances from the system charts in the core rules (Kua) and the Quadrant of the Pillar and Sadaal charts. Portals sit at 0.5 AU unless a system says otherwise. */
 const BODIES = {
-  kua:{ portal:0.5, bodies:[["The portals",0.5],["Lubau",1.5],["Jina",3],["Kua and Coriolis",5],["The asteroid belt",10],["Xene",18],["Surha",40],["The Rimward Reach",47]] },
+  kua:{ portal:0.5, bodies:[["Lubau",1.5,"planet"],["Jina",3,"planet"],["Kua (Coriolis)",5,"planet"],["The asteroid belt",10,"belt"],["Xene",18,"giant"],["Surha",40,"planet"],["The Rimward Reach",47,"field"]] },
+  altai:{ bodies:[["Imanon",3,"planet"],["The Black Sector",5,"belt"],["Altai",6,"planet"],["Marakanda (Khorsabad)",6.5,"moon"],["Zanjire",7.5,"planet"],["Baatar",10,"planet"],["Elajh",20,"giant"],["Maraabra",32,"planet"]] },
+  ordana:{ stars:["Ordana","Yuisin (Ordana B)"], bodies:[["Kermaz",2,"planet"],["Ordana",4,"planet"],["Hayrangi Station",6,"station"],["Barah",7,"planet"],["Butangë",9,"planet"],["O-21",11,"planet"],["Qargarin",23,"giant"],["Musfat",40,"planet"],["Irike",52,"planet"],
+    ["Moshte",3,"planet",1],["Yuisin",4,"planet",1],["The Hawran Belt",10,"belt",1],["Murat",16,"planet",1],["Dayr",20,"planet",1],["Tal Afsar",30,"planet",1]] },
+  sivas:{ bodies:[["Kala",4,"planet"],["Sivas",6,"planet"],["Karast",6,"moon"],["Loulan Station",6,"station"],["Yovani",11,"planet"],["Nurija",33,"planet"],["Gamhija",41,"planet"],["Comija",51,"planet"]] },
+  zhau:{ stars:["Zhau A","Zhau B","Zhau C"], bodies:[["The Lance Station",0.6,"station"],["Z3",4,"planet"],["Zhau (Z6)",6.5,"planet"],["Z9",8,"planet"],["Z29",9,"planet"],["Z45",17,"giant"],["Z60",43,"planet"],
+    ["ZB3",4,"planet",1],["Zorana (ZB4)",6,"planet",1],["ZB7",15,"planet",1],["Yivae (ZB10)",22,"planet",1],["ZB46",32,"planet",1],
+    ["ZC4",5,"planet",2],["The ZC asteroid belt",12,"belt",2],["ZCX",21,"planet",2]] },
+  sadaal:{ stars:["Sadaal A","Bahram (Sadaal B)"], bodies:[["Vanzur",3,"planet"],["Auf",5,"planet"],["Ramasi",6,"planet"],["Sadaal",8,"planet"],["Chathu",10,"planet"],["Marasta",16,"planet"],["Urmani",20,"planet"],["Buyasta",25,"giant"],["Beletser Station",26,"station"],["Choma",35,"planet"],["Hadladar",48,"planet"],
+    ["The Portal Belt",2,"belt",1],["Bahram",4,"planet",1],["Sanfir",6,"planet",1],["The Outer Belt",7.5,"belt",1]] },
   algol:{ bodies:[["Yavan"],["Algol"],["Ermenu"],["Taus"]] }, dabaran:{ bodies:[["Dabaran"],["Salamanx"],["Arara"]] },
-  mira:{ bodies:[["Mira"],["Trigon (Antmira)"],["Menau"]] }, sadaal:{ bodies:[["Sadaal"],["Bahram"]] },
-  zalos:{ bodies:[["Zalos-A"],["Zalos-B"],["Benagia and Karrmerruk"]] },
-  odacon:{ bodies:[["Khôban portal station"],["Sethlan"],["Rusah"],["The Ash Belt"],["Khurshid"],["Qayna"],["Chandra"]] },
-  altai:{ bodies:[["Imanon"],["The Black Sector"],["Altai"],["Marakanda (Khorsabad)"],["Zanjire"],["Baatar"],["Elajh"],["Maraabra"]] }
+  mira:{ bodies:[["Mira"],["Trigon (Antmira)"],["Menau"]] }, zalos:{ bodies:[["Zalos-A"],["Zalos-B"],["Benagia and Karrmerruk"]] },
+  odacon:{ bodies:[["Khôban portal station"],["Sethlan"],["Rusah"],["The Ash Belt"],["Khurshid"],["Qayna"],["Chandra"]] }
 };
 const BASE_SYSTEMS = MAP.map(([id, n, x, y, region]) => ({ id, n, x, y, region, bodies:[], ...(BODIES[id] || {}) }));
 const extraSystems = store.get("mb-systems", []);
@@ -457,6 +490,10 @@ const SYSTEMS = (() => {
   const list = clone(BASE_SYSTEMS);
   const merge = s => { if (!s || !s.n) return; const id = s.id || s.n.toLowerCase().replace(/[^a-z0-9]+/g, ""); const have = list.find(x => x.id === id); if (have) { if (s.bodies && s.bodies.length) have.bodies = s.bodies; if (s.portal != null) have.portal = s.portal; if (s.note) have.note = s.note; } else list.push({ id, n:s.n, bodies:s.bodies || [], portal:s.portal, note:s.note }); };
   (DATA && DATA.systems || []).forEach(merge); extraSystems.forEach(merge);
+  // Every map system gets a portal body for each of its links.
+  list.forEach(sy => { const links = LINKS.filter(l => l[0] === sy.id || l[1] === sy.id).map(l => l[0] === sy.id ? l[1] : l[0]);
+    const pa = sy.portal != null ? sy.portal : 0.5;
+    sy.bodies = [...links.map(o => [`Portal to ${(MAP.find(m => m[0] === o) || [])[1]}`, pa, "portal"]), ...sy.bodies.filter(b => b[2] !== "portal")]; });
   return list;
 })();
 const sysName = id => (SYSTEMS.find(s => s.id === id) || {}).n || id || "—";
@@ -631,17 +668,24 @@ function accept(m) {
 
 /* ---------- travel ---------- */
 function blankVoyage() { return { id:uid(), name:"", legs:[], crewRolls:null }; }
-function spaceLeg(sys, from, to) { const s = SYSTEMS.find(x => x.id === sys) || SYSTEMS[0]; return { id:uid(), kind:"space", sys:s.id, from:from ?? "", to:to ?? "", fromAU:auOf(s, from), toAU:auOf(s, to), far:false, space:"civilized", out:null }; }
+function spaceLeg(sys, from, to) { const s = SYSTEMS.find(x => x.id === sys) || SYSTEMS[0]; return { id:uid(), kind:"space", sys:s.id, from:from ?? "", to:to ?? "", fromAU:auOf(s, from), toAU:auOf(s, to), fromStar:starOf(s, from), toStar:starOf(s, to), far:false, space:"civilized", out:null }; }
 function jumpLeg(from, to) { return { id:uid(), kind:"jump", from, to, method:"convoy", pool:5, chapel:false, priest:false, prayer:false, blessed:false, awake:0, out:null }; }
 function landLeg() { return { id:uid(), kind:"land", terrain:"wilderness", days:2, out:null }; }
+function starOf(s, body) { const b = (s && s.bodies || []).find(x => x[0] === body); return b && b[3] ? b[3] : 0; }
+// Distance of an in-system leg. Bodies around different stars need the distance between the stars, which the charts don't give.
+function legDist(l) {
+  const a = parseFloat(l.fromAU), b = parseFloat(l.toAU); if (!isFinite(a) || !isFinite(b)) return NaN;
+  if ((l.fromStar || 0) !== (l.toStar || 0)) { const g = parseFloat(l.gap); return isFinite(g) ? a + g + b : NaN; }
+  return l.far ? a + b : Math.abs(a - b);
+}
 function auOf(s, body) { const b = (s.bodies || []).find(x => x[0] === body); return b && b[1] != null ? b[1] : ""; }
 function voyageForMission(m) {
   const v = buildVoyage(m.here, m.dest, m.route, m.jumps);
   v.name = `${missionTitle(m)} (${sysName(m.dest)})`;
   return v;
 }
-function startBody(sysObj) { return sysObj.bodies.find(b => b[0].startsWith(sysObj.n)) || sysObj.bodies.find(b => !/portal/i.test(b[0])) || sysObj.bodies[0]; }
-function portalBody(sysObj) { return sysObj.bodies.find(b => /portal/i.test(b[0])); }
+function startBody(sysObj) { const real = sysObj.bodies.filter(b => b[2] !== "portal"); return real.find(b => b[0].startsWith(sysObj.n)) || real[0]; }
+function portalBody(sysObj, otherId) { return sysObj.bodies.find(b => b[0] === `Portal to ${sysName(otherId)}`) || sysObj.bodies.find(b => b[2] === "portal"); }
 function colFor(id) { return DANGER.has(id) ? "fringe" : CORE.has(id) ? "civilized" : "civilized"; }
 // One leg out to the portal, a jump per link with a day's transit through each system on the way, the flight in, and the ground at the end.
 function buildVoyage(fromId, toId, path, jumps) {
@@ -651,12 +695,12 @@ function buildVoyage(fromId, toId, path, jumps) {
   path = path || (jumps ? [fromId, ...Array.from({ length:jumps - 1 }, () => ""), toId] : [fromId]);
   if (path.length < 2) { const l = spaceLeg(here.id, st ? st[0] : "", ""); l.space = colFor(here.id); v.legs.push(l); }
   else {
-    const pb = portalBody(here); const l0 = spaceLeg(here.id, st ? st[0] : "", pb ? pb[0] : ""); l0.space = colFor(here.id); v.legs.push(l0);
+    const pb = portalBody(here, path[1]); const l0 = spaceLeg(here.id, st ? st[0] : "", pb ? pb[0] : ""); l0.space = colFor(here.id); v.legs.push(l0);
     for (let j = 1; j < path.length; j++) {
       const jl = jumpLeg(path[j - 1], path[j]); jl.flag = path[j - 1] && path[j] ? linkFlag(path[j - 1], path[j]) : ""; v.legs.push(jl);
-      if (j < path.length - 1) { const t = spaceLeg(path[j] || "", "", ""); Object.assign(t, { sys:path[j] || "", transit:true, fromAU:0.5, toAU:0.5, space:colFor(path[j]) }); v.legs.push(t); }
+      if (j < path.length - 1) { const t = spaceLeg(path[j] || "", "", ""); Object.assign(t, { sys:path[j] || "", transit:true, from:path[j - 1] ? `Portal to ${sysName(path[j - 1])}` : "", to:path[j + 1] ? `Portal to ${sysName(path[j + 1])}` : "", fromAU:0.5, toAU:0.5, space:colFor(path[j]) }); v.legs.push(t); }
     }
-    const pin = portalBody(there); const lz = spaceLeg(there.id, pin ? pin[0] : "", ""); lz.space = colFor(there.id); v.legs.push(lz);
+    const pin = portalBody(there, path[path.length - 2]); const lz = spaceLeg(there.id, pin ? pin[0] : "", ""); lz.space = colFor(there.id); v.legs.push(lz);
   }
   v.legs.push(landLeg());
   v.darkRoute = CORE.has(fromId) && CORE.has(toId) ? 1 : 2;
@@ -671,10 +715,7 @@ function legDays(l, speed) {
   if (l.kind === "jump") { const j = JUMP[l.method]; return (j.hours) / 24; }
   if (l.kind === "land") return Math.max(0, +l.days || 0);
   if (l.transit) return 1;
-  const a = parseFloat(l.fromAU), b = parseFloat(l.toAU);
-  if (!isFinite(a) || !isFinite(b)) return 0;
-  const dist = l.far ? a + b : Math.abs(a - b);
-  return dist / Math.max(0.1, speed);
+  const dist = legDist(l); return isFinite(dist) ? dist / Math.max(0.1, speed) : 0;
 }
 // Time in each zone on a straight radial path; on the far side the ship passes inward to the star and out again.
 function zoneDays(l, speed) {
@@ -684,8 +725,15 @@ function zoneDays(l, speed) {
   if (l.kind !== "space") return out;
   const s = SYSTEMS.find(x => x.id === l.sys); const p = s && s.portal != null ? s.portal : 0.5;
   const a = parseFloat(l.fromAU), b = parseFloat(l.toAU); if (!isFinite(a) || !isFinite(b)) return out;
-  const segs = l.far ? [[0, a], [0, b]] : [[Math.min(a, b), Math.max(a, b)]];
   const N = 400;
+  if ((l.fromStar || 0) !== (l.toStar || 0)) {
+    const g = parseFloat(l.gap); if (!isFinite(g)) return out;
+    // Around the primary the path runs radially; the crossing and the companion's own orbit sit as far from the portal as the companion.
+    const prim = (l.fromStar || 0) === 0 ? a : (l.toStar || 0) === 0 ? b : 0, rest = a + b + g - prim;
+    for (let i = 0; i < N; i++) out[zoneFor(Math.abs(prim * (i + .5) / N - p))] += prim / N / Math.max(0.1, speed);
+    out[zoneFor(Math.abs(g - p))] += rest / Math.max(0.1, speed); return out;
+  }
+  const segs = l.far ? [[0, a], [0, b]] : [[Math.min(a, b), Math.max(a, b)]];
   segs.forEach(([lo, hi]) => { const step = (hi - lo) / N; if (!step) return; for (let i = 0; i < N; i++) { const r = lo + step * (i + .5); out[zoneFor(Math.abs(r - p))] += step / Math.max(0.1, speed); } });
   return out;
 }
@@ -728,11 +776,12 @@ function bodyPicker(l, end) {
   const listId = `bodies-${l.id}-${end}`;
   const dl = h("datalist", { id:listId }, (s ? s.bodies : []).map(b => h("option", { value:b[0] })));
   const nameIn = h("input", { type:"text", list:listId, value:l[end] || "", placeholder: end === "from" ? "From" : "To", "aria-label": end === "from" ? "Departure" : "Destination",
-    onchange:e => setV(v => { const L = v.legs.find(x => x.id === l.id); L[end] = e.target.value; const au = auOf(s || { bodies:[] }, e.target.value); if (au !== "") L[end + "AU"] = au; }) });
+    onchange:e => setV(v => { const L = v.legs.find(x => x.id === l.id); L[end] = e.target.value; const au = auOf(s || { bodies:[] }, e.target.value); if (au !== "") L[end + "AU"] = au; L[end + "Star"] = starOf(s, e.target.value); }) });
   const auIn = h("input", { type:"number", min:"0", step:"0.1", value:l[end + "AU"] === "" ? "" : String(l[end + "AU"]), placeholder:"AU", "aria-label":"Distance from the star in AU", style:"max-width:6em",
     onchange:e => setV(v => { v.legs.find(x => x.id === l.id)[end + "AU"] = e.target.value === "" ? "" : parseFloat(e.target.value); }) });
   return h("div", { class:"row", style:"flex-wrap:nowrap" }, dl, nameIn, auIn);
 }
+function starName(s, i) { return (s && s.stars && s.stars[i || 0]) || (i ? `star ${"ABC"[i]}` : (s ? s.n : "the star")); }
 function legField(label, input) { return h(input.tagName === "DIV" ? "div" : "label", { class:"field" }, h("span", { text:label }), input); }
 function sel(opts, value, onchange, aria) { const s = h("select", { onchange, "aria-label":aria }, Object.entries(opts).map(([k, n]) => h("option", { value:k, text:typeof n === "string" ? n : n.n || n[0] }))); s.value = value; return s; }
 const editLeg = (l, fn) => setV(v => fn(v.legs.find(x => x.id === l.id)));
@@ -766,7 +815,9 @@ function renderLeg(l, idx, v) {
         legField("Space", sel(SPACE, l.space || "civilized", e => editLeg(l, L => { L.space = e.target.value; }), "Encounter column"))),
       l.transit ? h("p", { class:"note", text:"About a day between the portals while passing through a system." }) :
       h("div", { class:"grid2", style:"margin-top:8px" }, legField("From · AU from the star", bodyPicker(l, "from")), legField("To · AU from the star", bodyPicker(l, "to")),
+        (l.fromStar || 0) !== (l.toStar || 0) ? legField(`Between ${starName(s, l.fromStar)} and ${starName(s, l.toStar)} · AU`, h("input", { type:"number", min:"0", step:"1", value:l.gap == null ? "" : String(l.gap), placeholder:"Set by the GM", onchange:e => editLeg(l, L => { L.gap = e.target.value === "" ? null : parseFloat(e.target.value); }) })) :
         h("label", { class:"check", style:"align-self:end;padding-bottom:6px" }, h("input", { type:"checkbox", checked: l.far ? "" : null, onchange:e => editLeg(l, L => { L.far = e.target.checked; }) }), "Opposite sides of the star (farthest distance)")),
+      s && !l.transit ? systemChart(s, { from:l.from, to:l.to, compact:true }) : null,
       tot ? h("div", {}, h("div", { class:"zonebar", "aria-hidden":"true" }, zd.map((d, i) => d ? h("i", { class:"z" + i, style:`width:${(d / tot * 100).toFixed(2)}%` }) : null)),
         h("div", { class:"zonekey" }, zd.map((d, i) => d ? h("span", {}, h("i", { class:"z" + i }), `${ZONES[i][0]} ${fmtDays(d)}`) : null))) : null);
   } else if (l.kind === "jump") {
@@ -819,7 +870,7 @@ function voyageTotals(v) {
   const days = v.legs.reduce((a, l) => a + legDays(l, speed), 0);
   const spaceDays = v.legs.filter(l => l.kind !== "land").reduce((a, l) => a + legDays(l, speed), 0);
   const jumps = v.legs.filter(l => l.kind === "jump").length;
-  const au = v.legs.filter(l => l.kind === "space" && !l.transit).reduce((a, l) => { const x = parseFloat(l.fromAU), y = parseFloat(l.toAU); return a + (isFinite(x) && isFinite(y) ? (l.far ? x + y : Math.abs(x - y)) : 0); }, 0);
+  const au = v.legs.filter(l => l.kind === "space" && !l.transit).reduce((a, l) => { const d = legDist(l); return a + (isFinite(d) ? d : 0); }, 0);
   const dpTravel = rate * pcs * spaceDays / 7;
   const dpAwake = v.legs.filter(l => l.kind === "jump").reduce((a, l) => a + 3 * (+l.awake || 0), 0);
   const service = jumps > 0 || au >= 10;
@@ -875,6 +926,8 @@ function voyageMd(v) {
 /* ---------- the Horizon map ---------- */
 function drawMap(box, opt = {}) {
   const svg = sv("svg", { viewBox:"180 175 1230 715", class:"hmap", role:"img", "aria-label":"Map of the Third Horizon's portal links" });
+  for (let gx = 200; gx < 1410; gx += 60) sv("line", { x1:gx, y1:175, x2:gx, y2:890, class:"grid" }, svg);
+  for (let gy = 190; gy < 890; gy += 60) sv("line", { x1:180, y1:gy, x2:1410, y2:gy, class:"grid" }, svg);
   REGIONS.forEach(([n, x, y]) => { const t = sv("text", { x, y, class:"region", "text-anchor":"middle" }, svg); t.textContent = n.toUpperCase(); });
   const P = id => MAP.find(m => m[0] === id);
   LINKS.forEach(([a, b, f]) => { const A = P(a), B = P(b); if (f === "danger") sv("line", { x1:A[2], y1:A[3], x2:B[2], y2:B[3], class:"danger" }, svg); sv("line", { x1:A[2], y1:A[3], x2:B[2], y2:B[3], class:"link" + (f === "unstable" ? " unstable" : "") }, svg); });
@@ -883,18 +936,68 @@ function drawMap(box, opt = {}) {
   MAP.forEach(([id, n, x, y]) => {
     const g = sv("g", { class:"sys" + (opt.onPick ? " hit" : "") + (path.includes(id) ? " on" : ""), tabindex: opt.onPick ? "0" : "-1" }, svg);
     if (id === opt.here) sv("circle", { cx:x, cy:y, r:15, class:"here" }, g);
-    sv("circle", { cx:x, cy:y, r: CORE.has(id) ? 7 : 5, class:"star" }, g);
+    sv("circle", { cx:x, cy:y, r: CORE.has(id) ? 6 : 4, class:"star" }, g);
+    if (CORE.has(id)) sv("circle", { cx:x, cy:y, r:10, class:"halo" }, g);
     const [ldx, ldy, la] = LABEL_AT[id] || [10, -9, "start"];
     const t = sv("text", { x:x + ldx, y:y + ldy, class:"lbl", "text-anchor":la }, g); t.textContent = n;
     const tt = sv("title", {}, g); tt.textContent = n + (opt.onPick ? " — click to set" : "");
     if (opt.onPick) { g.setAttribute("role", "button"); g.addEventListener("click", () => opt.onPick(id)); g.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); opt.onPick(id); } }); }
   });
   (opt.marks || []).forEach(([id, label], k) => { const m = P(id); if (!m) return; const dx = -12 - (k % 3) * 4, dy = 14 + Math.floor(k / 3) * 4; sv("circle", { cx:m[2] + dx, cy:m[3] + dy, r:9, class:"mark" }, svg); const t = sv("text", { x:m[2] + dx, y:m[3] + dy + 4, class:"markn", "text-anchor":"middle" }, svg); t.textContent = label; });
-  box.replaceChildren(svg, h("div", { class:"zonekey", style:"margin-top:6px" }, h("span", { text:"— portal link" }), h("span", { text:"┄ unstable portal" }), h("span", {}, h("i", { class:"z0", style:"opacity:.35" }), "dangerous area"), opt.legend ? h("span", { text:opt.legend }) : null));
+  box.replaceChildren(h("div", { class:"holo" }, h("div", { class:"holocap", text:"The Third Horizon · portal links" }), svg,
+    h("div", { class:"holokey" }, h("span", { text:"— portal link" }), h("span", { text:"┄ unstable portal" }), h("span", { text:"▬ dangerous area" }), opt.legend ? h("span", { text:opt.legend }) : null)));
+}
+// A system chart in the Great Dark's manner: the star on the left, orbits as faint arcs, bodies strung along the line at their distance.
+function systemChart(sy, opt = {}) {
+  const real = sy.bodies.filter(b => b[2] !== "portal" && b[1] != null);
+  if (real.length < 2) return null;
+  const stars = sy.stars || [sy.n]; const portals = sy.bodies.filter(b => b[2] === "portal");
+  const W = 960, RH = opt.compact ? 120 : 150, rows = stars.map((_, i) => i).filter(i => i === 0 || real.some(b => (b[3] || 0) === i));
+  const svg = sv("svg", { viewBox:`0 0 ${W} ${rows.length * RH + 10}`, class:"syschart", role:"img", "aria-label":`System chart of ${sy.n}` });
+  const max = Math.max(...real.map(b => b[1])); const X = au => 120 + Math.sqrt(au) / Math.sqrt(max) * (W - 190);
+  const hl = new Set([opt.from, opt.to].filter(Boolean));
+  rows.forEach((si, ri) => {
+    const cy = ri * RH + RH / 2 + 18, sx = 44;
+    const here = real.filter(b => (b[3] || 0) === si).sort((a, b) => a[1] - b[1]);
+    here.forEach(b => { const rx = X(b[1]) - sx; sv("path", { d:`M${sx} ${cy - rx * .28} A${rx} ${rx * .28} 0 0 1 ${sx} ${cy + rx * .28}`, class:"orbit" }, svg); });
+    sv("line", { x1:sx, y1:cy, x2:W - 20, y2:cy, class:"axis" }, svg);
+    sv("circle", { cx:sx, cy, r:9, class:"core" }, svg); sv("circle", { cx:sx, cy, r:15, class:"sym" }, svg); sv("circle", { cx:sx, cy, r:22, class:"sym dash" }, svg);
+    for (let k = 0; k < 12; k++) { const a = k * Math.PI / 6; sv("line", { x1:sx + 17 * Math.cos(a), y1:cy + 17 * Math.sin(a), x2:sx + 20 * Math.cos(a), y2:cy + 20 * Math.sin(a), class:"sym" }, svg); }
+    const st = sv("text", { x:sx - 10, y:cy - RH / 2 + 2, class:"cap" }, svg); st.textContent = starName(sy, si).toUpperCase();
+    if (si === 0 && portals.length) {
+      sv("ellipse", { cx:sx, cy, rx:44, ry:13, class:"sym faint" }, svg);
+      portals.forEach((pt, k) => { const a = Math.PI * (0.15 + k * (1.7 / Math.max(1, portals.length))) ; const px = sx + 44 * Math.cos(a), py = cy + 13 * Math.sin(a);
+        sv("circle", { cx:px, cy:py, r:5, class:"sym" + (hl.has(pt[0]) ? " hl" : "") }, svg);
+        const t = sv("text", { x:px, y:cy + 34 + k * 12, class:"tiny" + (hl.has(pt[0]) ? " hl" : ""), "text-anchor":"start" }, svg); t.textContent = pt[0].replace("Portal to ", "⊙ ").toUpperCase(); });
+    }
+    // route bracket
+    if (opt.from && opt.to) { const A = sy.bodies.find(b => b[0] === opt.from), B = sy.bodies.find(b => b[0] === opt.to);
+      if (A && B && (A[3] || 0) === si && (B[3] || 0) === si && A[1] != null && B[1] != null) { const xa = A[2] === "portal" ? sx + 44 : X(A[1]), xb = B[2] === "portal" ? sx + 44 : X(B[1]); sv("line", { x1:xa, y1:cy, x2:xb, y2:cy, class:"leg" }, svg); } }
+    let lastX = -99, lift = 0;
+    here.forEach(b => { const x = X(b[1]), on = hl.has(b[0]); const g = sv("g", { class:on ? "hl" : "" }, svg);
+      const k = b[2];
+      if (k === "giant") { sv("circle", { cx:x, cy, r:8, class:"core" }, g); sv("circle", { cx:x, cy, r:14, class:"sym" }, g); }
+      else if (k === "belt") for (let q = -5; q <= 5; q++) sv("circle", { cx:x + Math.sin(q * 1.9) * 3, cy:cy + q * 4.2, r:1.7, class:"core" }, g);
+      else if (k === "station") sv("rect", { x:x - 5, y:cy - 5 - (b[0].includes("Lance") ? 0 : 0), width:10, height:10, class:"sym" }, g);
+      else if (k === "field") { sv("circle", { cx:x, cy, r:11, class:"sym dash" }, g); sv("circle", { cx:x, cy, r:2.5, class:"core" }, g); }
+      else if (k === "moon") sv("circle", { cx:x, cy:cy - 12, r:3, class:"core" }, g);
+      else sv("circle", { cx:x, cy, r:5.5, class:"core" }, g);
+      if (on) sv("circle", { cx:x, cy, r:19, class:"sym ring" }, g);
+      lift = x - lastX < 26 ? lift + 1 : 0; lastX = x;
+      const ty = cy - 22 - (lift % 3) * 14;
+      const t = sv("text", { x:x + 2, y:ty, class:"name", transform:`rotate(-30 ${x + 2} ${ty})` }, g); t.textContent = b[0].toUpperCase();
+      const a = sv("text", { x, y:cy + 26 + (lift % 2) * 11, class:"au", "text-anchor":"middle" }, g); a.textContent = String(b[1]).replace(".", ",") === "" ? "" : `${b[1]}`;
+    });
+  });
+  const wrap = h("div", { class:"holo" + (opt.compact ? " compact" : "") }, svg);
+  if (!opt.compact) wrap.prepend(h("div", { class:"holocap", text:`System chart · ${sy.n} · distances in AU from each star, spaced by square root` }));
+  return wrap;
 }
 function renderBoardMap() {
   const marks = []; S.board.forEach((m, i) => { if (m.dest && m.dest !== m.here) marks.push([m.dest, String(i + 1)]); });
   drawMap($("#board-map"), { here:S.here, marks, onPick:id => { S.here = id; save("here"); $("#here").value = id; renderBoardMap(); }, legend:"Ringed: the crew. Numbers: jobs. Click a system to move the crew." });
+  const sy = SYSTEMS.find(x => x.id === S.here); const ch = sy && systemChart(sy);
+  if (ch) $("#board-map").append(ch);
 }
 function renderTravelMap() {
   const path = []; S.voyage.legs.forEach(l => { if (l.kind === "jump") { if (l.from && !path.length) path.push(l.from); if (l.to) path.push(l.to); } });
