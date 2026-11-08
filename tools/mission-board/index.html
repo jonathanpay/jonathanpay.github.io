@@ -148,7 +148,8 @@ textarea{resize:vertical;min-height:60px}
 .hmap .region{fill:var(--holo);font-family:var(--font-data);font-size:11px;letter-spacing:2px;opacity:.85}
 .hmap .regionbox{fill:rgba(20,10,4,.6);stroke:var(--holo);stroke-width:1;opacity:.75}
 .hmap .link{stroke:var(--holo);stroke-width:1.6;opacity:.75}
-.hmap .link.unstable{stroke-dasharray:5 6}
+.hmap .etch{fill:none;stroke:#c2361f;stroke-width:9;opacity:.28;filter:blur(1.5px)}
+.hmap .etch-line{fill:none;stroke:#e0553a;stroke-width:1;stroke-dasharray:1.5 2.5;opacity:.9}
 .hmap .danger{stroke:#c2361f;stroke-width:26;stroke-linecap:round;opacity:.35;filter:blur(3px)}
 .hmap .route{stroke:var(--holo-hi);stroke-width:4.5;stroke-linecap:round}
 .hmap .star{fill:#fff0c4}
@@ -449,7 +450,7 @@ const ICONS = ["The Judge","The Dancer","The Merchant","The Deckhand","The Lady 
 const iconOfCard = num => ICONS[Math.floor(d66Values().indexOf(num) / 4)];
 
 /* The Third Horizon's portal map, redrawn: 36 systems at rough map positions, the portal links between them,
-   the four unstable portals and the two dangerous areas. Orbital distances in AD from the star only where the core rules give them (Kua). */
+   the four systems with unstable portals and the two dangerous areas. Orbital distances in AD from the star only where the core rules give them (Kua). */
 const MAP = [["menkar","Menkar",232,409,"sadaal"],["daybul","Daybul",289,337,"sadaal"],["ghodar","Ghodar",389,284,"sadaal"],["dziban","Dziban",489,245,"sadaal"],
   ["sadaal","Sadaal",437,387,"sadaal"],["nagar","Nagar",393,428,"sadaal"],["errai","Errai",542,331,"sadaal"],["aiwaz","Aiwaz",673,401,""],
   ["tarazug","Tarazug",680,216,"miran"],["zib","Zib",669,274,"miran"],["mira","Mira",722,331,"miran"],["zalos","Zalos",773,382,"miran"],["odacon","Odacon",814,206,"miran"],
@@ -459,11 +460,11 @@ const MAP = [["menkar","Menkar",232,409,"sadaal"],["daybul","Daybul",289,337,"sa
   ["caph","Caph",898,519,"dabaran"],["marfik","Marfik",972,578,"dabaran"],["amedo","Amedo",1016,672,"dabaran"],["algebar","Algebar",997,773,"dabaran"],
   ["melik","Melik",933,843,"dabaran"],["rigel","Rigel",856,853,"dabaran"],["dabaran","Dabaran",791,857,"dabaran"],["uharu","Uharu",725,806,"dabaran"],
   ["taoan","Taoan",682,728,"dabaran"],["hamura","Hamura",712,606,"dabaran"]];
-const LINKS = [["menkar","daybul"],["daybul","ghodar"],["ghodar","dziban"],["ghodar","sadaal"],["sadaal","nagar"],["sadaal","errai"],["dziban","errai","unstable"],
+const LINKS = [["menkar","daybul"],["daybul","ghodar"],["ghodar","dziban"],["ghodar","sadaal"],["sadaal","nagar"],["sadaal","errai"],["dziban","errai"],
   ["errai","aiwaz"],["aiwaz","kua"],["aiwaz","zalos"],["zalos","mira"],["mira","zib"],["zib","tarazug"],["tarazug","odacon"],["odacon","zhau","danger"],
-  ["zhau","sivas"],["zhau","ordana"],["sivas","altai"],["ordana","altai"],["altai","kua"],["altai","awadhi"],["awadhi","algol"],["algol","zamusa","unstable"],
-  ["zamusa","nharmada"],["algol","anaspora"],["anaspora","yastapol"],["yastapol","nharmada","unstable"],["nharmada","erequ"],["erequ","eanu"],
-  ["kua","caph"],["caph","marfik"],["marfik","amedo"],["amedo","algebar","unstable"],["algebar","melik"],["melik","rigel"],["rigel","dabaran"],
+  ["zhau","sivas"],["zhau","ordana"],["sivas","altai"],["ordana","altai"],["altai","kua"],["altai","awadhi"],["awadhi","algol"],["algol","zamusa"],
+  ["zamusa","nharmada"],["algol","anaspora"],["anaspora","yastapol"],["yastapol","nharmada"],["nharmada","erequ"],["erequ","eanu"],
+  ["kua","caph"],["caph","marfik"],["marfik","amedo"],["amedo","algebar"],["algebar","melik"],["melik","rigel"],["rigel","dabaran"],
   ["dabaran","uharu"],["uharu","taoan","danger"],["taoan","hamura","danger"],["hamura","kua"]];
 const REGIONS = [["The Sadaal Route",330,470],["The Miran Chain",801,287],["The Quadrant of the Pillar",1060,212],["The Algol Route",1260,650],["The Dabaran Circle",841,695]];
 // Label placements where the default (up and to the right) collides: [dx, dy, anchor]
@@ -478,7 +479,7 @@ const INFO = {
   awadhi:["Trinary white/yellow/black hole","3/7AG/0","border"], algol:["Trinary white/white dwarf/yellow","6AG/0/2","civilized",1], zamusa:["Hypergiant","2","observandum"],
   anaspora:["Yellow","3AG","border"], yastapol:["White dwarf","2G","border"], nharmada:["Trinary white/white/red giant","2/7/4AG","border"], erequ:["Red giant","5A","border"],
   eanu:["Binary yellow/red","6AG/3G","observandum"], kua:["White","6AG","faction",1], hamura:["White dwarf","2G","border"], taoan:["Red giant","3G","observandum"],
-  uharu:["Binary yellow/brown dwarf",null,"observandum"], dabaran:["Red giant","7G","civilized",1], rigel:["White hypergiant","A","observandum"], melik:["White","5G","civilized"],
+  uharu:["Binary yellow/brown dwarf","3/26A","observandum"], dabaran:["Red giant","7G","civilized",1], rigel:["White hypergiant","A","observandum"], melik:["White","5G","civilized"],
   algebar:["Yellow","12AG","border"], amedo:["Binary yellow/red","10AG/3","border"], marfik:["Red","4","observandum"], caph:["Binary blue/yellow","4/5AG","observandum"]
 };
 const SPACE_NAME = { faction:"Faction space", civilized:"Civilized space", border:"Border space", observandum:"Observandum" };
@@ -530,10 +531,13 @@ const SYSTEMS = (() => {
 const sysName = id => (SYSTEMS.find(s => s.id === id) || {}).n || id || "—";
 const onMap = id => MAP.some(m => m[0] === id);
 const ADJ = {}; LINKS.forEach(([a, b, f]) => { (ADJ[a] ||= []).push({ to:b, f }); (ADJ[b] ||= []).push({ to:a, f }); });
-const linkFlag = (a, b) => (LINKS.find(l => (l[0] === a && l[1] === b) || (l[0] === b && l[1] === a)) || [])[2] || "";
+// Unstable portals belong to a system, not a link: every jump into or out of these systems uses one.
+const UNSTABLE = new Set(["dziban","zamusa","yastapol","algebar"]);
+const linkFlag = (a, b) => (LINKS.find(l => (l[0] === a && l[1] === b) || (l[0] === b && l[1] === a)) || [])[2] || (UNSTABLE.has(a) || UNSTABLE.has(b) ? "unstable" : "");
+const unstableAt = (a, b) => [a, b].filter(x => UNSTABLE.has(x)).map(sysName).join(" and ");
 function bfs(from) { const dist = { [from]:0 }, prev = {}; const q = [from]; while (q.length) { const u = q.shift(); (ADJ[u] || []).forEach(({ to }) => { if (dist[to] == null) { dist[to] = dist[u] + 1; prev[to] = u; q.push(to); } }); } return { dist, prev }; }
 // Fewest jumps, and of those, the fewest unstable portals and dangerous links.
-function safest(from) { const cost = { [from]:0 }, prev = {}, done = new Set(); for (;;) { let u = null; for (const k in cost) if (!done.has(k) && (u === null || cost[k] < cost[u])) u = k; if (u === null) break; done.add(u); (ADJ[u] || []).forEach(({ to, f }) => { const c = cost[u] + 1 + (f ? 0.01 : 0); if (cost[to] == null || c < cost[to]) { cost[to] = c; prev[to] = u; } }); } return { prev, dist:cost }; }
+function safest(from) { const cost = { [from]:0 }, prev = {}, done = new Set(); for (;;) { let u = null; for (const k in cost) if (!done.has(k) && (u === null || cost[k] < cost[u])) u = k; if (u === null) break; done.add(u); (ADJ[u] || []).forEach(({ to }) => { const c = cost[u] + 1 + (linkFlag(u, to) ? 0.01 : 0); if (cost[to] == null || c < cost[to]) { cost[to] = c; prev[to] = u; } }); } return { prev, dist:cost }; }
 function route(from, to) { if (!onMap(from) || !onMap(to)) return null; if (from === to) return [from]; const { prev, dist } = safest(from); if (dist[to] == null) return null; const p = [to]; while (p[0] !== from) p.unshift(prev[p[0]]); return p; }
 const routeText = p => p.map((id, i) => i ? `${({ unstable:" ⇢ ", danger:" ⇝ " })[linkFlag(p[i - 1], id)] || " → "}${sysName(id)}` : sysName(id)).join("");
 
@@ -599,7 +603,7 @@ function setDestination(m) {
   m.jumps = m.type.dest === "nearby" ? 1 : 2;
 }
 function setRoute(m) { const r = route(m.here, m.dest); m.route = r; if (r) m.jumps = r.length - 1; }
-function routeFlags(p) { const out = []; p.forEach((id, i) => { if (!i) return; const f = linkFlag(p[i - 1], id); if (f === "unstable") out.push(`Unstable portal, ${sysName(p[i - 1])}–${sysName(id)}`); if (f === "danger") out.push(`Dangerous area, ${sysName(p[i - 1])}–${sysName(id)}`); }); return out; }
+function routeFlags(p) { const out = []; p.forEach((id, i) => { if (!i) return; const f = linkFlag(p[i - 1], id); if (f === "unstable") out.push(`Unstable portals at ${unstableAt(p[i - 1], id)}`); if (f === "danger") out.push(`Dangerous area, ${sysName(p[i - 1])}–${sysName(id)}`); }); return out; }
 function totalBirr(m) { return m.base.birr + m.rewards.reduce((a, x) => a + (x.birr ? x.birr.total : 0), 0); }
 
 function rollPicker(id, current, onPick, onReroll) {
@@ -865,7 +869,7 @@ function renderLeg(l, idx, v) {
         legField("PCs awake (3 DP each)", h("input", { type:"number", min:"0", max:"12", value:String(l.awake || 0), onchange:e => editLeg(l, L => { L.awake = parseInt(e.target.value, 10) || 0; }) }))),
       h("div", { class:"row", style:"margin-top:8px" }, ck("chapel", "Chapel aboard +1"), ck("priest", "Anointed priest +2"), ck("prayer", "Prayer and sacrifice +1 (4 h)"), ck("blessed", "Blessed Ship +1")),
       h("p", { class:"note", text:j.prep + "." }),
-      l.flag === "unstable" ? h("p", { class:"note", style:"color:var(--accent)", text:"The map marks this portal unstable. Make the jump harder, or riskier, as your table rules it." }) : null,
+      l.flag === "unstable" ? h("p", { class:"note", style:"color:var(--accent)", text:`The map marks the portals at ${unstableAt(l.from, l.to)} unstable. Make the jump harder, or riskier, as your table rules it.` }) : null,
       l.flag === "danger" ? h("p", { class:"note", style:"color:var(--accent)", text:"This link runs through a dangerous area on the map." }) : null);
   } else {
     title = `Planetside, ${LAND[l.terrain][0].toLowerCase()}`;
@@ -976,12 +980,16 @@ function drawMap(box, opt = {}) {
   const P = id => MAP.find(m => m[0] === id);
   LINKS.forEach(([a, b, f]) => { const A = P(a), B = P(b); if (f === "danger") sv("line", { x1:A[2], y1:A[3], x2:B[2], y2:B[3], class:"danger" }, svg); });
   const lines = sv("g", { class:"lines" }, svg);
-  LINKS.forEach(([a, b, f]) => { const A = P(a), B = P(b); sv("line", { x1:A[2], y1:A[3], x2:B[2], y2:B[3], class:"link" + (f === "unstable" ? " unstable" : "") }, lines); });
+  LINKS.forEach(([a, b, f]) => { const A = P(a), B = P(b); sv("line", { x1:A[2], y1:A[3], x2:B[2], y2:B[3], class:"link" }, lines); });
   const path = opt.path || [];
   for (let i = 1; i < path.length; i++) { const A = P(path[i - 1]), B = P(path[i]); if (A && B) sv("line", { x1:A[2], y1:A[3], x2:B[2], y2:B[3], class:"route" }, svg); }
   MAP.forEach(([id, n, x, y]) => {
     const g = sv("g", { class:"sys" + (opt.onPick ? " hit" : "") + (path.includes(id) ? " on" : ""), tabindex: opt.onPick ? "0" : "-1" }, svg);
     if (id === opt.here) sv("circle", { cx:x, cy:y, r:15, class:"here" }, g);
+    if (UNSTABLE.has(id)) { sv("circle", { cx:x, cy:y, r:20, class:"etch" }, g); sv("circle", { cx:x, cy:y, r:20, class:"etch-line" }, g); }
+    // companion stars, as the small dots beside a binary or trinary system
+    const ns = INFO[id] && /^Trinary/.test(INFO[id][0]) ? 2 : INFO[id] && /^Binary/.test(INFO[id][0]) ? 1 : 0;
+    [[-10, -9], [-10, 9]].slice(0, ns).forEach(([dx, dy]) => sv("circle", { cx:x + dx, cy:y + dy, r:2.4, class:"star" }, g));
     sv("circle", { cx:x, cy:y, r: CORE.has(id) ? 6 : 4, class:"star" }, g);
     if (CORE.has(id)) sv("circle", { cx:x, cy:y, r:10, class:"halo" }, g);
     const [ldx, ldy, la] = LABEL_AT[id] || [10, -9, "start"];
@@ -991,7 +999,7 @@ function drawMap(box, opt = {}) {
   });
   (opt.marks || []).forEach(([id, label], k) => { const m = P(id); if (!m) return; const dx = -12 - (k % 3) * 4, dy = 14 + Math.floor(k / 3) * 4; sv("circle", { cx:m[2] + dx, cy:m[3] + dy, r:9, class:"mark" }, svg); const t = sv("text", { x:m[2] + dx, y:m[3] + dy + 4, class:"markn", "text-anchor":"middle" }, svg); t.textContent = label; });
   box.replaceChildren(h("div", { class:"holo" }, h("div", { class:"holocap", text:"The Third Horizon · portal links" }), svg,
-    h("div", { class:"holokey" }, h("span", { text:"— portal link" }), h("span", { text:"┄ unstable portal" }), h("span", { text:"▬ dangerous area" }), opt.legend ? h("span", { text:opt.legend }) : null)));
+    h("div", { class:"holokey" }, h("span", { text:"— portal link" }), h("span", { text:"◌ red etching: unstable portals" }), h("span", { text:"▬ dangerous area" }), h("span", { text:"· companion stars" }), opt.legend ? h("span", { text:opt.legend }) : null)));
 }
 // A system chart in the Great Dark's manner: the star on the left, orbits as faint arcs, bodies strung along the line at their distance.
 function systemChart(sy, opt = {}) {
