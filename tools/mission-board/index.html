@@ -1037,10 +1037,10 @@ function systemChart(sy, opt = {}) {
   const W = 960, RH = opt.compact ? 150 : 170, rows = stars.map((_, i) => i).filter(i => i === 0 || real.some(b => (b[3] || 0) === i));
   const svg = sv("svg", { viewBox:`0 0 ${W} ${rows.length * RH + 10}`, class:"syschart", role:"img", "aria-label":`System chart of ${sy.n}` });
   const G = holoBase(svg, 0, 0, W, rows.length * RH + 10, sy.n.length * 13);
-  const max = Math.max(...real.map(b => b[1])); const X = au => 120 + Math.sqrt(au) / Math.sqrt(max) * (W - 190);
+  const max = Math.max(...real.map(b => b[1])); const X = au => 150 + Math.sqrt(au) / Math.sqrt(max) * (W - 220);
   const hl = new Set([opt.from, opt.to].filter(Boolean));
   rows.forEach((si, ri) => {
-    const cy = ri * RH + RH / 2 + 18, sx = 44;
+    const cy = ri * RH + RH / 2 + 18, sx = 70;
     const here = real.filter(b => (b[3] || 0) === si).sort((a, b) => a[1] - b[1]);
     const cid = `clip${++glowN}`; const cp = sv("clipPath", { id:cid }, svg); sv("rect", { x:0, y:cy - RH / 2 + 4, width:W, height:RH - 8 }, cp);
     const og = sv("g", { "clip-path":`url(#${cid})` }, svg);
@@ -1052,13 +1052,20 @@ function systemChart(sy, opt = {}) {
     const st = sv("text", { x:sx - 10, y:cy - RH / 2 + 2, class:"cap" }, svg); st.textContent = starName(sy, si).toUpperCase();
     if (si === 0 && portals.length) {
       sv("ellipse", { cx:sx, cy, rx:44, ry:13, class:"sym faint" }, svg);
-      portals.forEach((pt, k) => { const a = Math.PI * (0.15 + k * (1.7 / Math.max(1, portals.length))) ; const px = sx + 44 * Math.cos(a), py = cy + 13 * Math.sin(a);
-        sv("circle", { cx:px, cy:py, r:5, class:"sym" + (hl.has(pt[0]) ? " hl" : "") }, svg);
-        const t = sv("text", { x:px, y:cy + 34 + k * 12, class:"tiny" + (hl.has(pt[0]) ? " hl" : ""), "text-anchor":"start" }, svg); t.textContent = pt[0].replace("Portal to ", "⊙ ").toUpperCase(); });
+      // Each portal sits on the ring round the star with its name on a leader line, as on the printed charts:
+      // the bottom one labelled below, the rest above at staggered heights.
+      var portalX = {};
+      const ANG = [[180], [180, 0], [180, 0, 90], [180, -90, 0, 90]][Math.min(portals.length, 4) - 1] || [];
+      portals.forEach((pt, k) => { const deg = ANG[k] != null ? ANG[k] : 180 + k * 40, a = deg * Math.PI / 180;
+        const px = sx + 44 * Math.cos(a), py = cy + 13 * Math.sin(a), on = hl.has(pt[0]); portalX[pt[0]] = px;
+        const below = deg === 90, ly = below ? cy + 40 : cy - (deg === -90 ? 46 : 34);
+        sv("line", { x1:px, y1:py + (below ? 5 : -5), x2:px, y2:ly + (below ? -9 : 3), class:"sym" + (on ? " hl" : ""), "stroke-width":.7, opacity:.8 }, svg);
+        sv("circle", { cx:px, cy:py, r:5, class:"sym" + (on ? " hl" : "") }, svg);
+        const t = sv("text", { x:px, y:ly, class:"tiny" + (on ? " hl" : ""), "text-anchor":"middle" }, svg); t.textContent = pt[0].replace("Portal to ", "⊙ ").toUpperCase(); });
     }
     // route bracket
     if (opt.from && opt.to) { const A = sy.bodies.find(b => b[0] === opt.from), B = sy.bodies.find(b => b[0] === opt.to);
-      if (A && B && (A[3] || 0) === si && (B[3] || 0) === si && A[1] != null && B[1] != null) { const xa = A[2] === "portal" ? sx + 44 : X(A[1]), xb = B[2] === "portal" ? sx + 44 : X(B[1]); sv("line", { x1:xa, y1:cy, x2:xb, y2:cy, class:"leg" }, svg); } }
+      if (A && B && (A[3] || 0) === si && (B[3] || 0) === si && A[1] != null && B[1] != null) { const px = typeof portalX === "object" ? portalX : {}; const xa = A[2] === "portal" ? (px[A[0]] ?? sx + 44) : X(A[1]), xb = B[2] === "portal" ? (px[B[0]] ?? sx + 44) : X(B[1]); sv("line", { x1:xa, y1:cy, x2:xb, y2:cy, class:"leg" }, svg); } }
     let lastX = -99, lift = 0;
     here.forEach(b => { const x = X(b[1]), on = hl.has(b[0]); const g = sv("g", { class:(on ? "hl" : "") + (b[4] ? " sketch" : "") }, svg);
       const k = b[2];
