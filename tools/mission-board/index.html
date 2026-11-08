@@ -1,0 +1,1016 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Mission Board</title>
+<meta name="description" content="An unofficial mission and travel generator for Coriolis: The Third Horizon: post jobs to the board, roll the trip there, and generate the world at the end of it.">
+<link rel="icon" href="/favicon.ico">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Marcellus+SC&family=Open+Sans:wght@400;700&family=Spectral:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* A Bulletin terminal in a Free League field office. Light theme: a printed job sheet on sand. Dark theme: the terminal at night, brass on indigo. */
+:root{
+  --ground:#ece5d6; --sheet:#f6f1e6; --line:#23305c; --line-soft:rgba(35,48,92,.26); --line-faint:rgba(35,48,92,.1);
+  --ink:#1d2340; --muted:#5f6380; --accent:#b4482a; --accent-soft:rgba(180,72,42,.12); --teal:#1f6f6b; --ok:#2f6b4a; --warn:#a4561b;
+  --font-display:"Marcellus SC","Iowan Old Style",Georgia,serif;
+  --font-body:"Spectral","Iowan Old Style",Georgia,serif;
+  --font-data:"IBM Plex Mono",ui-monospace,"SF Mono",Menlo,monospace;
+  --step--1:.8rem; --step-0:.95rem; --step-1:1.15rem; --step-2:1.5rem;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --ground:#10122a; --sheet:#171a36; --line:#d6a95a; --line-soft:rgba(214,169,90,.32); --line-faint:rgba(214,169,90,.11);
+  --ink:#ece2cb; --muted:#a39d8e; --accent:#e9a05a; --accent-soft:rgba(233,160,90,.14); --teal:#6fc2b8; --ok:#8cc29b; --warn:#e39a5b; color-scheme:dark } }
+:root[data-theme="dark"]{
+  --ground:#10122a; --sheet:#171a36; --line:#d6a95a; --line-soft:rgba(214,169,90,.32); --line-faint:rgba(214,169,90,.11);
+  --ink:#ece2cb; --muted:#a39d8e; --accent:#e9a05a; --accent-soft:rgba(233,160,90,.14); --teal:#6fc2b8; --ok:#8cc29b; --warn:#e39a5b; color-scheme:dark }
+
+*{box-sizing:border-box}
+body{margin:0}
+#site-nav{position:fixed;top:0;left:0;right:0;height:calc(32px + env(safe-area-inset-top,0px));padding:env(safe-area-inset-top,0px) max(16px,env(safe-area-inset-right,0px)) 0 max(16px,env(safe-area-inset-left,0px));background:#2c3e50;display:flex;align-items:center;justify-content:space-between;gap:16px;z-index:40;font-family:"Open Sans",system-ui,sans-serif;font-size:12px;line-height:1}
+.snav-brand{font-weight:700;color:#dfb81f;text-decoration:none;white-space:nowrap}
+.snav-brand:hover{color:#f0ca3a}
+.snav-links{display:flex;gap:16px;overflow-x:auto;scrollbar-width:none}
+.snav-links a{color:rgba(255,255,255,.7);text-decoration:none;white-space:nowrap}
+.snav-links a:hover,.snav-brand:focus-visible,.snav-links a:focus-visible{color:#fff}
+[hidden]{display:none!important}
+html,body{min-height:100%}
+body{background:var(--ground);color:var(--ink);font-family:var(--font-body);font-size:var(--step-0);line-height:1.5;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:calc(44px + env(safe-area-inset-top,0px)) 24px}
+h1,h2,h3{font-family:var(--font-display);font-weight:400;margin:0;text-wrap:balance;letter-spacing:.03em}
+button,select,input,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+a{color:var(--teal)}
+
+.top{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:10px 24px;border-bottom:1px solid var(--line-soft);padding-bottom:10px}
+.top h1{font-size:var(--step-2);color:var(--line)}
+.top .issued{font-family:var(--font-data);font-size:var(--step--1);color:var(--muted);letter-spacing:.06em;text-transform:uppercase}
+.top .sub{margin:2px 0 0;color:var(--muted);font-size:var(--step--1)}
+.tabs{display:flex;gap:4px;flex-wrap:wrap}
+.tab{background:none;border:1px solid var(--line-soft);padding:6px 14px;cursor:pointer;font-family:var(--font-display);font-size:1rem;letter-spacing:.04em;color:var(--muted)}
+.tab[aria-selected="true"]{background:var(--accent-soft);border-color:var(--line);color:var(--ink)}
+.nodata{margin:12px 0 0;padding:8px 12px;border:1px dashed var(--line-soft);font-size:var(--step--1);color:var(--muted)}
+.nodata button{all:unset;cursor:pointer;color:var(--accent);text-decoration:underline}
+
+.view{display:grid;grid-template-columns:300px minmax(0,1fr);gap:16px;margin-top:14px;align-items:start}
+@media (max-width:900px){.view{grid-template-columns:minmax(0,1fr)}}
+.side{position:sticky;top:44px;max-height:calc(100vh - 56px);overflow:auto;display:flex;flex-direction:column;gap:14px}
+@media (max-width:900px){.side{position:static;max-height:none}}
+.main{display:flex;flex-direction:column;gap:14px;min-width:0}
+.card{border:1px solid var(--line-soft);background:var(--sheet);padding:14px;min-width:0}
+.card h2{font-size:var(--step-1);color:var(--line);margin-bottom:8px}
+.card h3{font-size:1rem;color:var(--line);margin:12px 0 4px}
+.eyebrow{font-family:var(--font-data);font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.muted{color:var(--muted)}
+.small{font-size:var(--step--1)}
+.data{font-family:var(--font-data);font-variant-numeric:tabular-nums}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.stack{display:flex;flex-direction:column;gap:8px}
+.stack>.field,.stack>.row>.field{flex:0 0 auto}
+.stack>.row>.field{flex:1 1 0}
+.field{display:flex;flex-direction:column;gap:2px;min-width:0;flex:1 1 120px}
+.field>span{font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-family:var(--font-data)}
+.check{display:inline-flex;gap:6px;align-items:center;font-size:var(--step--1);cursor:pointer}
+select,input[type=text],input[type=number],textarea{background:var(--ground);border:1px solid var(--line-soft);padding:5px 7px;width:100%;min-width:0}
+textarea{resize:vertical;min-height:60px}
+.btn{border:1px solid var(--line);background:var(--accent-soft);padding:7px 12px;cursor:pointer;font-family:var(--font-display);letter-spacing:.04em;font-size:1rem}
+.btn.primary{background:var(--line);color:var(--ground)}
+.btn.quiet{background:none;border-color:var(--line-soft)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.mini{border:1px solid var(--line-soft);background:none;padding:2px 8px;cursor:pointer;font-family:var(--font-data);font-size:.75rem;white-space:nowrap}
+.mini:disabled{opacity:.4;cursor:not-allowed}
+.chip{display:inline-block;font-family:var(--font-data);font-size:.68rem;letter-spacing:.06em;text-transform:uppercase;border:1px solid var(--line-soft);padding:1px 6px;color:var(--muted);white-space:nowrap}
+.chip.hot{border-color:var(--accent);color:var(--accent)}
+.chip.teal{border-color:var(--teal);color:var(--teal)}
+.note{font-size:var(--step--1);color:var(--muted);margin:6px 0 0}
+.status{font-size:var(--step--1);color:var(--muted);min-height:1.2em;margin:6px 0 0}
+.confirm{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:6px}
+
+/* job sheets */
+.board{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,460px),1fr));gap:14px}
+.job{position:relative;border:1px solid var(--line-soft);background:var(--sheet);padding:14px 14px 10px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.job::before{content:"";position:absolute;inset:4px;border:1px solid var(--line-faint);pointer-events:none}
+.jobhead{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+.jobhead h3{margin:0;font-size:1.15rem;color:var(--line)}
+.ref{font-family:var(--font-data);font-size:.7rem;color:var(--muted);letter-spacing:.08em;text-transform:uppercase}
+.stats{display:flex;flex-wrap:wrap;gap:4px 14px;padding:6px 0;border-block:1px dashed var(--line-soft)}
+.stats div{display:flex;flex-direction:column}
+.stats b{font-family:var(--font-data);font-weight:500;font-size:1.05rem}
+.stats span{font-size:.68rem;font-family:var(--font-data);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.line{display:grid;grid-template-columns:6.4em minmax(0,1fr) auto;gap:6px 10px;align-items:start;padding:3px 0}
+@media (max-width:520px){.line{grid-template-columns:minmax(0,1fr) auto}.line .tag{grid-column:1/-1}}
+.tag{font-family:var(--font-data);font-size:.66rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding-top:4px}
+.val b{font-weight:600}
+.val .d{display:block;font-size:var(--step--1);color:var(--muted)}
+.val .roll{font-family:var(--font-data);font-size:.72rem;color:var(--muted);margin-left:6px}
+.ctl{display:flex;gap:4px;align-items:center}
+.ctl select{width:auto;max-width:8em;font-size:var(--step--1);padding:2px 4px}
+.omen{display:flex;gap:10px;align-items:center;border:1px solid var(--line-soft);padding:6px 8px;background:var(--ground)}
+.omen .num{font-family:var(--font-data);font-size:1.3rem;color:var(--accent);min-width:2ch;text-align:center}
+.jobfoot{display:flex;flex-wrap:wrap;gap:6px;justify-content:flex-end;padding-top:4px}
+
+/* travel */
+.legs{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px;counter-reset:leg}
+.leg{border:1px solid var(--line-soft);border-left:3px solid var(--line);background:var(--sheet);padding:10px 12px;counter-increment:leg}
+.leg.jump{border-left-color:var(--accent)}
+.leg.land{border-left-color:var(--teal)}
+.leghead{display:flex;justify-content:space-between;gap:8px;align-items:center;margin-bottom:8px}
+.leghead b{font-family:var(--font-display);font-weight:400;font-size:1.05rem;color:var(--line)}
+.leghead b::before{content:counter(leg) ". ";font-family:var(--font-data);font-size:.8rem;color:var(--muted)}
+.grid3{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px}
+.grid2{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:8px}
+.zonebar{display:flex;height:10px;border:1px solid var(--line-soft);margin:8px 0 2px}
+.zonebar i{display:block;height:100%}
+.zonekey{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:.72rem;font-family:var(--font-data);color:var(--muted)}
+.zonekey i{display:inline-block;width:10px;height:10px;margin-right:4px;vertical-align:-1px}
+.z0{background:var(--accent)} .z1{background:color-mix(in srgb,var(--accent) 55%,var(--line))} .z2{background:var(--line)} .z3{background:color-mix(in srgb,var(--line) 50%,var(--sheet))} .z4{background:var(--line-soft)}
+.events{list-style:none;padding:0;margin:8px 0 0;display:flex;flex-direction:column;gap:6px}
+.events li{display:grid;grid-template-columns:7.4em minmax(0,1fr) auto;gap:4px 10px;padding:5px 0;border-bottom:1px dotted var(--line-soft);align-items:start}
+@media (max-width:520px){.events li{grid-template-columns:minmax(0,1fr) auto}.events li .tag{grid-column:1/-1}}
+.totals{display:flex;gap:16px;flex-wrap:wrap}
+.totals div{display:flex;flex-direction:column}
+.totals b{font-family:var(--font-data);font-weight:500;font-size:1.2rem}
+.totals span{font-size:.68rem;font-family:var(--font-data);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.fail{border:1px dashed var(--accent);background:var(--accent-soft);padding:8px;margin-top:8px}
+
+/* world */
+.world{display:grid;grid-template-columns:minmax(0,1fr) 220px;gap:14px;align-items:start}
+@media (max-width:700px){.world{grid-template-columns:minmax(0,1fr)}}
+.globe{width:100%;height:auto;display:block}
+.globe .rim{fill:none;stroke:var(--line);stroke-width:1.5}
+.globe .orb{fill:none;stroke:var(--line-soft);stroke-width:1;stroke-dasharray:3 5}
+
+/* log */
+.logentry{border:1px solid var(--line-soft);background:var(--sheet);padding:12px 14px}
+.logentry pre{white-space:pre-wrap;font-family:var(--font-body);margin:6px 0 0;font-size:var(--step--1)}
+footer.notice{margin-top:24px;padding-top:10px;border-top:1px solid var(--line-soft);color:var(--muted);font-size:var(--step--1);max-width:75ch}
+footer.notice a{color:inherit}
+@media print{#site-nav,.tabs,.side,.ctl,.jobfoot,footer,.nodata{display:none!important}.view{display:block}body{padding:0;background:#fff;color:#000}}
+</style>
+</head>
+<body>
+<div id="site-nav">
+  <a class="snav-brand" href="/">Jonathan Pay</a>
+  <nav class="snav-links" aria-label="Site">
+    <a href="/tools/">All Tools</a>
+    <a href="https://jonathanpay.com/blog/">Blog</a>
+    <a href="https://jonathanpay.com/holistic-email-marketing/">HEM</a>
+    <a href="https://holisticemailacademy.com">HEA</a>
+  </nav>
+</div>
+
+<header class="top">
+  <div>
+    <div class="issued">Free League field office · Bulletin terminal</div>
+    <h1>Mission Board</h1>
+    <p class="sub">An unofficial mission and travel generator for <i>Coriolis: The Third Horizon</i></p>
+  </div>
+  <nav class="tabs" role="tablist" aria-label="Sections">
+    <button class="tab" role="tab" id="tab-board" type="button">Board</button>
+    <button class="tab" role="tab" id="tab-travel" type="button">Travel</button>
+    <button class="tab" role="tab" id="tab-world" type="button">Worlds</button>
+    <button class="tab" role="tab" id="tab-log" type="button">Log</button>
+    <button class="tab" role="tab" id="tab-data" type="button">Data</button>
+  </nav>
+</header>
+<p class="nodata" id="nodata" hidden>No data file loaded, so the board shows rolls and table numbers rather than results. <button type="button" id="go-data">Import one on the Data tab.</button></p>
+
+<section class="view" id="view-board" role="tabpanel" aria-labelledby="tab-board">
+  <aside class="side">
+    <div class="card stack">
+      <h2>Post jobs</h2>
+      <label class="field"><span>Group concept</span><select id="concept"></select></label>
+      <label class="field"><span>Crew is in</span><select id="here"></select></label>
+      <div class="row">
+        <label class="field" style="flex:0 1 5em"><span>Jobs</span><input type="number" id="howmany" min="1" max="6" value="3"></label>
+        <label class="check" style="align-self:flex-end;padding-bottom:6px"><input type="checkbox" id="omens" checked> Draw an Icon card</label>
+      </div>
+      <div class="row">
+        <button class="btn primary" type="button" id="post">Refresh the board</button>
+        <button class="btn quiet" type="button" id="post-one">Add one</button>
+      </div>
+      <p class="note">Each line can be rerolled or picked by hand. Accepting a job moves it to the Log and sets up the trip on the Travel tab.</p>
+    </div>
+    <div class="card">
+      <h2>Icon deck</h2>
+      <p class="small" id="deck-state"></p>
+      <div class="row"><button class="mini" type="button" id="draw">Draw a card</button><button class="mini" type="button" id="shuffle">Shuffle the deck</button></div>
+      <div id="drawn" style="margin-top:8px"></div>
+    </div>
+  </aside>
+  <div class="main">
+    <div class="board" id="board" aria-live="polite"></div>
+  </div>
+</section>
+
+<section class="view" id="view-travel" role="tabpanel" aria-labelledby="tab-travel" hidden>
+  <aside class="side">
+    <div class="card stack">
+      <h2>The ship and crew</h2>
+      <label class="field"><span>Voyage name</span><input type="text" id="v-name" placeholder="Run to Dabaran"></label>
+      <div class="row">
+        <label class="field"><span>Speed</span><input type="number" id="v-speed" min="1" max="8" step="1" value="2"></label>
+        <label class="field"><span>PCs</span><input type="number" id="v-pcs" min="1" max="12" value="4"></label>
+      </div>
+      <label class="field"><span>Route for darkness</span><select id="v-route">
+        <option value="1">Well-trafficked (1 DP per PC per week)</option>
+        <option value="2">Lonely (2 DP per PC per week)</option>
+        <option value="3">Uncharted (3 DP per PC per week)</option></select></label>
+      <label class="field"><span>Crew positions</span><textarea id="v-crew" rows="5" placeholder="Captain: Sabah&#10;Pilot: Lavim&#10;Engineer: Jinna"></textarea></label>
+      <div class="row">
+        <label class="field"><span>Ship value (birr)</span><input type="number" id="v-value" min="0" step="1000" value="1435000"></label>
+        <label class="field"><span>Service at</span><select id="v-port"><option value="500">Small or primitive port (−3)</option><option value="1000" selected>Standard port (±0)</option><option value="2000">Large or advanced (+1)</option></select></label>
+      </div>
+      <label class="field"><span>Misfortunes on this trip</span><input type="number" id="v-misf" min="0" max="6" value="1"></label>
+      <label class="field"><span>Most encounters to roll per leg</span><input type="number" id="v-cap" min="0" max="12" value="2"></label>
+    </div>
+    <div class="card stack">
+      <h2>Add a leg</h2>
+      <div class="row">
+        <button class="btn" type="button" id="add-space">In-system flight</button>
+        <button class="btn" type="button" id="add-jump">Portal jump</button>
+        <button class="btn" type="button" id="add-land">Planetside</button>
+      </div>
+      <div class="row"><button class="btn primary" type="button" id="roll-voyage">Roll the voyage</button><button class="btn quiet" type="button" id="clear-voyage">Clear</button></div>
+      <p class="note">Rolling fills every leg. Each result can be rerolled after.</p>
+    </div>
+  </aside>
+  <div class="main">
+    <div class="card" id="v-summary"></div>
+    <ol class="legs" id="legs"></ol>
+    <div class="card" id="v-crewrolls"></div>
+  </div>
+</section>
+
+<section class="view" id="view-world" role="tabpanel" aria-labelledby="tab-world" hidden>
+  <aside class="side">
+    <div class="card stack">
+      <h2>Generate a world</h2>
+      <label class="field"><span>Name</span><input type="text" id="w-name" placeholder="Quidar"></label>
+      <label class="field"><span>System</span><select id="w-sys"></select></label>
+      <label class="field"><span>Body</span><select id="w-kind"><option value="planet">Planet or moon</option><option value="gas">Gas giant</option><option value="belt">Asteroid belt</option></select></label>
+      <label class="field"><span>Hooks</span><input type="number" id="w-hooks" min="0" max="6" value="2"></label>
+      <div class="row"><button class="btn primary" type="button" id="w-roll">Roll a world</button><button class="btn quiet" type="button" id="w-save">Save to the log</button></div>
+      <p class="note">Modifiers chain as you go: atmosphere moves temperature and geosphere, size moves population, population moves the spaceport. Rerolling a line reworks the lines below it.</p>
+    </div>
+  </aside>
+  <div class="main"><div class="card" id="world"></div></div>
+</section>
+
+<section class="view" id="view-log" role="tabpanel" aria-labelledby="tab-log" hidden>
+  <aside class="side">
+    <div class="card stack">
+      <h2>The log</h2>
+      <p class="small">Jobs you accept, voyages and worlds you save. Copy any entry as Markdown for your notes.</p>
+      <label class="field"><span>Show</span><select id="log-filter"><option value="">Everything</option><option value="job">Jobs</option><option value="voyage">Voyages</option><option value="world">Worlds</option></select></label>
+    </div>
+  </aside>
+  <div class="main" id="log"></div>
+</section>
+
+<section class="view" id="view-data" role="tabpanel" aria-labelledby="tab-data" hidden>
+  <aside class="side" id="data-side"></aside>
+  <div class="main" id="data-main"></div>
+</section>
+
+<footer class="notice">
+  <p>An unofficial fan tool. It is not affiliated with, sponsored or endorsed by Free League Publishing (Fria Ligan AB). <i>Coriolis: The Third Horizon</i> and its names are theirs. No rules text, table entries, art or setting text from the books is included: the page carries dice, table numbers and place names, and anything more comes from a data file you make and keep yourself. What you save stays in this browser.</p>
+</footer>
+
+<script>
+(() => {
+const $ = s => document.querySelector(s);
+const h = (tag, attrs = {}, ...kids) => { const e = document.createElement(tag); for (const k in attrs) { if (attrs[k] == null || attrs[k] === false) continue; if (k === "text") e.textContent = attrs[k]; else if (k.startsWith("on")) e.addEventListener(k.slice(2), attrs[k]); else if (k === "value") e.value = attrs[k]; else e.setAttribute(k, attrs[k]); } kids.flat().forEach(c => c != null && c !== false && e.append(c)); return e; };
+const NS = "http://www.w3.org/2000/svg";
+const keep = kids => kids.flat().filter(c => c != null && c !== false);
+const sv = (tag, attrs = {}, parent) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (parent) parent.appendChild(e); return e; };
+const store = {
+  get(k, d){ try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch { return d; } },
+  set(k, v){ try { localStorage.setItem(k, JSON.stringify(v)); return true; } catch { return false; } },
+  del(k){ try { localStorage.removeItem(k); } catch {} }
+};
+const clone = o => JSON.parse(JSON.stringify(o));
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+const fmtBirr = n => n.toLocaleString("en-GB") + " birr";
+const plural = (n, w, p) => `${n} ${n === 1 ? w : (p || w + "s")}`;
+
+/* Book data: nothing from the books' table text ships with this page. Your data file, imported on the Data tab, lives in this browser. */
+const FORMAT = "mission-board-data/1";
+const DATA = (() => { const x = store.get("mb-data", null); return x && x.format === FORMAT ? x : null; })();
+const T = (DATA && DATA.tables) || {};
+
+/* ---------- dice ---------- */
+const d6 = () => 1 + Math.floor(Math.random() * 6);
+function roll(expr) {
+  expr = String(expr).replace(/\s/g, "").toUpperCase();
+  if (expr === "D66") { const a = d6(), b = d6(); return { total: a * 10 + b, dice: [a, b], text: `${a}${b}` }; }
+  const m = expr.match(/^(\d*)D(\d+)([+-]\d+)?$/);
+  if (!m) { const n = parseInt(expr, 10) || 0; return { total: n, dice: [], text: String(n) }; }
+  const n = parseInt(m[1] || "1", 10), sides = parseInt(m[2], 10), mod = parseInt(m[3] || "0", 10);
+  const dice = Array.from({ length: n }, () => 1 + Math.floor(Math.random() * sides));
+  const total = dice.reduce((a, b) => a + b, 0) + mod;
+  return { total, dice, text: `${dice.join("+")}${mod ? (mod > 0 ? "+" : "") + mod : ""}` };
+}
+const d66Values = () => { const out = []; for (let a = 1; a <= 6; a++) for (let b = 1; b <= 6; b++) out.push(a * 10 + b); return out; };
+
+/* ---------- tables: the page knows each table's number and dice, your data file supplies the rows ---------- */
+const META = {
+  "employer.agents":{num:19,title:"Employer, agents",dice:"D66"}, "reward.agents":{num:20,title:"Rewards, agents",dice:"D66"},
+  "task.agents":{num:21,title:"Mission, agents",dice:"D66"}, "location.agents":{num:22,title:"Location, agents",dice:"D66"}, "complication.agents":{num:23,title:"Complications, agents",dice:"D66"},
+  "employer.mercenaries":{num:24,title:"Employer, mercenaries",dice:"D66"}, "reward.mercenaries":{num:25,title:"Rewards, mercenaries",dice:"D66"},
+  "task.mercenaries":{num:26,title:"Contract, mercenaries",dice:"D66"}, "location.mercenaries":{num:27,title:"Location, mercenaries",dice:"D66"}, "complication.mercenaries":{num:28,title:"Complications, mercenaries",dice:"D66"},
+  "employer.explorers":{num:29,title:"Sponsor, explorers",dice:"D66"}, "reward.explorers":{num:30,title:"Rewards, explorers",dice:"D66"},
+  "task.explorers":{num:31,title:"Expedition, explorers",dice:"D66"}, "location.explorers":{num:32,title:"Location, explorers",dice:"D66"}, "complication.explorers":{num:33,title:"Complications, explorers",dice:"D66"},
+  "employer.pilgrims":{num:34,title:"Employer, pilgrims",dice:"D66"}, "employer.entertainers":{num:34,title:"Employer, entertainers",dice:"D66"}, "employer.nomads":{num:34,title:"Employer, nomads and plebeians",dice:"D66"},
+  "reward.pilgrims":{num:35,title:"Rewards, pilgrims",dice:"D66"}, "reward.entertainers":{num:35,title:"Rewards, entertainers",dice:"D66"}, "reward.nomads":{num:35,title:"Rewards, nomads and plebeians",dice:"D66"},
+  "task.pilgrims":{num:36,title:"Voyage, pilgrimage",dice:"D66"}, "task.entertainers":{num:36,title:"Voyage, leisure",dice:"D66"}, "task.nomads":{num:36,title:"Voyage, work",dice:"D66"},
+  "complication.pilgrims":{num:37,title:"Complications, pilgrims",dice:"D66"}, "complication.entertainers":{num:37,title:"Complications, entertainers",dice:"D66"}, "complication.nomads":{num:37,title:"Complications, nomads and plebeians",dice:"D66"},
+  "employer.traders":{num:38,title:"Employer, free traders",dice:"D66"}, "reward.traders":{num:39,title:"Rewards, free traders",dice:"D66"},
+  "task.traders":{num:40,title:"Goods, free traders",dice:"D66"}, "location.traders":{num:41,title:"Destination, free traders",dice:"D66"}, "complication.traders":{num:42,title:"Complications, free traders",dice:"D66"},
+  "land.misfortune":{num:45,title:"Misfortunes on land",dice:"2D6"}, "reaction":{num:47,title:"Reactions",dice:"2D6"},
+  "space.faction":{num:48,title:"Encounters in faction space",dice:"D66"}, "space.civilized":{num:48,title:"Encounters in civilized space",dice:"D66"},
+  "space.fringe":{num:48,title:"Encounters in fringe space",dice:"D66"}, "space.uncharted":{num:48,title:"Encounters in uncharted space",dice:"D66"},
+  "dark":{num:49,title:"The Dark between the Stars",dice:"D6"},
+  "planet.city":{num:50,title:"Encounters in the city",dice:"D66"}, "planet.countryside":{num:50,title:"Encounters in the countryside",dice:"D66"}, "planet.wilderness":{num:50,title:"Encounters in the wilderness",dice:"D66"},
+  "jump.fail":{num:"7.2",title:"Failed portal jumps",dice:"D66"},
+  "w.size":{num:1,title:"Planet size",dice:"2D6"}, "w.gasSize":{num:2,title:"Gas giant size",dice:"2D6"}, "w.gasColour":{num:3,title:"Gas giant colour",dice:"2D6"},
+  "w.gasTemp":{num:4,title:"Gas giant temperature",dice:"2D6"}, "w.gasChar":{num:5,title:"Gas giant characteristics",dice:"2D6"},
+  "w.beltSize":{num:6,title:"Asteroid belt size",dice:"D6"}, "w.beltComp":{num:7,title:"Asteroid belt composition",dice:"D6"}, "w.beltChar":{num:8,title:"Asteroid belt characteristics",dice:"2D6"},
+  "w.orbit":{num:9,title:"Orbit",dice:"2D6"}, "w.atmosphere":{num:10,title:"Atmosphere",dice:"2D6"}, "w.temperature":{num:11,title:"Temperature",dice:"2D6"},
+  "w.geosphere":{num:12,title:"Geosphere",dice:"2D6"}, "w.population":{num:13,title:"Population",dice:"2D6"}, "w.spaceport":{num:14,title:"Spaceport",dice:"2D6"},
+  "w.hook":{num:15,title:"Hooks",dice:"D66"}, "w.factionCount":{num:16,title:"Number of factions",dice:"D6"}, "w.faction":{num:17,title:"Factions",dice:"2D6"}
+};
+const tableName = id => META[id] ? `Table ${META[id].num}: ${META[id].title}` : id;
+function lookup(id, r) {
+  const rows = (T[id] && T[id].rows) || [];
+  if (!rows.length) return null;
+  let hit = rows.find(x => r >= x.lo && r <= x.hi);
+  if (!hit) hit = r < rows[0].lo ? rows[0] : rows[rows.length - 1];
+  return hit;
+}
+function rollOn(id, mod = 0) { const meta = META[id] || { dice: "D66" }; const rr = roll(meta.dice); const r = rr.total + mod; return { id, r, raw: rr.total, mod, text: rr.text }; }
+function rowLabel(id, r) { const x = lookup(id, r); return x ? x.n : `Read ${tableName(id)}, result ${r}`; }
+function rowDesc(id, r) { const x = lookup(id, r); return x && x.d ? x.d : ""; }
+function choices(id) {
+  const rows = (T[id] && T[id].rows) || [];
+  if (rows.length) return rows.map(x => ({ v: x.lo, label: `${x.lo === x.hi ? x.lo : x.lo + "–" + x.hi} ${x.n}` }));
+  const dice = (META[id] || {}).dice;
+  const vals = dice === "D66" ? d66Values() : dice === "D6" ? [1,2,3,4,5,6] : [2,3,4,5,6,7,8,9,10,11,12];
+  return vals.map(v => ({ v, label: String(v) }));
+}
+
+/* ---------- numbers the page carries ---------- */
+// Table 18, Mission type: [lo, hi, type, destination, complications, base reward dice (thousands of birr), extra reward rolls]
+const TYPE = [[11,12,"Routine","within",0,"D6",0],[13,15,"Routine","within",0,"D6",0],[16,23,"Routine","within",1,"D6+2",0],[24,25,"Easy","within",0,"2D6",0],
+  [26,31,"Easy","within",1,"2D6",1],[32,33,"Easy","within",1,"2D6+2",1],[34,36,"Normal","within",1,"3D6",0],[41,43,"Normal","within",1,"3D6",0],
+  [44,45,"Normal","nearby",1,"3D6",0],[46,51,"Normal","nearby",1,"3D6",1],[52,53,"Normal","nearby",1,"3D6+2",1],[54,54,"Normal","faraway",1,"3D6+4",0],
+  [55,55,"Normal","faraway",1,"3D6+4",1],[56,61,"Difficult","within",2,"4D6",1],[62,63,"Difficult","nearby",2,"4D6+2",0],[64,64,"Difficult","nearby",2,"4D6+2",1],
+  [65,65,"Difficult","faraway",2,"5D6",1],[66,66,"Difficult","faraway",3,"5D6+4",2]];
+const typeOf = r => { const t = TYPE.find(x => r >= x[0] && r <= x[1]); return { lo:t[0], hi:t[1], diff:t[2], dest:t[3], comp:t[4], dice:t[5], extra:t[6] }; };
+const DEST = { within: "Within the system", nearby: "Nearby system, one jump", faraway: "Faraway system, two or more jumps" };
+const BIRR_BONUS = { Routine: "D6", Easy: "D6", Normal: "2D6", Difficult: "3D6" };
+const CONCEPTS = [
+  { id:"agents", n:"Agents", task:"Mission", emp:"Employer" },
+  { id:"mercenaries", n:"Mercenaries", task:"Contract", emp:"Employer" },
+  { id:"explorers", n:"Explorers", task:"Expedition", emp:"Sponsor" },
+  { id:"pilgrims", n:"Pilgrims", task:"Voyage", emp:"Employer", loc:"location.agents" },
+  { id:"entertainers", n:"Pilgrims: entertainers", task:"Voyage", emp:"Employer", loc:"location.agents" },
+  { id:"nomads", n:"Pilgrims: nomads and plebeians", task:"Voyage", emp:"Employer", loc:"location.agents" },
+  { id:"traders", n:"Free traders", task:"Goods", emp:"Employer", locLabel:"Destination" }
+];
+const conceptOf = id => CONCEPTS.find(c => c.id === id) || CONCEPTS[0];
+
+// Zones by distance from the portal (table 46): name, upper bound in AU, encounters per day, reaction modifier
+const ZONES = [["Portal zone",0.5,12,2],["Core zone",3,2,0],["Habitable zone",10,1,0],["Fringe zone",40,1/3,-1],["Deep space zone",Infinity,1/7,-2]];
+const SPACE = { faction:"Faction space", civilized:"Civilized space", fringe:"Fringe space", uncharted:"Uncharted space" };
+const LAND = { city:["City",2], countryside:["Countryside",0], wilderness:["Wilderness",-2] };
+const POSITIONS = ["Captain","Sensor operator","Gunner","Engineer","Pilot","Entire group"];
+const POS_KEYS = ["captain","sensor","gunner","engineer","pilot","group"];
+const JUMP = {
+  convoy:{ n:"Convoy", mod:3, prep:"About a day waiting for a convoy; the fee of 5,000–10,000 birr is shared", hours:24 },
+  hauler:{ n:"Tag along with a bulk hauler", mod:1, prep:"Free, but haulers are few and far between", hours:24 },
+  solo:{ n:"Solo jump", mod:-1, prep:"Four hours of calculations (a SCIENCE test, each extra six saves an hour)", hours:4 },
+  blind:{ n:"Jump blind", mod:-3, prep:"No calculations; unassisted. A failure adds 1 to the tens die", hours:0, blind:true }
+};
+const ICONS = ["The Judge","The Dancer","The Merchant","The Deckhand","The Lady of Tears","The Gambler","The Messenger","The Traveler","The Faceless"];
+const iconOfCard = num => ICONS[Math.floor(d66Values().indexOf(num) / 4)];
+
+/* Systems: names from the setting, and orbital distances in AU from the star where the core rules give them (only Kua). Add your own on the Data tab. */
+const BASE_SYSTEMS = [
+  { id:"kua", n:"Kua", portal:0.5, bodies:[["The portals",0.5],["Lubau",1.5],["Jina",3],["Kua and Coriolis",5],["The asteroid belt",10],["Xene",18],["Surha",40],["The Rimward Reach",47]] },
+  { id:"algol", n:"Algol", bodies:[["Yavan"],["Algol"],["Ermenu"],["Taus"]] },
+  { id:"dabaran", n:"Dabaran", bodies:[["Dabaran"],["Salamanx"],["Arara"]] },
+  { id:"mira", n:"Mira", bodies:[["Mira"],["Trigon (Antmira)"],["Menau"]] },
+  { id:"sadaal", n:"Sadaal", bodies:[["Sadaal"],["Bahram"]] },
+  { id:"zalos", n:"Zalos", bodies:[["Zalos-A"],["Zalos-B"],["Benagia and Karrmerruk"]] },
+  { id:"odacon", n:"Odacon", bodies:[["Khôban portal station"],["Sethlan"],["Rusah"],["The Ash Belt"],["Khurshid"],["Qayna"],["Chandra"]] },
+  { id:"altai", n:"Altai", bodies:[["Imanon"],["The Black Sector"],["Altai"],["Marakanda (Khorsabad)"],["Zanjire"],["Baatar"],["Elajh"],["Maraabra"]] },
+  { id:"menkar", n:"Menkar", bodies:[] }, { id:"eanu", n:"Eanu", bodies:[] }, { id:"caph", n:"Caph", bodies:[] },
+  { id:"uharu", n:"Uharu", bodies:[] }, { id:"taoan", n:"Taoan", bodies:[] }
+];
+const extraSystems = store.get("mb-systems", []);
+const SYSTEMS = (() => {
+  const list = clone(BASE_SYSTEMS);
+  const merge = s => { if (!s || !s.n) return; const id = s.id || s.n.toLowerCase().replace(/[^a-z0-9]+/g, ""); const have = list.find(x => x.id === id); if (have) { if (s.bodies && s.bodies.length) have.bodies = s.bodies; if (s.portal != null) have.portal = s.portal; if (s.note) have.note = s.note; } else list.push({ id, n:s.n, bodies:s.bodies || [], portal:s.portal, note:s.note }); };
+  (DATA && DATA.systems || []).forEach(merge); extraSystems.forEach(merge);
+  return list;
+})();
+const sysName = id => (SYSTEMS.find(s => s.id === id) || {}).n || id || "—";
+
+/* ---------- state ---------- */
+const S = {
+  concept: store.get("mb-concept", "agents"),
+  here: store.get("mb-here", "kua"),
+  board: store.get("mb-board", []),
+  deck: store.get("mb-deck", null),
+  voyage: store.get("mb-voyage", null),
+  world: store.get("mb-world", null),
+  log: store.get("mb-log", [])
+};
+const save = k => store.set("mb-" + k, S[k]);
+
+/* ---------- Icon deck ---------- */
+function freshDeck() { const d = d66Values(); for (let i = d.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [d[i], d[j]] = [d[j], d[i]]; } return d; }
+if (!Array.isArray(S.deck)) { S.deck = freshDeck(); save("deck"); }
+function drawCard() { if (!S.deck.length) S.deck = freshDeck(); const c = S.deck.shift(); save("deck"); renderDeck(); return c; }
+function cardView(num) {
+  const title = DATA && DATA.cards && DATA.cards[num];
+  return h("div", { class:"omen" }, h("span", { class:"num", text:String(num) }),
+    h("div", {}, h("b", { text:iconOfCard(num) }), h("div", { class:"small muted", text: title || "Card title from your deck" })));
+}
+function renderDeck() { $("#deck-state").textContent = `${plural(S.deck.length, "card")} left in the deck of 36.`; }
+
+/* ---------- missions ---------- */
+function newMission(concept, here) {
+  const c = conceptOf(concept);
+  const m = { id: uid(), concept, here, lines: {}, created: new Date().toISOString() };
+  m.typeRoll = roll("D66").total;
+  rerollAll(m);
+  if ($("#omens").checked) m.card = drawCard();
+  return m;
+}
+function locId(c) { return c.loc || "location." + c.id; }
+function rerollAll(m) {
+  const c = conceptOf(m.concept);
+  m.lines.employer = rollOn("employer." + c.id);
+  m.lines.task = rollOn("task." + c.id);
+  m.lines.location = rollOn(locId(c));
+  applyType(m);
+}
+function applyType(m) {
+  const t = typeOf(m.typeRoll), c = conceptOf(m.concept);
+  m.type = t;
+  const r = roll(t.dice); m.base = { dice:t.dice, text:r.text, birr:r.total * 1000 };
+  m.comps = Array.from({ length:t.comp }, () => rollOn("complication." + c.id));
+  m.rewards = Array.from({ length:t.extra }, () => rewardRoll(m, c));
+  setDestination(m);
+}
+function rewardRoll(m, c) { const x = rollOn("reward." + c.id); birrIfNeeded(m, x); return x; }
+function birrIfNeeded(m, x) { const row = lookup(x.id, x.r); delete x.birr; if (row && row.birr) { const b = roll(BIRR_BONUS[m.type.diff]); x.birr = { dice:BIRR_BONUS[m.type.diff], text:b.text, total:b.total * 1000 }; } }
+function setDestination(m) {
+  if (m.type.dest === "within") { m.dest = m.here; m.jumps = 0; return; }
+  const others = SYSTEMS.filter(s => s.id !== m.here);
+  m.dest = others[Math.floor(Math.random() * others.length)].id;
+  m.jumps = m.type.dest === "nearby" ? 1 : 2;
+}
+function totalBirr(m) { return m.base.birr + m.rewards.reduce((a, x) => a + (x.birr ? x.birr.total : 0), 0); }
+
+function rollPicker(id, current, onPick, onReroll) {
+  const sel = h("select", { "aria-label":`Pick from ${tableName(id)}`, onchange: e => onPick(parseInt(e.target.value, 10)) },
+    choices(id).map(o => h("option", { value:String(o.v), text:o.label })));
+  const hit = lookup(id, current);
+  const opts = choices(id).map(o => o.v);
+  sel.value = String(hit ? hit.lo : Math.min(Math.max(current, opts[0]), opts[opts.length - 1]));
+  return h("div", { class:"ctl" }, sel, h("button", { class:"mini", type:"button", title:"Reroll", text:"Reroll", onclick:onReroll }));
+}
+function valueView(id, x, extra) {
+  const row = lookup(id, x.r);
+  return h("div", { class:"val" }, h("b", { text: row ? row.n : `${tableName(id)}` }),
+    h("span", { class:"roll", text: row ? `${META[id] ? "T" + META[id].num : ""} · ${x.r}` : `result ${x.r}${x.mod ? ` (${x.text}${x.mod > 0 ? "+" : ""}${x.mod})` : ""}` }),
+    row && row.d ? h("span", { class:"d", text:row.d }) : null, extra || null);
+}
+function updateMission(id, fn) { const m = S.board.find(x => x.id === id); if (!m) return; fn(m); save("board"); renderBoard(); }
+
+function missionTitle(m) {
+  const c = conceptOf(m.concept);
+  const task = lookup("task." + c.id, m.lines.task.r);
+  const n = task ? task.n : `${c.task} ${m.lines.task.r}`;
+  return c.id === "traders" && task ? `Cargo run: ${n.toLowerCase()}` : n;
+}
+function renderMission(m, i) {
+  const c = conceptOf(m.concept);
+  const L = (tag, id, key, x, onPick, onReroll, extra) => h("div", { class:"line" }, h("span", { class:"tag", text:tag }), valueView(id, x, extra), rollPicker(id, x.r, onPick, onReroll));
+  const destSel = h("select", { "aria-label":"Destination system", onchange:e => updateMission(m.id, mm => { mm.dest = e.target.value; }) }, SYSTEMS.map(s => h("option", { value:s.id, text:s.n })));
+  destSel.value = m.dest;
+  const jumpsIn = h("input", { type:"number", min:"0", max:"9", value:String(m.jumps), style:"width:4.2em", "aria-label":"Portal jumps", onchange:e => updateMission(m.id, mm => { mm.jumps = Math.max(0, parseInt(e.target.value, 10) || 0); }) });
+  const typeSel = h("select", { "aria-label":"Pick mission type", onchange:e => updateMission(m.id, mm => { mm.typeRoll = parseInt(e.target.value, 10); applyType(mm); }) },
+    TYPE.map(t => h("option", { value:String(t[0]), text:`${t[0] === t[1] ? t[0] : t[0] + "–" + t[1]} ${t[2]}, ${t[3]}` })));
+  typeSel.value = String(TYPE.find(t => m.typeRoll >= t[0] && m.typeRoll <= t[1])[0]);
+
+  const card = h("article", { class:"job" },
+    h("div", { class:"jobhead" },
+      h("div", {}, h("div", { class:"ref", text:`Job ${String(i + 1).padStart(2, "0")} · ${c.n} · posted at ${sysName(m.here)}` }), h("h3", { text: missionTitle(m) })),
+      h("span", { class: m.type.diff === "Difficult" ? "chip hot" : m.type.diff === "Normal" ? "chip teal" : "chip", text:m.type.diff })),
+    h("div", { class:"stats" },
+      h("div", {}, h("b", { text:fmtBirr(m.base.birr) }), h("span", { text:`Base pay, ${m.base.dice} (${m.base.text})` })),
+      h("div", {}, h("b", { text:DEST[m.type.dest].split(",")[0] }), h("span", { text: m.type.dest === "within" ? sysName(m.dest) : `${sysName(m.dest)}, ${plural(m.jumps, "jump")}` })),
+      h("div", {}, h("b", { text:String(m.type.comp) }), h("span", { text:"Complications" })),
+      h("div", {}, h("b", { text:String(m.type.extra) }), h("span", { text:"Extra rewards" }))),
+    h("div", { class:"line" }, h("span", { class:"tag", text:"Type" }),
+      h("div", { class:"val" }, h("b", { text:`${m.type.diff}, ${DEST[m.type.dest].toLowerCase()}` }), h("span", { class:"roll", text:`T18 · ${m.typeRoll}` })),
+      h("div", { class:"ctl" }, typeSel, h("button", { class:"mini", type:"button", text:"Reroll", onclick:() => updateMission(m.id, mm => { mm.typeRoll = roll("D66").total; applyType(mm); }) }))),
+    L(c.emp, "employer." + c.id, "employer", m.lines.employer, v => updateMission(m.id, mm => { mm.lines.employer.r = v; }), () => updateMission(m.id, mm => { mm.lines.employer = rollOn("employer." + c.id); })),
+    L(c.task, "task." + c.id, "task", m.lines.task, v => updateMission(m.id, mm => { mm.lines.task.r = v; }), () => updateMission(m.id, mm => { mm.lines.task = rollOn("task." + c.id); })),
+    L(c.locLabel || "Location", locId(c), "location", m.lines.location, v => updateMission(m.id, mm => { mm.lines.location.r = v; }), () => updateMission(m.id, mm => { mm.lines.location = rollOn(locId(c)); }),
+      c.loc ? h("span", { class:"d", text:`Pilgrims have no location table of their own; this borrows ${tableName(c.loc)}.` }) : null),
+    m.type.dest !== "within" ? h("div", { class:"line" }, h("span", { class:"tag", text:"System" }),
+      h("div", { class:"val" }, h("b", { text:sysName(m.dest) }), h("span", { class:"d", text:"Picked at random from the systems list. The page doesn't know the portal map: set the jumps from yours." })),
+      h("div", { class:"ctl" }, destSel, jumpsIn)) : null,
+    m.comps.map((x, k) => L(`Complication${m.comps.length > 1 ? " " + (k + 1) : ""}`, x.id, null, x,
+      v => updateMission(m.id, mm => { mm.comps[k].r = v; }), () => updateMission(m.id, mm => { mm.comps[k] = rollOn(x.id); }))),
+    m.rewards.map((x, k) => L(`Reward${m.rewards.length > 1 ? " " + (k + 1) : ""}`, x.id, null, x,
+      v => updateMission(m.id, mm => { mm.rewards[k].r = v; birrIfNeeded(mm, mm.rewards[k]); }), () => updateMission(m.id, mm => { mm.rewards[k] = rewardRoll(mm, c); }),
+      x.birr ? h("span", { class:"d", text:`+${fmtBirr(x.birr.total)} (${x.birr.dice}: ${x.birr.text}) plus expenses` } ) : rewardNote(x))),
+    m.rewards.length === 0 ? h("p", { class:"small muted", style:"margin:0", text:"No extra reward: base pay only." }) : null,
+    m.card ? cardView(m.card) : null,
+    h("div", { class:"jobfoot" },
+      h("span", { class:"small data muted", style:"margin-right:auto;align-self:center", text:`Total ${fmtBirr(totalBirr(m))}` }),
+      h("button", { class:"mini", type:"button", text:"Copy", onclick:e => copy(missionMd(m), e.target) }),
+      h("button", { class:"mini", type:"button", text:"Pass", onclick:() => { S.board = S.board.filter(x => x.id !== m.id); save("board"); renderBoard(); } }),
+      h("button", { class:"mini", type:"button", text:"Accept and plan the trip", onclick:() => accept(m) })));
+  return card;
+}
+function rewardNote(x) { const row = lookup(x.id, x.r); if (!row) return null; const d = DATA && DATA.rewards && DATA.rewards[row.n]; return d ? h("span", { class:"d", text:d }) : null; }
+function renderBoard() {
+  const b = $("#board"); b.replaceChildren();
+  if (!S.board.length) { b.append(h("div", { class:"card" }, h("h2", { text:"The board is empty" }), h("p", { class:"small", text:"Pick the crew's concept and where they are, then refresh the board. Each job rolls a mission type (Table 18) for difficulty, travel and pay, then an employer, the work, a place, complications and rewards from the concept's own tables." }))); return; }
+  S.board.forEach((m, i) => b.append(renderMission(m, i)));
+}
+function missionMd(m) {
+  const c = conceptOf(m.concept);
+  const lab = (id, x) => { const row = lookup(id, x.r); return row ? `${row.n}${row.d ? ` — ${row.d}` : ""}` : `${tableName(id)}, result ${x.r}`; };
+  const lines = [`## ${missionTitle(m)}`, "", `- **Concept:** ${c.n}`, `- **Type:** ${m.type.diff} (T18: ${m.typeRoll})`,
+    `- **Where:** ${m.type.dest === "within" ? `within ${sysName(m.dest)}` : `${sysName(m.dest)}, ${plural(m.jumps, "jump")} from ${sysName(m.here)}`}`,
+    `- **${c.emp}:** ${lab("employer." + c.id, m.lines.employer)}`, `- **${c.task}:** ${lab("task." + c.id, m.lines.task)}`,
+    `- **${c.locLabel || "Location"}:** ${lab(locId(c), m.lines.location)}`,
+    ...m.comps.map(x => `- **Complication:** ${lab(x.id, x)}`),
+    `- **Base pay:** ${fmtBirr(m.base.birr)} (${m.base.dice}: ${m.base.text})`,
+    ...m.rewards.map(x => `- **Reward:** ${lab(x.id, x)}${x.birr ? `, +${fmtBirr(x.birr.total)}` : ""}`)];
+  if (m.card) lines.push(`- **Icon card:** ${m.card} ${iconOfCard(m.card)}${DATA && DATA.cards && DATA.cards[m.card] ? `, ${DATA.cards[m.card]}` : ""}`);
+  return lines.join("\n");
+}
+function accept(m) {
+  S.log.unshift({ id:uid(), kind:"job", title:missionTitle(m), status:"Accepted", notes:"", md:missionMd(m), saved:new Date().toISOString(), mission:clone(m) });
+  save("log");
+  S.board = S.board.filter(x => x.id !== m.id); save("board"); renderBoard();
+  S.voyage = voyageForMission(m); save("voyage"); renderTravel();
+  go("travel");
+}
+
+/* ---------- travel ---------- */
+function blankVoyage() { return { id:uid(), name:"", legs:[], crewRolls:null }; }
+function spaceLeg(sys, from, to) { const s = SYSTEMS.find(x => x.id === sys) || SYSTEMS[0]; return { id:uid(), kind:"space", sys:s.id, from:from ?? "", to:to ?? "", fromAU:auOf(s, from), toAU:auOf(s, to), far:false, space:"civilized", out:null }; }
+function jumpLeg(from, to) { return { id:uid(), kind:"jump", from, to, method:"convoy", pool:5, chapel:false, priest:false, prayer:false, blessed:false, awake:0, out:null }; }
+function landLeg() { return { id:uid(), kind:"land", terrain:"wilderness", days:2, out:null }; }
+function auOf(s, body) { const b = (s.bodies || []).find(x => x[0] === body); return b && b[1] != null ? b[1] : ""; }
+function voyageForMission(m) {
+  const v = blankVoyage(); v.name = `${missionTitle(m)} (${sysName(m.dest)})`;
+  const here = SYSTEMS.find(s => s.id === m.here) || SYSTEMS[0];
+  const start = here.bodies.find(b => b[0].startsWith(here.n)) || here.bodies.find(b => !/portal/i.test(b[0])) || here.bodies[0];
+  if (!m.jumps) { v.legs.push(spaceLeg(here.id, start ? start[0] : "", "")); }
+  else {
+    v.legs.push(spaceLeg(here.id, start ? start[0] : "", here.bodies.find(b => /portal/i.test(b[0])) ? here.bodies.find(b => /portal/i.test(b[0]))[0] : ""));
+    for (let j = 0; j < m.jumps; j++) {
+      const toId = j === m.jumps - 1 ? m.dest : "";
+      v.legs.push(jumpLeg(j === 0 ? here.id : "", toId));
+      if (j < m.jumps - 1) v.legs.push({ ...spaceLeg("", "", ""), sys:"", transit:true, fromAU:0.5, toAU:0.5 });
+    }
+    v.legs.push(spaceLeg(m.dest, "", ""));
+  }
+  v.legs.push(landLeg());
+  return v;
+}
+if (!S.voyage) S.voyage = blankVoyage();
+
+const V = () => S.voyage;
+const setV = fn => { fn(S.voyage); save("voyage"); renderTravel(); };
+function zoneFor(dAU) { return ZONES.findIndex(z => dAU <= z[1]); }
+function legDays(l, speed) {
+  if (l.kind === "jump") { const j = JUMP[l.method]; return (j.hours) / 24; }
+  if (l.kind === "land") return Math.max(0, +l.days || 0);
+  if (l.transit) return 1;
+  const a = parseFloat(l.fromAU), b = parseFloat(l.toAU);
+  if (!isFinite(a) || !isFinite(b)) return 0;
+  const dist = l.far ? a + b : Math.abs(a - b);
+  return dist / Math.max(0.1, speed);
+}
+// Time in each zone on a straight radial path; on the far side the ship passes inward to the star and out again.
+function zoneDays(l, speed) {
+  const out = ZONES.map(() => 0);
+  if (l.kind === "jump") { out[0] = JUMP[l.method].hours / 24; return out; }
+  if (l.transit) { out[0] = 1; return out; }
+  if (l.kind !== "space") return out;
+  const s = SYSTEMS.find(x => x.id === l.sys); const p = s && s.portal != null ? s.portal : 0.5;
+  const a = parseFloat(l.fromAU), b = parseFloat(l.toAU); if (!isFinite(a) || !isFinite(b)) return out;
+  const segs = l.far ? [[0, a], [0, b]] : [[Math.min(a, b), Math.max(a, b)]];
+  const N = 400;
+  segs.forEach(([lo, hi]) => { const step = (hi - lo) / N; if (!step) return; for (let i = 0; i < N; i++) { const r = lo + step * (i + .5); out[zoneFor(Math.abs(r - p))] += step / Math.max(0.1, speed); } });
+  return out;
+}
+function encountersFor(l, speed) { return zoneDays(l, speed).reduce((a, d, i) => a + d * ZONES[i][2], 0); }
+function pickZone(zd) { const w = zd.map((d, i) => d * ZONES[i][2]); const tot = w.reduce((a, b) => a + b, 0); let r = Math.random() * tot; for (let i = 0; i < w.length; i++) { r -= w[i]; if (r <= 0) return i; } return w.length - 1; }
+
+function spaceEncounter(col, zi) { const enc = rollOn("space." + col); const reac = rollOn("reaction", ZONES[zi][3]); const e = { col, zone:zi, enc, reac }; darkCheck(e); return e; }
+function darkCheck(e) { const row = lookup(e.enc.id, e.enc.r); delete e.dark; if (row && row.dark) e.dark = rollOn("dark"); }
+function landEncounter(terrain) { const enc = rollOn("planet." + terrain); const reac = rollOn("reaction", LAND[terrain][1]); return { terrain, enc, reac }; }
+function rollLeg(l, v) {
+  const speed = +$("#v-speed").value || 2, cap = Math.max(0, +$("#v-cap").value || 0);
+  if (l.kind === "jump") {
+    const j = JUMP[l.method]; const mod = j.mod + (l.chapel ? 1 : 0) + (l.priest ? 2 : 0) + (l.prayer ? 1 : 0) + (l.blessed ? 1 : 0);
+    const pool = Math.max(0, (+l.pool || 0) + mod);
+    const dice = Array.from({ length:pool }, d6); const sixes = dice.filter(x => x === 6).length;
+    l.out = { mod, pool, dice, sixes, fail:null, enc:[] };
+    if (!sixes) l.out.fail = failRoll(l);
+  } else if (l.kind === "land") {
+    const n = Math.min(cap, Math.max(1, Math.round(+l.days || 1)));
+    l.out = { misfortune: rollOn("land.misfortune"), enc: Array.from({ length:n }, () => landEncounter(l.terrain)) };
+    return;
+  } else l.out = { enc:[] };
+  const zd = zoneDays(l, speed); const book = encountersFor(l, speed);
+  let n = Math.floor(book); if (Math.random() < book - n) n++;
+  n = Math.min(n, cap);
+  l.out.book = book;
+  l.out.enc = Array.from({ length:n }, () => spaceEncounter(l.space || "civilized", pickZone(zd)));
+}
+function failRoll(l) { const r = roll("D66"); const tens = Math.floor(r.total / 10) + (JUMP[l.method].blind ? 1 : 0), ones = r.total % 10; return { id:"jump.fail", r: tens * 10 + ones, raw:r.total, mod:JUMP[l.method].blind ? 10 : 0, text:r.text }; }
+function crewRolls() { return Array.from({ length:Math.max(0, +$("#v-misf").value || 0) }, crewOne); }
+function crewOf(posIndex) {
+  const lines = ($("#v-crew").value || "").split("\n").map(x => x.trim()).filter(Boolean);
+  const want = POSITIONS[posIndex - 1].toLowerCase().split(" ")[0];
+  const hit = lines.find(x => x.toLowerCase().startsWith(want));
+  return hit ? hit.split(":").slice(1).join(":").trim() : "";
+}
+
+function bodyPicker(l, end) {
+  const s = SYSTEMS.find(x => x.id === l.sys);
+  const listId = `bodies-${l.id}-${end}`;
+  const dl = h("datalist", { id:listId }, (s ? s.bodies : []).map(b => h("option", { value:b[0] })));
+  const nameIn = h("input", { type:"text", list:listId, value:l[end] || "", placeholder: end === "from" ? "From" : "To", "aria-label": end === "from" ? "Departure" : "Destination",
+    onchange:e => setV(v => { const L = v.legs.find(x => x.id === l.id); L[end] = e.target.value; const au = auOf(s || { bodies:[] }, e.target.value); if (au !== "") L[end + "AU"] = au; }) });
+  const auIn = h("input", { type:"number", min:"0", step:"0.1", value:l[end + "AU"] === "" ? "" : String(l[end + "AU"]), placeholder:"AU", "aria-label":"Distance from the star in AU", style:"max-width:6em",
+    onchange:e => setV(v => { v.legs.find(x => x.id === l.id)[end + "AU"] = e.target.value === "" ? "" : parseFloat(e.target.value); }) });
+  return h("div", { class:"row", style:"flex-wrap:nowrap" }, dl, nameIn, auIn);
+}
+function legField(label, input) { return h(input.tagName === "DIV" ? "div" : "label", { class:"field" }, h("span", { text:label }), input); }
+function sel(opts, value, onchange, aria) { const s = h("select", { onchange, "aria-label":aria }, Object.entries(opts).map(([k, n]) => h("option", { value:k, text:typeof n === "string" ? n : n.n || n[0] }))); s.value = value; return s; }
+const editLeg = (l, fn) => setV(v => fn(v.legs.find(x => x.id === l.id)));
+
+function encLine(e, onReroll, land) {
+  const enc = lookup(e.enc.id, e.enc.r), reac = lookup("reaction", e.reac.r);
+  const reacText = reac ? reac.n : `Reaction ${e.reac.r}`;
+  const where = land ? LAND[e.terrain][0] : `${ZONES[e.zone][0]} · ${SPACE[e.col]}`;
+  return h("li", {}, h("span", { class:"tag", text:where }),
+    h("div", { class:"val" }, h("b", { text: enc ? enc.n : `${tableName(e.enc.id)}, result ${e.enc.r}` }), h("span", { class:"roll", text:`d66 ${e.enc.r}` }),
+      enc && enc.d ? h("span", { class:"d", text:enc.d }) : null,
+      e.dark ? h("span", { class:"d", text:`Manifestation: ${rowLabel("dark", e.dark.r)} (d6 ${e.dark.r})` }) : null,
+      h("span", { class:"d", text:`${reacText} (2d6 ${e.reac.raw}${e.reac.mod ? `${e.reac.mod > 0 ? "+" : ""}${e.reac.mod}` : ""} = ${e.reac.r})` })),
+    h("button", { class:"mini", type:"button", text:"Reroll", onclick:onReroll }));
+}
+function renderLeg(l, idx, v) {
+  const speed = +$("#v-speed").value || 2;
+  const days = legDays(l, speed);
+  const remove = h("button", { class:"mini", type:"button", text:"Remove", onclick:() => setV(vv => { vv.legs = vv.legs.filter(x => x.id !== l.id); }) });
+  const up = h("button", { class:"mini", type:"button", text:"↑", title:"Move up", disabled: idx === 0 ? "" : null, onclick:() => setV(vv => { const i = vv.legs.findIndex(x => x.id === l.id); [vv.legs[i - 1], vv.legs[i]] = [vv.legs[i], vv.legs[i - 1]]; }) });
+  const reroll = h("button", { class:"mini", type:"button", text:"Roll this leg", onclick:() => editLeg(l, L => rollLeg(L, v)) });
+  let body, title;
+  if (l.kind === "space") {
+    const s = SYSTEMS.find(x => x.id === l.sys);
+    title = l.transit ? `Transit to the next portal${s ? `, ${s.n}` : ""}` : `In-system flight${s ? `, ${s.n}` : ""}`;
+    const zd = zoneDays(l, speed); const tot = zd.reduce((a, b) => a + b, 0);
+    body = h("div", {},
+      h("div", { class:"grid3" },
+        legField("System", sel(Object.fromEntries([["", "Pick a system"], ...SYSTEMS.map(x => [x.id, x.n])]), l.sys || "", e => editLeg(l, L => { L.sys = e.target.value; }), "System")),
+        legField("Space", sel(SPACE, l.space || "civilized", e => editLeg(l, L => { L.space = e.target.value; }), "Encounter column"))),
+      l.transit ? h("p", { class:"note", text:"About a day between the portals while passing through a system." }) :
+      h("div", { class:"grid2", style:"margin-top:8px" }, legField("From · AU from the star", bodyPicker(l, "from")), legField("To · AU from the star", bodyPicker(l, "to")),
+        h("label", { class:"check", style:"align-self:end;padding-bottom:6px" }, h("input", { type:"checkbox", checked: l.far ? "" : null, onchange:e => editLeg(l, L => { L.far = e.target.checked; }) }), "Opposite sides of the star (farthest distance)")),
+      tot ? h("div", {}, h("div", { class:"zonebar", "aria-hidden":"true" }, zd.map((d, i) => d ? h("i", { class:"z" + i, style:`width:${(d / tot * 100).toFixed(2)}%` }) : null)),
+        h("div", { class:"zonekey" }, zd.map((d, i) => d ? h("span", {}, h("i", { class:"z" + i }), `${ZONES[i][0]} ${fmtDays(d)}`) : null))) : null);
+  } else if (l.kind === "jump") {
+    title = `Portal jump${l.from || l.to ? `: ${sysName(l.from) || "?"} → ${sysName(l.to) || "?"}` : ""}`;
+    const j = JUMP[l.method];
+    const ck = (key, label) => h("label", { class:"check" }, h("input", { type:"checkbox", checked: l[key] ? "" : null, onchange:e => editLeg(l, L => { L[key] = e.target.checked; }) }), label);
+    body = h("div", {},
+      h("div", { class:"grid3" },
+        legField("From", sel(Object.fromEntries([["", "—"], ...SYSTEMS.map(x => [x.id, x.n])]), l.from || "", e => editLeg(l, L => { L.from = e.target.value; }), "From system")),
+        legField("To", sel(Object.fromEntries([["", "—"], ...SYSTEMS.map(x => [x.id, x.n])]), l.to || "", e => editLeg(l, L => { L.to = e.target.value; }), "To system")),
+        legField("Method", sel(Object.fromEntries(Object.entries(JUMP).map(([k, x]) => [k, `${x.n} (${x.mod > 0 ? "+" : ""}${x.mod})`])), l.method, e => editLeg(l, L => { L.method = e.target.value; }), "Jump method")),
+        legField("Pilot's dice", h("input", { type:"number", min:"0", max:"15", value:String(l.pool), onchange:e => editLeg(l, L => { L.pool = parseInt(e.target.value, 10) || 0; }) })),
+        legField("PCs awake (3 DP each)", h("input", { type:"number", min:"0", max:"12", value:String(l.awake || 0), onchange:e => editLeg(l, L => { L.awake = parseInt(e.target.value, 10) || 0; }) }))),
+      h("div", { class:"row", style:"margin-top:8px" }, ck("chapel", "Chapel aboard +1"), ck("priest", "Anointed priest +2"), ck("prayer", "Prayer and sacrifice +1 (4 h)"), ck("blessed", "Blessed Ship +1")),
+      h("p", { class:"note", text:j.prep + "." }));
+  } else {
+    title = `Planetside, ${LAND[l.terrain][0].toLowerCase()}`;
+    body = h("div", { class:"grid3" },
+      legField("Terrain", sel(Object.fromEntries(Object.entries(LAND).map(([k, x]) => [k, `${x[0]} (reactions ${x[1] > 0 ? "+" : ""}${x[1]})`])), l.terrain, e => editLeg(l, L => { L.terrain = e.target.value; }), "Terrain")),
+      legField("Days", h("input", { type:"number", min:"0", step:"0.5", value:String(l.days), onchange:e => editLeg(l, L => { L.days = parseFloat(e.target.value) || 0; }) })));
+  }
+  const results = h("div", {});
+  if (l.out) {
+    if (l.kind === "jump") {
+      const o = l.out;
+      results.append(h("p", { class:"small", style:"margin:8px 0 0" }, h("b", { text: o.sixes ? `Jump made: ${plural(o.sixes, "six", "sixes")}` : "The jump fails" }),
+        ` · ${o.pool} dice (pilot ${o.pool - o.mod >= 0 ? o.pool - o.mod : 0}, modifiers ${o.mod > 0 ? "+" : ""}${o.mod}): `, h("span", { class:"data", text:o.dice.join(" ") || "no dice" })));
+      if (o.fail) results.append(h("div", { class:"fail" }, h("div", { class:"line" }, h("span", { class:"tag", text:"Failure" }), valueView("jump.fail", o.fail),
+        h("div", { class:"ctl" }, h("button", { class:"mini", type:"button", text:"Reroll", onclick:() => editLeg(l, L => { L.out.fail = failRoll(L); }) })))));
+      else results.append(h("div", { class:"row", style:"margin-top:4px" }, h("button", { class:"mini", type:"button", text:"Mark as failed", onclick:() => editLeg(l, L => { L.out.sixes = 0; L.out.fail = failRoll(L); }) })));
+    }
+    if (l.kind === "land") {
+      const m = l.out.misfortune;
+      results.append(h("ul", { class:"events" }, h("li", {}, h("span", { class:"tag", text:"Misfortune" }), valueView("land.misfortune", m), h("button", { class:"mini", type:"button", text:"Reroll", onclick:() => editLeg(l, L => { L.out.misfortune = rollOn("land.misfortune"); }) })),
+        l.out.enc.map((e, k) => encLine(e, () => editLeg(l, L => { L.out.enc[k] = landEncounter(L.terrain); }), true))));
+    } else if (l.out.enc) {
+      results.append(h("p", { class:"note", text:`At the book's rate this leg meets ${l.out.book != null ? l.out.book.toFixed(1) : 0} encounters; ${plural(l.out.enc.length, "is", "are")} rolled here (the cap is in the sidebar).` }));
+      if (l.out.enc.length) results.append(h("ul", { class:"events" }, l.out.enc.map((e, k) => encLine(e, () => editLeg(l, L => { L.out.enc[k] = spaceEncounter(L.space || "civilized", e.zone); })))));
+    }
+  }
+  return h("li", { class:`leg ${l.kind}` },
+    h("div", { class:"leghead" }, h("b", { text:title }), h("div", { class:"row", style:"gap:4px" }, h("span", { class:"chip", text:fmtDays(days) }), up, reroll, remove)),
+    body, results);
+}
+function fmtDays(d) { if (!d) return "0 h"; if (d < 1) return `${Math.round(d * 24)} h`; return `${d.toFixed(d < 10 ? 1 : 0)} days`; }
+function voyageTotals(v) {
+  const speed = +$("#v-speed").value || 2, pcs = +$("#v-pcs").value || 0, rate = +$("#v-route").value || 1;
+  const days = v.legs.reduce((a, l) => a + legDays(l, speed), 0);
+  const spaceDays = v.legs.filter(l => l.kind !== "land").reduce((a, l) => a + legDays(l, speed), 0);
+  const jumps = v.legs.filter(l => l.kind === "jump").length;
+  const au = v.legs.filter(l => l.kind === "space" && !l.transit).reduce((a, l) => { const x = parseFloat(l.fromAU), y = parseFloat(l.toAU); return a + (isFinite(x) && isFinite(y) ? (l.far ? x + y : Math.abs(x - y)) : 0); }, 0);
+  const dpTravel = rate * pcs * spaceDays / 7;
+  const dpAwake = v.legs.filter(l => l.kind === "jump").reduce((a, l) => a + 3 * (+l.awake || 0), 0);
+  const service = jumps > 0 || au >= 10;
+  const value = +$("#v-value").value || 0, div = +$("#v-port").value || 1000;
+  return { days, spaceDays, jumps, au, dpTravel, dpAwake, service, serviceCost: value ? Math.round(value / div) : 0 };
+}
+function renderTravel() {
+  const v = V();
+  $("#v-name").value = v.name || "";
+  const legs = $("#legs"); legs.replaceChildren(...v.legs.map((l, i) => renderLeg(l, i, v)));
+  const t = voyageTotals(v);
+  const sum = $("#v-summary"); sum.replaceChildren(...keep([
+    h("h2", { text: v.name || "A voyage" }),
+    v.legs.length ? h("div", { class:"totals" },
+      h("div", {}, h("b", { text:fmtDays(t.days) }), h("span", { text:"Total time" })),
+      h("div", {}, h("b", { text:`${t.au.toFixed(1)} AU` }), h("span", { text:"In-system distance" })),
+      h("div", {}, h("b", { text:String(t.jumps) }), h("span", { text:"Portal jumps" })),
+      h("div", {}, h("b", { text:String(Math.round(t.dpTravel + t.dpAwake)) }), h("span", { text:`Darkness Points (${t.dpTravel.toFixed(1)} travel${t.dpAwake ? ` + ${t.dpAwake} awake` : ""})` })),
+      h("div", {}, h("b", { text: t.service ? fmtBirr(t.serviceCost) : "Not yet" }), h("span", { text:"Service due" }))) :
+      h("p", { class:"small", text:"Add legs from the sidebar, or accept a job on the Board to have the trip laid out for you: out to the portal, each jump, the flight in, and the ground at the end." }),
+    v.legs.length ? h("p", { class:"note", text:"Travel time is AU ÷ speed in days. Darkness is counted per PC per week in space. Service is due after 10 AU or more, or any jump; a failed service roll still costs half." }) : null,
+    v.legs.length ? h("div", { class:"row", style:"margin-top:8px" },
+      h("button", { class:"mini", type:"button", text:"Copy as Markdown", onclick:e => copy(voyageMd(v), e.target) }),
+      h("button", { class:"mini", type:"button", text:"Save to the log", onclick:e => { S.log.unshift({ id:uid(), kind:"voyage", title:v.name || "Voyage", status:"Planned", notes:"", md:voyageMd(v), saved:new Date().toISOString() }); save("log"); flashBtn(e.target, "Saved"); } })) : null]));
+  const cr = $("#v-crewrolls"); cr.replaceChildren(h("h2", { text:"Crew on the trip" }));
+  const dev = DATA && DATA.development;
+  cr.append(h("h3", { text:"Development" }), dev ? h("ul", { class:"small", style:"margin:0;padding-left:1.2em" }, dev.map(d => h("li", {}, h("b", { text:d[0] }), d[1] ? ` — ${d[1]}` : ""))) :
+    h("p", { class:"small muted", text:"Each PC with time and space to themselves picks one development action. Your data file can list them here." }));
+  cr.append(h("h3", { text:"Misfortunes" }));
+  if (!v.crewRolls || !v.crewRolls.length) cr.append(h("p", { class:"small muted", text:"Rolled with the voyage: Table 44 picks the position, then a d6 picks one of that position's misfortunes." }));
+  else cr.append(h("ul", { class:"events" }, v.crewRolls.map((m, k) => h("li", {}, h("span", { class:"tag", text:POSITIONS[m.pos - 1] }),
+    h("div", { class:"val" }, h("b", { text: m.n || `Misfortune ${m.k} of the ${POSITIONS[m.pos - 1].toLowerCase()}'s list` }), h("span", { class:"roll", text:`T44 ${m.pos} · d6 ${m.k}` }),
+      m.d ? h("span", { class:"d", text:m.d }) : null, crewOf(m.pos) ? h("span", { class:"d", text:`Spotlight: ${crewOf(m.pos)}` }) : null),
+    h("button", { class:"mini", type:"button", text:"Reroll", onclick:() => setV(vv => { vv.crewRolls[k] = crewOne(); }) })))));
+}
+function crewOne() { const p = d6(), k = d6(); const list = DATA && DATA.misfortunes && DATA.misfortunes[POS_KEYS[p - 1]]; return { pos:p, k, n:list && list[k - 1] ? list[k - 1][0] : null, d:list && list[k - 1] ? list[k - 1][1] : null }; }
+function voyageMd(v) {
+  const speed = +$("#v-speed").value || 2, t = voyageTotals(v);
+  const out = [`## ${v.name || "Voyage"}`, "", `Speed ${speed} · ${fmtDays(t.days)} · ${t.au.toFixed(1)} AU · ${plural(t.jumps, "jump")} · ${Math.round(t.dpTravel + t.dpAwake)} DP${t.service ? ` · service ${fmtBirr(t.serviceCost)}` : ""}`, ""];
+  v.legs.forEach((l, i) => {
+    const days = fmtDays(legDays(l, speed));
+    if (l.kind === "jump") out.push(`${i + 1}. **Portal jump** ${sysName(l.from)} → ${sysName(l.to)}, ${JUMP[l.method].n.toLowerCase()} (${days})${l.out ? (l.out.fail ? `: failed — ${rowLabel("jump.fail", l.out.fail.r)}` : ": made") : ""}`);
+    else if (l.kind === "land") out.push(`${i + 1}. **Planetside**, ${LAND[l.terrain][0].toLowerCase()}, ${days}${l.out ? `. Misfortune: ${rowLabel("land.misfortune", l.out.misfortune.r)}` : ""}`);
+    else out.push(`${i + 1}. **${l.transit ? "Transit" : "Flight"}** in ${sysName(l.sys)}${l.transit ? "" : `, ${l.from || "?"} → ${l.to || "?"}`} (${days})`);
+    (l.out && l.out.enc || []).forEach(e => out.push(`   - ${rowLabel(e.enc.id, e.enc.r)}${e.dark ? ` (${rowLabel("dark", e.dark.r)})` : ""}; ${rowLabel("reaction", e.reac.r)}`));
+  });
+  if (v.crewRolls && v.crewRolls.length) { out.push("", "**Misfortunes**"); v.crewRolls.forEach(m => out.push(`- ${POSITIONS[m.pos - 1]}${crewOf(m.pos) ? ` (${crewOf(m.pos)})` : ""}: ${m.n || `list item ${m.k}`}`)); }
+  return out.join("\n");
+}
+
+/* ---------- worlds ---------- */
+const ATMO_TEMP = { 9:1, 10:6, 11:6 }, ATMO_GEO = { 3:-4, 9:-4, 10:-4, 11:-4 };
+const tempGeo = r => r >= 12 ? -4 : r >= 10 ? -2 : 0;
+const POP_PORT = r => r <= 3 ? -8 : r <= 5 ? -6 : r <= 7 ? -4 : r <= 9 ? 0 : r <= 11 ? 1 : 4;
+function rollWorld(kind, from) {
+  const w = from ? clone(from) : { id:uid(), kind, lines:{}, hooks:[], factions:[] };
+  w.kind = kind; const L = w.lines;
+  const order = kind === "gas" ? ["gasSize","gasColour","gasTemp","gasChar","moons","population","spaceport"] :
+    kind === "belt" ? ["beltSize","beltComp","beltChar","population","spaceport"] :
+    ["size","orbit","atmosphere","temperature","geosphere","population","spaceport"];
+  w.order = order;
+  const start = !from ? 0 : from.redoFrom ? order.indexOf(from.redoFrom) : order.length;
+  order.slice(Math.max(0, start)).forEach(k => {
+    if (k === "moons") { const r = roll("3D6"); L.moons = { r:r.total, text:r.text }; return; }
+    if (k === "atmosphere") {
+      if (L.size && L.size.r <= 3) { const r = roll("D6").total <= 3 ? 2 : 3; L.atmosphere = { id:"w.atmosphere", r, raw:r, mod:0, text:"small world", small:true }; return; }
+      L.atmosphere = rollOn("w.atmosphere"); return;
+    }
+    if (k === "temperature") { L.temperature = rollOn("w.temperature", ATMO_TEMP[L.atmosphere.r] || 0); return; }
+    if (k === "geosphere") { L.geosphere = rollOn("w.geosphere", (ATMO_GEO[L.atmosphere.r] || 0) + tempGeo(L.temperature.r)); return; }
+    if (k === "population") {
+      const small = kind === "belt" || (L.size && L.size.r <= 3);
+      if (kind === "gas") { const r = roll("D6"); L.population = { id:"w.population", r:r.total, raw:r.total, mod:0, text:r.text, gas:true }; return; }
+      L.population = rollOn("w.population", small ? -4 : 0); return;
+    }
+    if (k === "spaceport") { L.spaceport = rollOn("w.spaceport", POP_PORT(L.population.r)); return; }
+    L[k] = rollOn("w." + k);
+  });
+  delete w.redoFrom;
+  if (!from || from.rerollHooks) { const n = Math.max(0, +$("#w-hooks").value || 0); w.hooks = Array.from({ length:n }, () => rollOn("w.hook")); delete w.rerollHooks; }
+  if (!from || from.rerollFactions) { w.factionCount = rollOn("w.factionCount"); w.factions = factionsFor(w.factionCount.r); delete w.rerollFactions; }
+  return w;
+}
+function factionsFor(c) {
+  const row = lookup("w.factionCount", c);
+  let n = row && row.count != null ? (typeof row.count === "string" ? roll(row.count).total : row.count) : (c === 1 ? 1 : c <= 4 ? 2 : c === 5 ? 3 : d6());
+  const out = []; const seen = new Set(); let guard = 0;
+  while (out.length < n && guard++ < 50) { const f = rollOn("w.faction"); if (seen.has(f.r) && guard < 40) continue; seen.add(f.r); if (c === 6) f.strength = d6(); out.push(f); }
+  return out;
+}
+const WORLD_LABELS = { size:"Size", orbit:"In orbit", atmosphere:"Atmosphere", temperature:"Temperature", geosphere:"Geosphere", population:"Population", spaceport:"Spaceport",
+  gasSize:"Size", gasColour:"Colour", gasTemp:"Temperature", gasChar:"Character", moons:"Moons", beltSize:"Size", beltComp:"Composition", beltChar:"Character" };
+function renderWorld() {
+  const box = $("#world"); box.replaceChildren();
+  const w = S.world;
+  $("#w-name").value = w ? w.name || "" : $("#w-name").value;
+  if (!w) { box.append(h("h2", { text:"No world yet" }), h("p", { class:"small", text:"Roll a planet, gas giant or asteroid belt using the system generator's tables. Use it for the far end of a job, or for the system the crew just jumped into." })); return; }
+  const kindName = { planet:"Planet", gas:"Gas giant", belt:"Asteroid belt" }[w.kind];
+  const lines = h("div", {});
+  w.order.forEach(k => {
+    const x = w.lines[k]; if (!x) return;
+    if (k === "moons") { lines.append(h("div", { class:"line" }, h("span", { class:"tag", text:"Moons" }), h("div", { class:"val" }, h("b", { text:String(x.r) }), h("span", { class:"roll", text:`3d6 ${x.text}` })), h("div", { class:"ctl" }, h("button", { class:"mini", type:"button", text:"Reroll", onclick:() => { S.world.redoFrom = "moons"; S.world = rollWorld(S.world.kind, S.world); save("world"); renderWorld(); } })))); return; }
+    const id = "w." + k;
+    const notes = [];
+    if (x.mod) notes.push(`Rolled ${x.raw}, ${x.mod > 0 ? "+" : "−"}${Math.abs(x.mod)} = ${x.r}`);
+    if (x.small) notes.push("Small world: toxic or thin only, picked at random");
+    if (x.gas) notes.push("Gas giant: population rolled on D6");
+    const redo = v => { S.world.lines[k] = v; const i = S.world.order.indexOf(k); if (i < S.world.order.length - 1) { S.world.redoFrom = S.world.order[i + 1]; S.world = rollWorld(S.world.kind, S.world); } save("world"); renderWorld(); };
+    lines.append(h("div", { class:"line" }, h("span", { class:"tag", text:WORLD_LABELS[k] }),
+      valueView(id, x, notes.length ? h("span", { class:"d", text:notes.join(" · ") }) : null),
+      rollPicker(id, x.r, v => redo({ ...x, r:v, raw:v - (x.mod || 0) }), () => { S.world.redoFrom = k; S.world = rollWorld(S.world.kind, S.world); save("world"); renderWorld(); })));
+  });
+  const hooks = h("div", {}, h("h3", { text:"Hooks" }), w.hooks.length ? w.hooks.map((x, i) => h("div", { class:"line" }, h("span", { class:"tag", text:hookGroup(x.r) }), valueView("w.hook", x),
+    rollPicker("w.hook", x.r, v => { S.world.hooks[i].r = v; save("world"); renderWorld(); }, () => { S.world.hooks[i] = rollOn("w.hook"); save("world"); renderWorld(); }))) : h("p", { class:"small muted", text:"None. Set how many in the sidebar." }));
+  const fac = h("div", {}, h("h3", { text:"Factions" }),
+    h("div", { class:"line" }, h("span", { class:"tag", text:"Balance" }), valueView("w.factionCount", w.factionCount),
+      h("div", { class:"ctl" }, h("button", { class:"mini", type:"button", text:"Reroll", onclick:() => { S.world.rerollFactions = true; S.world = rollWorld(S.world.kind, S.world); save("world"); renderWorld(); } }))),
+    w.factions.map((f, i) => h("div", { class:"line" }, h("span", { class:"tag", text:f.strength ? `Strength ${f.strength}` : `Faction ${i + 1}` }), valueView("w.faction", f),
+      rollPicker("w.faction", f.r, v => { S.world.factions[i].r = v; save("world"); renderWorld(); }, () => { S.world.factions[i] = { ...rollOn("w.faction"), strength:f.strength }; save("world"); renderWorld(); }))));
+  const art = worldArt(w);
+  box.append(h("div", { class:"eyebrow", text:`${kindName}${w.sys ? ` · ${sysName(w.sys)}` : ""}` }), h("h2", { text:w.name || "Unnamed world" }),
+    h("div", { class:"world" }, h("div", {}, lines, hooks, fac), art),
+    h("div", { class:"row", style:"margin-top:10px" }, h("button", { class:"mini", type:"button", text:"Copy as Markdown", onclick:e => copy(worldMd(w), e.target) })));
+}
+function hookGroup(r) { return ["Ruins","Weather","Inhabitants","Threats","Politics","Events"][Math.floor(r / 10) - 1] || "Hook"; }
+// A small orrery-style sketch: body size from the size roll, rings or moons from orbit, haze for atmosphere.
+function worldArt(w) {
+  const s = sv("svg", { viewBox:"0 0 220 220", class:"globe", role:"img", "aria-label":"Sketch of the body" });
+  const L = w.lines;
+  if (w.kind === "belt") { for (let i = 0; i < 160; i++) { const a = Math.random() * Math.PI * 2, rr = 55 + Math.random() * 40; sv("circle", { cx:110 + rr * Math.cos(a), cy:110 + rr * Math.sin(a) * .45, r:Math.random() * 2 + .6, fill:"var(--line)", opacity:.4 + Math.random() * .5 }, s); } sv("circle", { cx:110, cy:110, r:6, fill:"var(--accent)" }, s); return s; }
+  const size = w.kind === "gas" ? 70 : 22 + ((L.size ? L.size.r : 7) - 2) * 4.5;
+  sv("ellipse", { cx:110, cy:110, rx:100, ry:34, class:"orb" }, s);
+  const thick = L.atmosphere ? ({ 2:2, 3:1, 9:9, 10:7, 11:7, 12:5 }[L.atmosphere.r] || 4) : 6;
+  sv("circle", { cx:110, cy:110, r:size + thick, fill:"var(--teal)", opacity:.15 }, s);
+  const geo = L.geosphere ? L.geosphere.r : 7, temp = L.temperature ? L.temperature.r : 7;
+  const fill = w.kind === "gas" ? "var(--accent)" : temp <= 2 ? "#cfd8e3" : geo >= 11 ? "#2f5f8a" : geo <= 4 ? "#b88a4a" : "#4f7d5a";
+  sv("circle", { cx:110, cy:110, r:size, fill, stroke:"var(--line)", "stroke-width":1.5 }, s);
+  for (let i = 1; i <= 3; i++) sv("ellipse", { cx:110, cy:110, rx:size, ry:size * (.22 * i), fill:"none", stroke:"var(--line)", "stroke-width":.6, opacity:.35 }, s);
+  const orbit = L.orbit ? L.orbit.r : 0;
+  if (w.kind === "gas" ? L.gasChar && L.gasChar.r <= 3 : orbit === 11 || orbit === 12) sv("ellipse", { cx:110, cy:110, rx:size * 1.75, ry:size * .38, fill:"none", stroke:"var(--line)", "stroke-width":3, opacity:.6 }, s);
+  const moons = w.kind === "gas" ? Math.min(8, L.moons ? L.moons.r : 0) : orbit === 9 || orbit === 10 ? 2 : 0;
+  for (let i = 0; i < moons; i++) { const a = i / Math.max(1, moons) * Math.PI * 2 + .4; sv("circle", { cx:110 + 100 * Math.cos(a), cy:110 + 34 * Math.sin(a), r:4, fill:"var(--line)" }, s); }
+  if (orbit === 3 || orbit === 4 || orbit === 5) for (let i = 0; i < 3; i++) { const a = i * 2.1 + 1; sv("rect", { x:110 + 100 * Math.cos(a) - 3, y:110 + 34 * Math.sin(a) - 3, width:6, height:6, fill:"none", stroke:"var(--accent)", "stroke-width":1.5 }, s); }
+  return s;
+}
+function worldMd(w) {
+  const out = [`## ${w.name || "Unnamed world"}`, "", `${{ planet:"Planet", gas:"Gas giant", belt:"Asteroid belt" }[w.kind]}${w.sys ? ` in ${sysName(w.sys)}` : ""}`, ""];
+  w.order.forEach(k => { const x = w.lines[k]; if (!x) return; out.push(`- **${WORLD_LABELS[k]}:** ${k === "moons" ? x.r : rowLabel("w." + k, x.r)}`); });
+  if (w.hooks.length) out.push(`- **Hooks:** ${w.hooks.map(x => rowLabel("w.hook", x.r)).join("; ")}`);
+  out.push(`- **Factions:** ${rowLabel("w.factionCount", w.factionCount.r)}: ${w.factions.map(f => rowLabel("w.faction", f.r) + (f.strength ? ` (${f.strength})` : "")).join(", ")}`);
+  return out.join("\n");
+}
+
+/* ---------- log ---------- */
+function renderLog() {
+  const box = $("#log"); box.replaceChildren();
+  const f = $("#log-filter").value;
+  const items = S.log.filter(x => !f || x.kind === f);
+  if (!items.length) { box.append(h("div", { class:"card" }, h("h2", { text:"Nothing logged yet" }), h("p", { class:"small", text:"Accept a job on the Board, or save a voyage or a world, and it lands here." }))); return; }
+  items.forEach(x => {
+    const conf = h("div", { class:"confirm" });
+    const status = h("select", { "aria-label":"Status", style:"width:auto", onchange:e => { x.status = e.target.value; save("log"); } },
+      ["Offered","Accepted","Planned","Under way","Done","Failed","Abandoned"].map(s => h("option", { value:s, text:s })));
+    status.value = x.status || "Accepted";
+    box.append(h("article", { class:"logentry" },
+      h("div", { class:"jobhead" }, h("div", {}, h("div", { class:"ref", text:`${x.kind} · ${new Date(x.saved).toLocaleDateString("en-GB", { day:"numeric", month:"short", year:"numeric" })}` }), h("h3", { text:x.title })), status),
+      h("pre", { text:x.md.split("\n").slice(1).join("\n").trim() }),
+      h("label", { class:"field", style:"margin-top:8px" }, h("span", { text:"Notes" }), h("textarea", { rows:"2", value:x.notes || "", oninput:e => { x.notes = e.target.value; save("log"); } })),
+      h("div", { class:"jobfoot" },
+        x.kind === "job" && x.mission ? h("button", { class:"mini", type:"button", text:"Plan the trip again", onclick:() => { S.voyage = voyageForMission(x.mission); save("voyage"); renderTravel(); go("travel"); } }) : null,
+        h("button", { class:"mini", type:"button", text:"Copy as Markdown", onclick:e => copy(x.md + (x.notes ? `\n\n${x.notes}` : ""), e.target) }),
+        h("button", { class:"mini", type:"button", text:"Delete", onclick:() => conf.replaceChildren(h("span", { class:"small", text:"Delete this entry?" }),
+          h("button", { class:"mini", type:"button", text:"Delete", onclick:() => { S.log = S.log.filter(y => y.id !== x.id); save("log"); renderLog(); } }),
+          h("button", { class:"mini", type:"button", text:"Keep", onclick:() => conf.replaceChildren() })) })), conf));
+  });
+}
+
+/* ---------- data ---------- */
+function download(name, text) { const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([text], { type:"application/json" })); a.download = name; document.body.append(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000); }
+function readFile(fn) { const i = document.createElement("input"); i.type = "file"; i.accept = ".json,application/json"; i.addEventListener("change", () => { const f = i.files[0]; if (!f) return; const r = new FileReader(); r.onload = () => fn(String(r.result)); r.readAsText(f); }); i.click(); }
+function renderData() {
+  const M = $("#data-main"), Sd = $("#data-side"); M.replaceChildren(); Sd.replaceChildren();
+  const st = h("p", { class:"status", role:"status" });
+  const book = h("div", { class:"card" }, h("h2", { text:"Your book data" }));
+  if (DATA) {
+    const ids = Object.keys(T); const missing = Object.keys(META).filter(k => !T[k]);
+    book.append(...keep([h("p", { class:"small" }, h("b", { text:DATA.name || "Data file" }), DATA.created ? ` · ${DATA.created}` : ""),
+      h("p", { class:"small muted data", text:`${ids.length} of ${Object.keys(META).length} tables · ${Object.keys(DATA.cards || {}).length} Icon card titles · ${Object.keys(DATA.misfortunes || {}).length} misfortune lists · ${Object.keys(DATA.rewards || {}).length} reward notes · ${(DATA.systems || []).length} systems` }),
+      missing.length ? h("p", { class:"note", text:`Not in the file: ${missing.map(tableName).join("; ")}.` }) : null]));
+    const conf = h("div", { class:"confirm" });
+    book.append(h("div", { class:"row", style:"margin-top:8px" }, h("button", { class:"btn", type:"button", text:"Replace with another file", onclick:() => importData(st) }),
+      h("button", { class:"btn quiet", type:"button", text:"Remove data file", onclick:() => conf.replaceChildren(h("span", { class:"small", text:"Remove the data file from this browser? Your log stays." }),
+        h("button", { class:"btn", type:"button", text:"Remove", onclick:() => { store.del("mb-data"); location.reload(); } }), h("button", { class:"btn quiet", type:"button", text:"Keep", onclick:() => conf.replaceChildren() })) })), conf);
+  } else {
+    book.append(h("p", { class:"small", text:"The page works without one: it rolls every die, applies the mission type, travel times, encounter rates, jump modifiers and world-building modifiers, and tells you which table and result to read. A data file adds the table text from your own books, so the board shows employers, missions and complications by name. It stays in this browser and is never uploaded." }),
+      h("div", { class:"row", style:"margin-top:8px" }, h("button", { class:"btn primary", type:"button", text:"Import a data file", onclick:() => importData(st) })));
+  }
+  book.append(st); M.append(book);
+  const sys = h("div", { class:"card" }, h("h2", { text:"Your systems" }),
+    h("p", { class:"small", text:"The page knows the systems named in the core rules and setting chapters. Add the rest of your Horizon here, one per line. Add bodies after a colon with their distance from the star in AU, if you know it." }),
+    h("textarea", { id:"sys-extra", rows:"6", placeholder:"Hamura\nLalande: Inner moon 2, Outer giant 22", value: extraSystems.map(s => s.n + (s.bodies && s.bodies.length ? ": " + s.bodies.map(b => b[0] + (b[1] != null ? " " + b[1] : "")).join(", ") : "")).join("\n") }),
+    h("div", { class:"row", style:"margin-top:8px" }, h("button", { class:"btn", type:"button", text:"Save systems", onclick:() => {
+      const list = $("#sys-extra").value.split("\n").map(x => x.trim()).filter(Boolean).map(line => { const [n, rest] = line.split(":"); const bodies = (rest || "").split(",").map(b => b.trim()).filter(Boolean).map(b => { const m = b.match(/^(.*?)\s+([\d.]+)$/); return m ? [m[1], parseFloat(m[2])] : [b]; }); return { n:n.trim(), bodies }; });
+      store.set("mb-systems", list); location.reload(); } })));
+  M.append(sys);
+  const bk = h("div", { class:"card" }, h("h2", { text:"Backup" }), h("p", { class:"small", text:"The board, the voyage, the world, the log and your systems are saved in this browser only. Export a backup to keep them or move them to another device." }),
+    h("div", { class:"row", style:"margin-top:8px" },
+      h("button", { class:"btn", type:"button", text:"Export a backup", onclick:() => download(`mission-board-backup-${new Date().toISOString().slice(0, 10)}.json`, JSON.stringify({ format:"mission-board-backup/1", saved:new Date().toISOString(), board:S.board, voyage:S.voyage, world:S.world, log:S.log, systems:extraSystems, deck:S.deck }, null, 1)) }),
+      h("button", { class:"btn quiet", type:"button", text:"Restore a backup", onclick:() => readFile(text => { try { const x = JSON.parse(text); if (x.format !== "mission-board-backup/1") throw 0;
+        const ids = new Set(S.log.map(e => e.id)); store.set("mb-log", [...(x.log || []).filter(e => !ids.has(e.id)), ...S.log]);
+        ["board","voyage","world","deck"].forEach(k => { if (x[k]) store.set("mb-" + k, x[k]); }); if (x.systems) store.set("mb-systems", x.systems); location.reload(); } catch { st.textContent = "That file isn't a backup from this page."; } }) })),
+    h("p", { class:"note", text:"Restoring adds the backup's log entries to yours and replaces the board, voyage and world." }));
+  M.append(bk);
+  Sd.append(h("div", { class:"card" }, h("h2", { text:"The data file" }), h("p", { class:"small", text:`A JSON file with format "${FORMAT}". Every part is optional. The README beside this page describes each field: the mission tables for each concept, travel encounters, misfortunes, failed jumps, the system generator and Icon card titles.` }),
+    h("p", { class:"small" }, h("a", { href:"https://github.com/jonathanpay/jonathanpay.github.io/tree/master/tools/mission-board", text:"Read the README on GitHub" }))));
+}
+function importData(st) { readFile(text => { try { const x = JSON.parse(text); if (x.format !== FORMAT) throw 0; if (!store.set("mb-data", x)) throw 0; location.reload(); } catch { st.textContent = "That file isn't a data file for this page, or this browser couldn't store it."; } }); }
+
+/* ---------- helpers ---------- */
+function copy(text, btn) { const done = () => flashBtn(btn, "Copied"); if (navigator.clipboard) navigator.clipboard.writeText(text).then(done, () => fallbackCopy(text, done)); else fallbackCopy(text, done); }
+function fallbackCopy(text, done) { const t = h("textarea", { value:text, style:"position:fixed;left:-9999px" }); document.body.append(t); t.select(); try { document.execCommand("copy"); done(); } catch {} t.remove(); }
+function flashBtn(btn, msg) { const old = btn.textContent; btn.textContent = msg; setTimeout(() => { btn.textContent = old; }, 1400); }
+
+/* ---------- tabs and wiring ---------- */
+const TABS = ["board","travel","world","log","data"];
+function setTab(t) { if (!TABS.includes(t)) t = "board"; TABS.forEach(x => { $("#view-" + x).hidden = x !== t; $("#tab-" + x).setAttribute("aria-selected", String(x === t)); }); if (t === "log") renderLog(); if (t === "data") renderData(); if (t === "travel") renderTravel(); }
+function go(t) { if (location.hash.slice(1) === t) setTab(t); else location.hash = t; window.scrollTo(0, 0); }
+TABS.forEach(t => $("#tab-" + t).addEventListener("click", () => go(t)));
+window.addEventListener("hashchange", () => setTab(location.hash.slice(1)));
+
+$("#concept").append(...CONCEPTS.map(c => h("option", { value:c.id, text:c.n })));
+$("#concept").value = S.concept;
+$("#concept").addEventListener("change", e => { S.concept = e.target.value; save("concept"); });
+const sysOpts = () => SYSTEMS.map(s => h("option", { value:s.id, text:s.n }));
+$("#here").append(...sysOpts()); $("#here").value = S.here;
+$("#here").addEventListener("change", e => { S.here = e.target.value; save("here"); });
+$("#w-sys").append(h("option", { value:"", text:"—" }), ...sysOpts());
+const howMany = () => Math.min(6, Math.max(1, parseInt($("#howmany").value, 10) || 3));
+$("#post").addEventListener("click", () => { S.board = Array.from({ length:howMany() }, () => newMission(S.concept, S.here)); save("board"); renderBoard(); });
+$("#post-one").addEventListener("click", () => { S.board.push(newMission(S.concept, S.here)); save("board"); renderBoard(); });
+$("#draw").addEventListener("click", () => { $("#drawn").replaceChildren(cardView(drawCard())); });
+$("#shuffle").addEventListener("click", () => { S.deck = freshDeck(); save("deck"); renderDeck(); $("#drawn").replaceChildren(); });
+
+const VKEYS = ["v-speed","v-pcs","v-route","v-crew","v-value","v-port","v-misf","v-cap"];
+const vset = store.get("mb-vset", {});
+VKEYS.forEach(k => { if (vset[k] != null) $("#" + k).value = vset[k]; $("#" + k).addEventListener("change", () => { vset[k] = $("#" + k).value; store.set("mb-vset", vset); renderTravel(); }); });
+$("#v-name").addEventListener("change", e => setV(v => { v.name = e.target.value; }));
+const hereSys = () => S.voyage.legs.length ? (S.voyage.legs[S.voyage.legs.length - 1].sys || S.voyage.legs[S.voyage.legs.length - 1].to || S.here) : S.here;
+$("#add-space").addEventListener("click", () => setV(v => v.legs.push(spaceLeg(hereSys(), "", ""))));
+$("#add-jump").addEventListener("click", () => setV(v => v.legs.push(jumpLeg(hereSys(), ""))));
+$("#add-land").addEventListener("click", () => setV(v => v.legs.push(landLeg())));
+$("#roll-voyage").addEventListener("click", () => setV(v => { v.legs.forEach(l => rollLeg(l, v)); v.crewRolls = crewRolls(); }));
+$("#clear-voyage").addEventListener("click", () => { S.voyage = blankVoyage(); save("voyage"); renderTravel(); });
+
+$("#w-roll").addEventListener("click", () => { const w = rollWorld($("#w-kind").value); w.name = $("#w-name").value.trim(); w.sys = $("#w-sys").value; S.world = w; save("world"); renderWorld(); });
+$("#w-name").addEventListener("change", e => { if (S.world) { S.world.name = e.target.value.trim(); save("world"); renderWorld(); } });
+$("#w-save").addEventListener("click", e => { if (!S.world) return; S.log.unshift({ id:uid(), kind:"world", title:S.world.name || "Unnamed world", status:"Done", notes:"", md:worldMd(S.world), saved:new Date().toISOString() }); save("log"); flashBtn(e.target, "Saved"); });
+if (S.world) { $("#w-kind").value = S.world.kind; $("#w-sys").value = S.world.sys || ""; }
+$("#log-filter").addEventListener("change", renderLog);
+$("#go-data").addEventListener("click", () => go("data"));
+$("#nodata").hidden = !!DATA;
+
+renderDeck(); renderBoard(); renderTravel(); renderWorld();
+setTab(location.hash.slice(1));
+})();
+</script>
+</body>
+</html>
