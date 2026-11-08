@@ -52,6 +52,9 @@ The cards are drawn in SVG, with my own art: an arched window on a girih star pa
 a rosette of two squares holding each Icon's sigil, the Icon's name at the top and the
 dotted number and title at the foot. The Faceless cards are an empty window, nothing
 in it but the lattice. The suits run green, blue, ochre and red, as on the deck.
+The back is a nine-pointed star, one point for each Icon with its sigil beyond it,
+over the enneagram's long lines, and a scarab at its heart: the mark on the six of the
+dice, the roll that counts, neither lucky nor unlucky.
 The cloth is a night-blue girih field with a horoscope wheel:
 thirty-six decans, one per card, lit as cards are drawn, and the nine Icon sigils
 in their houses. The sigils are my own: the scales, the turning S and crescent, the
