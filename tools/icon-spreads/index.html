@@ -115,7 +115,7 @@ textarea{resize:vertical;min-height:70px}
 .tcard{position:relative;width:100%;aspect-ratio:120/190;perspective:900px;cursor:pointer;border:0;padding:0;background:none}
 .tcard .inner{position:absolute;inset:0;transition:transform .55s cubic-bezier(.3,.7,.3,1);transform-style:preserve-3d}
 .tcard.up .inner{transform:rotateY(180deg)}
-.tcard .face,.tcard .back{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:7.5%/4.7%;overflow:hidden;box-shadow:0 4px 14px rgba(0,0,0,.45)}
+.tcard .face,.tcard .back{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:6px;overflow:hidden;box-shadow:0 4px 14px rgba(0,0,0,.45)}
 .tcard .face{transform:rotateY(180deg)}
 .tcard svg,.tcard img{display:block;width:100%;height:100%;object-fit:cover}
 .tcard.hl .face{box-shadow:0 0 0 2px #ffcf73,0 0 16px rgba(255,190,90,.7)}
@@ -272,7 +272,6 @@ const ICONS = [
 ];
 const NUMS = []; for (let a = 1; a <= 6; a++) for (let b = 1; b <= 6; b++) NUMS.push(a * 10 + b);
 const CARD = {}; NUMS.forEach((num, i) => { const ic = Math.floor(i / 4); CARD[num] = { num, icon:ic, iconName:ICONS[ic].n, title:ICONS[ic].cards[i % 4][0], gloss:ICONS[ic].cards[i % 4][1], col:i % 4 }; });
-const COLOURS = [["#244f43","#3f8a6f"],["#1f3766","#3d65a8"],["#6a3a1e","#b06a32"],["#3f2858","#7b54a3"]];
 
 const POS5 = [
   { k:"serves", n:"Serves", q:"Which Icon they act for in this story", use:"A narrative prompt, not their set Icon" },
@@ -311,6 +310,12 @@ const dd = sv("defs", {}, defs);
   sv("path", { d:"M10 3 L12 8 17 10 12 12 10 17 8 12 3 10 8 8Z" }, g);
   sv("path", { d:"M5 5 L10 7 15 5 13 10 15 15 10 13 5 15 7 10Z" }, g);
   sv("path", { d:"M0 10H3M17 10H20M10 0V3M10 17V20M0 0L5 5M20 0L15 5M0 20L5 15M20 20L15 15" }, g);
+  const po = sv("pattern", { id:"girih-open", width:24, height:24, patternUnits:"userSpaceOnUse", x:2, y:4 }, dd);
+  const go = sv("g", { fill:"none", stroke:"#f3d79a", "stroke-width":.7, opacity:.75 }, po);
+  sv("path", { d:"M12 3.6 L14.4 9.6 20.4 12 14.4 14.4 12 20.4 9.6 14.4 3.6 12 9.6 9.6Z" }, go);
+  sv("path", { d:"M6 6 L12 8.4 18 6 15.6 12 18 18 12 15.6 6 18 8.4 12Z" }, go);
+  sv("path", { d:"M0 12H3.6M20.4 12H24M12 0V3.6M12 20.4V24M0 0L6 6M24 0L18 6M0 24L6 18M24 24L18 18" }, go);
+  sv("circle", { cx:12, cy:12, r:1.4, fill:"#f3d79a", stroke:"none" }, go);
   const pb = sv("pattern", { id:"girih-back", width:16, height:16, patternUnits:"userSpaceOnUse" }, dd);
   const gb = sv("g", { fill:"none", stroke:"#d7ad5a", "stroke-width":.45, opacity:.5 }, pb);
   sv("path", { d:"M8 2 L9.6 6.4 14 8 9.6 9.6 8 14 6.4 9.6 2 8 6.4 6.4Z M0 8H2M14 8H16M8 0V2M8 14V16" }, gb);
@@ -336,29 +341,39 @@ function banner(g, x, y, w, hgt, su) {
   sv("rect", { x:x + 3, y:y + 3, width:w - 6, height:hgt - 6, fill:"none", stroke:line, "stroke-width":.4, opacity:.8 }, g);
 }
 const serif = { "font-family":"Source Serif 4, Georgia, serif", fill:"#fbf3e4" };
+// Each suit's light and dark for the card face, in the deck's order: green, blue, ochre, red.
+const COLOURS = [["#244f43","#3f8a6f"],["#1f3766","#3d65a8"],["#6a3a1e","#b06a32"],["#5a1a22","#a33a42"]];
+const arch = (x, y, w, hgt) => `M${x} ${y + hgt}V${y + w * .55}Q${x} ${y} ${x + w / 2} ${y - w * .12}Q${x + w} ${y} ${x + w} ${y + w * .55}V${y + hgt}Z`;
 function cardFace(num) {
-  const c = CARD[num], su = SUIT[c.col];
+  const c = CARD[num], [dark, light] = COLOURS[c.col], faceless = c.icon === 8;
   const s = sv("svg", { viewBox:"0 0 120 190", role:"img", "aria-label":`${num}, ${c.iconName}: ${c.title}` });
-  const cid = "clipcard";
-  if (!document.getElementById(cid)) { const cp = sv("clipPath", { id:cid }, dd); sv("rect", { x:6, y:6, width:108, height:178, rx:3 }, cp); }
-  sv("rect", { width:120, height:190, rx:9, fill:"#140c12" }, s);
-  sv("rect", { x:6, y:6, width:108, height:178, rx:3, fill:su[0] }, s);
-  const t = sv("g", { "clip-path":`url(#${cid})` }, s);
-  sv("rect", { x:6, y:6, width:108, height:178, fill:"url(#girih)", opacity:.5 }, t);
-  tileground(t, 60, 92, su);
-  // the halo, with the Icon's sigil where the deck has a figure
-  sv("circle", { cx:60, cy:88, r:23, fill:"#ece6d6", opacity:.92 }, s);
-  sv("circle", { cx:60, cy:88, r:20, fill:"none", stroke:su[3], "stroke-width":.6, opacity:.6 }, s);
-  sigil(c.icon, sv("g", { transform:"translate(60 88)", color:su[3], stroke:su[3], "stroke-width":2, "stroke-linecap":"round", "stroke-linejoin":"round", fill:"none" }, s), 14);
-  // top banner: the Icon in spaced capitals, two lines for the long one
-  banner(s, 10, 9, 100, 22, su);
-  const nm = c.iconName.toUpperCase(), two = nm.length > 13, lines = two ? [nm.replace(/ OF .*/, ""), nm.replace(/^.* (OF .*)$/, "$1")] : [nm];
-  lines.forEach((ln, k) => { const e = sv("text", { x:60, y:two ? 18.6 + k * 8 : 23.4, "text-anchor":"middle", "font-size":two ? 6.6 : 7.6, "font-weight":600, "letter-spacing":two ? 1.4 : 1.9, ...serif }, s); e.textContent = ln; });
-  // foot banner: the dotted number and the title in italic
-  banner(s, 10, 155, 100, 27, su);
-  sv("circle", { cx:58.2, cy:160.6, r:.8, fill:"#fbf3e4" }, s); sv("circle", { cx:61.8, cy:160.6, r:.8, fill:"#fbf3e4" }, s);
-  const n = sv("text", { x:60, y:169.5, "text-anchor":"middle", "font-size":9.5, "font-weight":600, ...serif }, s); n.textContent = String(num);
-  const tt = sv("text", { x:60, y:178.6, "text-anchor":"middle", "font-size":c.title.length > 14 ? 6.6 : 8.2, "font-style":"italic", "font-weight":600, ...serif }, s); tt.textContent = c.title;
+  const gid = "cg" + num;
+  if (!document.getElementById(gid)) { const lg = sv("linearGradient", { id:gid, x1:0, y1:0, x2:0, y2:1 }, dd); sv("stop", { offset:0, "stop-color":light }, lg); sv("stop", { offset:1, "stop-color":dark }, lg); }
+  sv("rect", { width:120, height:190, rx:6, fill:`url(#${gid})` }, s);
+  sv("rect", { width:120, height:190, rx:6, fill:"url(#girih)" }, s);
+  sv("rect", { x:4, y:4, width:112, height:182, rx:4, fill:"none", stroke:"#f3d79a", "stroke-width":1, opacity:.8 }, s);
+  if (faceless) {
+    // The Faceless: an empty window, nothing in it but the pattern
+    sv("path", { d:arch(14, 34, 92, 120), fill:"rgba(10,8,24,.3)", stroke:"#f3d79a", "stroke-width":1 }, s);
+    sv("path", { d:arch(14, 34, 92, 120), fill:"url(#girih-open)" }, s);
+    sv("path", { d:arch(18, 38, 84, 113), fill:"none", stroke:"#f3d79a", "stroke-width":.4, opacity:.7 }, s);
+  } else {
+    sv("path", { d:arch(14, 34, 92, 120), fill:"rgba(10,8,24,.55)", stroke:"#f3d79a", "stroke-width":1 }, s);
+    sv("path", { d:arch(18, 38, 84, 113), fill:"none", stroke:"#f3d79a", "stroke-width":.4, opacity:.7 }, s);
+    // rosette: two squares and a ring, holding the Icon's sigil
+    const r = sv("g", { transform:"translate(60 98)", fill:"none", stroke:"#f3d79a", "stroke-width":.9 }, s);
+    sv("rect", { x:-24, y:-24, width:48, height:48 }, r); sv("rect", { x:-24, y:-24, width:48, height:48, transform:"rotate(45)" }, r);
+    sv("circle", { r:19, "stroke-width":.6 }, r); sv("circle", { r:33, "stroke-width":.4, "stroke-dasharray":"1 2.5" }, r);
+    for (let k = 0; k < 12; k++) { const a = k * Math.PI / 6; sv("circle", { cx:(37 * Math.cos(a)).toFixed(2), cy:(37 * Math.sin(a)).toFixed(2), r:.9, fill:"#f3d79a", stroke:"none" }, r); }
+    sigil(c.icon, sv("g", { color:"#fff1cf", stroke:"#fff1cf", "stroke-width":1.6, "stroke-linecap":"round", "stroke-linejoin":"round", fill:"none" }, r), 11);
+  }
+  // number with its dotted mark, Icon name, title
+  const tx = (x, y, str, size, anchor = "middle", extra = {}) => { const e = sv("text", { x, y, "text-anchor":anchor, fill:"#fff1cf", "font-family":"Chakra Petch, sans-serif", "font-weight":600, "font-size":size, "letter-spacing":".6", ...extra }, s); e.textContent = str; return e; };
+  sv("circle", { cx:15, cy:13, r:.9, fill:"#f3d79a" }, s); sv("circle", { cx:19, cy:13, r:.9, fill:"#f3d79a" }, s);
+  tx(17, 25, String(num), 10);
+  const iname = c.iconName.toUpperCase(); tx(66, 23, iname, iname.length > 13 ? 6.4 : 8.2);
+  sv("line", { x1:14, y1:164, x2:106, y2:164, stroke:"#f3d79a", "stroke-width":.5 }, s);
+  const title = c.title.toUpperCase(); tx(60, 177, title, title.length > 14 ? 7.2 : 9);
   return s;
 }
 function cardBack() {

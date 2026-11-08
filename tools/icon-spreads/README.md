@@ -48,11 +48,11 @@ cloth and in the reading.
 
 ## The design
 
-The cards are drawn in SVG on the printed deck's plan, with my own art: a dark rounded
-card, a twelve-point tile star in the suit colour, a pale halo holding the Icon's sigil
-where the deck has a figure, the Icon's name in a banner at the top, and the dotted
-number and italic title in a banner at the foot. The suits run green, blue, ochre and
-red, as on the deck. The cloth is a night-blue girih field with a horoscope wheel:
+The cards are drawn in SVG, with my own art: an arched window on a girih star pattern,
+a rosette of two squares holding each Icon's sigil, the Icon's name at the top and the
+dotted number and title at the foot. The Faceless cards are an empty window, nothing
+in it but the lattice. The suits run green, blue, ochre and red, as on the deck.
+The cloth is a night-blue girih field with a horoscope wheel:
 thirty-six decans, one per card, lit as cards are drawn, and the nine Icon sigils
 in their houses. The sigils are my own: the scales, the turning S and crescent, the
 coin, the navigator's star, the tear, the die, the wings, the road under a star, and
