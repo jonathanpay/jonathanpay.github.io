@@ -1,9 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import {validateData,validateArchive,generator,CONCEPTS,lookup} from '../tools/coriolis-sheets/model.js';
-const pack=JSON.parse(readFileSync(new URL('../tools/coriolis-sheets/data/launch-tables.json',import.meta.url)));
-const presets=JSON.parse(readFileSync(new URL('../tools/coriolis-sheets/data/presets.json',import.meta.url)));
+import {validateData,validateArchive,generator,CONCEPTS,lookup} from '../tools/ctth-sheets/model.js';
+const pack=JSON.parse(readFileSync(new URL('../tools/ctth-sheets/data/launch-tables.json',import.meta.url)));
+const presets=JSON.parse(readFileSync(new URL('../tools/ctth-sheets/data/presets.json',import.meta.url)));
 const data=validateData(pack);
 function fixedRandom(value,fn){const old=Math.random;Math.random=()=>value;try{return fn();}finally{Math.random=old;}}
 test('launch tables have exactly one row for every possible unmodified roll',()=>{

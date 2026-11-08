@@ -1,5 +1,7 @@
 import {TYPES,CONCEPTS,identity,attributes,skills,bodyFields,missionFields,npcFields,newSheet,validateArchive,validateData,generator,FORMAT} from './model.js';
-const $=s=>document.querySelector(s),KEY='coriolis-sheets-v1',DATAKEY='coriolis-sheets-tables-v1';
+const $=s=>document.querySelector(s),KEY='ctth-sheets-v1',DATAKEY='ctth-sheets-tables-v1',THEMEKEY='ctth-sheets-theme';
+/* Sheets saved before the ctth rename live under coriolis-sheets-*; carry them over once. */
+try{for(const [from,to] of [['coriolis-sheets-v1',KEY],['coriolis-sheets-tables-v1',DATAKEY],['coriolis-sheets-theme',THEMEKEY]]){if(localStorage.getItem(to)==null){const v=localStorage.getItem(from);if(v!=null)localStorage.setItem(to,v);}}}catch{}
 const el=(tag,attrs={},...children)=>{const n=document.createElement(tag);for(const [k,v] of Object.entries(attrs)){if(k.startsWith('on'))n.addEventListener(k.slice(2),v);else if(k==='text')n.textContent=v;else if(k==='class')n.className=v;else n.setAttribute(k,v);}n.append(...children.flat().filter(x=>x!=null));return n;};
 let presets={npcs:[],ships:[]},saveWarning='';
 let sheets=[],active,type='character',data=null,dataSource='',startupError='',loadFailed=false;
@@ -48,7 +50,7 @@ function ship(grid){
 }
 function repeats(grid,fields,label){const s=current();s.entries.forEach((obj,i)=>{
  const section=fieldset(`${label} ${String(i+1).padStart(2,'0')}`,fields,obj,true,`entry${i}`);section.classList.add('repeat-card');if(type==='npc')section.prepend(presetPicker('npc',obj,i));if(type==='npc')section.append(derived(obj,'Stress points'));
- if(obj.cid&&CAMPAIGN){const linked=CAMPAIGN.get(type,obj.cid);section.append(el('div',{class:'campaign-link no-print'},el('span',{class:'campaign-chip',text:'Campaign'}),el('span',{class:'campaign-name',text:(linked&&linked.name)||'shared'}),type==='npc'?el('a',{class:'mini',href:`/tools/icon-spreads/?npc=${encodeURIComponent(obj.cid)}`,text:'Draw a spread'}):null,el('button',{class:'mini',text:'Unlink',onclick:()=>{delete obj.cid;touch();render();status('Unlinked here. The campaign keeps its own copy.');}})));}
+ if(obj.cid&&CAMPAIGN){const linked=CAMPAIGN.get(type,obj.cid);section.append(el('div',{class:'campaign-link no-print'},el('span',{class:'campaign-chip',text:'Campaign'}),el('span',{class:'campaign-name',text:(linked&&linked.name)||'shared'}),type==='npc'?el('a',{class:'mini',href:`/tools/ctth-spreads/?npc=${encodeURIComponent(obj.cid)}`,text:'Draw a spread'}):null,el('button',{class:'mini',text:'Unlink',onclick:()=>{delete obj.cid;touch();render();status('Unlinked here. The campaign keeps its own copy.');}})));}
  section.append(el('button',{class:'mini actions no-print',text:`Remove ${label.toLowerCase()}`,onclick:()=>{s.entries.splice(i,1);touch();render();}}));grid.append(section);
  });grid.append(el('button',{class:'btn no-print',text:`Add ${label.toLowerCase()}`,onclick:()=>{if(s.entries.length>=100)return status('Maximum 100 entries per sheet.');s.entries.push(type==='system'?{kind:'Planet'}:{});touch();render();}}));}
 function system(grid){grid.append(fieldset('System registry',[F('name','System name'),F('star','Star / stars'),F('notes','System notes','area')],current().values,true));grid.append(el('section',{class:'section wide'},el('h3',{text:'Orbital sketch'}),el('div',{id:'chart'}),el('p',{class:'note',text:'Bodies are ordered by distance. Positions use a square-root scale; add distances in AD to chart them.'})));repeats(grid,bodyFields,'Body');drawChart();}
@@ -64,7 +66,7 @@ function presetPicker(kind,obj,index){
  }}),el('p',{class:'note',text:kind==='ship'?'Creates a new ship with model stats, modules and features. Your current ship is kept.':'Uses Table 15.1 attributes, reputation and skills. Fills a blank entry or adds a new NPC.'}));
 }
 /* ---------- the campaign ---------- */
-const CAMPAIGN=window.CoriolisCampaign||null;
+const CAMPAIGN=window.CtthCampaign||null;
 const saveCampaign=CAMPAIGN?CAMPAIGN.saver(700):()=>{};
 const seen=new Map();
 const SHIP_TABLES=['crew','modules','weapons','features','log'];
@@ -162,13 +164,13 @@ $('#default-tables').onclick=async()=>{try{localStorage.removeItem(DATAKEY);awai
 $('#template').onclick=()=>download('coriolis-tables-template.json',{format:FORMAT,name:'My campaign tables',tables:{'w.hook':{dice:'D66',rows:[{lo:11,hi:66,n:'An abandoned listening station',d:'Its beacon has started transmitting again.'}]},'task.agents':{dice:'D66',rows:[{lo:11,hi:66,n:'Recover a missing courier',d:'Follow the courier’s last transmission.'}]}}});
 $('#generate').onclick=()=>{try{const g=generator(data),s=current(),concept=Object.keys(CONCEPTS).find(k=>CONCEPTS[k]===s.values.concept)||'agents';const patches=s.entries.map(obj=>type==='system'?g.world(obj.kind||'Planet'):g.mission(concept));let filled=0;patches.forEach((patch,i)=>{for(const [k,v] of Object.entries(patch))if(s.entries[i][k]==null||s.entries[i][k]===''){s.entries[i][k]=v;filled++;}});s.values.rollLog=(s.values.rollLog?s.values.rollLog+'\n\n':'')+new Date().toISOString()+'\n'+g.log.join('\n');touch();render();status(`Filled ${filled} empty fields. Existing entries kept. Roll details are saved in the sheet export.`);}catch(e){status(e.message+' No sheet fields were changed.');}};
 async function loadDefault(){const response=await fetch('./data/launch-tables.json');if(!response.ok)throw Error('Launch tables could not be loaded. You can import a local table pack.');data=validateData(await response.json());dataSource='launch data';updateDataStatus();}
-const theme=$('#theme');try{theme.value=localStorage.getItem('coriolis-sheets-theme')||'auto';}catch{}function setTheme(){if(theme.value==='auto')delete document.documentElement.dataset.theme;else document.documentElement.dataset.theme=theme.value;}setTheme();theme.onchange=()=>{setTheme();try{localStorage.setItem('coriolis-sheets-theme',theme.value);}catch{}};
+const theme=$('#theme');try{theme.value=localStorage.getItem(THEMEKEY)||'auto';}catch{}function setTheme(){if(theme.value==='auto')delete document.documentElement.dataset.theme;else document.documentElement.dataset.theme=theme.value;}setTheme();theme.onchange=()=>{setTheme();try{localStorage.setItem(THEMEKEY,theme.value);}catch{}};
 try{const r=await fetch('./data/presets.json');if(r.ok)presets=await r.json();}catch{}
 if(CAMPAIGN){
  $('#campaign-share').onclick=shareSheet;
  $('#campaign-import').onclick=()=>{const id=$('#campaign-pick').value;if(!id)return status('Choose something from the campaign first.');importEntity(type,id);};
  $('#campaign-unlink').onclick=()=>{const linked=isRepeatable()?current().entries.filter(o=>o.cid):current().values.cid?[current().values]:[];if(!linked.length)return status('Nothing on this sheet is linked to the campaign.');linked.forEach(o=>delete o.cid);touch();render();status('Unlinked here. The campaign keeps its own copies, and the other tools still see them.');};
- $('#campaign-backup').onclick=()=>download('coriolis-campaign.json',CAMPAIGN.exportAll());
+ $('#campaign-backup').onclick=()=>download('ctth-campaign.json',CAMPAIGN.exportAll());
  CAMPAIGN.subscribe(receive);
 }
 render();if(startupError)status(startupError);else persist();
