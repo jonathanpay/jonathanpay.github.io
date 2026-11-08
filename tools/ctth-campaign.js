@@ -1,22 +1,22 @@
-/* coriolis-campaign.js — the campaign store the Coriolis tools share.
+/* ctth-campaign.js — the campaign store the Coriolis tools share.
  *
- * Coriolis Sheets, the Mission Board and Icon Spreads all run on the same origin,
+ * The ctth tools (sheets, mission, system, spreads) all run on the same origin,
  * so they share one localStorage record: the campaign. An entity is a named thing
  * in the campaign (an NPC, a mission, a system, a ship). Each tool reads what it
  * needs and writes back what it knows, and every entity carries a stable id so the
  * tools can point at the same thing rather than copy it.
  *
  * Load as a plain script (not a module), before the page's own code:
- *     <script src="/tools/coriolis-campaign.js"></script>
- * then use window.CoriolisCampaign.
+ *     <script src="/tools/ctth-campaign.js"></script>
+ * then use window.CtthCampaign.
  *
  * Nothing leaves the browser. No network calls, no timers beyond a debounce.
  */
 (function () {
   "use strict";
 
-  const KEY = "coriolis-campaign-v1";
-  const FORMAT = "coriolis-campaign/1";
+  const KEY = "ctth-campaign-v1";
+  const FORMAT = "ctth-campaign/1";
   const KINDS = ["npc", "mission", "system", "ship", "story"];
   const MAX_ENTITIES = 400;
   const MAX_BYTES = 200000; // one entity's data, as JSON
@@ -323,7 +323,7 @@
     if (e.key === KEY) emit();
   });
 
-  window.CoriolisCampaign = {
+  window.CtthCampaign = {
     KEY,
     FORMAT,
     KINDS,

@@ -4,7 +4,7 @@ import {readFileSync} from 'node:fs';
 
 /* The campaign store is a plain browser script: give it the two globals it touches
  * and load it, so the tests exercise the real file rather than a copy. */
-const source = readFileSync(new URL('../tools/coriolis-campaign.js', import.meta.url), 'utf8');
+const source = readFileSync(new URL('../tools/ctth-campaign.js', import.meta.url), 'utf8');
 const jar = new Map();
 globalThis.localStorage = {
   getItem: k => (jar.has(k) ? jar.get(k) : null),
@@ -17,7 +17,7 @@ globalThis.window = {
   console
 };
 new Function(source)();
-const C = globalThis.window.CoriolisCampaign;
+const C = globalThis.window.CtthCampaign;
 
 const reset = () => { jar.clear(); C.purge(); };
 

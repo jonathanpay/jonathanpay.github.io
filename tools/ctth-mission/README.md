@@ -1,7 +1,7 @@
 # Mission Board
 
 An unofficial mission and travel generator for *Coriolis: The Third Horizon*. Opened at
-`/tools/mission-board/`. One self-contained HTML file, no build step, no dependencies
+`/tools/ctth-mission/`. One self-contained HTML file, no build step, no dependencies
 beyond Google Fonts. Everything runs and is saved in the browser.
 
 Not affiliated with, sponsored or endorsed by Free League Publishing (Fria Ligan AB).
@@ -92,13 +92,13 @@ Everything lives in `localStorage` under `mb-*` keys: `mb-data` (the data file),
 `mb-board`, `mb-voyage`, `mb-world`, `mb-log`, `mb-deck`, `mb-systems` and a few view
 settings. A backup is a JSON file with `"format": "mission-board-backup/1"`. Restoring
 adds the backup's log entries to yours and replaces the board, voyage and world. The one
-exception is the campaign below, which lives under `coriolis-campaign-v1`.
+exception is the campaign below, which lives under `ctth-campaign-v1`.
 
 ## The campaign
 
 The three Coriolis tools on this site share one campaign: this board, Coriolis Sheets and
 Icon Spreads run on the same origin and keep their entities under one key,
-`coriolis-campaign-v1`, read through `/tools/coriolis-campaign.js`. This page loads that
+`ctth-campaign-v1`, read through `/tools/ctth-campaign.js`. This page loads that
 script before its own and checks for it at every hand-off, so the page works as before
 without it.
 

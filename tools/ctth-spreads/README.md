@@ -2,7 +2,7 @@
 
 An optional way to build a non-player character for *Coriolis: The Third Horizon* by
 drawing from the Icon deck and reading the cards like a tarot spread. Opened at
-`/tools/icon-spreads/`. One self-contained HTML file, no build step, no dependencies
+`/tools/ctth-spreads/`. One self-contained HTML file, no build step, no dependencies
 beyond Google Fonts.
 
 Not affiliated with, sponsored or endorsed by Free League Publishing (Fria Ligan AB).
@@ -101,6 +101,6 @@ an empty circle for the Faceless.
 `is-use-scans`. IndexedDB database `icon-spreads` holds loaded card images. A backup
 is JSON with `"format": "icon-spreads-backup/1"`.
 
-The shared campaign lives in `coriolis-campaign-v1`, the same record Coriolis Sheets
+The shared campaign lives in `ctth-campaign-v1`, the same record Coriolis Sheets
 and the Mission Board use. This page only reads and writes `npc`, `mission` and
-`story` entities, and only when `/tools/coriolis-campaign.js` is present.
+`story` entities, and only when `/tools/ctth-campaign.js` is present.

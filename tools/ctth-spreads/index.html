@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Icon Spreads</title>
+<meta name="description" content="Build a non-player character by drawing from the Icon deck and reading the cards like a tarot spread: what they serve, how they are seen, what they want, what they hide, and what they owe.">
+<link rel="icon" href="/favicon.ico">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600&family=Open+Sans:wght@400;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=Barlow+Semi+Condensed:wght@400;500;600&display=swap">
+<style>
+/* A reading table: a night-blue cloth laid with a girih star pattern, the spread drawn over a horoscope wheel of thirty-six decans, one for each card. */
+:root{
+  --ground:#ece6d8; --sheet:#f7f2e7; --line:#2a2b5a; --line-soft:rgba(42,43,90,.24); --line-faint:rgba(42,43,90,.1);
+  --ink:#1c1d3a; --muted:#5e5f7e; --accent:#a8401f; --accent-soft:rgba(168,64,31,.12); --gold:#b8862f;
+  --cloth:#121233; --cloth-ink:#e9d6a6; --cloth-gold:#d7ad5a; --cloth-faint:rgba(215,173,90,.16);
+  --font-display:"Chakra Petch","Eurostile",system-ui,sans-serif;
+  --font-body:"Source Serif 4","Iowan Old Style",Georgia,serif;
+  --font-data:"Barlow Semi Condensed","DIN Alternate","Arial Narrow",system-ui,sans-serif;
+  --step--1:.82rem; --step-0:.98rem; --step-1:1.15rem; --step-2:1.5rem;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --ground:#0c0c20; --sheet:#15162f; --line:#d7ad5a; --line-soft:rgba(215,173,90,.3); --line-faint:rgba(215,173,90,.1);
+  --ink:#ece2c8; --muted:#a59f8c; --accent:#e79a62; --accent-soft:rgba(231,154,98,.14); --gold:#d7ad5a; color-scheme:dark } }
+:root[data-theme="dark"]{
+  --ground:#0c0c20; --sheet:#15162f; --line:#d7ad5a; --line-soft:rgba(215,173,90,.3); --line-faint:rgba(215,173,90,.1);
+  --ink:#ece2c8; --muted:#a59f8c; --accent:#e79a62; --accent-soft:rgba(231,154,98,.14); --gold:#d7ad5a; color-scheme:dark }
+
+*{box-sizing:border-box}
+body{margin:0}
+#site-nav{position:fixed;top:0;left:0;right:0;height:calc(32px + env(safe-area-inset-top,0px));padding:env(safe-area-inset-top,0px) max(16px,env(safe-area-inset-right,0px)) 0 max(16px,env(safe-area-inset-left,0px));background:#2c3e50;display:flex;align-items:center;justify-content:space-between;gap:16px;z-index:40;font-family:"Open Sans",system-ui,sans-serif;font-size:12px;line-height:1}
+.snav-brand{font-weight:700;color:#dfb81f;text-decoration:none;white-space:nowrap}
+.snav-brand:hover{color:#f0ca3a}
+.snav-links{display:flex;gap:16px;overflow-x:auto;scrollbar-width:none}
+.snav-links a{color:rgba(255,255,255,.7);text-decoration:none;white-space:nowrap}
+.snav-links a:hover,.snav-brand:focus-visible,.snav-links a:focus-visible{color:#fff}
+[hidden]{display:none!important}
+body{background:var(--ground);color:var(--ink);font-family:var(--font-body);font-size:var(--step-0);line-height:1.5;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:calc(44px + env(safe-area-inset-top,0px)) 24px}
+h1,h2,h3{font-family:var(--font-display);font-weight:600;text-transform:uppercase;margin:0;letter-spacing:.03em;text-wrap:balance}
+button,select,input,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+a{color:var(--accent)}
+
+.top{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:10px 24px;border-bottom:1px solid var(--line-soft);padding-bottom:10px}
+.top h1{font-size:var(--step-2);color:var(--line)}
+.top .issued{font-family:var(--font-data);font-size:var(--step--1);color:var(--muted);letter-spacing:.08em;text-transform:uppercase}
+.top .sub{margin:2px 0 0;color:var(--muted);font-size:var(--step--1)}
+.tabs{display:flex;gap:4px;flex-wrap:wrap}
+.tab{background:none;border:1px solid var(--line-soft);padding:6px 14px;cursor:pointer;font-family:var(--font-display);font-weight:500;text-transform:uppercase;font-size:.9rem;letter-spacing:.04em;color:var(--muted)}
+.tab[aria-selected="true"]{background:var(--accent-soft);border-color:var(--line);color:var(--ink)}
+
+.view{display:grid;grid-template-columns:290px minmax(0,1fr);gap:16px;margin-top:14px;align-items:start}
+@media (max-width:900px){.view{grid-template-columns:minmax(0,1fr)}}
+.side{display:flex;flex-direction:column;gap:14px;position:sticky;top:44px}
+@media (max-width:900px){.side{position:static}}
+.main{display:flex;flex-direction:column;gap:14px;min-width:0}
+.card{border:1px solid var(--line-soft);background:var(--sheet);padding:14px;min-width:0}
+.card h2{font-size:var(--step-1);color:var(--line);margin-bottom:8px}
+.card h3{font-size:.95rem;color:var(--line);margin:12px 0 4px}
+.stack{display:flex;flex-direction:column;gap:8px}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.field{display:flex;flex-direction:column;gap:2px;min-width:0}
+.field>span,.eyebrow{font-family:var(--font-data);font-size:.76rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+select,input[type=text],textarea{background:var(--ground);border:1px solid var(--line-soft);padding:5px 7px;width:100%;min-width:0}
+textarea{resize:vertical;min-height:70px}
+.seg{display:flex;border:1px solid var(--line-soft)}
+.seg button{flex:1;background:none;border:0;padding:6px 8px;cursor:pointer;font-family:var(--font-data);font-size:.9rem;letter-spacing:.04em;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--accent-soft);color:var(--ink);box-shadow:inset 0 -2px 0 var(--accent)}
+.btn{border:1px solid var(--line);background:var(--accent-soft);padding:7px 12px;cursor:pointer;font-family:var(--font-display);font-weight:500;text-transform:uppercase;letter-spacing:.04em;font-size:.9rem}
+.btn.primary{background:var(--line);color:var(--ground)}
+.btn.quiet{background:none;border-color:var(--line-soft)}
+.mini{border:1px solid var(--line-soft);background:none;padding:2px 8px;cursor:pointer;font-family:var(--font-data);font-size:.84rem;white-space:nowrap}
+.check{display:inline-flex;gap:6px;align-items:center;font-size:var(--step--1);cursor:pointer}
+.note{font-size:var(--step--1);color:var(--muted);margin:6px 0 0}
+.small{font-size:var(--step--1)}
+.muted{color:var(--muted)}
+.status{font-size:var(--step--1);color:var(--muted);min-height:1.2em;margin:6px 0 0}
+
+/* the cloth */
+.cloth{position:relative;background:var(--cloth);border:1px solid var(--cloth-gold);color:var(--cloth-ink);overflow:hidden;padding:30px 12px 14px}
+.cloth::before{content:"";position:absolute;inset:0;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64' viewBox='0 0 64 64'%3E%3Cg fill='none' stroke='%23d7ad5a' stroke-width='1' opacity='.13'%3E%3Cpath d='M32 14 L37.3 26.7 50 32 37.3 37.3 32 50 26.7 37.3 14 32 26.7 26.7Z'/%3E%3Cpath d='M19.3 19.3 L32 24.5 44.7 19.3 39.5 32 44.7 44.7 32 39.5 19.3 44.7 24.5 32Z'/%3E%3Cpath d='M0 32 H14 M50 32 H64 M32 0 V14 M32 50 V64 M0 0 L19.3 19.3 M64 0 L44.7 19.3 M0 64 L19.3 44.7 M64 64 L44.7 44.7'/%3E%3C/g%3E%3C/svg%3E");pointer-events:none}
+.cloth::after{content:"";position:absolute;inset:6px;border:1px solid var(--cloth-faint);pointer-events:none}
+.cloth .cap{position:absolute;left:14px;top:9px;font-family:var(--font-data);font-size:.75rem;letter-spacing:.16em;text-transform:uppercase;color:var(--cloth-gold);z-index:1}
+
+/* layouts */
+.spread{position:relative;z-index:1}
+.spread.line{display:grid;grid-template-columns:repeat(var(--n,5),minmax(0,1fr));gap:12px;max-width:820px;margin:18px auto 4px}
+@media (max-width:620px){.spread.line{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.spread.pent,.spread.free{width:min(100%,640px);aspect-ratio:1/1;margin:8px auto 0}
+.spread.free{width:100%;aspect-ratio:16/10;max-height:640px}
+.wheel{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.wheel .ring{fill:none;stroke:var(--cloth-gold);stroke-width:.25;opacity:.55}
+.wheel .ring.faint{opacity:.25}
+.wheel .star{fill:none;stroke:var(--cloth-gold);stroke-width:.25;opacity:.4}
+.wheel .tick{stroke:var(--cloth-gold);stroke-width:.25;opacity:.45}
+.wheel .dec{fill:var(--cloth-gold);font-family:var(--font-data);font-size:1.7px;opacity:.55}
+.wheel .dec.on{opacity:1;fill:#fff3d6;font-weight:600}
+.wheel .sig{fill:none;color:var(--cloth-gold);stroke:var(--cloth-gold);stroke-width:.3;opacity:.7}
+.wheel .sig.on{color:#fff3d6;stroke:#fff3d6;opacity:1}
+.wheel .shadow{stroke:#ffcf73;stroke-width:1.1;stroke-linecap:round;opacity:.9;filter:drop-shadow(0 0 1px #ffb347)}
+.wheel .echo{stroke:#ffcf73;stroke-width:.5;stroke-dasharray:1.4 1.2;opacity:.85}
+.slot{position:relative;display:flex;flex-direction:column;align-items:center;gap:4px}
+.spread.pent .slot,.spread.free .slot{position:absolute;width:18%;transform:translate(-50%,-50%)}
+.spread.free .slot{width:12%;cursor:grab;touch-action:none}
+.spread.free .slot.dragging{cursor:grabbing;z-index:5}
+.slot .pos{font-family:var(--font-data);font-size:.78rem;letter-spacing:.14em;text-transform:uppercase;color:var(--cloth-gold);white-space:nowrap;text-align:center;line-height:1.1}
+.spread.pent .slot .pos,.spread.free .slot .pos{position:absolute;bottom:100%;margin-bottom:3px}
+.slot .mark{font-family:var(--font-data);font-size:.72rem;color:#ffcf73;letter-spacing:.06em;text-align:center;min-height:1em}
+.spread.pent .slot .mark,.spread.free .slot .mark{position:absolute;top:100%;margin-top:2px;white-space:nowrap}
+@media (max-width:560px){.slot .pos{font-size:.62rem;letter-spacing:.08em}.slot .mark{font-size:.6rem}}
+
+/* a card that flips */
+.tcard{position:relative;width:100%;aspect-ratio:120/190;perspective:900px;cursor:pointer;border:0;padding:0;background:none}
+.tcard .inner{position:absolute;inset:0;transition:transform .55s cubic-bezier(.3,.7,.3,1);transform-style:preserve-3d}
+.tcard.up .inner{transform:rotateY(180deg)}
+.tcard .face,.tcard .back{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:6px;overflow:hidden;box-shadow:0 4px 14px rgba(0,0,0,.45)}
+.tcard .face{transform:rotateY(180deg)}
+.tcard svg,.tcard img{display:block;width:100%;height:100%;object-fit:cover}
+.tcard.hl .face{box-shadow:0 0 0 2px #ffcf73,0 0 16px rgba(255,190,90,.7)}
+@media (prefers-reduced-motion:reduce){.tcard .inner{transition:none}}
+
+/* readings */
+.readings{display:flex;flex-direction:column;gap:10px}
+.reading{display:grid;grid-template-columns:64px minmax(0,1fr) auto;gap:6px 14px;padding:10px 0;border-bottom:1px dotted var(--line-soft);align-items:start}
+@media (max-width:560px){.reading{grid-template-columns:52px minmax(0,1fr)}.reading .ctl{grid-column:1/-1}}
+.reading .thumb{width:100%}
+.reading .q{font-family:var(--font-data);font-size:.8rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.reading .what b{font-family:var(--font-display);font-weight:600;text-transform:uppercase;letter-spacing:.03em}
+.reading .gloss{margin:2px 0 0}
+.reading .rel{margin:4px 0 0;font-size:var(--step--1);color:var(--accent)}
+.reading .ctl{display:flex;gap:4px;align-items:center;flex-wrap:wrap}
+.reading .ctl select{width:auto;max-width:12em;font-size:var(--step--1);padding:2px 4px}
+
+/* deck */
+.deckgrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+@media (min-width:1100px){.deckgrid{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.icongroup{border:1px solid var(--line-soft);background:var(--sheet);padding:10px}
+.icongroup h3{font-size:.95rem;color:var(--line);margin:0 0 8px;display:flex;gap:8px;align-items:center}
+.icongroup h3 svg{width:22px;height:22px}
+.fourcards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+.fourcards figure{margin:0}
+.fourcards figcaption{font-size:.72rem;font-family:var(--font-data);color:var(--muted);text-align:center;margin-top:3px;line-height:1.2}
+.deckcols{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,330px),1fr));gap:12px}
+.gl{font-size:var(--step--1);margin:6px 0 0}
+.gl b{font-family:var(--font-data);letter-spacing:.04em}
+
+/* npcs */
+.npc{border:1px solid var(--line-soft);background:var(--sheet);padding:12px 14px}
+.npc pre{white-space:pre-wrap;font-family:var(--font-body);font-size:var(--step--1);margin:6px 0 0}
+.npc .cards{display:flex;gap:4px;margin:6px 0}
+.npc .cards .tcard{width:38px;cursor:default}
+
+.scans{display:grid;grid-template-columns:repeat(auto-fill,minmax(64px,1fr));gap:6px}
+.scans figure{margin:0;text-align:center;font-family:var(--font-data);font-size:.72rem;color:var(--muted)}
+.scans .tcard{cursor:default}
+footer.notice{margin-top:24px;padding-top:10px;border-top:1px solid var(--line-soft);color:var(--muted);font-size:var(--step--1);max-width:75ch}
+</style>
+</head>
+<body>
+<div id="site-nav">
+  <a class="snav-brand" href="/">Jonathan Pay</a>
+  <nav class="snav-links" aria-label="Site">
+    <a href="/tools/">All Tools</a>
+    <a href="https://jonathanpay.com/blog/">Blog</a>
+    <a href="https://jonathanpay.com/holistic-email-marketing/">HEM</a>
+    <a href="https://holisticemailacademy.com">HEA</a>
+  </nav>
+</div>
+
+<header class="top">
+  <div>
+    <div class="issued">Under the Icons · thirty-six cards · nine faces</div>
+    <h1>Icon Spreads</h1>
+    <p class="sub">Build an NPC by drawing from the Icon deck and reading it like a tarot spread</p>
+  </div>
+  <nav class="tabs" role="tablist" aria-label="Sections">
+    <button class="tab" role="tab" id="tab-spread" type="button">Spread</button>
+    <button class="tab" role="tab" id="tab-deck" type="button">The deck</button>
+    <button class="tab" role="tab" id="tab-npcs" type="button">NPCs</button>
+    <button class="tab" role="tab" id="tab-cards" type="button">Your cards</button>
+  </nav>
+</header>
+
+<section class="view" id="view-spread" role="tabpanel" aria-labelledby="tab-spread">
+  <aside class="side">
+    <div class="card stack">
+      <h2 id="subject-h">The NPC</h2>
+      <label class="field"><span>Name</span><input type="text" id="npc-name" placeholder="Rafiq the chandler"></label>
+      <label class="field" id="set-icon-wrap"><span>Set Icon (born under)</span><select id="set-icon"></select></label>
+      <p class="note" id="subject-note">The set Icon never changes. The cards are prompts for this story.</p>
+    </div>
+    <div class="card stack">
+      <h2>The draw</h2>
+      <div class="field"><span>Reading for</span><div class="seg" id="target"><button type="button" data-v="npc">An NPC</button><button type="button" data-v="mission">A mission</button><button type="button" data-v="story">The story</button></div></div>
+      <div class="field"><span>Spread</span><div class="seg" id="size"><button type="button" data-v="5">Five cards</button><button type="button" data-v="3">Three cards</button></div></div>
+      <div class="field"><span>Layout</span><div class="seg" id="layout"><button type="button" data-v="line">Line</button><button type="button" data-v="pent">Pentagon</button><button type="button" data-v="free">Free</button></div></div>
+      <label class="check" id="sixth-wrap"><input type="checkbox" id="sixth"> A sixth card face down at the centre: the turning point</label>
+      <label class="check"><input type="checkbox" id="facedown" checked> Deal face down, turn one at a time</label>
+      <div class="row"><button class="btn primary" type="button" id="draw">Shuffle and draw</button><button class="btn quiet" type="button" id="turn-all">Turn all</button></div>
+      <div class="row"><button class="btn" type="button" id="save-npc">Save to NPCs</button><button class="btn" type="button" id="send-campaign">Send to the campaign</button></div>
+      <div class="row"><button class="mini" type="button" id="copy">Copy as Markdown</button></div>
+      <p class="status" id="draw-status" role="status"></p>
+    </div>
+    <div class="card stack" id="campaign-card" hidden>
+      <h2>From the campaign</h2>
+      <label class="field"><span>Saved in the campaign</span><select id="campaign-pick"></select></label>
+      <div class="row"><button class="btn quiet" type="button" id="campaign-load">Load</button></div>
+      <p class="note">Loading sets the reading for, the name, the set Icon and any saved reading. Drawing new cards replaces that reading.</p>
+      <p class="status" id="campaign-status" role="status"></p>
+    </div>
+  </aside>
+  <div class="main">
+    <div class="cloth" id="cloth"><span class="cap" id="cloth-cap"></span><div id="spread"></div></div>
+    <div class="card"><h2>The reading</h2><div class="readings" id="readings"></div></div>
+  </div>
+</section>
+
+<section class="view" id="view-deck" role="tabpanel" aria-labelledby="tab-deck" hidden>
+  <aside class="side">
+    <div class="card stack">
+      <h2>The deck</h2>
+      <p class="small">Thirty-six cards: four for each of the nine Icons, numbered 11 to 66 like a d66. The colours run green, blue, ochre and red down each Icon's four.</p>
+      <p class="small">Each card has a short gloss. Read it against its position: the same card reads differently as the Surface than as the Secret.</p>
+    </div>
+  </aside>
+  <div class="main"><div class="deckcols" id="deck"></div></div>
+</section>
+
+<section class="view" id="view-npcs" role="tabpanel" aria-labelledby="tab-npcs" hidden>
+  <aside class="side">
+    <div class="card stack">
+      <h2>Saved NPCs</h2>
+      <p class="small">Spreads you've kept, set Icon first. The Owed card can name another saved NPC, so debts and favours link your cast together.</p>
+      <div class="row"><button class="mini" type="button" id="export">Export a backup</button><button class="mini" type="button" id="import">Restore a backup</button></div>
+      <p class="status" id="npc-status" role="status"></p>
+    </div>
+  </aside>
+  <div class="main" id="npcs"></div>
+</section>
+
+<section class="view" id="view-cards" role="tabpanel" aria-labelledby="tab-cards" hidden>
+  <aside class="side">
+    <div class="card stack">
+      <h2>Your card images</h2>
+      <p class="small">The page draws its own cards. To use your own scans instead, choose them here. Choose the folder of scans, or the files. Each one is matched to a card by the number in its name (<code>11</code> to <code>66</code>, so <code>43 Gambler.png</code>), or failing that by the card's title (<code>the-gambler-debt.jpg</code>). A file with <code>back</code> in its name becomes the card back.</p>
+      <p class="small">They stay in this browser and are never uploaded.</p>
+      <div class="row"><button class="btn primary" type="button" id="pick-folder">Choose a folder</button><button class="btn" type="button" id="pick-scans">Choose images</button><button class="btn quiet" type="button" id="clear-scans">Remove all</button></div>
+      <label class="check"><input type="checkbox" id="use-scans" checked> Use my images where I have them</label>
+      <p class="status" id="scan-status" role="status"></p>
+    </div>
+  </aside>
+  <div class="main"><div class="card"><h2>Loaded</h2><div class="scans" id="scans"></div></div></div>
+</section>
+
+<footer class="notice">
+  <p>An unofficial fan tool for <i>Coriolis: The Third Horizon</i>, not affiliated with, sponsored or endorsed by Free League Publishing (Fria Ligan AB). The Icons and the card titles are theirs. The method, the glosses and the card designs here are mine. Your NPCs and any card images you load stay in this browser.</p>
+</footer>
+
+<script src="/tools/ctth-campaign.js"></script>
+<script>
+(() => {
+const $ = s => document.querySelector(s);
+const NS = "http://www.w3.org/2000/svg";
+const h = (tag, attrs = {}, ...kids) => { const e = document.createElement(tag); for (const k in attrs) { if (attrs[k] == null || attrs[k] === false) continue; if (k === "text") e.textContent = attrs[k]; else if (k.startsWith("on")) e.addEventListener(k.slice(2), attrs[k]); else if (k === "value") e.value = attrs[k]; else e.setAttribute(k, attrs[k]); } kids.flat().forEach(c => c != null && c !== false && e.append(c)); return e; };
+const sv = (tag, attrs = {}, parent) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (parent) parent.appendChild(e); return e; };
+const store = { get(k, d){ try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch { return d; } }, set(k, v){ try { localStorage.setItem(k, JSON.stringify(v)); } catch {} } };
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+
+/* ---------- the deck: card titles from the Icon deck, glosses my own ---------- */
+const ICONS = [
+  { n:"The Judge", cards:[["A Soldier","Disciplined, loyal, and loud about it. Takes orders and keeps them."],["Blood","Ties of kin or feud. A debt paid in the family line."],["Revenge","Wants a score settled, and will spend anything to settle it."],["Punishment","Believes in consequences, and hands them out."]] },
+  { n:"The Dancer", cards:[["A Courtesan","Charm as a trade. Knows who is in every room, and who pays."],["A Chance Encounter","A meeting that was not planned, and that both sides may regret."],["Passion","Wants something with their whole body, and makes the crew feel it too."],["Beast","Wild, unpredictable, and honest about what they are."]] },
+  { n:"The Merchant", cards:[["A Trader","Sells anything, and has a fair price for most things."],["Birr","Money is the goal, and the figure in the ledger is the point."],["Greed","Wants more than the deal, and the deal is never quite enough."],["Betrayal","Has sold someone before. Will do it again if the price is right."]] },
+  { n:"The Deckhand", cards:[["A Captain","Commands a crew, and the crew is the reason for everything."],["A Ship","Lives for a hull, and talks about it as if it were a person."],["An Asteroid","Works the rock, and keeps working when others have left."],["A Star","Looks past the job at something far off, and does not explain it."]] },
+  { n:"The Lady of Tears", cards:[["A Healer","Tends the wounded, and asks for nothing until later."],["A Song","Keeps a tune others sing. The song tells the story."],["Lost Love","Mourns someone, and will do almost anything to find them."],["Death","Close to the end, or working on someone else's."]] },
+  { n:"The Gambler", cards:[["A Thief","Takes what is not theirs, and is usually good at it."],["A Treasure","Wants a prize, and will risk a lot for it."],["Luck","Believes in chance, and bets on it."],["Debt","Owes a sum that cannot be repaid in birr alone."]] },
+  { n:"The Messenger", cards:[["A Preacher","Carries a message, and believes it. Wants others to believe it too."],["A Book","Keeps a record. What is written there is worth more than the people in it."],["A Secret","Knows something the town does not, and chooses when to share it."],["Madness","Hears things others do not, and passes them on anyway."]] },
+  { n:"The Traveler", cards:[["Forest","Rooted in a place. Knows the paths others do not see."],["Sea","Restless, always moving, and easier to find on the water."],["Desert","Patient, plain, and aware of how far the next well is."],["Mountain","Keeps to the high ground. Hard to move, and hard to reach."]] },
+  { n:"The Faceless", cards:[["Person of Influence","Someone others owe, and who collects."],["An Artifact","Holds an object of power, and says little about it."],["Misfortune","Carries bad luck, and the people nearby feel it."],["Djinn","Has dealings with the spirits, and does not explain them."]] }
+];
+const NUMS = []; for (let a = 1; a <= 6; a++) for (let b = 1; b <= 6; b++) NUMS.push(a * 10 + b);
+const CARD = {}; NUMS.forEach((num, i) => { const ic = Math.floor(i / 4); CARD[num] = { num, icon:ic, iconName:ICONS[ic].n, title:ICONS[ic].cards[i % 4][0], gloss:ICONS[ic].cards[i % 4][1], col:i % 4 }; });
+
+const POS5 = [
+  { k:"serves", n:"Serves", q:"Which Icon they act for in this story", use:"A narrative prompt, not their set Icon" },
+  { k:"surface", n:"Surface", q:"How the town or port sees them", use:"The opening rumour" },
+  { k:"want", n:"Want", q:"What they are trying to get", use:"The hook" },
+  { k:"secret", n:"Secret", q:"What they are hiding", use:"The complication" },
+  { k:"owed", n:"Owed", q:"Who they owe, or who owes them", use:"A debt or favour, and a link to another NPC" }
+];
+const POS_MISSION = [
+  { k:"hook", n:"Hook", q:"What draws the crew in", use:"The offer, the rumour, the door that opens" },
+  { k:"opposition", n:"Opposition", q:"Who or what pushes back", use:"The face of the trouble, or the thing behind it" },
+  { k:"complication", n:"Complication", q:"What makes it worse", use:"The turn that costs the crew something" },
+  { k:"secret", n:"Secret", q:"What the employer is hiding", use:"The part left out of the brief" },
+  { k:"payoff", n:"Payoff", q:"What it is really worth", use:"The fee, the prize, or the truth of it" }
+];
+const POS_STORY = [
+  { k:"opening", n:"Opening", q:"Where the story starts", use:"The scene the crew walks into" },
+  { k:"pressure", n:"Pressure", q:"What is closing in", use:"The cost of waiting" },
+  { k:"turn", n:"Turn", q:"Where it changes shape", use:"The discovery, the betrayal, the offer" },
+  { k:"secret", n:"Secret", q:"What is being kept back", use:"The thing the powerful would rather not name" },
+  { k:"reckoning", n:"Reckoning", q:"What it all comes to", use:"The account settled, one way or another" }
+];
+// The three targets, their three-card cuts, and the words used for them on the cloth and in the copy.
+const SETS = {
+  npc:{ five:POS5, three:[0, 2, 3], nom:"An NPC", label:"NPC", none:"Unnamed NPC", idea:"Rafiq the chandler" },
+  mission:{ five:POS_MISSION, three:[0, 1, 4], nom:"A mission", label:"Mission", none:"Untitled mission", idea:"The weeping of the Ibis" },
+  story:{ five:POS_STORY, three:[0, 2, 4], nom:"The story", label:"Story", none:"Untitled story", idea:"The fall of the House of Bakr" }
+};
+const setFor = t => SETS[t] || SETS.npc;
+const posFor = (size, target) => { const s = setFor(target); return size === 3 ? s.three.map(i => s.five[i]) : s.five; };
+const TURN = { k:"turn", n:"Turning point", q:"Where the story turns", use:"Optional: the sixth card at the centre" };
+
+/* ---------- sigils: one mark for each Icon, drawn on a 24-unit grid ---------- */
+function sigil(i, g, r = 10) {
+  const s = r / 10, P = d => sv("path", { d, "vector-effect":"non-scaling-stroke" }, g);
+  const t = (x, y) => `${(x * s).toFixed(2)} ${(y * s).toFixed(2)}`;
+  switch (i) {
+    case 0: P(`M${t(-8,-2)}L${t(8,-2)}M${t(0,-8)}L${t(0,8)}M${t(-8,-2)}L${t(-10,4)}L${t(-6,4)}Z M${t(8,-2)}L${t(6,4)}L${t(10,4)}Z M${t(-4,8)}L${t(4,8)}`); break; // the Judge: the scales
+    case 1: P(`M${t(0,-8)}C${t(8,-8)} ${t(8,0)} ${t(0,0)}C${t(-8,0)} ${t(-8,8)} ${t(0,8)}M${t(-7,-4)}A${(7*s).toFixed(2)} ${(7*s).toFixed(2)} 0 0 0 ${t(7,4)}`); break; // the Dancer: the turning S and a crescent
+    case 2: sv("circle", { cx:0, cy:0, r:(9 * s).toFixed(2), "vector-effect":"non-scaling-stroke" }, g); P(`M${t(0,-5)}L${t(5,0)}L${t(0,5)}L${t(-5,0)}Z`); break; // the Merchant: a coin with a diamond
+    case 3: P(`M${t(0,-10)}L${t(2,-2)}L${t(10,0)}L${t(2,2)}L${t(0,10)}L${t(-2,2)}L${t(-10,0)}L${t(-2,-2)}Z`); break; // the Deckhand: the navigator's star
+    case 4: P(`M${t(0,-9)}C${t(5,-2)} ${t(7,2)} ${t(7,4)}A${(7*s).toFixed(2)} ${(7*s).toFixed(2)} 0 0 1 ${t(-7,4)}C${t(-7,2)} ${t(-5,-2)} ${t(0,-9)}Z`); break; // the Lady of Tears: a tear
+    case 5: P(`M${t(-7,-7)}L${t(7,-7)}L${t(7,7)}L${t(-7,7)}Z`); [[-3.5,-3.5],[0,0],[3.5,3.5]].forEach(([x, y]) => sv("circle", { cx:(x * s).toFixed(2), cy:(y * s).toFixed(2), r:(1.3 * s).toFixed(2), fill:"currentColor", stroke:"none" }, g)); g.setAttribute("transform", (g.getAttribute("transform") || "") + " rotate(12)"); break; // the Gambler: a cast die
+    case 6: P(`M${t(-9,-4)}L${t(0,2)}L${t(9,-4)}M${t(-9,2)}L${t(0,8)}L${t(9,2)}M${t(0,-9)}L${t(0,-4)}`); break; // the Messenger: wings
+    case 7: P(`M${t(-9,6)}C${t(-4,6)} ${t(-4,-2)} ${t(0,-2)}C${t(4,-2)} ${t(4,6)} ${t(9,6)}M${t(0,-9)}L${t(1.5,-6)}L${t(0,-3.5)}L${t(-1.5,-6)}Z`); break; // the Traveler: the road and the guiding star
+    default: { const c = sv("circle", { cx:0, cy:0, r:(9 * s).toFixed(2), "stroke-dasharray":"2 2", "vector-effect":"non-scaling-stroke" }, g); P(`M${t(-3,0)}L${t(3,0)}`); } // the Faceless: the empty place
+  }
+  return g;
+}
+
+/* ---------- card art: a mihrab arch on girih, a rosette holding the Icon's sigil ---------- */
+const defs = sv("svg", { width:0, height:0, style:"position:absolute", "aria-hidden":"true" }); document.body.prepend(defs);
+const dd = sv("defs", {}, defs);
+(() => {
+  const p = sv("pattern", { id:"girih", width:20, height:20, patternUnits:"userSpaceOnUse" }, dd);
+  const g = sv("g", { fill:"none", stroke:"#f3d79a", "stroke-width":.5, opacity:.28 }, p);
+  sv("path", { d:"M10 3 L12 8 17 10 12 12 10 17 8 12 3 10 8 8Z" }, g);
+  sv("path", { d:"M5 5 L10 7 15 5 13 10 15 15 10 13 5 15 7 10Z" }, g);
+  sv("path", { d:"M0 10H3M17 10H20M10 0V3M10 17V20M0 0L5 5M20 0L15 5M0 20L5 15M20 20L15 15" }, g);
+  const po = sv("pattern", { id:"girih-open", width:24, height:24, patternUnits:"userSpaceOnUse", x:2, y:4 }, dd);
+  const go = sv("g", { fill:"none", stroke:"#f3d79a", "stroke-width":.7, opacity:.75 }, po);
+  sv("path", { d:"M12 3.6 L14.4 9.6 20.4 12 14.4 14.4 12 20.4 9.6 14.4 3.6 12 9.6 9.6Z" }, go);
+  sv("path", { d:"M6 6 L12 8.4 18 6 15.6 12 18 18 12 15.6 6 18 8.4 12Z" }, go);
+  sv("path", { d:"M0 12H3.6M20.4 12H24M12 0V3.6M12 20.4V24M0 0L6 6M24 0L18 6M0 24L6 18M24 24L18 18" }, go);
+  sv("circle", { cx:12, cy:12, r:1.4, fill:"#f3d79a", stroke:"none" }, go);
+  const pb = sv("pattern", { id:"girih-back", width:16, height:16, patternUnits:"userSpaceOnUse" }, dd);
+  const gb = sv("g", { fill:"none", stroke:"#d7ad5a", "stroke-width":.45, opacity:.5 }, pb);
+  sv("path", { d:"M8 2 L9.6 6.4 14 8 9.6 9.6 8 14 6.4 9.6 2 8 6.4 6.4Z M0 8H2M14 8H16M8 0V2M8 14V16" }, gb);
+})();
+// Each suit's light and dark for the card face, in the deck's order: green, blue, ochre, red.
+const COLOURS = [["#244f43","#3f8a6f"],["#1f3766","#3d65a8"],["#6a3a1e","#b06a32"],["#5a1a22","#a33a42"]];
+const arch = (x, y, w, hgt) => `M${x} ${y + hgt}V${y + w * .55}Q${x} ${y} ${x + w / 2} ${y - w * .12}Q${x + w} ${y} ${x + w} ${y + w * .55}V${y + hgt}Z`;
+function cardFace(num) {
+  const c = CARD[num], [dark, light] = COLOURS[c.col], faceless = c.icon === 8;
+  const s = sv("svg", { viewBox:"0 0 120 190", role:"img", "aria-label":`${num}, ${c.iconName}: ${c.title}` });
+  const gid = "cg" + num;
+  if (!document.getElementById(gid)) { const lg = sv("linearGradient", { id:gid, x1:0, y1:0, x2:0, y2:1 }, dd); sv("stop", { offset:0, "stop-color":light }, lg); sv("stop", { offset:1, "stop-color":dark }, lg); }
+  sv("rect", { width:120, height:190, rx:6, fill:`url(#${gid})` }, s);
+  sv("rect", { width:120, height:190, rx:6, fill:"url(#girih)" }, s);
+  sv("rect", { x:4, y:4, width:112, height:182, rx:4, fill:"none", stroke:"#f3d79a", "stroke-width":1, opacity:.8 }, s);
+  if (faceless) {
+    // The Faceless: an empty window, nothing in it but the pattern
+    sv("path", { d:arch(14, 34, 92, 120), fill:"rgba(10,8,24,.3)", stroke:"#f3d79a", "stroke-width":1 }, s);
+    sv("path", { d:arch(14, 34, 92, 120), fill:"url(#girih-open)" }, s);
+    sv("path", { d:arch(18, 38, 84, 113), fill:"none", stroke:"#f3d79a", "stroke-width":.4, opacity:.7 }, s);
+  } else {
+    sv("path", { d:arch(14, 34, 92, 120), fill:"rgba(10,8,24,.55)", stroke:"#f3d79a", "stroke-width":1 }, s);
+    sv("path", { d:arch(18, 38, 84, 113), fill:"none", stroke:"#f3d79a", "stroke-width":.4, opacity:.7 }, s);
+    // rosette: two squares and a ring, holding the Icon's sigil
+    const r = sv("g", { transform:"translate(60 98)", fill:"none", stroke:"#f3d79a", "stroke-width":.9 }, s);
+    sv("rect", { x:-24, y:-24, width:48, height:48 }, r); sv("rect", { x:-24, y:-24, width:48, height:48, transform:"rotate(45)" }, r);
+    sv("circle", { r:19, "stroke-width":.6 }, r); sv("circle", { r:33, "stroke-width":.4, "stroke-dasharray":"1 2.5" }, r);
+    for (let k = 0; k < 12; k++) { const a = k * Math.PI / 6; sv("circle", { cx:(37 * Math.cos(a)).toFixed(2), cy:(37 * Math.sin(a)).toFixed(2), r:.9, fill:"#f3d79a", stroke:"none" }, r); }
+    sigil(c.icon, sv("g", { color:"#fff1cf", stroke:"#fff1cf", "stroke-width":1.6, "stroke-linecap":"round", "stroke-linejoin":"round", fill:"none" }, r), 11);
+  }
+  // number with its dotted mark, Icon name, title
+  const tx = (x, y, str, size, anchor = "middle", extra = {}) => { const e = sv("text", { x, y, "text-anchor":anchor, fill:"#fff1cf", "font-family":"Chakra Petch, sans-serif", "font-weight":600, "font-size":size, "letter-spacing":".6", ...extra }, s); e.textContent = str; return e; };
+  sv("circle", { cx:15, cy:13, r:.9, fill:"#f3d79a" }, s); sv("circle", { cx:19, cy:13, r:.9, fill:"#f3d79a" }, s);
+  tx(17, 25, String(num), 10);
+  const iname = c.iconName.toUpperCase(); tx(66, 23, iname, iname.length > 13 ? 6.4 : 8.2);
+  sv("line", { x1:14, y1:164, x2:106, y2:164, stroke:"#f3d79a", "stroke-width":.5 }, s);
+  const title = c.title.toUpperCase(); tx(60, 177, title, title.length > 14 ? 7.2 : 9);
+  return s;
+}
+// A scarab, the mark on the six of the dice: neither luck nor doom, just the roll that counts.
+function scarab(g, sc = 1) {
+  const S = sv("g", { transform:`scale(${sc})`, fill:"none", stroke:"#e2c27a", "stroke-width":1, "stroke-linecap":"round", "stroke-linejoin":"round" }, g);
+  sv("circle", { cx:0, cy:-21, r:5.5, fill:"#e2c27a", opacity:.9, stroke:"none" }, S);                       // the sun it rolls
+  sv("path", { d:"M-6 -12 Q-5 -16.5 0 -16.5 Q5 -16.5 6 -12 Z" }, S);                                        // the head and its fan
+  sv("path", { d:"M-4 -16.4 L-3 -14 M-1.3 -16.6 L-1 -14 M1.3 -16.6 L1 -14 M4 -16.4 L3 -14", "stroke-width":.6 }, S);
+  sv("path", { d:"M-10 -11.5 Q0 -14 10 -11.5 Q11.5 -6 9 -3.5 Q0 -2 -9 -3.5 Q-11.5 -6 -10 -11.5 Z" }, S);    // the thorax
+  sv("path", { d:"M-9.5 -2.5 Q-12.5 9 0 17 Q12.5 9 9.5 -2.5 Q0 -0.8 -9.5 -2.5 Z" }, S);                     // the wing cases
+  sv("path", { d:"M0 -1 V16.5", "stroke-width":.7 }, S);
+  sv("path", { d:"M-6 3 Q-5 9 -2 13 M6 3 Q5 9 2 13", "stroke-width":.5, opacity:.8 }, S);
+  sv("path", { d:"M-10 -9 L-15 -12 L-17 -16 M10 -9 L15 -12 L17 -16 M-10.5 -4 L-16 -3 L-19 1 M10.5 -4 L16 -3 L19 1 M-9 5 L-14 9 L-15 14 M9 5 L14 9 L15 14" }, S); // six legs
+  return S;
+}
+function cardBack() {
+  const s = sv("svg", { viewBox:"0 0 120 190", role:"img", "aria-label":"Card back: a nine-pointed star for the Icons, with a scarab at its heart" });
+  sv("rect", { width:120, height:190, rx:6, fill:"#121b10" }, s);
+  sv("rect", { width:120, height:190, rx:6, fill:"url(#girih-back)", opacity:.55 }, s);
+  sv("rect", { x:5, y:5, width:110, height:180, rx:4, fill:"none", stroke:"#d7b65e", "stroke-width":1.2 }, s);
+  sv("rect", { x:8, y:8, width:104, height:174, rx:3, fill:"none", stroke:"#d7b65e", "stroke-width":.4, opacity:.6 }, s);
+  const cx = 60, cy = 95, g = sv("g", { transform:`translate(${cx} ${cy})`, color:"#d7b65e" }, s);
+  const pt = (r, k, n = 9, off = 0) => { const a = -Math.PI / 2 + (k + off) * 2 * Math.PI / n; return [(r * Math.cos(a)).toFixed(2), (r * Math.sin(a)).toFixed(2)]; };
+  // the nine-pointed star, one point for each Icon, over the enneagram's long lines
+  sv("circle", { r:43, fill:"none", stroke:"#d7b65e", "stroke-width":.5, opacity:.6 }, g);
+  let d = ""; for (let k = 0; k < 9; k++) { const [x, y] = pt(41, (k * 4) % 9); d += (k ? "L" : "M") + x + " " + y; }
+  sv("path", { d:d + "Z", fill:"none", stroke:"#d7b65e", "stroke-width":.45, opacity:.55 }, g);
+  d = ""; for (let k = 0; k < 18; k++) { const [x, y] = k % 2 ? pt(25, (k - 1) / 2, 9, .5) : pt(41, k / 2); d += (k ? "L" : "M") + x + " " + y; }
+  sv("path", { d:d + "Z", fill:"#16220f", stroke:"#d7b65e", "stroke-width":1.1 }, g);
+  d = ""; for (let k = 0; k < 18; k++) { const [x, y] = k % 2 ? pt(21, (k - 1) / 2, 9, .5) : pt(34, k / 2); d += (k ? "L" : "M") + x + " " + y; }
+  sv("path", { d:d + "Z", fill:"none", stroke:"#d7b65e", "stroke-width":.4, opacity:.7 }, g);
+  for (let k = 0; k < 9; k++) { const [x, y] = pt(48, k); sv("circle", { cx:x, cy:y, r:4.8, fill:"#121b10", stroke:"#d7b65e", "stroke-width":.6 }, g);
+    sigil(k, sv("g", { transform:`translate(${x} ${y})`, fill:"none", stroke:"#e2c27a", "stroke-width":.7, "stroke-linecap":"round" }, g), 3.1); }
+  // the heart: a ring, and the scarab
+  sv("circle", { r:20, fill:"#0f170c", stroke:"#d7b65e", "stroke-width":.9 }, g);
+  sv("circle", { r:17.8, fill:"none", stroke:"#d7b65e", "stroke-width":.4, "stroke-dasharray":"1 1.8" }, g);
+  scarab(sv("g", { transform:"translate(0 1.5)" }, g), .64);
+  return s;
+}
+/* ---------- your scans (IndexedDB, this browser only) ---------- */
+const SCANS = {}; let useScans = store.get("is-use-scans", true);
+function idb() { return new Promise((res, rej) => { const r = indexedDB.open("icon-spreads", 1); r.onupgradeneeded = () => r.result.createObjectStore("scans"); r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error); }); }
+async function loadScans() { try { const db = await idb(); await new Promise(res => { const tx = db.transaction("scans").objectStore("scans").openCursor(); tx.onsuccess = e => { const c = e.target.result; if (!c) return res(); SCANS[c.key] = URL.createObjectURL(c.value); c.continue(); }; tx.onerror = () => res(); }); } catch {} }
+async function putScan(key, blob) { const db = await idb(); return new Promise((res, rej) => { const tx = db.transaction("scans", "readwrite"); tx.objectStore("scans").put(blob, key); tx.oncomplete = res; tx.onerror = () => rej(tx.error); }); }
+async function clearScans() { const db = await idb(); return new Promise(res => { const tx = db.transaction("scans", "readwrite"); tx.objectStore("scans").clear(); tx.oncomplete = res; }); }
+const faceArt = num => useScans && SCANS[num] ? h("img", { src:SCANS[num], alt:`${num}, ${CARD[num].iconName}: ${CARD[num].title}` }) : cardFace(num);
+const backArt = () => useScans && SCANS.back ? h("img", { src:SCANS.back, alt:"Card back" }) : cardBack();
+function tcard(num, up, onclick, extraClass = "") {
+  const b = h(onclick ? "button" : "div", { class:`tcard${up ? " up" : ""} ${extraClass}`, type:onclick ? "button" : null, "aria-label": up ? `${num}, ${CARD[num].iconName}: ${CARD[num].title}` : "Face-down card, turn it over", onclick },
+    h("div", { class:"inner" }, h("div", { class:"back" }, backArt()), h("div", { class:"face" }, faceArt(num))));
+  return b;
+}
+
+/* ---------- state ---------- */
+const blank = () => ({ id:uid(), name:"", setIcon:0, target:"npc", campaignId:"", size:5, layout:"line", sixth:false, cards:[], centre:null, free:{}, owedTo:"", notes:"" });
+let S = store.get("is-spread", null) || blank();
+if (!SETS[S.target]) S.target = "npc";        // spreads saved before the targets existed read as NPCs
+if (!S.campaignId) S.campaignId = "";
+let NPCS = store.get("is-npcs", []);
+let loadedReading = "";                        // a reading brought in from the campaign, until cards are drawn
+const save = () => store.set("is-spread", S);
+const saveNpcs = () => store.set("is-npcs", NPCS);
+function shuffle() { const d = NUMS.slice(); for (let i = d.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [d[i], d[j]] = [d[j], d[i]]; } return d; }
+function draw() {
+  const d = shuffle(), down = $("#facedown").checked;
+  loadedReading = "";
+  S.cards = posFor(S.size, S.target).map(() => ({ n:d.pop(), up:!down }));
+  S.centre = S.sixth && S.layout === "pent" ? { n:d.pop(), up:false } : null;
+  save(); render();
+}
+const inSpread = () => [...S.cards.map(c => c.n), ...(S.centre ? [S.centre.n] : [])];
+function redrawOne(i) { const used = new Set(inSpread()); const pool = NUMS.filter(n => !used.has(n)); S.cards[i] = { n:pool[Math.floor(Math.random() * pool.length)], up:true }; save(); render(); }
+
+/* Shadows and echoes. Two cards with the same Icon: the later position is the shadow of the earlier.
+   On a pentagon, neighbours are a shadow and cards two places apart (a diagonal) are an echo.
+   On a line, neighbours are a shadow and cards further apart are read as a pair across the spread. */
+function relations(x = S) {
+  const out = []; const n = x.cards.length;
+  for (let i = 0; i < n; i++) for (let j = i + 1; j < n; j++) {
+    if (!x.cards[i].up || !x.cards[j].up) continue;
+    if (CARD[x.cards[i].n].icon !== CARD[x.cards[j].n].icon) continue;
+    let kind;
+    if (x.layout === "pent" && n === 5) { const d = Math.min(j - i, n - (j - i)); kind = d === 1 ? "shadow" : "echo"; }
+    else if (x.layout === "free") kind = "shadow";
+    else kind = j - i === 1 ? "shadow" : "pair";
+    out.push({ i, j, kind, icon:CARD[x.cards[i].n].icon });
+  }
+  return out;
+}
+const REL_TEXT = { shadow:"shadow", echo:"echo", pair:"pair across the spread" };
+function relNote(i, rels, P) {
+  return rels.filter(r => r.i === i || r.j === i).map(r => {
+    const other = r.i === i ? r.j : r.i;
+    if (r.kind === "shadow") return r.j === i ? `Shadow of the ${P[r.i].n}: they act for ${ICONS[r.icon].n} openly and in secret at once.` : `Cast a shadow on the ${P[r.j].n}: ${ICONS[r.icon].n} works openly and in secret.`;
+    if (r.kind === "echo") return `Echoes the ${P[other].n} across the pentagon: ${ICONS[r.icon].n} recurs in the story without being hidden.`;
+    return `Pairs with the ${P[other].n} across the spread: read the two ${ICONS[r.icon].n} cards together.`;
+  });
+}
+
+/* ---------- the cloth ---------- */
+const PENT = i => { const a = -Math.PI / 2 + i * 2 * Math.PI / 5; return [50 + 35 * Math.cos(a), 54 + 35 * Math.sin(a)]; };
+function wheel(rels) {
+  const s = sv("svg", { viewBox:"0 0 100 100", class:"wheel", "aria-hidden":"true" });
+  const cx = 50, cy = 54;
+  sv("circle", { cx, cy, r:47, class:"ring" }, s); sv("circle", { cx, cy, r:43, class:"ring faint" }, s); sv("circle", { cx, cy, r:22, class:"ring faint" }, s);
+  // thirty-six decans, one for each card, and nine houses of the Icons
+  const drawn = new Set(S.cards.filter(c => c.up).map(c => c.n));
+  NUMS.forEach((num, k) => { const a = -Math.PI / 2 + (k + .5) * 2 * Math.PI / 36; const a0 = -Math.PI / 2 + k * 2 * Math.PI / 36;
+    sv("line", { x1:cx + 43 * Math.cos(a0), y1:cy + 43 * Math.sin(a0), x2:cx + 47 * Math.cos(a0), y2:cy + 47 * Math.sin(a0), class:"tick" }, s);
+    const t = sv("text", { x:(cx + 45 * Math.cos(a)).toFixed(2), y:(cy + 45 * Math.sin(a) + .6).toFixed(2), class:"dec" + (drawn.has(num) ? " on" : ""), "text-anchor":"middle" }, s); t.textContent = num; });
+  const lit = new Set(S.cards.filter(c => c.up).map(c => CARD[c.n].icon));
+  ICONS.forEach((_, k) => { const a = -Math.PI / 2 + (k * 4 + 2) * 2 * Math.PI / 36; sigil(k, sv("g", { transform:`translate(${(cx + 50.5 * Math.cos(a)).toFixed(2)} ${(cy + 50.5 * Math.sin(a)).toFixed(2)})`, class:"sig" + (lit.has(k) ? " on" : "") }, s), 1.6); });
+  if (S.layout === "pent" && S.cards.length === 5) {
+    const v = [0, 1, 2, 3, 4].map(PENT);
+    sv("path", { d:"M" + v.map(p => p.join(" ")).join("L") + "Z", class:"star" }, s);
+    sv("path", { d:"M" + [0, 2, 4, 1, 3].map(i => v[i].join(" ")).join("L") + "Z", class:"star" }, s);
+    rels.forEach(r => { const A = v[r.i], B = v[r.j]; sv("line", { x1:A[0], y1:A[1], x2:B[0], y2:B[1], class:r.kind === "echo" ? "echo" : "shadow" }, s); });
+  }
+  return s;
+}
+function slot(i, P, rels, extra) {
+  const c = S.cards[i], hl = rels.some(r => r.i === i || r.j === i);
+  const marks = rels.filter(r => r.j === i || (r.i === i && r.kind !== "shadow")).map(r => REL_TEXT[r.kind]);
+  const el = h("div", { class:"slot", "data-i":i },
+    h("div", { class:"pos", text:P[i].n }),
+    tcard(c.n, c.up, () => { if (S.layout === "free" && dragMoved) return; if (!c.up) { c.up = true; save(); render(); } }, hl ? "hl" : ""),
+    h("div", { class:"mark", text:marks.join(" · ") }));
+  if (extra) Object.assign(el.style, extra);
+  return el;
+}
+let dragMoved = false;
+function renderSpread() {
+  const box = $("#spread"), P = posFor(S.size, S.target), rels = relations();
+  const origin = S.target === "npc" ? `born under ${ICONS[S.setIcon].n}` : S.target === "mission" ? "a job for the crew" : "the shape of the story";
+  $("#cloth-cap").textContent = S.cards.length
+    ? `${S.name || setFor(S.target).nom} · ${origin} · ${S.size} cards, ${({ line:"in a line", pent:"on the pentagon", free:"laid freely" })[S.layout]}`
+    : S.name ? `${S.name} · no cards drawn yet` : "Shuffle and draw to begin";
+  box.replaceChildren();
+  if (!S.cards.length) { box.className = "spread pent"; box.append(wheel([])); return; }
+  if (S.layout === "line" || (S.layout === "pent" && S.cards.length !== 5)) {
+    box.className = "spread line"; box.style.setProperty("--n", S.cards.length);
+    S.cards.forEach((_, i) => box.append(slot(i, P, rels)));
+    if (S.layout === "pent") box.prepend(h("p", { class:"small", style:"grid-column:1/-1;margin:0;color:var(--cloth-gold)", text:"The pentagon needs five cards; the three-card spread is laid in a line." }));
+    return;
+  }
+  if (S.layout === "pent") {
+    box.className = "spread pent"; box.append(wheel(rels));
+    S.cards.forEach((_, i) => { const [x, y] = PENT(i); box.append(slot(i, P, rels, { left:x + "%", top:y + "%" })); });
+    if (S.centre) { const c = S.centre; box.append(h("div", { class:"slot", style:"left:50%;top:54%" }, h("div", { class:"pos", text:"Turning point" }),
+      tcard(c.n, c.up, () => { c.up = !c.up ? true : c.up; save(); render(); }), h("div", { class:"mark" }))); }
+    return;
+  }
+  // free: drag the cards anywhere on the cloth
+  box.className = "spread free";
+  S.cards.forEach((_, i) => {
+    const p = S.free[i] || [12 + i * 19, 50];
+    const el = slot(i, P, rels, { left:p[0] + "%", top:p[1] + "%" });
+    el.addEventListener("pointerdown", e => {
+      const rect = box.getBoundingClientRect(); dragMoved = false; el.classList.add("dragging"); el.setPointerCapture(e.pointerId);
+      const sx = e.clientX, sy = e.clientY;
+      const move = ev => { if (Math.abs(ev.clientX - sx) + Math.abs(ev.clientY - sy) > 4) dragMoved = true;
+        const x = Math.min(94, Math.max(6, (ev.clientX - rect.left) / rect.width * 100)), y = Math.min(88, Math.max(14, (ev.clientY - rect.top) / rect.height * 100));
+        el.style.left = x + "%"; el.style.top = y + "%"; S.free[i] = [x, y]; };
+      const up = () => { el.classList.remove("dragging"); el.removeEventListener("pointermove", move); el.removeEventListener("pointerup", up); save(); setTimeout(() => { dragMoved = false; }, 0); };
+      el.addEventListener("pointermove", move); el.addEventListener("pointerup", up);
+    });
+    box.append(el);
+  });
+}
+function renderReadings() {
+  const box = $("#readings"), P = posFor(S.size, S.target), rels = relations(), t = setFor(S.target); box.replaceChildren();
+  if (!S.cards.length) {
+    if (loadedReading) {
+      box.append(h("p", { class:"eyebrow", text:`From the campaign${S.name ? `: ${S.name}` : ""}` }),
+        h("pre", { style:"white-space:pre-wrap;font-family:var(--font-body);font-size:var(--step--1);margin:0", text:loadedReading }),
+        h("p", { class:"note", text:"That is the reading kept in the campaign. Draw new cards to replace it." }));
+      return;
+    }
+    box.append(h("p", { class:"small", text:t === SETS.npc ? "Name the NPC and set the Icon they were born under, then shuffle and draw. Each card is read against its position: Serves, Surface, Want, Secret, Owed." : `Name the ${t.label.toLowerCase()} and shuffle and draw. Each card is read against its position: ${t.five.map(p => p.n).join(", ")}.` }));
+    return;
+  }
+  if (t === SETS.npc) box.append(h("p", { class:"small", style:"margin:0" }, h("b", { text:"Set Icon: " }), `${ICONS[S.setIcon].n}. `, h("span", { class:"muted", text:"The cards don't change it." })));
+  const all = [...S.cards.map((c, i) => [c, P[i], i]), ...(S.centre ? [[S.centre, TURN, -1]] : [])];
+  all.forEach(([c, pos, i]) => {
+    const card = CARD[c.n];
+    const pick = h("select", { "aria-label":`Choose the ${pos.n} card`, onchange:e => { const v = +e.target.value; if (i < 0) S.centre = { n:v, up:true }; else S.cards[i] = { n:v, up:true }; save(); render(); } },
+      NUMS.map(nm => h("option", { value:String(nm), text:`${nm} ${CARD[nm].iconName.replace("The ", "")}: ${CARD[nm].title}` })));
+    pick.value = String(c.n);
+    const owedSel = pos.k === "owed" && c.up && NPCS.length ? h("label", { class:"field", style:"margin-top:6px" }, h("span", { text:"Linked NPC" }),
+      h("select", { onchange:e => { S.owedTo = e.target.value; save(); } }, h("option", { value:"", text:"—" }), NPCS.filter(x => x.id !== S.id).map(x => h("option", { value:x.id, text:x.name || "Unnamed NPC", selected: S.owedTo === x.id ? "" : null })))) : null;
+    box.append(h("div", { class:"reading" },
+      h("div", { class:"thumb" }, tcard(c.n, c.up, () => { c.up = true; save(); render(); })),
+      h("div", {}, h("div", { class:"q", text:`${pos.n} · ${pos.q}` }),
+        c.up ? h("div", { class:"what" }, h("b", { text:`${card.iconName}: ${card.title}` }), h("span", { class:"muted small", text:` · ${c.n}` }), h("p", { class:"gloss", text:card.gloss }),
+          h("p", { class:"note", text:`Use it for: ${pos.use}.${pos.k === "serves" && card.icon !== S.setIcon ? ` Born under ${ICONS[S.setIcon].n} but serving ${card.iconName} here: that tension is part of the story.` : ""}` }),
+          i >= 0 ? relNote(i, rels, P).map(t => h("p", { class:"rel", text:t })) : null, owedSel)
+        : h("p", { class:"small muted", text:"Face down. Turn it over on the cloth, or here." })),
+      h("div", { class:"ctl" }, i >= 0 ? h("button", { class:"mini", type:"button", text:"Redraw", onclick:() => redrawOne(i) }) : null, pick)));
+  });
+}
+function markdown(x = S) {
+  const P = posFor(x.size, x.target), t = setFor(x.target);
+  const lines = [`## ${x.name || t.none}`, ""];
+  if (t === SETS.npc) lines.push(`- **Set Icon:** ${ICONS[x.setIcon].n}`);
+  x.cards.forEach((c, i) => { const k = CARD[c.n]; lines.push(`- **${P[i].n}:** ${k.iconName}, ${k.title} (${c.n}). ${k.gloss}`); });
+  if (x.centre) { const k = CARD[x.centre.n]; lines.push(`- **Turning point:** ${k.iconName}, ${k.title} (${x.centre.n})`); }
+  relations(x).forEach(r => lines.push(`- *${REL_TEXT[r.kind][0].toUpperCase() + REL_TEXT[r.kind].slice(1)}:* ${P[r.i].n} and ${P[r.j].n}, both ${ICONS[r.icon].n}`));
+  if (x.owedTo) { const o = NPCS.find(n => n.id === x.owedTo); if (o) lines.push(`- **Owed link:** ${o.name || "Unnamed NPC"}`); }
+  if (x.notes) lines.push("", x.notes);
+  return lines.join("\n");
+}
+// The same reading as plain prose, for the campaign: Coriolis Sheets shows it as an NPC's Icon spread.
+function plainReading(x = S) {
+  const P = posFor(x.size, x.target), t = setFor(x.target), out = [`${t.label}: ${x.name || t.none}`];
+  if (t === SETS.npc) out.push(`Set Icon: ${ICONS[x.setIcon].n}.`);
+  out.push("");
+  x.cards.forEach((c, i) => { const k = CARD[c.n], p = P[i];
+    out.push(`${p.n}: ${k.iconName}, ${k.title} (${c.n}). ${p.q}.`, k.gloss, ""); });
+  if (x.centre) { const k = CARD[x.centre.n]; out.push(`Turning point: ${k.iconName}, ${k.title} (${x.centre.n}).`, ""); }
+  relations(x).forEach(r => out.push(`${REL_TEXT[r.kind][0].toUpperCase() + REL_TEXT[r.kind].slice(1)}: ${P[r.i].n} and ${P[r.j].n}, both ${ICONS[r.icon].n}.`));
+  if (x.owedTo) { const o = NPCS.find(n => n.id === x.owedTo); if (o) out.push(`Owed link: ${o.name || "an unnamed NPC"}.`); }
+  return out.join("\n").trim();
+}
+
+/* ---------- the campaign: one record shared with Coriolis Sheets and the Mission Board ---------- */
+const CAMPAIGN = () => window.CtthCampaign || null;
+const CAMPAIGN_KINDS = ["npc", "mission", "story"];
+
+function renderCampaign() {
+  const CC = CAMPAIGN(), card = $("#campaign-card"), pick = $("#campaign-pick");
+  if (!CC) { card.hidden = true; return; }
+  const keep = pick.value, items = [];
+  CAMPAIGN_KINDS.forEach(k => CC.all(k).forEach(e => items.push({ kind:k, e })));
+  card.hidden = !items.length;
+  pick.replaceChildren();
+  if (!items.length) return;
+  items.forEach(({ kind, e }) => pick.append(h("option", { value:`${kind}:${e.id}`, text:`${e.name || setFor(kind).none} · ${setFor(kind).label}` })));
+  if (keep && [...pick.options].some(o => o.value === keep)) pick.value = keep;
+}
+
+// Load a campaign entity into the page: its target, name, set Icon, id and its reading. Cards are left undrawn.
+function loadEntity(kind, id, quiet) {
+  const CC = CAMPAIGN(); if (!CC) return false;
+  const e = CC.get(kind, id); if (!e) return false;
+  S.target = SETS[kind] ? kind : "npc";
+  S.name = e.name || "";
+  S.campaignId = e.id;
+  const ic = ICONS.findIndex(x => x.n === ((e.data && e.data.icon) || ""));
+  if (ic >= 0) S.setIcon = ic;
+  S.cards = []; S.centre = null; S.free = {}; S.owedTo = ""; S.id = (typeof e.refs.isNpcId === "string" && e.refs.isNpcId) || uid();
+  loadedReading = (e.spread && e.spread.reading) || "";
+  save(); syncControls(); render();
+  if (!quiet) $("#campaign-status").textContent = loadedReading
+    ? `Loaded ${e.name || setFor(S.target).none}. Its saved reading is below; draw new cards to replace it.`
+    : `Loaded ${e.name || setFor(S.target).none}. No reading saved yet: draw a spread.`;
+  return true;
+}
+
+function sendToCampaign() {
+  const CC = CAMPAIGN();
+  if (!CC) { $("#draw-status").textContent = "The campaign store did not load. Reload the page and try again."; return; }
+  if (!S.cards.length) { $("#draw-status").textContent = "Draw a spread first."; return; }
+  const kind = S.target === "mission" ? "mission" : S.target === "story" ? "story" : "npc";
+  const t = setFor(kind);
+  const name = (S.name || "").trim() || t.none;
+  const reading = plainReading();
+  const P = posFor(S.size, S.target);
+  const cards = S.cards.map((c, i) => ({ position:P[i].n, card:c.n, up:!!c.up }));
+  if (S.centre) cards.push({ position:"Turning point", card:S.centre.n, up:!!S.centre.up });
+  const data = kind === "npc" ? { name, icon:ICONS[S.setIcon].n, concept:"", spread:reading } : { name, reading };
+  const id = S.campaignId || CC.makeId(kind);
+  const e = CC.upsert(kind, { id, name, source:"icon-spreads", refs:{ isNpcId:S.id }, data, spread:{ target:kind, cards, reading } });
+  if (!e) { $("#draw-status").textContent = "The campaign did not take it. It may be full."; return; }
+  S.campaignId = e.id; save(); renderCampaign();
+  $("#draw-status").textContent = kind === "npc"
+    ? `Sent ${name} to the campaign as an NPC. It will appear in the NPC sheet, with this reading as its Icon spread.`
+    : kind === "mission"
+      ? `Sent ${name} to the campaign as a mission. The Mission Board can open it.`
+      : `Sent ${name} to the campaign as a story.`;
+}
+
+// Coriolis Sheets links here with ?npc=<id> (and the other kinds can do the same). Unknown ids are ignored.
+function deepLink() {
+  if (!CAMPAIGN()) return false;
+  const q = new URLSearchParams(location.search);
+  for (const kind of CAMPAIGN_KINDS) { const id = q.get(kind); if (id && loadEntity(kind, id, true)) return true; }
+  return false;
+}
+
+/* ---------- other tabs ---------- */
+function renderDeck() {
+  const box = $("#deck"); box.replaceChildren();
+  ICONS.forEach((ic, k) => {
+    const four = NUMS.filter(n => CARD[n].icon === k);
+    const head = h("h3", {}); const s = sv("svg", { viewBox:"-12 -12 24 24" }); sigil(k, sv("g", { fill:"none", stroke:"currentColor", "stroke-width":1.4, "stroke-linecap":"round" }, s), 10); head.append(s, ic.n);
+    box.append(h("div", { class:"icongroup" }, head,
+      h("div", { class:"fourcards" }, four.map(n => h("figure", {}, tcard(n, true), h("figcaption", { text:`${n} ${CARD[n].title}` })))),
+      four.map(n => h("p", { class:"gl" }, h("b", { text:`${CARD[n].title}. ` }), CARD[n].gloss))));
+  });
+}
+function renderNpcs() {
+  const box = $("#npcs"); box.replaceChildren();
+  if (!NPCS.length) { box.append(h("div", { class:"card" }, h("h2", { text:"None saved yet" }), h("p", { class:"small", text:"Draw a spread and save it. Each NPC keeps its cards, its set Icon, any link from the Owed card, and your notes." }))); return; }
+  NPCS.forEach(x => {
+    const conf = h("div", { class:"row" });
+    box.append(h("article", { class:"npc" },
+      h("div", { class:"row", style:"justify-content:space-between" }, h("h3", { style:"margin:0", text:x.name || "Unnamed NPC" }), h("span", { class:"eyebrow", text:`Born under ${ICONS[x.setIcon].n}` })),
+      h("div", { class:"cards" }, [...x.cards, ...(x.centre ? [x.centre] : [])].map(c => tcard(c.n, true))),
+      h("pre", { text:markdown(x).split("\n").slice(2).join("\n") }),
+      h("label", { class:"field", style:"margin-top:6px" }, h("span", { text:"Notes" }), h("textarea", { rows:"2", value:x.notes || "", oninput:e => { x.notes = e.target.value; saveNpcs(); } })),
+      h("div", { class:"row", style:"margin-top:6px" },
+        h("button", { class:"mini", type:"button", text:"Open in the spread", onclick:() => { S = JSON.parse(JSON.stringify(x)); if (!SETS[S.target]) S.target = "npc"; if (!S.campaignId) S.campaignId = ""; loadedReading = ""; S.cards.forEach(c => c.up = true); if (S.centre) S.centre.up = true; save(); syncControls(); render(); go("spread"); } }),
+        h("button", { class:"mini", type:"button", text:"Copy as Markdown", onclick:e => copy(markdown(x), e.target) }),
+        h("button", { class:"mini", type:"button", text:"Delete", onclick:() => conf.replaceChildren(h("span", { class:"small", text:"Delete this NPC?" }),
+          h("button", { class:"mini", type:"button", text:"Delete", onclick:() => { NPCS = NPCS.filter(n => n.id !== x.id); saveNpcs(); renderNpcs(); } }), h("button", { class:"mini", type:"button", text:"Keep", onclick:() => conf.replaceChildren() })) })), conf));
+  });
+}
+function renderScans() {
+  const box = $("#scans"); box.replaceChildren();
+  const keys = ["back", ...NUMS];
+  keys.forEach(k => box.append(h("figure", {}, k === "back" ? h("div", { class:"tcard" }, h("div", { class:"inner" }, h("div", { class:"back" }, backArt()))) : tcard(k, true), h("figcaption", { text:`${k}${SCANS[k] ? " ✓" : ""}` }))));
+  const n = Object.keys(SCANS).length; $("#scan-status").textContent = n ? `${n} of 37 images loaded.` : "No images loaded: the drawn cards are used.";
+}
+
+/* ---------- helpers ---------- */
+function copy(text, btn) { const done = () => { const o = btn.textContent; btn.textContent = "Copied"; setTimeout(() => { btn.textContent = o; }, 1300); }; if (navigator.clipboard) navigator.clipboard.writeText(text).then(done, () => {}); }
+function download(name, text) { const a = h("a", { href:URL.createObjectURL(new Blob([text], { type:"application/json" })), download:name }); document.body.append(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 800); }
+function render() { renderSpread(); renderReadings(); }
+function syncControls() {
+  const t = setFor(S.target);
+  $("#npc-name").value = S.name || ""; $("#npc-name").placeholder = t.idea; $("#set-icon").value = String(S.setIcon || 0); $("#sixth").checked = !!S.sixth;
+  $("#subject-h").textContent = S.target === "npc" ? "The NPC" : S.target === "mission" ? "The mission" : "The story";
+  $("#set-icon-wrap").hidden = t !== SETS.npc;
+  $("#subject-note").textContent = t === SETS.npc ? "The set Icon never changes. The cards are prompts for this story."
+    : S.target === "mission" ? "The cards read the job: what draws the crew in, what pushes back, and what it is worth."
+    : "The cards read the arc: how it opens, what closes in, where it turns, and what it comes to.";
+  document.querySelectorAll("#target button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.v === S.target)));
+  document.querySelectorAll("#size button").forEach(b => b.setAttribute("aria-pressed", String(+b.dataset.v === S.size)));
+  document.querySelectorAll("#layout button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.v === S.layout)));
+  $("#sixth-wrap").hidden = S.layout !== "pent" || S.size !== 5;
+}
+
+/* ---------- wiring ---------- */
+const TABS = ["spread","deck","npcs","cards"];
+function setTab(t) { if (!TABS.includes(t)) t = "spread"; TABS.forEach(x => { $("#view-" + x).hidden = x !== t; $("#tab-" + x).setAttribute("aria-selected", String(x === t)); }); if (t === "deck") renderDeck(); if (t === "npcs") renderNpcs(); if (t === "cards") renderScans(); }
+function go(t) { if (location.hash.slice(1) === t) setTab(t); else location.hash = t; }
+TABS.forEach(t => $("#tab-" + t).addEventListener("click", () => go(t)));
+window.addEventListener("hashchange", () => setTab(location.hash.slice(1)));
+
+ICONS.forEach((ic, k) => $("#set-icon").append(h("option", { value:String(k), text:ic.n })));
+$("#npc-name").addEventListener("input", e => { S.name = e.target.value; save(); renderSpread(); });
+$("#set-icon").addEventListener("change", e => { S.setIcon = +e.target.value; save(); render(); });
+document.querySelectorAll("#target button").forEach(b => b.addEventListener("click", () => {
+  const v = b.dataset.v; if (v === S.target) return;
+  S.target = v; S.cards = []; S.centre = null; S.free = {}; S.owedTo = ""; loadedReading = "";
+  save(); syncControls(); render();
+  $("#draw-status").textContent = `${setFor(v).nom}: the positions have changed. Draw again.`;
+}));
+document.querySelectorAll("#size button").forEach(b => b.addEventListener("click", () => { const v = +b.dataset.v; if (v === S.size) return; S.size = v; if (S.cards.length) { const keep = S.cards; S.cards = v === 3 ? setFor(S.target).three.map(i => keep[i]).filter(Boolean) : []; if (v === 5) draw(); } if (v === 3) S.centre = null; save(); syncControls(); render(); }));
+document.querySelectorAll("#layout button").forEach(b => b.addEventListener("click", () => { S.layout = b.dataset.v; if (S.layout !== "pent") S.centre = null; save(); syncControls(); render(); }));
+$("#sixth").addEventListener("change", e => { S.sixth = e.target.checked; if (!S.sixth) S.centre = null; else if (S.cards.length && !S.centre) { const used = new Set(inSpread()); const pool = NUMS.filter(n => !used.has(n)); S.centre = { n:pool[Math.floor(Math.random() * pool.length)], up:false }; } save(); render(); });
+$("#draw").addEventListener("click", () => { S.id = uid(); S.free = {}; S.owedTo = ""; draw(); $("#draw-status").textContent = $("#facedown").checked ? "Dealt face down. Turn each card when you're ready to read it." : ""; });
+$("#turn-all").addEventListener("click", () => { S.cards.forEach(c => c.up = true); if (S.centre) S.centre.up = true; save(); render(); });
+$("#copy").addEventListener("click", e => { if (S.cards.length) copy(markdown(), e.target); });
+$("#save-npc").addEventListener("click", () => { if (!S.cards.length) { $("#draw-status").textContent = "Draw a spread first."; return; } const x = JSON.parse(JSON.stringify(S)); const i = NPCS.findIndex(n => n.id === x.id); if (i >= 0) { x.notes = NPCS[i].notes || x.notes; NPCS[i] = x; } else NPCS.unshift(x); saveNpcs(); $("#draw-status").textContent = `Saved ${x.name || "the NPC"} to the NPCs tab.`; });
+$("#send-campaign").addEventListener("click", sendToCampaign);
+let confirmLoad = false;
+$("#campaign-pick").addEventListener("change", () => { confirmLoad = false; $("#campaign-load").textContent = "Load"; });
+$("#campaign-load").addEventListener("click", () => {
+  const v = $("#campaign-pick").value || "";
+  const i = v.indexOf(":");
+  if (!v) return;
+  if (S.cards.length && !confirmLoad) {
+    confirmLoad = true;
+    $("#campaign-load").textContent = "Replace the cards?";
+    $("#campaign-status").textContent = "Loading clears the cards on the cloth. Press again to load, or pick another entry.";
+    return;
+  }
+  confirmLoad = false;
+  $("#campaign-load").textContent = "Load";
+  if (!loadEntity(v.slice(0, i), v.slice(i + 1), false)) $("#campaign-status").textContent = "That entry is no longer in the campaign.";
+});
+$("#export").addEventListener("click", () => download(`icon-spreads-${new Date().toISOString().slice(0, 10)}.json`, JSON.stringify({ format:"icon-spreads-backup/1", saved:new Date().toISOString(), npcs:NPCS }, null, 1)));
+$("#import").addEventListener("click", () => { const i = h("input", { type:"file", accept:".json,application/json" }); i.addEventListener("change", () => { const f = i.files[0]; if (!f) return; f.text().then(t => { try { const x = JSON.parse(t); if (x.format !== "icon-spreads-backup/1") throw 0; const have = new Set(NPCS.map(n => n.id)); NPCS = [...NPCS, ...x.npcs.filter(n => !have.has(n.id))]; saveNpcs(); renderNpcs(); $("#npc-status").textContent = "Backup restored."; } catch { $("#npc-status").textContent = "That file isn't a backup from this page."; } }); }); i.click(); });
+// Match a file to a card: "back" anywhere, else a card number (11 to 66), else the card's title as whole words.
+const TITLE_RX = NUMS.map(n => [n, new RegExp("(^|[^a-z])" + CARD[n].title.toLowerCase().replace(/[^a-z ]/g, "").split(" ").join("[\\s_.-]*") + "([^a-z]|$)")]).sort((a, b) => CARD[b[0]].title.length - CARD[a[0]].title.length);
+function matchKey(fileName) {
+  const name = fileName.toLowerCase().replace(/\.[a-z0-9]+$/, "");
+  if (/(^|[^a-z])back([^a-z]|$)/.test(name)) return "back";
+  const m = name.match(/(?:^|\D)([1-6][1-6])(?:\D|$)/); if (m) return +m[1];
+  const t = TITLE_RX.find(([, rx]) => rx.test(name)); return t ? t[0] : null;
+}
+async function loadFiles(files) {
+  let ok = 0; const skipped = [];
+  for (const f of files) { if (!/^image\//.test(f.type)) continue; const key = matchKey(f.name);
+    if (key == null) { skipped.push(f.name); continue; } try { await putScan(key, f); if (SCANS[key]) URL.revokeObjectURL(SCANS[key]); SCANS[key] = URL.createObjectURL(f); ok++; } catch { skipped.push(f.name); } }
+  renderScans(); render(); $("#scan-status").textContent = `${ok} image${ok === 1 ? "" : "s"} loaded.${skipped.length ? ` Not matched: ${skipped.slice(0, 5).join(", ")}${skipped.length > 5 ? "…" : ""}` : ""}`;
+}
+$("#pick-scans").addEventListener("click", () => { const i = h("input", { type:"file", accept:"image/*", multiple:"" }); i.addEventListener("change", () => loadFiles(i.files)); i.click(); });
+$("#pick-folder").addEventListener("click", () => { const i = h("input", { type:"file", webkitdirectory:"", multiple:"" }); i.addEventListener("change", () => loadFiles(i.files)); i.click(); });
+$("#clear-scans").addEventListener("click", async () => { await clearScans(); Object.keys(SCANS).forEach(k => { URL.revokeObjectURL(SCANS[k]); delete SCANS[k]; }); renderScans(); render(); });
+$("#use-scans").checked = useScans;
+$("#use-scans").addEventListener("change", e => { useScans = e.target.checked; store.set("is-use-scans", useScans); renderScans(); render(); });
+
+syncControls(); renderCampaign();
+if (CAMPAIGN()) CAMPAIGN().subscribe(() => renderCampaign());
+if (!deepLink()) render();
+setTab(location.hash.slice(1));
+loadScans().then(() => { if (Object.keys(SCANS).length) { render(); if (!$("#view-cards").hidden) renderScans(); } });
+})();
+</script>
+</body>
+</html>
