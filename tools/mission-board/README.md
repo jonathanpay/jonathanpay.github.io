@@ -38,7 +38,9 @@ table and result to read.
   concept's employer, task, location, complication and reward tables. A Birr reward
   rolls its bonus by difficulty. Any line can be rerolled or picked by hand. Nearby
   jobs go to a system one jump away on the map, faraway jobs to one two or three jumps
-  away, and the card shows the route with any unstable portal or dangerous area on it.
+  away, and the card shows the route with any unstable portals or dangerous area on it.
+  Unstable portals belong to a system (Dziban, Zamusa, Yastapol and Algebar), which
+  the map rings in red; companion stars show as small dots beside their system.
   The map above the board shows the crew and the jobs; click a system to move the crew.
   The map is drawn in the printed map's colours in both themes: gold links, an orange
   glow round each star, dust and nebulae behind. Under it, the crew's system has
@@ -49,7 +51,7 @@ table and result to read.
   their own, so they borrow the agents' (Table 22), as the book's own example does.
 - **Travel.** A voyage as a list of legs: in-system flights, portal jumps and
   planetside stretches. Accepting a job, or plotting a route between any two systems,
-  lays the trip out along the fewest jumps (preferring stable links when there's a
+  lays the trip out along the fewest jumps (avoiding unstable portals and dangerous areas when there's a
   tie), with a day's transit through each system on the way. Legs in the map's
   dangerous areas default to the fringe encounter column, and the darkness route is
   set to well-trafficked only between core systems. Every map system has a portal
