@@ -1,0 +1,2761 @@
+{
+  "format": "coriolis-sheets-data/1",
+  "name": "Atlas Compendium · mission and system tables",
+  "source": "Tables 1–42 extracted from the user-supplied Atlas Compendium chapters. Chapter prose is not included.",
+  "tables": {
+    "employer.agents": {
+      "dice": "D66",
+      "rows": [
+        {
+          "lo": 11,
+          "hi": 13,
+          "n": "Judicator"
+        },
+        {
+          "lo": 14,
+          "hi": 16,
+          "n": "Guard"
+        },
+        {
+          "lo": 21,
+          "hi": 23,
+          "n": "Intelligence agency"
+        },
+        {
+          "lo": 24,
+          "hi": 43,
+          "n": "Patron"
+        },
+        {
+          "lo": 44,
+          "hi": 46,
+          "n": "Factionary"
+        },
+        {
+          "lo": 51,
+          "hi": 53,
+          "n": "Merchant"
+        },
+        {
+          "lo": 54,
+          "hi": 56,
+          "n": "Diplomat"
+        },
+        {
+          "lo": 61,
+          "hi": 63,
+          "n": "Military"
+        },
+        {
+          "lo": 64,
+          "hi": 66,
+          "n": "Criminal"
+        }
+      ]
+    },
+    "reward.agents": {
+      "dice": "D66",
+      "rows": [
+        {
+          "lo": 11,
+          "hi": 13,
+          "n": "New contract"
+        },
+        {
+          "lo": 14,
+          "hi": 16,
+          "n": "Favor"
+        },
+        {
+          "lo": 21,
+          "hi": 46,
+          "n": "Birr"
+        },
+        {
+          "lo": 51,
+          "hi": 56,
+          "n": "Gear"
+        },
+        {
+          "lo": 61,
+          "hi": 63,
+          "n": "Ship module"
+        },
+        {
+          "lo": 64,
+          "hi": 66,
+          "n": "License"
+        }
+      ]
+    },
+    "task.agents": {
+      "dice": "D66",
+      "rows": [
+        {
+          "lo": 11,
+          "hi": 13,
+          "n": "Infiltration",
+          "d": "Undercover infiltration of a base, smaller group or outpost to obtain data, identify leaders or investi- gate the organization."
+        },
+        {
+          "lo": 14,
+          "hi": 16,
+          "n": "Information gathering",
+          "d": "Gather information from tags, library databases, networks, old scrolls or a living person."
+        },
+        {
+          "lo": 21,
+          "hi": 26,
+          "n": "Espionage",
+          "d": "Classic espionage with secret meetings, shadowing, burglaries and undercover work."
+        },
+        {
+          "lo": 31,
+          "hi": 33,
+          "n": "Kidnapping",
+          "d": "Kidnap someone and deliver the person to the employer."
+        },
+        {
+          "lo": 34,
+          "hi": 36,
+          "n": "Couriers",
+          "d": "Make sure sensitive information, resources or goods are delivered safely from the employer to the receiver."
+        },
+        {
+          "lo": 41,
+          "hi": 43,
+          "n": "Protection",
+          "d": "Make sure a resource (information, person, object, ship) is safe from an attack or for a specified amount of time."
+        },
+        {
+          "lo": 44,
+          "hi": 46,
+          "n": "Manipulation",
+          "d": "Trick a person or organization into believing false information, or make them perform a certain action, or set a chain of events in motion."
+        },
+        {
+          "lo": 51,
+          "hi": 53,
+          "n": "Artifact collection",
+          "d": "Acquire an artifact, usually from an unknown, underground location."
+        },
+        {
+          "lo": 54,
+          "hi": 56,
+          "n": "Rescue operation",
+          "d": "Rescue a resource (usually a person or group) that is held captive or hostage. It could also be an object or a wrecked spaceship."
+        },
+        {
+          "lo": 61,
+          "hi": 63,
+          "n": "Surveillance",
+          "d": "Observe a resource (usually a person) for a specified amount of time."
+        },
+        {
+          "lo": 64,
+          "hi": 66,
+          "n": "Assassination",
+          "d": "Murder someone, sometimes so that it looks like an accident. Collateral damage is permitted."
+        }
+      ]
+    },
+    "location.agents": {
+      "dice": "D66",
+      "rows": [
+        {
+          "lo": 11,
+          "hi": 13,
+          "n": "Underground hideout",
+          "d": "A bunker, catacombs or caves."
+        },
+        {
+          "lo": 14,
+          "hi": 16,
+          "n": "Hostile forest/ jungles/desert",
+          "d": "Inhospitable planet side wilderness. Usually far from cities or settlements."
+        },
+        {
+          "lo": 21,
+          "hi": 26,
+          "n": "Bazaar",
+          "d": "A bazaar or market in a city or settlement."
+        },
+        {
+          "lo": 31,
+          "hi": 33,
+          "n": "Spaceport",
+          "d": "Spaceport on a space station or planet."
+        },
+        {
+          "lo": 34,
+          "hi": 36,
+          "n": "Asteroid/Moon",
+          "d": "The surface of an asteroid or a smaller moon. Vacuum or dangerous atmosphere."
+        },
+        {
+          "lo": 41,
+          "hi": 43,
+          "n": "Space station",
+          "d": "On a small space station, anything from an oxygen oasis to a trade or service station."
+        },
+        {
+          "lo": 44,
+          "hi": 46,
+          "n": "Ruins",
+          "d": "Firstcome or Portal Builder ruins."
+        },
+        {
+          "lo": 51,
+          "hi": 53,
+          "n": "Colony",
+          "d": "A small colony, usually no bigger than a small, sparsely populated village. Far from other settlements."
+        },
+        {
+          "lo": 54,
+          "hi": 56,
+          "n": "Portal station",
+          "d": "A portal station next to a sun."
+        },
+        {
+          "lo": 61,
+          "hi": 63,
+          "n": "Spaceship",
+          "d": "Onboard a spaceship during voyage or docking."
+        },
+        {
+          "lo": 64,
+          "hi": 66,
+          "n": "Outpost",
+          "d": "A small outpost, usually planet side. An outpost is commonly just a single building with a specific func- tion and only a few inhabitants. For example sensor station, dam control station, courier post or some other communications station."
+        }
+      ]
+    },
+    "complication.agents": {
+      "dice": "D66",
+      "rows": [
+        {
+          "lo": 11,
+          "hi": 13,
+          "n": "Third party",
+          "d": "Another patron or a person with a similar background as the employer is after the same thing. Could offer the group higher payment or that they will use the information/resource for a different purpose when the mission is completed."
+        },
+        {
+          "lo": 14,
+          "hi": 23,
+          "n": "Accompanying employer",
+          "d": "The employer wants to come along for the mission, or send an observer or agent along."
+        },
+        {
+          "lo": 24,
+          "hi": 33,
+          "n": "Double agent",
+          "d": "A person the PCs encounter is a double agent for another organization with a conflicting agenda."
+        },
+        {
+          "lo": 34,
+          "hi": 43,
+          "n": "Bad intel",
+          "d": "A piece of information about the mission turns out to be false, either intentionally or by mistake."
+        },
+        {
+          "lo": 44,
+          "hi": 53,
+          "n": "Unexpected reinforcements",
+          "d": "The group's opponent receive backup in the form of reinforcements, more advanced computer systems or some other form of extra assistance."
+        },
+        {
+          "lo": 54,
+          "hi": 63,
+          "n": "Scapegoats",
+          "d": "The employer wants the mission to go badly and for the PCs to take the fall for something."
+        },
+        {
+          "lo": 64,
+          "hi": 66,
+          "n": "Intelligence agency involvement",
+          "d": "An intelligence agency, possibly factionary, with many resources has the same or opposite goals as the PCs."
+        }
+      ]
+    },
+    "employer.mercenaries": {
+      "dice": "D66",
+      "rows": [
+        {
+          "lo": 11,
+          "hi": 13,
+          "n": "Fleet captain"
+        },
+        {
+          "lo": 14,
+          "hi": 16,
+          "n": "Military officer"
+        },
+        {
+          "lo": 21,
+          "hi": 23,
+          "n": "Legion company"
+        },
+        {
+          "lo": 24,
+          "hi": 43,
+          "n": "Patron"
+        },
+        {
+          "lo": 44,
+          "hi": 46,
+          "n": "Factionary"
+        },
+        {
+          "lo": 51,
+          "hi": 53,
+          "n": "Arms dealer"
+        },
+        {
+          "lo": 54,
+          "hi": 56,
+          "n": "Mercenary"
+        },
+        {
+          "lo": 61,
+          "hi": 63,
+          "n": "War veteran"
+        },
+        {
+          "lo": 64,
+          "hi": 66,
+          "n": "Smuggler"
+        }
+      ]
+    },
+    "reward.mercenaries": {
+      "dice": "D66",
+      "rows": [
+        {
+          "lo": 11,
+          "hi": 16,
+          "n": "Faction protection"
+        },
+        {
+          "lo": 21,
+          "hi": 23,
+          "n": "Ship module"
+        },
+        {
+          "lo": 24,
+          "hi": 53,
+          "n": "Birr"
+        },
+        {
+          "lo": 54,
+          "hi": 56,
+          "n": "Gear"
+        },
+        {
+          "lo": 61,
+          "hi": 63,
+          "n": "Cybernetics/Bionics"
+        },
+        {
+          "lo": 64,
+          "hi": 66,
+          "n": "Medal of honor"
+        }
+      ]
+    },
+    "task.mercenaries": {
+      "dice": "D66",
+      "rows": [
+        {
+          "lo": 11,
+          "hi": 13,
+          "n": "Reconnaissance",
+          "d": "Scout out an area, a location or the surroundings of a building. Remain unnoticed and report back to the employer."
+        },
+        {
+          "lo": 14,
+          "hi": 16,
+          "n": "Assault",
+          "d": "Attack and hold a location. Prisoners may be taken."
+        },
+        {
+          "lo": 21,
+          "hi": 26,
+          "n": "Defend place or area",
+          "d": "Defend a location or patrol an area; prevent the enemy from seizing it."
+        },
+        {
+          "lo": 31,
+          "hi": 33,
+          "n": "Reinforce location",
+          "d": "Support or reinforce a position under attack, repel the enemy."
+        },
+        {
+          "lo": 34,
+          "hi": 36,
+          "n": "Seek and destroy",
+          "d": "Find a person, group or location and destroy it. Could be civilians, enemy combatants or vehicles/ spaceships."
+        },
+        {
+          "lo": 41,
+          "hi": 43,
+          "n": "Protect resource",
+          "d": "Protect a resource. It could be information, a person, an object or a ship. Protect it from an attack or guard it for a specified amount of time."
+        },
+        {
+          "lo": 44,
+          "hi": 46,
+          "n": "Locate resource",
+          "d": "Locate a person, group or object and either retrieve it or notify the employer of its location."
+        },
+        {
+          "lo": 51,
+          "hi": 53,
+          "n": "Rescue operation",
+          "d": "Rescue a group, squadron or spaceship from an attack, imprisonment, or some other peril."
+        },
+        {
+          "lo": 54,
+          "hi": 56,
+          "n": "Raid",
+          "d": "Plan and execute a raid on a person, group, convoy or vehicle. The goal is usually to destroy or delay the target."
+        },
+        {
+          "lo": 61,
+          "hi": 63,
+          "n": "Investigation",
+          "d": "Locate something important, for example nuclear warheads, antimatter bombs or bionic weapons. The PCs could be accompanied by an agent, a weapons expert or some other officer."
+        },
+        {
+          "lo": 64,
+          "hi": 66,
+          "n": "Incursion",
+          "d": "Go behind enemy lines or breach a fortress or garrison to secure a resource that could be a person, information or an object."
+        }
+      ]
+    },
+    "location.mercenaries": {
+      "dice": "D66",
+      "rows": [
+        {
+          "lo": 11,
+          "hi": 13,
+          "n": "Underground bunker",
+          "d": "A bunker, new or old."
+        },
+        {
+          "lo": 14,
+          "hi": 16,
+          "n": "Hostile forest/ jungles/desert",
+          "d": "Inhospitable planet side wilderness. Usually far from cities or settlements."
+        },
+        {
+          "lo": 21,
+          "hi": 26,
+          "n": "Trenches",
+          "d": "A trench on a deadlocked frontline. Mine fields, underground tunnels and other soldiers in despair."
+        },
+        {
+          "lo": 31,
+          "hi": 33,
+          "n": "Spaceport",
+          "d": "Spaceport on a space station or planet."
+        },
+        {
+          "lo": 34,
+          "hi": 36,
+          "n": "Asteroid/Moon",
+          "d": "The surface of an asteroid or a smaller moon. Vacuum or dangerous atmosphere."
+        },
+        {
+          "lo": 41,
+          "hi": 43,
+          "n": "Combat station",
+          "d": "A fortified space station with weapon systems, or some other battle installation such as a larger garri- son, hangars or docks."
+        },
+        {
+          "lo": 44,
+          "hi": 46,
+          "n": "War zone",
+          "d": "A larger area where open war is raging. Could be a burned-out city or a wilderness full of fighting combatants."
+        },
+        {
+          "lo": 51,
+          "hi": 53,
+          "n": "Fortification",
+          "d": "A fortification could be a wall, modern fort, castle, artillery position, rocket silo or mine field."
+        },
+        {
+          "lo": 54,
+          "hi": 56,
+          "n": "Space station",
+          "d": "On a small space station, anything from an oxygen oasis to a trade or service station."
+        },
+        {
+          "lo": 61,
+          "hi": 63,
+          "n": "Spaceship",
+          "d": "Onboard a spaceship during voyage or docking."
+        },
+        {
+          "lo": 64,
+          "hi": 66,
+          "n": "Outpost",
+          "d": "A small outpost, usually planet side. An outpost is commonly just a single building with a specific func- tion and only a few inhabitants. For example sensor station, guard post, smaller garrison, smaller arsenal or warehouse."
+        }
+      ]
+    },
+    "complication.mercenaries": {
+      "dice": "D66",
+      "rows": [
+        {
+          "lo": 11,
+          "hi": 16,
+          "n": "Bad intel",
+          "d": "A piece of information about the contract turns out to be false, either intentionally or by mistake."
+        },
+        {
+          "lo": 21,
+          "hi": 23,
+          "n": "Supercargo",
+          "d": "Someone they must protect during the mission accompanies the group. It could be an observer, a civil- ian or an agent."
+        },
+        {
+          "lo": 24,
+          "hi": 33,
+          "n": "Gear problem",
+          "d": "The group has gear problems. It could be anything from weapons to vehicles or spaceships."
+        },
+        {
+          "lo": 34,
+          "hi": 43,
+          "n": "Underestimated resistance",
+          "d": "The resistance or the attackers are stronger than expected."
+        },
+        {
+          "lo": 44,
+          "hi": 53,
+          "n": "Captured employer",
+          "d": "The group's employer is captured during the mission. Fitting if the employer is an officer in the group's company."
+        },
+        {
+          "lo": 54,
+          "hi": 63,
+          "n": "New offensive",
+          "d": "A new offensive has just been initiated when the group is about to carry out their mission, either by the enemies or by the PCs' side in the conflict."
+        },
+        {
+          "lo": 64,
+          "hi": 66,
+          "n": "Bombardments",
+          "d": "The area where the mission takes place is being bombed. It could be air raids, torpedo attacks or rebel forces detonating mines and homemade explosives."
+        }
+      ]
+    },
+    "employer.explorers": {
+      "dice": "D66",
+      "rows": [
+        {
+          "lo": 11,
+          "hi": 13,
+          "n": "Archaeologist"
+        },
+        {
+          "lo": 14,
+          "hi": 16,
+          "n": "Scientist"
+        },
+        {
+          "lo": 21,
+          "hi": 23,
+          "n": "Artifact merchant"
+        },
+        {
+          "lo": 24,
+          "hi": 43,
+          "n": "Patron"
+        },
+        {
+          "lo": 44,
+          "hi": 46,
+          "n": "Factionary"
+        },
+        {
+          "lo": 51,
+          "hi": 53,
+          "n": "Correspondent"
+        },
+        {
+          "lo": 54,
+          "hi": 56,
+          "n": "Prospector"
+        },
+        {
+          "lo": 61,
+          "hi": 63,
+          "n": "Wealthy collector"
+        },
+        {
+          "lo": 64,
+          "hi": 66,
+          "n": "Criminal"
+        }
+      ]
+    },
+    "reward.explorers": {
+      "dice": "D66",
+      "rows": [
+        {
+          "lo": 11,
+          "hi": 13,
+          "n": "Expedition of their own"
+        },
+        {
+          "lo": 14,
+          "hi": 16,
+          "n": "Ship module"
+        },
+        {
+          "lo": 21,
+          "hi": 23,
+          "n": "Vehicle"
+        },
+        {
+          "lo": 24,
+          "hi": 46,
+          "n": "New knowledge"
+        },
+        {
+          "lo": 51,
+          "hi": 56,
+          "n": "Birr"
+        },
+        {
+          "lo": 61,
+          "hi": 63,
+          "n": "Gear"
+        },
+        {
+          "lo": 64,
+          "hi": 66,
+          "n": "Artifact"
+        }
+      ]
+    },
+    "task.explorers": {
+      "dice": "D66",
+      "rows": [
+        {
+          "lo": 11,
+          "hi": 13,
+          "n": "Excavation",
+          "d": "Perform an excavation, start a dig site or help in an already started excavation."
+        },
+        {
+          "lo": 14,
+          "hi": 16,
+          "n": "Collection",
+          "d": "Collect smaller archaeological finds, artifacts, information, scrolls or something similar. Could be from a dig site or some other location."
+        },
+        {
+          "lo": 21,
+          "hi": 26,
+          "n": "Survey",
+          "d": "Map a location or an area for the employer. Report back with sensor maps and other collected data."
+        },
+        {
+          "lo": 31,
+          "hi": 33,
+          "n": "Secure outpost",
+          "d": "Protect a smaller colony such as a dig site, Bulletin station, sensor station or radio beacon from an attack or from nature's wrath for a specified amount of time."
+        },
+        {
+          "lo": 34,
+          "hi": 36,
+          "n": "Assist colony",
+          "d": "Assist a smaller colony with gear, information or expert knowledge about exo use, medicurgy, con- struction or something else."
+        },
+        {
+          "lo": 41,
+          "hi": 43,
+          "n": "Artifact hunt",
+          "d": "Find an artifact. The location and sometimes the function are unknown. Clues must be tracked down before departure."
+        },
+        {
+          "lo": 44,
+          "hi": 46,
+          "n": "Investigation",
+          "d": "Locate something important, for example lost ruins, a dig site or a surveyed location. The PCs could be accompanied by an external expert such as an archaeologist, correspondent or diplomat."
+        },
+        {
+          "lo": 51,
+          "hi": 53,
+          "n": "Find information",
+          "d": "Find a specific piece of information for the employer. Sometimes, the group does not know the intended use of the information."
+        },
+        {
+          "lo": 54,
+          "hi": 56,
+          "n": "Prospecting",
+          "d": "Command a prospecting expedition or secure a claim somewhere. It could be mining, asteroid harvest- ing, logging or gas or dust trawling."
+        },
+        {
+          "lo": 61,
+          "hi": 63,
+          "n": "Rescue expedition",
+          "d": "Rescue a group, colony, archaeological expedition or correspondents from an attack or some other peril. Sometimes, the group does not know what has happened to the victims."
+        },
+        {
+          "lo": 64,
+          "hi": 66,
+          "n": "Big game hunt",
+          "d": "Command or join in an expedition hunting a monster or some other creature."
+        }
+      ]
+    },
+    "location.explorers": {
+      "dice": "D66",
+      "rows": [
+        {
+          "lo": 11,
+          "hi": 13,
+          "n": "Underground catacombs",
+          "d": "Catacombs, tombs or underground ruins."
+        },
+        {
+          "lo": 14,
+          "hi": 16,
+          "n": "Hostile forest/ jungles/desert",
+          "d": "Inhospitable planet side wilderness. Usually far from cities or settlements."
+        },
+        {
+          "lo": 21,
+          "hi": 26,
+          "n": "Library",
+          "d": "A library or database hub. Could contain anything from scrolls to memory tags and djinn memories."
+        },
+        {
+          "lo": 31,
+          "hi": 33,
+          "n": "Moon",
+          "d": "The surface of a moon. Usually vacuum or dangerous atmosphere. Planet-like moons count as wilder- ness (above)."
+        },
+        {
+          "lo": 34,
+          "hi": 36,
+          "n": "Asteroid belt",
+          "d": "An asteroid belt or a debris or gas cloud."
+        },
+        {
+          "lo": 41,
+          "hi": 43,
+          "n": "Ruins",
+          "d": "Ruins, either Firstcome, unknown or created by a conflict."
+        },
+        {
+          "lo": 44,
+          "hi": 46,
+          "n": "Portal Builder remains",
+          "d": "Portal Builder remains. Usually mystical but sometimes intact or functioning."
+        },
+        {
+          "lo": 51,
+          "hi": 53,
+          "n": "Lost colony",
+          "d": "A colony that lost contact with the Horizon several segments or cycles ago."
+        },
+        {
+          "lo": 54,
+          "hi": 56,
+          "n": "Space station",
+          "d": "On a small space station, anything from an oxygen oasis to a trade or service station. Could be aban- doned or destroyed."
+        },
+        {
+          "lo": 61,
+          "hi": 63,
+          "n": "Spaceship",
+          "d": "Onboard a spaceship during voyage or docking."
+        },
+        {
+          "lo": 64,
+          "hi": 66,
+          "n": "One of the wonders of the Horizon",
+          "d": "A large size artifact, like artificial moons or micro suns. The GM is free to decide its exact nature."
+        }
+      ]
+    },
+    "complication.explorers": {
+      "dice": "D66",
+      "rows": [
+        {
+          "lo": 11,
+          "hi": 16,
+          "n": "Bad intel",
+          "d": "A piece of information about the contract turns out to be false, either intentionally or by mistake."
+        },
+        {
+          "lo": 21,
+          "hi": 26,
+          "n": "Nature's wrath",
+          "d": "The expedition is subjected to nature's wrath. It could be anything from ion storms, bad weather and meteorite showers to landslides or flash floods."
+        },
+        {
+          "lo": 31,
+          "hi": 33,
+          "n": "Corsairs",
+          "d": "Corsairs attack the expedition."
+        },
+        {
+          "lo": 34,
+          "hi": 43,
+          "n": "Rival expedition",
+          "d": "A competing party has the same goal as the expedition and tries to get there first or stop the PCs. They have roughly the same gear as the PCs."
+        },
+        {
+          "lo": 44,
+          "hi": 53,
+          "n": "Blockade",
+          "d": "The destination is under blockade. It could be anything from tolls or anti-smuggling measures to fac- tionary war."
+        },
+        {
+          "lo": 54,
+          "hi": 63,
+          "n": "Quarantine",
+          "d": "The destination is placed under quarantine. It could be because of a contagion, a mind meme, danger- ous technology or something else."
+        },
+        {
+          "lo": 64,
+          "hi": 66,
+          "n": "Intelligence agency",
+          "d": "The expedition's goals interfere with the work of an intelligence agency. Intelligence agencies usually have a lot of resources and few scruples."
+        }
+      ]
+    },
+    "employer.pilgrims": {
+      "dice": "D66",
+      "rows": [
+        {
+          "lo": 11,
+          "hi": 13,
+          "n": "Nomad mystic"
+        },
+        {
+          "lo": 14,
+          "hi": 16,
+          "n": "Prophet"
+        },
+        {
+          "lo": 21,
+          "hi": 23,
+          "n": "Courtesan"
+        },
+        {
+          "lo": 24,
+          "hi": 43,
+          "n": "Patron"
+        },
+        {
+          "lo": 44,
+          "hi": 46,
+          "n": "Factionary"
+        },
+        {
+          "lo": 51,
+          "hi": 53,
+          "n": "Merchant"
+        },
+        {
+          "lo": 54,
+          "hi": 56,
+          "n": "Preacher"
+        },
+        {
+          "lo": 61,
+          "hi": 63,
+          "n": "Pilgrim"
+        },
+        {
+          "lo": 64,
+          "hi": 66,
+          "n": "Hermit"
+        }
+      ]
+    },
+    "employer.entertainers": {
+      "dice": "D66",
+      "rows": [
+        {
+          "lo": 11,
+          "hi": 13,
+          "n": "Director"
+        },
+        {
+          "lo": 14,
+          "hi": 16,
+          "n": "Poet"
+        },
+        {
+          "lo": 21,
+          "hi": 23,
+          "n": "Courtesan"
+        },
+        {
+          "lo": 24,
+          "hi": 43,
+          "n": "Patron"
+        },
+        {
+          "lo": 44,
+          "hi": 46,
+          "n": "Factionary"
+        },
+        {
+          "lo": 51,
+          "hi": 53,
+          "n": "Musician"
+        },
+        {
+          "lo": 54,
+          "hi": 56,
+          "n": "Circus director"
+        },
+        {
+          "lo": 61,
+          "hi": 63,
+          "n": "Tarrab"
+        },
+        {
+          "lo": 64,
+          "hi": 66,
+          "n": "Acrobat"
+        }
+      ]
+    },
+    "employer.nomads": {
+      "dice": "D66",
+      "rows": [
+        {
+          "lo": 11,
+          "hi": 13,
+          "n": "Clan leader"
+        },
+        {
+          "lo": 14,
+          "hi": 16,
+          "n": "Prophet"
+        },
+        {
+          "lo": 21,
+          "hi": 23,
+          "n": "Plantation owner"
+        },
+        {
+          "lo": 24,
+          "hi": 43,
+          "n": "Patron"
+        },
+        {
+          "lo": 44,
+          "hi": 46,
+          "n": "Factionary"
+        },
+        {
+          "lo": 51,
+          "hi": 53,
+          "n": "Travelling peddler"
+        },
+        {
+          "lo": 54,
+          "hi": 56,
+          "n": "Nomad warrior"
+        },
+        {
+          "lo": 61,
+          "hi": 63,
+          "n": "Colonist"
+        },
+        {
+          "lo": 64,
+          "hi": 66,
+          "n": "Industrialist"
+        }
+      ]
+    },
+    "reward.pilgrims": {
+      "dice": "D66",
+      "rows": [
+        {
+          "lo": 11,
+          "hi": 13,
+          "n": "Holy relic/artifact"
+        },
+        {
+          "lo": 14,
+          "hi": 23,
+          "n": "New voyage funded"
+        },
+        {
+          "lo": 24,
+          "hi": 33,
+          "n": "Gear"
+        },
+        {
+          "lo": 34,
+          "hi": 46,
+          "n": "Birr"
+        },
+        {
+          "lo": 51,
+          "hi": 56,
+          "n": "Ship module/feature"
+        },
+        {
+          "lo": 61,
+          "hi": 63,
+          "n": "Temple constructed"
+        },
+        {
+          "lo": 64,
+          "hi": 66,
+          "n": "Absolution/blessing"
+        }
+      ]
+    },
+    "reward.entertainers": {
+      "dice": "D66",
+      "rows": [
+        {
+          "lo": 11,
+          "hi": 13,
+          "n": "New contract"
+        },
+        {
+          "lo": 14,
+          "hi": 23,
+          "n": "New play funded"
+        },
+        {
+          "lo": 24,
+          "hi": 33,
+          "n": "Gear"
+        },
+        {
+          "lo": 34,
+          "hi": 46,
+          "n": "Birr"
+        },
+        {
+          "lo": 51,
+          "hi": 56,
+          "n": "Ship module/feature"
+        },
+        {
+          "lo": 61,
+          "hi": 63,
+          "n": "Fame"
+        },
+        {
+          "lo": 64,
+          "hi": 66,
+          "n": "Faction reputation"
+        }
+      ]
+    },
+    "reward.nomads": {
+      "dice": "D66",
+      "rows": [
+        {
+          "lo": 11,
+          "hi": 13,
+          "n": "New scrap ship/colony"
+        },
+        {
+          "lo": 14,
+          "hi": 23,
+          "n": "New colony funded"
+        },
+        {
+          "lo": 24,
+          "hi": 33,
+          "n": "Gear"
+        },
+        {
+          "lo": 34,
+          "hi": 46,
+          "n": "Birr"
+        },
+        {
+          "lo": 51,
+          "hi": 56,
+          "n": "Ship module/feature"
+        },
+        {
+          "lo": 61,
+          "hi": 63,
+          "n": "Vehicle"
+        },
+        {
+          "lo": 64,
+          "hi": 66,
+          "n": "Faction protection"
+        }
+      ]
+    },
+    "task.pilgrims": {
+      "dice": "D66",
+      "rows": [
+        {
+          "lo": 11,
+          "hi": 13,
+          "n": "Pilgrimage",
+          "d": "A pilgrimage to one of the Horizon's important temples or holy sites."
+        },
+        {
+          "lo": 14,
+          "hi": 16,
+          "n": "Supply run",
+          "d": "Bring supplies to somewhere."
+        },
+        {
+          "lo": 21,
+          "hi": 26,
+          "n": "Monastery visit",
+          "d": "Travel to a monastery and remain there for some time."
+        },
+        {
+          "lo": 31,
+          "hi": 33,
+          "n": "Establish missionary colony",
+          "d": "Establish a missionary colony and spread the faith in an area."
+        },
+        {
+          "lo": 34,
+          "hi": 36,
+          "n": "Missionary trip",
+          "d": "Travel to several locations and spread the faith."
+        },
+        {
+          "lo": 41,
+          "hi": 43,
+          "n": "Construct temple",
+          "d": "Help build a temple, from construction to inauguration, perhaps staying on to run the temple."
+        },
+        {
+          "lo": 44,
+          "hi": 46,
+          "n": "Acquire relic",
+          "d": "Acquire a holy relic. It could be body part from a martyr or a hero, an object with sacred writing on it or a religious symbol."
+        },
+        {
+          "lo": 51,
+          "hi": 53,
+          "n": "Destroy relic/idol",
+          "d": "Find a dangerous or tainted relic or a heathen idol and destroy it."
+        },
+        {
+          "lo": 54,
+          "hi": 56,
+          "n": "Find prophet",
+          "d": "Find a lost prophet, seer, ascetic or preacher."
+        },
+        {
+          "lo": 61,
+          "hi": 63,
+          "n": "Fulfill prophecy",
+          "d": "Help the Icons so that a prophecy is fulfilled."
+        },
+        {
+          "lo": 64,
+          "hi": 66,
+          "n": "Represent temple",
+          "d": "Represent a temple in another location, such as during a sacred meeting, diplomatic trip or mis- sionary voyage."
+        }
+      ]
+    },
+    "task.entertainers": {
+      "dice": "D66",
+      "rows": [
+        {
+          "lo": 11,
+          "hi": 13,
+          "n": "Find literature",
+          "d": "Investigate and find lost literature. Could be anything from oral stories to blood operas or songs."
+        },
+        {
+          "lo": 14,
+          "hi": 16,
+          "n": "Service a set",
+          "d": "Service a set. Could be anything from make-up, lighting and camera operating to catering or relaxation."
+        },
+        {
+          "lo": 21,
+          "hi": 26,
+          "n": "Guest performance",
+          "d": "Perform somewhere by special invitation."
+        },
+        {
+          "lo": 31,
+          "hi": 33,
+          "n": "Organize a carnival",
+          "d": "Organize a carnival, coordinate with other entertainers, acrobats and circuses."
+        },
+        {
+          "lo": 34,
+          "hi": 36,
+          "n": "Bazaar performance",
+          "d": "A series of smaller performances in a bazaar or market."
+        },
+        {
+          "lo": 41,
+          "hi": 43,
+          "n": "Holo movie",
+          "d": "Work with a holo movie, acting and/or directing."
+        },
+        {
+          "lo": 44,
+          "hi": 46,
+          "n": "Play",
+          "d": "Perform a play in a theater or an opera house."
+        },
+        {
+          "lo": 51,
+          "hi": 53,
+          "n": "Circus performance",
+          "d": "Perform in a circus show. Could be acrobatics, magic or animal/monster taming"
+        },
+        {
+          "lo": 54,
+          "hi": 56,
+          "n": "Pleasure cruise",
+          "d": "Take part in a pleasure cruise for the rich."
+        },
+        {
+          "lo": 61,
+          "hi": 63,
+          "n": "Dignitary performance",
+          "d": "Perform for high-ranking dignitaries or factionaries."
+        },
+        {
+          "lo": 64,
+          "hi": 66,
+          "n": "Concert",
+          "d": "Put on a concert with musical instruments and/or singing."
+        }
+      ]
+    },
+    "task.nomads": {
+      "dice": "D66",
+      "rows": [
+        {
+          "lo": 11,
+          "hi": 13,
+          "n": "Plantation construction",
+          "d": "Construct a new plantation and plant crops."
+        },
+        {
+          "lo": 14,
+          "hi": 16,
+          "n": "Supply run",
+          "d": "Bring supplies to somewhere."
+        },
+        {
+          "lo": 21,
+          "hi": 26,
+          "n": "Guest work",
+          "d": "Work in a factory or with service for a shorter period of time or one season. It could be harvesting, transportation, cleaning or servant work."
+        },
+        {
+          "lo": 31,
+          "hi": 33,
+          "n": "Start a colony",
+          "d": "Build a colony or prepare a location before the colonists arrive."
+        },
+        {
+          "lo": 34,
+          "hi": 36,
+          "n": "Collect asteroid",
+          "d": "Collect or tow an asteroid or ice block to prospectors or a refinery unit."
+        },
+        {
+          "lo": 41,
+          "hi": 43,
+          "n": "Construction work",
+          "d": "Build something big, such as a dam, a mine or a large complex like a spaceport or a station."
+        },
+        {
+          "lo": 44,
+          "hi": 46,
+          "n": "Act of revenge",
+          "d": "Exact vengeance on another group of plebeians or non-unionized workers. Could be sabotaging cargo or loading, burning stockpiled goods or destroying a ship or gear while in dock or storage."
+        },
+        {
+          "lo": 51,
+          "hi": 53,
+          "n": "Service bulk hauler",
+          "d": "Servicing a bulk hauler with loading and unloading, plus running shuttle traffic down to a planet if necessary."
+        },
+        {
+          "lo": 54,
+          "hi": 56,
+          "n": "Loading",
+          "d": "Loading using exos or ground loaders in a market or spaceport."
+        },
+        {
+          "lo": 61,
+          "hi": 63,
+          "n": "Repairs",
+          "d": "Repair something. Could be anything from a spaceship, large vehicle or building to harvest machin- ery, a furnace or logging equipment."
+        },
+        {
+          "lo": 64,
+          "hi": 66,
+          "n": "Diplomatic representation",
+          "d": "Represent a group of plebeians, workers or the Free League during negotiations."
+        }
+      ]
+    },
+    "complication.pilgrims": {
+      "dice": "D66",
+      "rows": [
+        {
+          "lo": 11,
+          "hi": 13,
+          "n": "Cult",
+          "d": "A cult stands in the PCs' way. They could be withholding relics, blocking roads or trying to stop the construction of a temple or the fulfilling of a prophecy."
+        },
+        {
+          "lo": 14,
+          "hi": 16,
+          "n": "Nature's wrath",
+          "d": "The party is subjected to nature's wrath. It could be anything from ion storms, bad weather and meteorite showers to landslides or flash floods."
+        },
+        {
+          "lo": 21,
+          "hi": 26,
+          "n": "Doomsday prophecy",
+          "d": "The end is nigh! A doomsday prophecy has been spoken that complicates the voyage."
+        },
+        {
+          "lo": 31,
+          "hi": 52,
+          "n": "Lack of resources",
+          "d": "Something important is missing. It could be gear, fuel, raw materials, and knowledge or simply birr."
+        },
+        {
+          "lo": 53,
+          "hi": 56,
+          "n": "Starvation",
+          "d": "For some reason, the food will not last."
+        },
+        {
+          "lo": 61,
+          "hi": 63,
+          "n": "Diva",
+          "d": "A diva appears, in the form of a prophet, preacher or temple officer, hindering the group unless they are prepared to grovel."
+        },
+        {
+          "lo": 64,
+          "hi": 66,
+          "n": "Iconic intervention",
+          "d": "The Icons manifest themselves somehow. Through an avatar, an omen, a miracle or some other way of the GM's choosing."
+        }
+      ]
+    },
+    "complication.entertainers": {
+      "dice": "D66",
+      "rows": [
+        {
+          "lo": 11,
+          "hi": 16,
+          "n": "Restrictions",
+          "d": "A ban or high fee complicates the voyage."
+        },
+        {
+          "lo": 21,
+          "hi": 26,
+          "n": "Nature's wrath",
+          "d": "The party is subjected to nature's wrath. It could be anything from ion storms, bad weather and meteorite showers to landslides or flash floods."
+        },
+        {
+          "lo": 31,
+          "hi": 36,
+          "n": "Rival group",
+          "d": "A competing party has the same goal as the expedition and tries to get there first or stop the PCs. They have roughly the same gear as the PCs."
+        },
+        {
+          "lo": 41,
+          "hi": 46,
+          "n": "Lack of resources",
+          "d": "Something important is missing. It could be gear, fuel, raw materials, and knowledge or simply birr."
+        },
+        {
+          "lo": 51,
+          "hi": 56,
+          "n": "Wrong equipment",
+          "d": "The group's gear is unfit for the task."
+        },
+        {
+          "lo": 61,
+          "hi": 63,
+          "n": "Diva",
+          "d": "A diva appears, in the forms of an actor, director or artist, hindering the group unless they are pre- pared to grovel."
+        },
+        {
+          "lo": 64,
+          "hi": 66,
+          "n": "War",
+          "d": "A violent event occurs, such as a war breaking out."
+        }
+      ]
+    },
+    "complication.nomads": {
+      "dice": "D66",
+      "rows": [
+        {
+          "lo": 11,
+          "hi": 16,
+          "n": "The crack of the whip",
+          "d": "The employer has thugs pushing the group to work faster. It could be stevedore aqbars, foremen or something similar."
+        },
+        {
+          "lo": 21,
+          "hi": 26,
+          "n": "Nature's wrath",
+          "d": "The party is subjected to nature's wrath. It could be anything from ion storms, bad weather and meteorite showers to landslides or flash floods."
+        },
+        {
+          "lo": 31,
+          "hi": 36,
+          "n": "Corsairs",
+          "d": "Corsairs or bandits attack the group's work site."
+        },
+        {
+          "lo": 41,
+          "hi": 46,
+          "n": "Lack of resources",
+          "d": "Something important is missing. It could be gear, fuel, raw materials, and knowledge or simply birr."
+        },
+        {
+          "lo": 51,
+          "hi": 56,
+          "n": "Starvation",
+          "d": "For some reason, the food will not last."
+        },
+        {
+          "lo": 61,
+          "hi": 63,
+          "n": "Faction",
+          "d": "A faction is blocking the work the group is supposed to do."
+        },
+        {
+          "lo": 64,
+          "hi": 66,
+          "n": "Rebels",
+          "d": "Rebels violently try to stop the group's work."
+        }
+      ]
+    },
+    "employer.traders": {
+      "dice": "D66",
+      "rows": [
+        {
+          "lo": 11,
+          "hi": 13,
+          "n": "Outpost representative"
+        },
+        {
+          "lo": 14,
+          "hi": 16,
+          "n": "Merchant"
+        },
+        {
+          "lo": 21,
+          "hi": 23,
+          "n": "Colonist"
+        },
+        {
+          "lo": 24,
+          "hi": 43,
+          "n": "Patron"
+        },
+        {
+          "lo": 44,
+          "hi": 46,
+          "n": "Trading house"
+        },
+        {
+          "lo": 51,
+          "hi": 53,
+          "n": "Military officer"
+        },
+        {
+          "lo": 54,
+          "hi": 56,
+          "n": "Criminal"
+        },
+        {
+          "lo": 61,
+          "hi": 63,
+          "n": "Factionary"
+        },
+        {
+          "lo": 64,
+          "hi": 66,
+          "n": "Privileged"
+        }
+      ]
+    },
+    "reward.traders": {
+      "dice": "D66",
+      "rows": [
+        {
+          "lo": 11,
+          "hi": 13,
+          "n": "Discount on new cargo"
+        },
+        {
+          "lo": 14,
+          "hi": 16,
+          "n": "New contract"
+        },
+        {
+          "lo": 21,
+          "hi": 46,
+          "n": "Birr"
+        },
+        {
+          "lo": 51,
+          "hi": 53,
+          "n": "Ship module/feature"
+        },
+        {
+          "lo": 54,
+          "hi": 56,
+          "n": "Faction contact"
+        },
+        {
+          "lo": 61,
+          "hi": 63,
+          "n": "Extra debt cancellation"
+        },
+        {
+          "lo": 64,
+          "hi": 66,
+          "n": "Artifact"
+        }
+      ]
+    },
+    "task.traders": {
+      "dice": "D66",
+      "rows": [
+        {
+          "lo": 11,
+          "hi": 12,
+          "n": "Ore",
+          "d": "Bauxite (aluminum), lead glance, gold-quartz, cassiterite (tin), malachite (copper), magnetite (iron), platinum-bearing sand, sphalerite (zinc)"
+        },
+        {
+          "lo": 13,
+          "hi": 13,
+          "n": "Minerals",
+          "d": "Pure minerals, salt"
+        },
+        {
+          "lo": 14,
+          "hi": 14,
+          "n": "Metals",
+          "d": "Bars of metal"
+        },
+        {
+          "lo": 15,
+          "hi": 16,
+          "n": "Noble gasses",
+          "d": "Argon, helium, neon, krypton, radon, xenon"
+        },
+        {
+          "lo": 21,
+          "hi": 21,
+          "n": "Timber",
+          "d": "Pine, jacaranda, mahogany, oak"
+        },
+        {
+          "lo": 22,
+          "hi": 22,
+          "n": "Ice",
+          "d": "Water ice or rare frozen solution"
+        },
+        {
+          "lo": 23,
+          "hi": 23,
+          "n": "Chemicals",
+          "d": "Industrial chemicals"
+        },
+        {
+          "lo": 24,
+          "hi": 24,
+          "n": "Fertilizer",
+          "d": "Natural (droppings) or synthetic"
+        },
+        {
+          "lo": 25,
+          "hi": 26,
+          "n": "Textiles",
+          "d": "Fabrics (wool, velvet, silk) or clothing"
+        },
+        {
+          "lo": 31,
+          "hi": 32,
+          "n": "Foodstuffs",
+          "d": "Base foods such as chickpeas, soybeans and other legumes, grains (corn, barley, rice, wheat) or refined versions thereof (such as couscous) or vegetables such as aubergine, spinach, zucchini, cucumber or tomato."
+        },
+        {
+          "lo": 33,
+          "hi": 33,
+          "n": "Spices",
+          "d": "Jasmine, cinnamon, cloves, cumin, mint, basil, oregano, rose water, saffron"
+        },
+        {
+          "lo": 34,
+          "hi": 34,
+          "n": "Delicacies",
+          "d": "Apricots, bananas, baklava, dates, coconut, almonds, marzipan, nuts (pecans, pistachios, walnuts), raisins, oysters, caviar, testicles, ants"
+        },
+        {
+          "lo": 35,
+          "hi": 36,
+          "n": "Medicinal goods",
+          "d": "Vaccines, medicines, m- and t-doses, surgical gear for bionics or cybernetics"
+        },
+        {
+          "lo": 41,
+          "hi": 41,
+          "n": "Religious paraphernalia",
+          "d": "Altars, prayer towers, dismantled chapels, icons, reliquaries, religious art, talismans, relics, scrolls"
+        },
+        {
+          "lo": 42,
+          "hi": 43,
+          "n": "Spare parts",
+          "d": "Different makes and types, for exos, vehicles, cybernetics, medical technology, prospecting gear, drones, weapons, armor, spaceships or colony life support systems"
+        },
+        {
+          "lo": 44,
+          "hi": 45,
+          "n": "Ship parts",
+          "d": "Modules, features, parts for/from dismantled ships"
+        },
+        {
+          "lo": 46,
+          "hi": 46,
+          "n": "Exos",
+          "d": "Exo shells, loader exos, diver exos, carrier exos etc. Stacked effective use of cargo space."
+        },
+        {
+          "lo": 51,
+          "hi": 51,
+          "n": "Drones",
+          "d": "Parts or ready-to-use automatic systems"
+        },
+        {
+          "lo": 52,
+          "hi": 52,
+          "n": "Vehicles",
+          "d": "Disassembled"
+        },
+        {
+          "lo": 53,
+          "hi": 54,
+          "n": "Weapons",
+          "d": "Choose from the Gear chapter"
+        },
+        {
+          "lo": 55,
+          "hi": 56,
+          "n": "Body armors",
+          "d": "Choose from the Gear chapter"
+        },
+        {
+          "lo": 61,
+          "hi": 62,
+          "n": "Survival gear",
+          "d": "Basic gear for survival or for a specific environment"
+        },
+        {
+          "lo": 63,
+          "hi": 63,
+          "n": "Animal feed",
+          "d": "Alfalfa, tailored animal or livestock feed, synthetic fodder"
+        },
+        {
+          "lo": 64,
+          "hi": 65,
+          "n": "Livestock/animals",
+          "d": "Work animals or pets, usually alive if loaded in a primitive environment or in stasis if from ordinary or advanced environments"
+        },
+        {
+          "lo": 66,
+          "hi": 66,
+          "n": "Semi-intelligences",
+          "d": "Ekilibri or nekatra are the most common, the former as plantation workers or pets, the latter as guards, soldiers or gladiators"
+        }
+      ]
+    },
+    "location.traders": {
+      "dice": "D66",
+      "rows": [
+        {
+          "lo": 11,
+          "hi": 13,
+          "n": "Only coordinates",
+          "d": "Coordinates for an area or secret base."
+        },
+        {
+          "lo": 14,
+          "hi": 16,
+          "n": "Hostile forest/ jungles/desert",
+          "d": "Landing site in planet side wilderness. Usually far from cities or settlements."
+        },
+        {
+          "lo": 21,
+          "hi": 26,
+          "n": "Bazaar",
+          "d": "A bazaar or market in a city or settlement."
+        },
+        {
+          "lo": 31,
+          "hi": 33,
+          "n": "Spaceport",
+          "d": "Spaceport on a space station, asteroid or moon, or a landing strip near a larger settlement."
+        },
+        {
+          "lo": 34,
+          "hi": 36,
+          "n": "Asteroid/Moon",
+          "d": "The surface of an asteroid or a smaller moon. Vacuum or dangerous atmosphere. Planet-like moons count as wilderness (above)."
+        },
+        {
+          "lo": 41,
+          "hi": 43,
+          "n": "Space station",
+          "d": "A small space station, anything from an oxygen oasis to a trade or service station."
+        },
+        {
+          "lo": 44,
+          "hi": 46,
+          "n": "Souk",
+          "d": "A larger souk where trading partners meet. Usually in a larger city or station, sometimes seasonal."
+        },
+        {
+          "lo": 51,
+          "hi": 53,
+          "n": "Colony",
+          "d": "A small colony, usually no bigger than a small, sparsely populated village. Far from other settlements."
+        },
+        {
+          "lo": 54,
+          "hi": 56,
+          "n": "Portal station",
+          "d": "A portal station next to a sun."
+        },
+        {
+          "lo": 61,
+          "hi": 63,
+          "n": "Spaceship",
+          "d": "Onboard a spaceship during voyage or docking."
+        },
+        {
+          "lo": 64,
+          "hi": 66,
+          "n": "Outpost",
+          "d": "A small outpost, usually planet side. An outpost is commonly just a single building with a specific func- tion and only a few inhabitants see above."
+        }
+      ]
+    },
+    "complication.traders": {
+      "dice": "D66",
+      "rows": [
+        {
+          "lo": 11,
+          "hi": 13,
+          "n": "Embargo/Quarantine",
+          "d": "The destination is placed under quarantine or an embargo."
+        },
+        {
+          "lo": 14,
+          "hi": 16,
+          "n": "Customs inspection",
+          "d": "A tolling vessel or some other customs ship approaches and demands to be allowed to board."
+        },
+        {
+          "lo": 21,
+          "hi": 26,
+          "n": "Corrupt customs officer",
+          "d": "A customs officer demands to be bribed to allow the PCs through or will make sure their cargo gets tangled up in bureaucracy."
+        },
+        {
+          "lo": 31,
+          "hi": 33,
+          "n": "Corsairs",
+          "d": "Corsairs or pirates attack the group's work site or ship."
+        },
+        {
+          "lo": 34,
+          "hi": 43,
+          "n": "Break-down",
+          "d": "Some form of breakdown occurs onboard, during either loading or unloading."
+        },
+        {
+          "lo": 44,
+          "hi": 53,
+          "n": "Lost",
+          "d": "The group strays from their planned route and is lost on a planet or in space."
+        },
+        {
+          "lo": 54,
+          "hi": 56,
+          "n": "Tricky merchant",
+          "d": "The PCs encounter a merchant who hinders them from selling at a profit or tricks them in some other way."
+        },
+        {
+          "lo": 61,
+          "hi": 66,
+          "n": "Saturated market",
+          "d": "The market at the destination recently received a big shipment of goods similar to the PCs' and the prices have dropped."
+        }
+      ]
+    },
+    "w.size": {
+      "dice": "2D6",
+      "rows": [
+        {
+          "lo": 2,
+          "hi": 2,
+          "n": "<1,000 km · Almost 0-G · Ceres and other asteroids"
+        },
+        {
+          "lo": 3,
+          "hi": 3,
+          "n": "2,000 km 0.1 G Iapetus"
+        },
+        {
+          "lo": 4,
+          "hi": 4,
+          "n": "4,000 km 0.2 G Luna, Europa"
+        },
+        {
+          "lo": 5,
+          "hi": 6,
+          "n": "7,000 km 0.5 G Mars"
+        },
+        {
+          "lo": 7,
+          "hi": 8,
+          "n": "10,000 km 0.7 G"
+        },
+        {
+          "lo": 9,
+          "hi": 10,
+          "n": "12,500 km 1.0 G Earth, Venus"
+        },
+        {
+          "lo": 11,
+          "hi": 11,
+          "n": "15,000 km 1.3 G"
+        },
+        {
+          "lo": 12,
+          "hi": 12,
+          "n": "20,000 km Almost 2 G"
+        }
+      ]
+    },
+    "w.gasSize": {
+      "dice": "2D6",
+      "rows": [
+        {
+          "lo": 2,
+          "hi": 2,
+          "n": "40,000 km"
+        },
+        {
+          "lo": 3,
+          "hi": 3,
+          "n": "60,000 km Uranus, Neptune"
+        },
+        {
+          "lo": 4,
+          "hi": 4,
+          "n": "100,000 km Saturn"
+        },
+        {
+          "lo": 5,
+          "hi": 9,
+          "n": "150,000 km Jupiter"
+        },
+        {
+          "lo": 10,
+          "hi": 11,
+          "n": "200,000 km"
+        },
+        {
+          "lo": 12,
+          "hi": 12,
+          "n": "250,000 km"
+        }
+      ]
+    },
+    "w.gasColour": {
+      "dice": "2D6",
+      "rows": [
+        {
+          "lo": 2,
+          "hi": 2,
+          "n": "White"
+        },
+        {
+          "lo": 3,
+          "hi": 3,
+          "n": "Shimmering grey"
+        },
+        {
+          "lo": 4,
+          "hi": 6,
+          "n": "Sulphur yellow"
+        },
+        {
+          "lo": 7,
+          "hi": 9,
+          "n": "Red orange"
+        },
+        {
+          "lo": 10,
+          "hi": 10,
+          "n": "Emerald green"
+        },
+        {
+          "lo": 11,
+          "hi": 11,
+          "n": "Azure blue"
+        },
+        {
+          "lo": 12,
+          "hi": 12,
+          "n": "Black"
+        }
+      ]
+    },
+    "w.gasTemp": {
+      "dice": "2D6",
+      "rows": [
+        {
+          "lo": 2,
+          "hi": 6,
+          "n": "-200 Celsius"
+        },
+        {
+          "lo": 7,
+          "hi": 7,
+          "n": "0 Celsius"
+        },
+        {
+          "lo": 8,
+          "hi": 9,
+          "n": "500 Celsius",
+          "d": "Lead"
+        },
+        {
+          "lo": 10,
+          "hi": 10,
+          "n": "1,000 Celsius"
+        },
+        {
+          "lo": 11,
+          "hi": 11,
+          "n": "2,000 Celsius",
+          "d": "Lava, melting point of gold"
+        },
+        {
+          "lo": 12,
+          "hi": 12,
+          "n": "3,000 Celsius",
+          "d": "Iron"
+        }
+      ]
+    },
+    "w.gasChar": {
+      "dice": "2D6",
+      "rows": [
+        {
+          "lo": 2,
+          "hi": 3,
+          "n": "Rings"
+        },
+        {
+          "lo": 4,
+          "hi": 6,
+          "n": "Storms"
+        },
+        {
+          "lo": 7,
+          "hi": 8,
+          "n": "Spot/super storm"
+        },
+        {
+          "lo": 9,
+          "hi": 10,
+          "n": "Warm/cold hole"
+        },
+        {
+          "lo": 11,
+          "hi": 11,
+          "n": "Gas creatures"
+        },
+        {
+          "lo": 12,
+          "hi": 12,
+          "n": "Artifact in orbit"
+        }
+      ]
+    },
+    "w.beltSize": {
+      "dice": "D6",
+      "rows": [
+        {
+          "lo": 1,
+          "hi": 1,
+          "n": "Small ring, smaller than the diameter of a planet (5-10,000 km)"
+        },
+        {
+          "lo": 2,
+          "hi": 4,
+          "n": "Regular, about 1-2 AD wide"
+        },
+        {
+          "lo": 5,
+          "hi": 5,
+          "n": "Massive, 10 AD wide and high. Blocks sunlight to the outer planets."
+        },
+        {
+          "lo": 6,
+          "hi": 6,
+          "n": "Scattered, 20+ AD wide."
+        }
+      ]
+    },
+    "w.beltComp": {
+      "dice": "D6",
+      "rows": [
+        {
+          "lo": 1,
+          "hi": 1,
+          "n": "Dust/ash"
+        },
+        {
+          "lo": 2,
+          "hi": 2,
+          "n": "Ice"
+        },
+        {
+          "lo": 3,
+          "hi": 5,
+          "n": "Gravel and ice"
+        },
+        {
+          "lo": 6,
+          "hi": 6,
+          "n": "Debris, wrecks and planet remains"
+        }
+      ]
+    },
+    "w.beltChar": {
+      "dice": "2D6",
+      "rows": [
+        {
+          "lo": 2,
+          "hi": 2,
+          "n": "The belt is almost as black as the Dark between the Stars and difficult to maneuver through."
+        },
+        {
+          "lo": 3,
+          "hi": 3,
+          "n": "The belt is very bright and is always visible in the sky, even during the day."
+        },
+        {
+          "lo": 4,
+          "hi": 4,
+          "n": "A larger planet sits in the middle of the belt."
+        },
+        {
+          "lo": 5,
+          "hi": 8,
+          "n": "Nothing special."
+        },
+        {
+          "lo": 9,
+          "hi": 9,
+          "n": "The belt is at an odd angle from the rest of the planets’ courses."
+        },
+        {
+          "lo": 10,
+          "hi": 10,
+          "n": "The belt is home to vacuum beings."
+        },
+        {
+          "lo": 11,
+          "hi": 11,
+          "n": "The belt’s size fluctuates over the segments, like the tide."
+        },
+        {
+          "lo": 12,
+          "hi": 12,
+          "n": "The belt contains many Portal Builder remains."
+        }
+      ]
+    },
+    "w.orbit": {
+      "dice": "2D6",
+      "rows": [
+        {
+          "lo": 2,
+          "hi": 2,
+          "n": "Roll D6 times on the table"
+        },
+        {
+          "lo": 3,
+          "hi": 3,
+          "n": "Forgotten stations"
+        },
+        {
+          "lo": 4,
+          "hi": 4,
+          "n": "Satellites"
+        },
+        {
+          "lo": 5,
+          "hi": 5,
+          "n": "Space stations"
+        },
+        {
+          "lo": 6,
+          "hi": 8,
+          "n": "Empty space"
+        },
+        {
+          "lo": 9,
+          "hi": 10,
+          "n": "Moon/moons"
+        },
+        {
+          "lo": 11,
+          "hi": 11,
+          "n": "Rings or gravel belt"
+        },
+        {
+          "lo": 12,
+          "hi": 12,
+          "n": "Orbital asteroid belt"
+        }
+      ]
+    },
+    "w.atmosphere": {
+      "dice": "2D6",
+      "rows": [
+        {
+          "lo": 2,
+          "hi": 2,
+          "n": "Toxic"
+        },
+        {
+          "lo": 3,
+          "hi": 3,
+          "n": "Thin"
+        },
+        {
+          "lo": 4,
+          "hi": 8,
+          "n": "Breathable"
+        },
+        {
+          "lo": 9,
+          "hi": 9,
+          "n": "Dense"
+        },
+        {
+          "lo": 10,
+          "hi": 10,
+          "n": "Corrosive, toxic"
+        },
+        {
+          "lo": 11,
+          "hi": 11,
+          "n": "Infiltrating, toxic"
+        },
+        {
+          "lo": 12,
+          "hi": 12,
+          "n": "Special"
+        }
+      ]
+    },
+    "w.temperature": {
+      "dice": "2D6",
+      "rows": [
+        {
+          "lo": 2,
+          "hi": 2,
+          "n": "Frozen",
+          "d": "< -50 Celsius · All water is frozen and the atmosphere is very dry"
+        },
+        {
+          "lo": 3,
+          "hi": 4,
+          "n": "Cold",
+          "d": "-50 to 0 Celsius · Some water exists, ice age on land, few clouds"
+        },
+        {
+          "lo": 5,
+          "hi": 9,
+          "n": "Tempered",
+          "d": "0 to 30 Celsius · Earth-like planet with clouds and polar ice"
+        },
+        {
+          "lo": 10,
+          "hi": 11,
+          "n": "Hot",
+          "d": "31 to 80 Celsius · Some water exists, small polar ice caps, cloudy"
+        },
+        {
+          "lo": 12,
+          "hi": 100,
+          "n": "Burning",
+          "d": "> 80 Celsius · No polar ice, very little water"
+        }
+      ]
+    },
+    "w.geosphere": {
+      "dice": "2D6",
+      "rows": [
+        {
+          "lo": -100,
+          "hi": 2,
+          "n": "Desert world",
+          "d": "Only desert and only underground water"
+        },
+        {
+          "lo": 3,
+          "hi": 4,
+          "n": "Arid world",
+          "d": "Huge deserts, dry steppes and a few small oceans"
+        },
+        {
+          "lo": 5,
+          "hi": 5,
+          "n": "Wet world",
+          "d": "Big oceans but mostly dry land"
+        },
+        {
+          "lo": 6,
+          "hi": 9,
+          "n": "Earth-like world"
+        },
+        {
+          "lo": 10,
+          "hi": 10,
+          "n": "Island world",
+          "d": "Oceans and some dry land"
+        },
+        {
+          "lo": 11,
+          "hi": 11,
+          "n": "Ocean world",
+          "d": "Occasional archipelagos and small islands"
+        },
+        {
+          "lo": 12,
+          "hi": 100,
+          "n": "Water world",
+          "d": "Only ocean"
+        }
+      ]
+    },
+    "w.population": {
+      "dice": "2D6",
+      "rows": [
+        {
+          "lo": -100,
+          "hi": 2,
+          "n": "Uninhabited"
+        },
+        {
+          "lo": 3,
+          "hi": 3,
+          "n": "Abandoned outpost"
+        },
+        {
+          "lo": 4,
+          "hi": 4,
+          "n": "Outpost"
+        },
+        {
+          "lo": 5,
+          "hi": 5,
+          "n": "A few hundred inhabitants"
+        },
+        {
+          "lo": 6,
+          "hi": 7,
+          "n": "A few thousand inhabitants"
+        },
+        {
+          "lo": 8,
+          "hi": 9,
+          "n": "Tens of thousands of inhabitants"
+        },
+        {
+          "lo": 10,
+          "hi": 11,
+          "n": "Hundreds of thousands of inhabitants"
+        },
+        {
+          "lo": 12,
+          "hi": 12,
+          "n": "Millions of inhabitants"
+        }
+      ]
+    },
+    "w.spaceport": {
+      "dice": "2D6",
+      "rows": [
+        {
+          "lo": -100,
+          "hi": 3,
+          "n": "Primitive landing strip",
+          "d": "-3"
+        },
+        {
+          "lo": 4,
+          "hi": 5,
+          "n": "Simple space port",
+          "d": "-3"
+        },
+        {
+          "lo": 6,
+          "hi": 8,
+          "n": "Ordinary space port",
+          "d": "±0"
+        },
+        {
+          "lo": 9,
+          "hi": 10,
+          "n": "Busy space port",
+          "d": "±0"
+        },
+        {
+          "lo": 11,
+          "hi": 11,
+          "n": "Trade cluster",
+          "d": "+1"
+        },
+        {
+          "lo": 12,
+          "hi": 100,
+          "n": "Metropolis",
+          "d": "+1"
+        }
+      ]
+    },
+    "w.hook": {
+      "dice": "D66",
+      "rows": [
+        {
+          "lo": 11,
+          "hi": 11,
+          "n": "Portal Builder ruins"
+        },
+        {
+          "lo": 12,
+          "hi": 12,
+          "n": "First-come ruins"
+        },
+        {
+          "lo": 13,
+          "hi": 13,
+          "n": "Earlier colonization"
+        },
+        {
+          "lo": 14,
+          "hi": 14,
+          "n": "Abandoned city"
+        },
+        {
+          "lo": 15,
+          "hi": 15,
+          "n": "Crashed ship"
+        },
+        {
+          "lo": 16,
+          "hi": 16,
+          "n": "Unknown ruins"
+        },
+        {
+          "lo": 21,
+          "hi": 21,
+          "n": "Titan storms"
+        },
+        {
+          "lo": 22,
+          "hi": 22,
+          "n": "Flooding"
+        },
+        {
+          "lo": 23,
+          "hi": 23,
+          "n": "Extreme rains"
+        },
+        {
+          "lo": 24,
+          "hi": 24,
+          "n": "Firestorms and forest fires"
+        },
+        {
+          "lo": 25,
+          "hi": 25,
+          "n": "Volcanic eruptions"
+        },
+        {
+          "lo": 26,
+          "hi": 26,
+          "n": "High seismic activity"
+        },
+        {
+          "lo": 31,
+          "hi": 31,
+          "n": "Cult"
+        },
+        {
+          "lo": 32,
+          "hi": 32,
+          "n": "Primitive First-come"
+        },
+        {
+          "lo": 33,
+          "hi": 33,
+          "n": "Colonists"
+        },
+        {
+          "lo": 34,
+          "hi": 34,
+          "n": "Rebels"
+        },
+        {
+          "lo": 35,
+          "hi": 35,
+          "n": "Soldiers"
+        },
+        {
+          "lo": 36,
+          "hi": 36,
+          "n": "Scientists"
+        },
+        {
+          "lo": 41,
+          "hi": 41,
+          "n": "Corsairs"
+        },
+        {
+          "lo": 42,
+          "hi": 42,
+          "n": "Rebellious mercenaries"
+        },
+        {
+          "lo": 43,
+          "hi": 43,
+          "n": "Factionary clashes"
+        },
+        {
+          "lo": 44,
+          "hi": 44,
+          "n": "Lawlessness"
+        },
+        {
+          "lo": 45,
+          "hi": 45,
+          "n": "The Dark between the Stars"
+        },
+        {
+          "lo": 46,
+          "hi": 46,
+          "n": "Dangerous creatures"
+        },
+        {
+          "lo": 51,
+          "hi": 51,
+          "n": "Dictatorship"
+        },
+        {
+          "lo": 52,
+          "hi": 52,
+          "n": "Emirate"
+        },
+        {
+          "lo": 53,
+          "hi": 53,
+          "n": "Police state"
+        },
+        {
+          "lo": 54,
+          "hi": 54,
+          "n": "Popular rule"
+        },
+        {
+          "lo": 55,
+          "hi": 55,
+          "n": "Iconocracy"
+        },
+        {
+          "lo": 56,
+          "hi": 56,
+          "n": "Extreme patriarchy/matriarchy"
+        },
+        {
+          "lo": 61,
+          "hi": 61,
+          "n": "War"
+        },
+        {
+          "lo": 62,
+          "hi": 62,
+          "n": "Natural disaster"
+        },
+        {
+          "lo": 63,
+          "hi": 63,
+          "n": "Epidemic"
+        },
+        {
+          "lo": 64,
+          "hi": 64,
+          "n": "Occupation"
+        },
+        {
+          "lo": 65,
+          "hi": 65,
+          "n": "Pilgrimage"
+        },
+        {
+          "lo": 66,
+          "hi": 66,
+          "n": "Apocalypse"
+        }
+      ]
+    },
+    "w.factionCount": {
+      "dice": "D6",
+      "rows": [
+        {
+          "lo": 1,
+          "hi": 1,
+          "n": "One dominant",
+          "count": 1
+        },
+        {
+          "lo": 2,
+          "hi": 2,
+          "n": "Two balanced",
+          "count": 2
+        },
+        {
+          "lo": 3,
+          "hi": 3,
+          "n": "Two competing",
+          "count": 2
+        },
+        {
+          "lo": 4,
+          "hi": 4,
+          "n": "One dominant, one weak",
+          "count": 2
+        },
+        {
+          "lo": 5,
+          "hi": 5,
+          "n": "Three competing",
+          "count": 3
+        },
+        {
+          "lo": 6,
+          "hi": 6,
+          "n": "D6 factions, their strengths determined by D6 each",
+          "count": "D6"
+        }
+      ]
+    },
+    "w.faction": {
+      "dice": "2D6",
+      "rows": [
+        {
+          "lo": 2,
+          "hi": 2,
+          "n": "The Syndicate"
+        },
+        {
+          "lo": 3,
+          "hi": 3,
+          "n": "The Legion"
+        },
+        {
+          "lo": 4,
+          "hi": 4,
+          "n": "The Free League"
+        },
+        {
+          "lo": 5,
+          "hi": 5,
+          "n": "The Zenithian Hegemony"
+        },
+        {
+          "lo": 6,
+          "hi": 7,
+          "n": "The Consortium"
+        },
+        {
+          "lo": 8,
+          "hi": 8,
+          "n": "The Church of the Icons"
+        },
+        {
+          "lo": 9,
+          "hi": 9,
+          "n": "Ahlam’s Temple"
+        },
+        {
+          "lo": 10,
+          "hi": 10,
+          "n": "The Nomad Federation"
+        },
+        {
+          "lo": 11,
+          "hi": 11,
+          "n": "The Order of the Pariah"
+        },
+        {
+          "lo": 12,
+          "hi": 12,
+          "n": "The Draconites"
+        }
+      ]
+    },
+    "mission.type": {
+      "dice": "D66",
+      "rows": [
+        {
+          "lo": 11,
+          "hi": 12,
+          "n": "Routine",
+          "d": "Within system | 0 | D6 | 0 | Routine"
+        },
+        {
+          "lo": 13,
+          "hi": 15,
+          "n": "Routine",
+          "d": "Within system | 0 | D6 | 0 | Routine"
+        },
+        {
+          "lo": 16,
+          "hi": 23,
+          "n": "Routine",
+          "d": "Within system | 1 | D6+2 | 0 | Routine"
+        },
+        {
+          "lo": 24,
+          "hi": 25,
+          "n": "Easy",
+          "d": "Within system | 0 | 2D6 | 0 | Easy"
+        },
+        {
+          "lo": 26,
+          "hi": 31,
+          "n": "Easy",
+          "d": "Within system | 1 | 2D6 | 1 | Easy"
+        },
+        {
+          "lo": 32,
+          "hi": 33,
+          "n": "Easy",
+          "d": "Within system | 1 | 2D6+2 | 1 | Easy"
+        },
+        {
+          "lo": 34,
+          "hi": 36,
+          "n": "Normal",
+          "d": "Within system | 1 | 3D6 | 0 | Normal"
+        },
+        {
+          "lo": 41,
+          "hi": 43,
+          "n": "Normal",
+          "d": "Within system | 1 | 3D6 | 0 | Normal"
+        },
+        {
+          "lo": 44,
+          "hi": 45,
+          "n": "Normal",
+          "d": "Nearby system | 1 | 3D6 | 0 | Normal"
+        },
+        {
+          "lo": 46,
+          "hi": 51,
+          "n": "Normal",
+          "d": "Nearby system | 1 | 3D6 | 1 | Normal"
+        },
+        {
+          "lo": 52,
+          "hi": 53,
+          "n": "Normal",
+          "d": "Nearby system | 1 | 3D6+2 | 1 | Normal"
+        },
+        {
+          "lo": 54,
+          "hi": 54,
+          "n": "Normal",
+          "d": "Faraway system | 1 | 3D6+4 | 0 | Normal"
+        },
+        {
+          "lo": 55,
+          "hi": 55,
+          "n": "Normal",
+          "d": "Faraway system | 1 | 3D6+4 | 1 | Normal"
+        },
+        {
+          "lo": 56,
+          "hi": 61,
+          "n": "Difficult",
+          "d": "Within system | 2 | 4D6 | 1 | Difficult"
+        },
+        {
+          "lo": 62,
+          "hi": 63,
+          "n": "Difficult",
+          "d": "Nearby system | 2 | 4D6+2 | 0 | Difficult"
+        },
+        {
+          "lo": 64,
+          "hi": 64,
+          "n": "Difficult",
+          "d": "Nearby system | 2 | 4D6+2 | 1 | Difficult"
+        },
+        {
+          "lo": 65,
+          "hi": 65,
+          "n": "Difficult",
+          "d": "Faraway system | 2 | 5D6 | 1 | Difficult"
+        },
+        {
+          "lo": 66,
+          "hi": 66,
+          "n": "Difficult",
+          "d": "Faraway system | 3 | 5D6+4 | 2 | Difficult"
+        }
+      ]
+    }
+  }
+}
