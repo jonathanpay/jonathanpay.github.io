@@ -34,11 +34,45 @@ pentagon, neighbours are a shadow and cards two places apart are an echo. On a l
 cards further apart are read as a pair across the spread. The page marks them on the
 cloth and in the reading.
 
+## Three readings
+
+The same deck reads three things. **Reading for** chooses which set of positions is
+used:
+
+| Target | Five cards | Three cards |
+|---|---|---|
+| An NPC | Serves, Surface, Want, Secret, Owed | Serves, Want, Secret |
+| A mission | Hook, Opposition, Complication, Secret, Payoff | Hook, Opposition, Payoff |
+| The story | Opening, Pressure, Turn, Secret, Reckoning | Opening, Turn, Reckoning |
+
+Each position has its own question and a note on what to do with it, and the reading
+and the Markdown copy follow the target. The set Icon belongs to NPCs only; for a
+mission or a story the cloth names the job or the arc instead. The target is kept with
+the spread, and spreads saved before there were targets read as NPCs.
+
+## The campaign
+
+Coriolis Sheets and the Mission Board keep a campaign in the same browser, on the same
+origin. **Send to the campaign** writes the spread there as an NPC, a mission or a
+story to match the reading target: the cards, the positions they fell in, and the
+reading as plain text. Coriolis Sheets shows that text as the NPC's Icon spread, and
+its "Draw a spread" link opens this page with that NPC already named.
+
+**From the campaign** lists what is saved and loads it back: the target, the name, the
+set Icon where there is one, and the saved reading as a starting point. Drawing new
+cards replaces that reading. The page also takes `?npc=`, `?mission=` or `?story=` with
+a campaign id, so a link can open the right entry.
+
+Nothing is sent anywhere. The campaign is one `localStorage` record in this browser,
+shared only by the tools on this site, and without the campaign script the rest of the
+page works as it did before.
+
 ## Tabs
 
-- **Spread.** Name the NPC, set their Icon, choose the spread and layout, then
-  shuffle and draw. Cards can be dealt face down and turned one at a time. Each card
-  can be redrawn or chosen by hand. Save the NPC, or copy it as Markdown.
+- **Spread.** Name the NPC, set their Icon, choose what the reading is for and the
+  spread and layout, then shuffle and draw. Cards can be dealt face down and turned
+  one at a time. Each card can be redrawn or chosen by hand. Save the NPC, send it to
+  the campaign, or copy it as Markdown.
 - **The deck.** All thirty-six cards with their glosses, grouped by Icon.
 - **NPCs.** Saved spreads, with notes. The Owed card can name another saved NPC.
 - **Your cards.** Load your own card scans, a folder at a time or file by file. Files
@@ -66,3 +100,7 @@ an empty circle for the Faceless.
 `localStorage`: `is-spread` (the current spread), `is-npcs` (saved NPCs),
 `is-use-scans`. IndexedDB database `icon-spreads` holds loaded card images. A backup
 is JSON with `"format": "icon-spreads-backup/1"`.
+
+The shared campaign lives in `coriolis-campaign-v1`, the same record Coriolis Sheets
+and the Mission Board use. This page only reads and writes `npc`, `mission` and
+`story` entities, and only when `/tools/coriolis-campaign.js` is present.

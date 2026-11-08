@@ -186,20 +186,29 @@ footer.notice{margin-top:24px;padding-top:10px;border-top:1px solid var(--line-s
 <section class="view" id="view-spread" role="tabpanel" aria-labelledby="tab-spread">
   <aside class="side">
     <div class="card stack">
-      <h2>The NPC</h2>
+      <h2 id="subject-h">The NPC</h2>
       <label class="field"><span>Name</span><input type="text" id="npc-name" placeholder="Rafiq the chandler"></label>
-      <label class="field"><span>Set Icon (born under)</span><select id="set-icon"></select></label>
-      <p class="note">The set Icon never changes. The cards are prompts for this story.</p>
+      <label class="field" id="set-icon-wrap"><span>Set Icon (born under)</span><select id="set-icon"></select></label>
+      <p class="note" id="subject-note">The set Icon never changes. The cards are prompts for this story.</p>
     </div>
     <div class="card stack">
       <h2>The draw</h2>
+      <div class="field"><span>Reading for</span><div class="seg" id="target"><button type="button" data-v="npc">An NPC</button><button type="button" data-v="mission">A mission</button><button type="button" data-v="story">The story</button></div></div>
       <div class="field"><span>Spread</span><div class="seg" id="size"><button type="button" data-v="5">Five cards</button><button type="button" data-v="3">Three cards</button></div></div>
       <div class="field"><span>Layout</span><div class="seg" id="layout"><button type="button" data-v="line">Line</button><button type="button" data-v="pent">Pentagon</button><button type="button" data-v="free">Free</button></div></div>
       <label class="check" id="sixth-wrap"><input type="checkbox" id="sixth"> A sixth card face down at the centre: the turning point</label>
       <label class="check"><input type="checkbox" id="facedown" checked> Deal face down, turn one at a time</label>
       <div class="row"><button class="btn primary" type="button" id="draw">Shuffle and draw</button><button class="btn quiet" type="button" id="turn-all">Turn all</button></div>
-      <div class="row"><button class="btn" type="button" id="save-npc">Save to NPCs</button><button class="mini" type="button" id="copy">Copy as Markdown</button></div>
+      <div class="row"><button class="btn" type="button" id="save-npc">Save to NPCs</button><button class="btn" type="button" id="send-campaign">Send to the campaign</button></div>
+      <div class="row"><button class="mini" type="button" id="copy">Copy as Markdown</button></div>
       <p class="status" id="draw-status" role="status"></p>
+    </div>
+    <div class="card stack" id="campaign-card" hidden>
+      <h2>From the campaign</h2>
+      <label class="field"><span>Saved in the campaign</span><select id="campaign-pick"></select></label>
+      <div class="row"><button class="btn quiet" type="button" id="campaign-load">Load</button></div>
+      <p class="note">Loading sets the reading for, the name, the set Icon and any saved reading. Drawing new cards replaces that reading.</p>
+      <p class="status" id="campaign-status" role="status"></p>
     </div>
   </aside>
   <div class="main">
@@ -249,6 +258,7 @@ footer.notice{margin-top:24px;padding-top:10px;border-top:1px solid var(--line-s
   <p>An unofficial fan tool for <i>Coriolis: The Third Horizon</i>, not affiliated with, sponsored or endorsed by Free League Publishing (Fria Ligan AB). The Icons and the card titles are theirs. The method, the glosses and the card designs here are mine. Your NPCs and any card images you load stay in this browser.</p>
 </footer>
 
+<script src="/tools/coriolis-campaign.js"></script>
 <script>
 (() => {
 const $ = s => document.querySelector(s);
@@ -280,7 +290,28 @@ const POS5 = [
   { k:"secret", n:"Secret", q:"What they are hiding", use:"The complication" },
   { k:"owed", n:"Owed", q:"Who they owe, or who owes them", use:"A debt or favour, and a link to another NPC" }
 ];
-const posFor = size => size === 3 ? [POS5[0], POS5[2], POS5[3]] : POS5;
+const POS_MISSION = [
+  { k:"hook", n:"Hook", q:"What draws the crew in", use:"The offer, the rumour, the door that opens" },
+  { k:"opposition", n:"Opposition", q:"Who or what pushes back", use:"The face of the trouble, or the thing behind it" },
+  { k:"complication", n:"Complication", q:"What makes it worse", use:"The turn that costs the crew something" },
+  { k:"secret", n:"Secret", q:"What the employer is hiding", use:"The part left out of the brief" },
+  { k:"payoff", n:"Payoff", q:"What it is really worth", use:"The fee, the prize, or the truth of it" }
+];
+const POS_STORY = [
+  { k:"opening", n:"Opening", q:"Where the story starts", use:"The scene the crew walks into" },
+  { k:"pressure", n:"Pressure", q:"What is closing in", use:"The cost of waiting" },
+  { k:"turn", n:"Turn", q:"Where it changes shape", use:"The discovery, the betrayal, the offer" },
+  { k:"secret", n:"Secret", q:"What is being kept back", use:"The thing the powerful would rather not name" },
+  { k:"reckoning", n:"Reckoning", q:"What it all comes to", use:"The account settled, one way or another" }
+];
+// The three targets, their three-card cuts, and the words used for them on the cloth and in the copy.
+const SETS = {
+  npc:{ five:POS5, three:[0, 2, 3], nom:"An NPC", label:"NPC", none:"Unnamed NPC", idea:"Rafiq the chandler" },
+  mission:{ five:POS_MISSION, three:[0, 1, 4], nom:"A mission", label:"Mission", none:"Untitled mission", idea:"The weeping of the Ibis" },
+  story:{ five:POS_STORY, three:[0, 2, 4], nom:"The story", label:"Story", none:"Untitled story", idea:"The fall of the House of Bakr" }
+};
+const setFor = t => SETS[t] || SETS.npc;
+const posFor = (size, target) => { const s = setFor(target); return size === 3 ? s.three.map(i => s.five[i]) : s.five; };
 const TURN = { k:"turn", n:"Turning point", q:"Where the story turns", use:"Optional: the sixth card at the centre" };
 
 /* ---------- sigils: one mark for each Icon, drawn on a 24-unit grid ---------- */
@@ -407,15 +438,19 @@ function tcard(num, up, onclick, extraClass = "") {
 }
 
 /* ---------- state ---------- */
-const blank = () => ({ id:uid(), name:"", setIcon:0, size:5, layout:"line", sixth:false, cards:[], centre:null, free:{}, owedTo:"", notes:"" });
+const blank = () => ({ id:uid(), name:"", setIcon:0, target:"npc", campaignId:"", size:5, layout:"line", sixth:false, cards:[], centre:null, free:{}, owedTo:"", notes:"" });
 let S = store.get("is-spread", null) || blank();
+if (!SETS[S.target]) S.target = "npc";        // spreads saved before the targets existed read as NPCs
+if (!S.campaignId) S.campaignId = "";
 let NPCS = store.get("is-npcs", []);
+let loadedReading = "";                        // a reading brought in from the campaign, until cards are drawn
 const save = () => store.set("is-spread", S);
 const saveNpcs = () => store.set("is-npcs", NPCS);
 function shuffle() { const d = NUMS.slice(); for (let i = d.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [d[i], d[j]] = [d[j], d[i]]; } return d; }
 function draw() {
   const d = shuffle(), down = $("#facedown").checked;
-  S.cards = posFor(S.size).map(() => ({ n:d.pop(), up:!down }));
+  loadedReading = "";
+  S.cards = posFor(S.size, S.target).map(() => ({ n:d.pop(), up:!down }));
   S.centre = S.sixth && S.layout === "pent" ? { n:d.pop(), up:false } : null;
   save(); render();
 }
@@ -425,16 +460,16 @@ function redrawOne(i) { const used = new Set(inSpread()); const pool = NUMS.filt
 /* Shadows and echoes. Two cards with the same Icon: the later position is the shadow of the earlier.
    On a pentagon, neighbours are a shadow and cards two places apart (a diagonal) are an echo.
    On a line, neighbours are a shadow and cards further apart are read as a pair across the spread. */
-function relations() {
-  const out = []; const n = S.cards.length;
+function relations(x = S) {
+  const out = []; const n = x.cards.length;
   for (let i = 0; i < n; i++) for (let j = i + 1; j < n; j++) {
-    if (!S.cards[i].up || !S.cards[j].up) continue;
-    if (CARD[S.cards[i].n].icon !== CARD[S.cards[j].n].icon) continue;
+    if (!x.cards[i].up || !x.cards[j].up) continue;
+    if (CARD[x.cards[i].n].icon !== CARD[x.cards[j].n].icon) continue;
     let kind;
-    if (S.layout === "pent" && n === 5) { const d = Math.min(j - i, n - (j - i)); kind = d === 1 ? "shadow" : "echo"; }
-    else if (S.layout === "free") kind = "shadow";
+    if (x.layout === "pent" && n === 5) { const d = Math.min(j - i, n - (j - i)); kind = d === 1 ? "shadow" : "echo"; }
+    else if (x.layout === "free") kind = "shadow";
     else kind = j - i === 1 ? "shadow" : "pair";
-    out.push({ i, j, kind, icon:CARD[S.cards[i].n].icon });
+    out.push({ i, j, kind, icon:CARD[x.cards[i].n].icon });
   }
   return out;
 }
@@ -481,8 +516,11 @@ function slot(i, P, rels, extra) {
 }
 let dragMoved = false;
 function renderSpread() {
-  const box = $("#spread"), P = posFor(S.size), rels = relations();
-  $("#cloth-cap").textContent = S.cards.length ? `${S.name || "An NPC"} · born under ${ICONS[S.setIcon].n} · ${S.size} cards, ${({ line:"in a line", pent:"on the pentagon", free:"laid freely" })[S.layout]}` : "Shuffle and draw to begin";
+  const box = $("#spread"), P = posFor(S.size, S.target), rels = relations();
+  const origin = S.target === "npc" ? `born under ${ICONS[S.setIcon].n}` : S.target === "mission" ? "a job for the crew" : "the shape of the story";
+  $("#cloth-cap").textContent = S.cards.length
+    ? `${S.name || setFor(S.target).nom} · ${origin} · ${S.size} cards, ${({ line:"in a line", pent:"on the pentagon", free:"laid freely" })[S.layout]}`
+    : S.name ? `${S.name} · no cards drawn yet` : "Shuffle and draw to begin";
   box.replaceChildren();
   if (!S.cards.length) { box.className = "spread pent"; box.append(wheel([])); return; }
   if (S.layout === "line" || (S.layout === "pent" && S.cards.length !== 5)) {
@@ -516,9 +554,18 @@ function renderSpread() {
   });
 }
 function renderReadings() {
-  const box = $("#readings"), P = posFor(S.size), rels = relations(); box.replaceChildren();
-  if (!S.cards.length) { box.append(h("p", { class:"small", text:"Name the NPC and set the Icon they were born under, then shuffle and draw. Each card is read against its position: Serves, Surface, Want, Secret, Owed." })); return; }
-  box.append(h("p", { class:"small", style:"margin:0" }, h("b", { text:"Set Icon: " }), `${ICONS[S.setIcon].n}. `, h("span", { class:"muted", text:"The cards don't change it." })));
+  const box = $("#readings"), P = posFor(S.size, S.target), rels = relations(), t = setFor(S.target); box.replaceChildren();
+  if (!S.cards.length) {
+    if (loadedReading) {
+      box.append(h("p", { class:"eyebrow", text:`From the campaign${S.name ? `: ${S.name}` : ""}` }),
+        h("pre", { style:"white-space:pre-wrap;font-family:var(--font-body);font-size:var(--step--1);margin:0", text:loadedReading }),
+        h("p", { class:"note", text:"That is the reading kept in the campaign. Draw new cards to replace it." }));
+      return;
+    }
+    box.append(h("p", { class:"small", text:t === SETS.npc ? "Name the NPC and set the Icon they were born under, then shuffle and draw. Each card is read against its position: Serves, Surface, Want, Secret, Owed." : `Name the ${t.label.toLowerCase()} and shuffle and draw. Each card is read against its position: ${t.five.map(p => p.n).join(", ")}.` }));
+    return;
+  }
+  if (t === SETS.npc) box.append(h("p", { class:"small", style:"margin:0" }, h("b", { text:"Set Icon: " }), `${ICONS[S.setIcon].n}. `, h("span", { class:"muted", text:"The cards don't change it." })));
   const all = [...S.cards.map((c, i) => [c, P[i], i]), ...(S.centre ? [[S.centre, TURN, -1]] : [])];
   all.forEach(([c, pos, i]) => {
     const card = CARD[c.n];
@@ -538,15 +585,92 @@ function renderReadings() {
   });
 }
 function markdown(x = S) {
-  const P = posFor(x.size);
-  const lines = [`## ${x.name || "Unnamed NPC"}`, "", `- **Set Icon:** ${ICONS[x.setIcon].n}`];
+  const P = posFor(x.size, x.target), t = setFor(x.target);
+  const lines = [`## ${x.name || t.none}`, ""];
+  if (t === SETS.npc) lines.push(`- **Set Icon:** ${ICONS[x.setIcon].n}`);
   x.cards.forEach((c, i) => { const k = CARD[c.n]; lines.push(`- **${P[i].n}:** ${k.iconName}, ${k.title} (${c.n}). ${k.gloss}`); });
   if (x.centre) { const k = CARD[x.centre.n]; lines.push(`- **Turning point:** ${k.iconName}, ${k.title} (${x.centre.n})`); }
-  const saveS = S; S = x; const rels = relations(); S = saveS;
-  rels.forEach(r => lines.push(`- *${REL_TEXT[r.kind][0].toUpperCase() + REL_TEXT[r.kind].slice(1)}:* ${P[r.i].n} and ${P[r.j].n}, both ${ICONS[r.icon].n}`));
+  relations(x).forEach(r => lines.push(`- *${REL_TEXT[r.kind][0].toUpperCase() + REL_TEXT[r.kind].slice(1)}:* ${P[r.i].n} and ${P[r.j].n}, both ${ICONS[r.icon].n}`));
   if (x.owedTo) { const o = NPCS.find(n => n.id === x.owedTo); if (o) lines.push(`- **Owed link:** ${o.name || "Unnamed NPC"}`); }
   if (x.notes) lines.push("", x.notes);
   return lines.join("\n");
+}
+// The same reading as plain prose, for the campaign: Coriolis Sheets shows it as an NPC's Icon spread.
+function plainReading(x = S) {
+  const P = posFor(x.size, x.target), t = setFor(x.target), out = [`${t.label}: ${x.name || t.none}`];
+  if (t === SETS.npc) out.push(`Set Icon: ${ICONS[x.setIcon].n}.`);
+  out.push("");
+  x.cards.forEach((c, i) => { const k = CARD[c.n], p = P[i];
+    out.push(`${p.n}: ${k.iconName}, ${k.title} (${c.n}). ${p.q}.`, k.gloss, ""); });
+  if (x.centre) { const k = CARD[x.centre.n]; out.push(`Turning point: ${k.iconName}, ${k.title} (${x.centre.n}).`, ""); }
+  relations(x).forEach(r => out.push(`${REL_TEXT[r.kind][0].toUpperCase() + REL_TEXT[r.kind].slice(1)}: ${P[r.i].n} and ${P[r.j].n}, both ${ICONS[r.icon].n}.`));
+  if (x.owedTo) { const o = NPCS.find(n => n.id === x.owedTo); if (o) out.push(`Owed link: ${o.name || "an unnamed NPC"}.`); }
+  return out.join("\n").trim();
+}
+
+/* ---------- the campaign: one record shared with Coriolis Sheets and the Mission Board ---------- */
+const CAMPAIGN = () => window.CoriolisCampaign || null;
+const CAMPAIGN_KINDS = ["npc", "mission", "story"];
+
+function renderCampaign() {
+  const CC = CAMPAIGN(), card = $("#campaign-card"), pick = $("#campaign-pick");
+  if (!CC) { card.hidden = true; return; }
+  const keep = pick.value, items = [];
+  CAMPAIGN_KINDS.forEach(k => CC.all(k).forEach(e => items.push({ kind:k, e })));
+  card.hidden = !items.length;
+  pick.replaceChildren();
+  if (!items.length) return;
+  items.forEach(({ kind, e }) => pick.append(h("option", { value:`${kind}:${e.id}`, text:`${e.name || setFor(kind).none} · ${setFor(kind).label}` })));
+  if (keep && [...pick.options].some(o => o.value === keep)) pick.value = keep;
+}
+
+// Load a campaign entity into the page: its target, name, set Icon, id and its reading. Cards are left undrawn.
+function loadEntity(kind, id, quiet) {
+  const CC = CAMPAIGN(); if (!CC) return false;
+  const e = CC.get(kind, id); if (!e) return false;
+  S.target = SETS[kind] ? kind : "npc";
+  S.name = e.name || "";
+  S.campaignId = e.id;
+  const ic = ICONS.findIndex(x => x.n === ((e.data && e.data.icon) || ""));
+  if (ic >= 0) S.setIcon = ic;
+  S.cards = []; S.centre = null; S.free = {}; S.owedTo = ""; S.id = (typeof e.refs.isNpcId === "string" && e.refs.isNpcId) || uid();
+  loadedReading = (e.spread && e.spread.reading) || "";
+  save(); syncControls(); render();
+  if (!quiet) $("#campaign-status").textContent = loadedReading
+    ? `Loaded ${e.name || setFor(S.target).none}. Its saved reading is below; draw new cards to replace it.`
+    : `Loaded ${e.name || setFor(S.target).none}. No reading saved yet: draw a spread.`;
+  return true;
+}
+
+function sendToCampaign() {
+  const CC = CAMPAIGN();
+  if (!CC) { $("#draw-status").textContent = "The campaign store did not load. Reload the page and try again."; return; }
+  if (!S.cards.length) { $("#draw-status").textContent = "Draw a spread first."; return; }
+  const kind = S.target === "mission" ? "mission" : S.target === "story" ? "story" : "npc";
+  const t = setFor(kind);
+  const name = (S.name || "").trim() || t.none;
+  const reading = plainReading();
+  const P = posFor(S.size, S.target);
+  const cards = S.cards.map((c, i) => ({ position:P[i].n, card:c.n, up:!!c.up }));
+  if (S.centre) cards.push({ position:"Turning point", card:S.centre.n, up:!!S.centre.up });
+  const data = kind === "npc" ? { name, icon:ICONS[S.setIcon].n, concept:"", spread:reading } : { name, reading };
+  const id = S.campaignId || CC.makeId(kind);
+  const e = CC.upsert(kind, { id, name, source:"icon-spreads", refs:{ isNpcId:S.id }, data, spread:{ target:kind, cards, reading } });
+  if (!e) { $("#draw-status").textContent = "The campaign did not take it. It may be full."; return; }
+  S.campaignId = e.id; save(); renderCampaign();
+  $("#draw-status").textContent = kind === "npc"
+    ? `Sent ${name} to the campaign as an NPC. It will appear in the NPC sheet, with this reading as its Icon spread.`
+    : kind === "mission"
+      ? `Sent ${name} to the campaign as a mission. The Mission Board can open it.`
+      : `Sent ${name} to the campaign as a story.`;
+}
+
+// Coriolis Sheets links here with ?npc=<id> (and the other kinds can do the same). Unknown ids are ignored.
+function deepLink() {
+  if (!CAMPAIGN()) return false;
+  const q = new URLSearchParams(location.search);
+  for (const kind of CAMPAIGN_KINDS) { const id = q.get(kind); if (id && loadEntity(kind, id, true)) return true; }
+  return false;
 }
 
 /* ---------- other tabs ---------- */
@@ -571,7 +695,7 @@ function renderNpcs() {
       h("pre", { text:markdown(x).split("\n").slice(2).join("\n") }),
       h("label", { class:"field", style:"margin-top:6px" }, h("span", { text:"Notes" }), h("textarea", { rows:"2", value:x.notes || "", oninput:e => { x.notes = e.target.value; saveNpcs(); } })),
       h("div", { class:"row", style:"margin-top:6px" },
-        h("button", { class:"mini", type:"button", text:"Open in the spread", onclick:() => { S = JSON.parse(JSON.stringify(x)); S.cards.forEach(c => c.up = true); if (S.centre) S.centre.up = true; save(); syncControls(); render(); go("spread"); } }),
+        h("button", { class:"mini", type:"button", text:"Open in the spread", onclick:() => { S = JSON.parse(JSON.stringify(x)); if (!SETS[S.target]) S.target = "npc"; if (!S.campaignId) S.campaignId = ""; loadedReading = ""; S.cards.forEach(c => c.up = true); if (S.centre) S.centre.up = true; save(); syncControls(); render(); go("spread"); } }),
         h("button", { class:"mini", type:"button", text:"Copy as Markdown", onclick:e => copy(markdown(x), e.target) }),
         h("button", { class:"mini", type:"button", text:"Delete", onclick:() => conf.replaceChildren(h("span", { class:"small", text:"Delete this NPC?" }),
           h("button", { class:"mini", type:"button", text:"Delete", onclick:() => { NPCS = NPCS.filter(n => n.id !== x.id); saveNpcs(); renderNpcs(); } }), h("button", { class:"mini", type:"button", text:"Keep", onclick:() => conf.replaceChildren() })) })), conf));
@@ -589,7 +713,14 @@ function copy(text, btn) { const done = () => { const o = btn.textContent; btn.t
 function download(name, text) { const a = h("a", { href:URL.createObjectURL(new Blob([text], { type:"application/json" })), download:name }); document.body.append(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 800); }
 function render() { renderSpread(); renderReadings(); }
 function syncControls() {
-  $("#npc-name").value = S.name || ""; $("#set-icon").value = String(S.setIcon || 0); $("#sixth").checked = !!S.sixth;
+  const t = setFor(S.target);
+  $("#npc-name").value = S.name || ""; $("#npc-name").placeholder = t.idea; $("#set-icon").value = String(S.setIcon || 0); $("#sixth").checked = !!S.sixth;
+  $("#subject-h").textContent = S.target === "npc" ? "The NPC" : S.target === "mission" ? "The mission" : "The story";
+  $("#set-icon-wrap").hidden = t !== SETS.npc;
+  $("#subject-note").textContent = t === SETS.npc ? "The set Icon never changes. The cards are prompts for this story."
+    : S.target === "mission" ? "The cards read the job: what draws the crew in, what pushes back, and what it is worth."
+    : "The cards read the arc: how it opens, what closes in, where it turns, and what it comes to.";
+  document.querySelectorAll("#target button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.v === S.target)));
   document.querySelectorAll("#size button").forEach(b => b.setAttribute("aria-pressed", String(+b.dataset.v === S.size)));
   document.querySelectorAll("#layout button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.v === S.layout)));
   $("#sixth-wrap").hidden = S.layout !== "pent" || S.size !== 5;
@@ -605,13 +736,36 @@ window.addEventListener("hashchange", () => setTab(location.hash.slice(1)));
 ICONS.forEach((ic, k) => $("#set-icon").append(h("option", { value:String(k), text:ic.n })));
 $("#npc-name").addEventListener("input", e => { S.name = e.target.value; save(); renderSpread(); });
 $("#set-icon").addEventListener("change", e => { S.setIcon = +e.target.value; save(); render(); });
-document.querySelectorAll("#size button").forEach(b => b.addEventListener("click", () => { const v = +b.dataset.v; if (v === S.size) return; S.size = v; if (S.cards.length) { const keep = S.cards; const P5 = POS5.map(p => p.k); S.cards = v === 3 ? [keep[0], keep[2], keep[3]].filter(Boolean) : []; if (v === 5) draw(); } if (v === 3) S.centre = null; save(); syncControls(); render(); }));
+document.querySelectorAll("#target button").forEach(b => b.addEventListener("click", () => {
+  const v = b.dataset.v; if (v === S.target) return;
+  S.target = v; S.cards = []; S.centre = null; S.free = {}; S.owedTo = ""; loadedReading = "";
+  save(); syncControls(); render();
+  $("#draw-status").textContent = `${setFor(v).nom}: the positions have changed. Draw again.`;
+}));
+document.querySelectorAll("#size button").forEach(b => b.addEventListener("click", () => { const v = +b.dataset.v; if (v === S.size) return; S.size = v; if (S.cards.length) { const keep = S.cards; S.cards = v === 3 ? setFor(S.target).three.map(i => keep[i]).filter(Boolean) : []; if (v === 5) draw(); } if (v === 3) S.centre = null; save(); syncControls(); render(); }));
 document.querySelectorAll("#layout button").forEach(b => b.addEventListener("click", () => { S.layout = b.dataset.v; if (S.layout !== "pent") S.centre = null; save(); syncControls(); render(); }));
 $("#sixth").addEventListener("change", e => { S.sixth = e.target.checked; if (!S.sixth) S.centre = null; else if (S.cards.length && !S.centre) { const used = new Set(inSpread()); const pool = NUMS.filter(n => !used.has(n)); S.centre = { n:pool[Math.floor(Math.random() * pool.length)], up:false }; } save(); render(); });
 $("#draw").addEventListener("click", () => { S.id = uid(); S.free = {}; S.owedTo = ""; draw(); $("#draw-status").textContent = $("#facedown").checked ? "Dealt face down. Turn each card when you're ready to read it." : ""; });
 $("#turn-all").addEventListener("click", () => { S.cards.forEach(c => c.up = true); if (S.centre) S.centre.up = true; save(); render(); });
 $("#copy").addEventListener("click", e => { if (S.cards.length) copy(markdown(), e.target); });
 $("#save-npc").addEventListener("click", () => { if (!S.cards.length) { $("#draw-status").textContent = "Draw a spread first."; return; } const x = JSON.parse(JSON.stringify(S)); const i = NPCS.findIndex(n => n.id === x.id); if (i >= 0) { x.notes = NPCS[i].notes || x.notes; NPCS[i] = x; } else NPCS.unshift(x); saveNpcs(); $("#draw-status").textContent = `Saved ${x.name || "the NPC"} to the NPCs tab.`; });
+$("#send-campaign").addEventListener("click", sendToCampaign);
+let confirmLoad = false;
+$("#campaign-pick").addEventListener("change", () => { confirmLoad = false; $("#campaign-load").textContent = "Load"; });
+$("#campaign-load").addEventListener("click", () => {
+  const v = $("#campaign-pick").value || "";
+  const i = v.indexOf(":");
+  if (!v) return;
+  if (S.cards.length && !confirmLoad) {
+    confirmLoad = true;
+    $("#campaign-load").textContent = "Replace the cards?";
+    $("#campaign-status").textContent = "Loading clears the cards on the cloth. Press again to load, or pick another entry.";
+    return;
+  }
+  confirmLoad = false;
+  $("#campaign-load").textContent = "Load";
+  if (!loadEntity(v.slice(0, i), v.slice(i + 1), false)) $("#campaign-status").textContent = "That entry is no longer in the campaign.";
+});
 $("#export").addEventListener("click", () => download(`icon-spreads-${new Date().toISOString().slice(0, 10)}.json`, JSON.stringify({ format:"icon-spreads-backup/1", saved:new Date().toISOString(), npcs:NPCS }, null, 1)));
 $("#import").addEventListener("click", () => { const i = h("input", { type:"file", accept:".json,application/json" }); i.addEventListener("change", () => { const f = i.files[0]; if (!f) return; f.text().then(t => { try { const x = JSON.parse(t); if (x.format !== "icon-spreads-backup/1") throw 0; const have = new Set(NPCS.map(n => n.id)); NPCS = [...NPCS, ...x.npcs.filter(n => !have.has(n.id))]; saveNpcs(); renderNpcs(); $("#npc-status").textContent = "Backup restored."; } catch { $("#npc-status").textContent = "That file isn't a backup from this page."; } }); }); i.click(); });
 // Match a file to a card: "back" anywhere, else a card number (11 to 66), else the card's title as whole words.
@@ -634,7 +788,10 @@ $("#clear-scans").addEventListener("click", async () => { await clearScans(); Ob
 $("#use-scans").checked = useScans;
 $("#use-scans").addEventListener("change", e => { useScans = e.target.checked; store.set("is-use-scans", useScans); renderScans(); render(); });
 
-syncControls(); render(); setTab(location.hash.slice(1));
+syncControls(); renderCampaign();
+if (CAMPAIGN()) CAMPAIGN().subscribe(() => renderCampaign());
+if (!deepLink()) render();
+setTab(location.hash.slice(1));
 loadScans().then(() => { if (Object.keys(SCANS).length) { render(); if (!$("#view-cards").hidden) renderScans(); } });
 })();
 </script>

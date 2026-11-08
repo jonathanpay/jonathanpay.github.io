@@ -91,7 +91,40 @@ table and result to read.
 Everything lives in `localStorage` under `mb-*` keys: `mb-data` (the data file),
 `mb-board`, `mb-voyage`, `mb-world`, `mb-log`, `mb-deck`, `mb-systems` and a few view
 settings. A backup is a JSON file with `"format": "mission-board-backup/1"`. Restoring
-adds the backup's log entries to yours and replaces the board, voyage and world.
+adds the backup's log entries to yours and replaces the board, voyage and world. The one
+exception is the campaign below, which lives under `coriolis-campaign-v1`.
+
+## The campaign
+
+The three Coriolis tools on this site share one campaign: this board, Coriolis Sheets and
+Icon Spreads run on the same origin and keep their entities under one key,
+`coriolis-campaign-v1`, read through `/tools/coriolis-campaign.js`. This page loads that
+script before its own and checks for it at every hand-off, so the page works as before
+without it.
+
+Three hand-offs run from here:
+
+- **A job to a mission sheet.** "Send to the campaign" in a job's foot writes the job as a
+  mission: concept, employer, task, location, destination, jumps, type, base pay, total
+  reward and complications, taken from the same rolls the card shows. The card then carries
+  an "In the campaign" chip and a link to the sheets, and the button reads "Update the
+  campaign" for a job changed here afterwards.
+- **A ship from a sheet.** When Coriolis Sheets holds a ship, the Travel tab shows a "Ship
+  from the campaign" list at the top of the ship card. Picking one sets the voyage's speed
+  from the ship's own and fills the crew positions from its stations, and a note under the
+  list gives the ship's hull and energy. Every other line stays yours to change.
+- **A world to a system sheet.** "Save to the campaign" on the Worlds tab writes the world
+  as a body of a campaign system, with size, atmosphere, temperature, geosphere,
+  population, spaceport, hooks and factions as they read here. A campaign system of the
+  same name takes the body rather than a second copy of it.
+
+Systems in the campaign also join this page's system lists, so a system drawn in the sheets
+can be a job's destination or a leg of the voyage. They are read only: nothing is written
+back to `mb-systems`, and your data file and systems list are untouched.
+
+Nothing leaves the browser. The campaign sits in `localStorage` beside the `mb-*` keys, so
+a campaign belongs to a browser rather than an account, and clearing the site's storage
+clears it with everything else.
 
 ## The data file
 

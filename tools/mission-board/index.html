@@ -252,6 +252,7 @@ footer.notice a{color:inherit}
   <div class="main">
     <div class="card" id="board-map"></div>
     <div class="board" id="board" aria-live="polite"></div>
+    <p class="status" id="board-status" role="status"></p>
   </div>
 </section>
 
@@ -259,6 +260,8 @@ footer.notice a{color:inherit}
   <aside class="side">
     <div class="card stack">
       <h2>The ship and crew</h2>
+      <label class="field" id="v-ship-field" hidden><span>Ship from the campaign</span><select id="v-ship"></select></label>
+      <p class="note" id="v-ship-note" hidden></p>
       <label class="field"><span>Voyage name</span><input type="text" id="v-name" placeholder="Run to Dabaran"></label>
       <div class="row">
         <label class="field"><span>Speed</span><input type="number" id="v-speed" min="1" max="8" step="1" value="2"></label>
@@ -317,7 +320,8 @@ footer.notice a{color:inherit}
       <label class="field"><span>System</span><select id="w-sys"></select></label>
       <label class="field"><span>Body</span><select id="w-kind"><option value="planet">Planet or moon</option><option value="gas">Gas giant</option><option value="belt">Asteroid belt</option></select></label>
       <label class="field"><span>Hooks</span><input type="number" id="w-hooks" min="0" max="6" value="2"></label>
-      <div class="row"><button class="btn primary" type="button" id="w-roll">Roll a world</button><button class="btn quiet" type="button" id="w-save">Save to the log</button></div>
+      <div class="row"><button class="btn primary" type="button" id="w-roll">Roll a world</button><button class="btn quiet" type="button" id="w-save">Save to the log</button><button class="btn quiet" type="button" id="w-camp">Save to the campaign</button></div>
+      <p class="status" id="w-status" role="status"></p>
       <p class="note">Modifiers chain as you go: atmosphere moves temperature and geosphere, size moves population, population moves the spaceport. Rerolling a line reworks the lines below it.</p>
     </div>
   </aside>
@@ -344,6 +348,7 @@ footer.notice a{color:inherit}
   <p>An unofficial fan tool. It is not affiliated with, sponsored or endorsed by Free League Publishing (Fria Ligan AB). <i>Coriolis: The Third Horizon</i> and its names are theirs. No rules text, table entries, art or setting text from the books is included: the page carries dice, table numbers and place names, and anything more comes from a data file you make and keep yourself. What you save stays in this browser.</p>
 </footer>
 
+<script src="/tools/coriolis-campaign.js"></script>
 <script>
 (() => {
 const $ = s => document.querySelector(s);
@@ -530,12 +535,38 @@ const BODIES = {
     ["Pyre 1–6",0.2,"planet",1],["Ayn 1–6",0.25,"planet",1],["Azraq 1–5",0.5,"planet",1],["Oasa & Ouma",0.5,"planet",1],["Najila & Warah",1,"planet",1],["Alri & Harara",1,"planet",1],["Jadesh 1–6",1.5,"planet",1],["Bayd 1–5",1.7,"planet",1],["The asteroid belt",2,"belt",1]] }
 };
 const BASE_SYSTEMS = MAP.map(([id, n, x, y, region]) => ({ id, n, x, y, region, bodies:[], ...(BODIES[id] || {}) }));
+
+/* ---------- the campaign ---------- */
+/* This page shares one campaign with Coriolis Sheets and Icon Spreads: /tools/coriolis-campaign.js keeps it in
+   localStorage. Every use is guarded, so the page works as before when that script fails to load. */
+function campaign() { const C = window.CoriolisCampaign; return C && typeof C.upsert === "function" ? C : null; }
+function campaignAll(kind) { const C = campaign(); if (!C) return []; try { return C.all(kind) || []; } catch { return []; } }
+function campaignSystemId(id) { return "camp-" + id; }
+// A campaign body is an object; the charts and the pickers here read rows of [name, AD from the star, kind].
+const BODY_KIND = { planet:"planet", moon:"moon", "gas giant":"giant", giant:"giant", gas:"giant", "asteroid belt":"belt", belt:"belt", station:"station", comet:"field", field:"field", star:"star" };
+function campaignBodyRow(b) {
+  if (!b || typeof b !== "object") return null;
+  const name = String(b.name || "").trim(); if (!name) return null;
+  const kind = BODY_KIND[String(b.kind || "").trim().toLowerCase()] || "planet";
+  const d = b.distance === "" || b.distance == null ? NaN : parseFloat(b.distance);
+  return [name, isFinite(d) ? d : null, kind];
+}
+function say(id, msg) { const el = document.getElementById(id); if (el) el.textContent = msg; }
+
 const extraSystems = store.get("mb-systems", []);
 const onMapId = id => MAP.some(m => m[0] === id);
 const SYSTEMS = (() => {
   const list = clone(BASE_SYSTEMS);
   const merge = s => { if (!s || !s.n) return; const id = s.id || s.n.toLowerCase().replace(/[^a-z0-9]+/g, ""); const have = list.find(x => x.id === id); if (have) { if (s.bodies && s.bodies.length) have.bodies = s.bodies; if (s.portal != null) have.portal = s.portal; ["note","known","exports","imports","portalStation"].forEach(k => { if (s[k]) have[k] = s[k]; }); } else list.push({ id, n:s.n, bodies:s.bodies || [], portal:s.portal, note:s.note, known:s.known, exports:s.exports, imports:s.imports }); };
   (DATA && DATA.systems || []).forEach(merge); extraSystems.forEach(merge);
+  // Systems from the campaign (shared from Coriolis Sheets, or a world saved here) join the list read-only:
+  // they are never written back to mb-systems, and a system already known by name is left as it is.
+  campaignAll("system").forEach(e => {
+    const d = e.data || {}, n = String(d.name || e.name || "").trim(); if (!n) return;
+    const id = campaignSystemId(e.id);
+    if (list.some(x => x.id === id || String(x.n).toLowerCase() === n.toLowerCase())) return;
+    list.push({ id, n, bodies:(Array.isArray(d.bodies) ? d.bodies : []).map(campaignBodyRow).filter(Boolean), campaign:true });
+  });
   // Every map system gets a portal body for each of its links.
   list.forEach(sy => { const links = LINKS.filter(l => l[0] === sy.id || l[1] === sy.id).map(l => l[0] === sy.id ? l[1] : l[0]);
     const pa = sy.portal != null ? sy.portal : 0.5;
@@ -650,6 +681,35 @@ function missionTitle(m) {
   const n = task ? task.n : `${c.task} ${m.lines.task.r}`;
   return c.id === "traders" && task ? `Cargo run: ${n.toLowerCase()}` : n;
 }
+/* A job as a campaign mission, in the flat field shape Coriolis Sheets writes a mission with. */
+function campaignMissionData(m) {
+  const c = conceptOf(m.concept);
+  const comps = m.comps.map(x => rowLabel("complication." + c.id, x.r)).filter(Boolean);
+  return {
+    concept: c.n,
+    employer: rowLabel("employer." + c.id, m.lines.employer.r),
+    task: missionTitle(m),
+    location: rowLabel(locId(c), m.lines.location.r),
+    destination: sysName(m.dest),
+    jumps: String(m.jumps),
+    type: `${m.type.diff}, ${DEST[m.type.dest]}`,
+    base: fmtBirr(m.base.birr),
+    reward: fmtBirr(totalBirr(m)),
+    complications: comps.join("\n"),
+    information: `${c.n} crew, ${m.type.diff.toLowerCase()} work${m.jumps ? `, ${plural(m.jumps, "portal jump")} to ${sysName(m.dest)}` : ` in ${sysName(m.dest)}`}.`,
+    reading: ""
+  };
+}
+function sendMissionToCampaign(m) {
+  const C = campaign();
+  if (!C) { say("board-status", "The campaign store is not loaded, so the job stays on the board. Reload the page to try again."); return; }
+  const updating = !!m.cid;
+  const entity = C.upsert("mission", { id: m.cid || "mb-" + m.id, name: missionTitle(m), source: "mission-board", refs: { mbJobId: m.id }, data: campaignMissionData(m) });
+  if (!entity) { say("board-status", "The campaign refused that job: the store may be full."); return; }
+  m.cid = entity.id; save("board"); renderBoard();
+  say("board-status", updating ? `Updated "${missionTitle(m)}" in the campaign.` : `Sent "${missionTitle(m)}" to the campaign. It shows as a mission in Coriolis Sheets.`);
+}
+
 function renderMission(m, i) {
   const c = conceptOf(m.concept);
   if (m.route === undefined && m.type.dest !== "within") setRoute(m);
@@ -690,8 +750,11 @@ function renderMission(m, i) {
     m.card ? cardView(m.card) : null,
     h("div", { class:"jobfoot" },
       h("span", { class:"small data muted", style:"margin-right:auto;align-self:center", text:`Total ${fmtBirr(totalBirr(m))}` }),
+      m.cid ? h("span", { class:"chip teal", text:"In the campaign" }) : null,
+      m.cid ? h("a", { class:"small", href:"/tools/coriolis-sheets/", target:"_blank", rel:"noopener", text:"Open the sheets" }) : null,
       h("button", { class:"mini", type:"button", text:"Copy", onclick:e => copy(missionMd(m), e.target) }),
       h("button", { class:"mini", type:"button", text:"Pass", onclick:() => { S.board = S.board.filter(x => x.id !== m.id); save("board"); renderBoard(); } }),
+      h("button", { class:"mini", type:"button", text: m.cid ? "Update the campaign" : "Send to the campaign", onclick:() => sendMissionToCampaign(m) }),
       h("button", { class:"mini", type:"button", text:"Accept and plan the trip", onclick:() => accept(m) })));
   return card;
 }
@@ -954,6 +1017,48 @@ function voyageTotals(v) {
   return { days, spaceDays, jumps, au, dpTravel, dpAwake, service, serviceCost: value ? Math.round(value / div) * mult : 0, lvl };
 }
 function applyDark() { if (S.voyage.darkRoute) { $("#v-route").value = String(S.voyage.darkRoute); vset["v-route"] = $("#v-route").value; store.set("mb-vset", vset); } }
+
+/* ---------- the ship from the campaign ---------- */
+// A ship defined in Coriolis Sheets fills this voyage's speed and crew. The rest of the card stays yours.
+function renderShipPicker() {
+  const field = $("#v-ship-field"), pick = $("#v-ship"), note = $("#v-ship-note");
+  if (!field || !pick) return;
+  const ships = campaignAll("ship");
+  const was = pick.value;
+  field.hidden = !ships.length;
+  if (!ships.length) { pick.replaceChildren(); if (note) { note.hidden = true; note.textContent = ""; } return; }
+  pick.replaceChildren(h("option", { value:"", text:"Pick a ship" }), ...ships.map(s => h("option", { value:s.id, text:s.name || "Unnamed ship" })));
+  if (was && ships.some(s => s.id === was)) pick.value = was;
+}
+// The sidebar fields keep their own settings, so set the value, fire input and change, then write the stored setting.
+function setTravelValue(id, value) {
+  const el = document.getElementById(id); if (!el || value == null) return;
+  el.value = value;
+  el.dispatchEvent(new Event("input", { bubbles:true }));
+  el.dispatchEvent(new Event("change", { bubbles:true }));
+  vset[id] = el.value; store.set("mb-vset", vset);
+}
+function useCampaignShip(id) {
+  const C = campaign(), note = $("#v-ship-note");
+  const ship = C && id ? C.get("ship", id) : null;
+  if (!ship) { if (note) { note.hidden = true; note.textContent = ""; } return; }
+  const d = ship.data || {};
+  const speed = parseInt(d.speed, 10);
+  if (isFinite(speed) && speed >= 1 && speed <= 8) setTravelValue("v-speed", String(speed));
+  const crew = (Array.isArray(d.crew) ? d.crew : []).map(c => {
+    const name = String(c && c.name || "").trim(); if (!name) return null;
+    return `${String(c.position || "Crew").trim()}: ${name}`;
+  }).filter(Boolean);
+  if (crew.length) setTravelValue("v-crew", crew.join("\n"));
+  if (note) {
+    const hull = d.hull != null && d.hull !== "" ? d.hull : "unlisted";
+    const energy = d.energy != null && d.energy !== "" ? d.energy : "unlisted";
+    note.textContent = `${ship.name || "The ship"}: hull ${hull}, energy ${energy}. Speed and crew come from the sheet; change the rest as the trip needs.`;
+    note.hidden = false;
+  }
+  renderTravel();
+}
+
 function renderTravel() {
   const v = V();
   $("#v-name").value = v.name || "";
@@ -1300,6 +1405,57 @@ function worldArt(w) {
   if (orbit === 3 || orbit === 4 || orbit === 5) for (let i = 0; i < 3; i++) { const a = i * 2.1 + 1; sv("rect", { x:110 + 100 * Math.cos(a) - 3, y:110 + 34 * Math.sin(a) - 3, width:6, height:6, fill:"none", stroke:"var(--accent)", "stroke-width":1.5 }, s); }
   return s;
 }
+/* ---------- the world in the campaign ---------- */
+/* A world becomes one body of a campaign system, in the shape Coriolis Sheets writes a system with: flat strings, one row per body. */
+function campaignWorldBody(w) {
+  const L = w.lines || {};
+  const pick = (...keys) => { for (const k of keys) { const x = L[k]; if (x) return rowLabel("w." + k, x.r); } return ""; };
+  const extras = [
+    L.gasColour ? `Colour: ${rowLabel("w.gasColour", L.gasColour.r)}` : null,
+    L.gasChar ? `Character: ${rowLabel("w.gasChar", L.gasChar.r)}` : null,
+    L.beltComp ? `Composition: ${rowLabel("w.beltComp", L.beltComp.r)}` : null,
+    L.beltChar ? `Character: ${rowLabel("w.beltChar", L.beltChar.r)}` : null,
+    L.moons ? `Moons: ${L.moons.r}` : null
+  ].filter(Boolean);
+  return {
+    name: w.name || "Unnamed world",
+    kind: { planet:"Planet", gas:"Gas giant", belt:"Asteroid belt" }[w.kind] || "Planet",
+    distance: "",
+    size: pick("size", "gasSize", "beltSize"),
+    atmosphere: pick("atmosphere"),
+    geosphere: pick("geosphere"),
+    temperature: pick("temperature", "gasTemp"),
+    orbit: pick("orbit"),
+    population: pick("population"),
+    spaceport: pick("spaceport"),
+    factions: (w.factions || []).map(f => rowLabel("w.faction", f.r) + (f.strength ? ` (${f.strength})` : "")).join("\n"),
+    other: extras.join("\n"),
+    hooks: (w.hooks || []).map(x => rowLabel("w.hook", x.r)).join("\n")
+  };
+}
+// A system of the same name already in the campaign takes the body rather than a second copy of itself.
+function saveWorldToCampaign() {
+  const w = S.world;
+  if (!w) { say("w-status", "Roll a world first, then save it."); return; }
+  const C = campaign();
+  if (!C) { say("w-status", "The campaign store is not loaded, so the world stays on this page."); return; }
+  const body = campaignWorldBody(w), name = body.name;
+  const same = x => String(x || "").trim().toLowerCase() === name.trim().toLowerCase();
+  const target = (w.cid ? C.get("system", w.cid) : null) || campaignAll("system").find(e => same(e.name) || same((e.data || {}).name)) || null;
+  const base = target && target.data ? target.data : { name, star:"", notes:"" };
+  const bodies = (Array.isArray(base.bodies) ? base.bodies : []).slice();
+  const at = bodies.findIndex(b => b && same(b.name));
+  if (at >= 0) bodies[at] = { ...bodies[at], ...body }; else bodies.push(body);
+  const id = target ? target.id : (C.makeId ? C.makeId("mb-sys") : "mb-sys-" + uid());
+  const entity = C.upsert("system", { id, name: base.name || name, source:"mission-board", data: { ...base, name: base.name || name, star: base.star || "", notes: base.notes || "", bodies } });
+  if (!entity) { say("w-status", "The campaign refused that world: the store may be full."); return; }
+  w.cid = entity.id; save("world");
+  // The new system joins this page's lists at once, so a job or a leg can be sent to it before the next reload.
+  const row = campaignBodyRow(body);
+  if (row && !SYSTEMS.some(s => s.id === campaignSystemId(entity.id) || same(s.n))) { SYSTEMS.push({ id: campaignSystemId(entity.id), n: entity.name || name, bodies:[row], campaign:true }); renderBoard(); renderTravel(); }
+  say("w-status", `${target ? "Updated" : "Saved"} "${name}": ${plural(bodies.length, "body", "bodies")} in the campaign system ${entity.name || name}. It shows in Coriolis Sheets.`);
+}
+
 function worldMd(w) {
   const out = [`## ${w.name || "Unnamed world"}`, "", `${{ planet:"Planet", gas:"Gas giant", belt:"Asteroid belt" }[w.kind]}${w.sys ? ` in ${sysName(w.sys)}` : ""}`, ""];
   w.order.forEach(k => { const x = w.lines[k]; if (!x) return; out.push(`- **${WORLD_LABELS[k]}:** ${k === "moons" ? x.r : rowLabel("w." + k, x.r)}`); });
@@ -1404,6 +1560,9 @@ const VKEYS = ["v-speed","v-pcs","v-route","v-crew","v-value","v-port","v-misf",
 ["v-curse","v-am","v-svc"].forEach(k => { const el = document.getElementById(k); try { el.checked = JSON.parse(localStorage.getItem("mb-" + k) || "false"); } catch {} el.addEventListener("change", () => { try { localStorage.setItem("mb-" + k, JSON.stringify(el.checked)); } catch {} renderTravel(); }); });
 const vset = store.get("mb-vset", {});
 VKEYS.forEach(k => { if (vset[k] != null) $("#" + k).value = vset[k]; $("#" + k).addEventListener("change", () => { vset[k] = $("#" + k).value; store.set("mb-vset", vset); renderTravel(); }); });
+$("#v-ship").addEventListener("change", e => useCampaignShip(e.target.value));
+renderShipPicker();
+if (campaign()) { try { campaign().subscribe(renderShipPicker); } catch {} }
 $("#v-name").addEventListener("change", e => setV(v => { v.name = e.target.value; }));
 const hereSys = () => S.voyage.legs.length ? (S.voyage.legs[S.voyage.legs.length - 1].sys || S.voyage.legs[S.voyage.legs.length - 1].to || S.here) : S.here;
 $("#add-space").addEventListener("click", () => setV(v => v.legs.push(spaceLeg(hereSys(), "", ""))));
@@ -1415,6 +1574,7 @@ $("#clear-voyage").addEventListener("click", () => { S.voyage = blankVoyage(); s
 $("#w-roll").addEventListener("click", () => { const w = rollWorld($("#w-kind").value); w.name = $("#w-name").value.trim(); w.sys = $("#w-sys").value; S.world = w; save("world"); renderWorld(); });
 $("#w-name").addEventListener("change", e => { if (S.world) { S.world.name = e.target.value.trim(); save("world"); renderWorld(); } });
 $("#w-save").addEventListener("click", e => { if (!S.world) return; S.log.unshift({ id:uid(), kind:"world", title:S.world.name || "Unnamed world", status:"Done", notes:"", md:worldMd(S.world), saved:new Date().toISOString() }); save("log"); flashBtn(e.target, "Saved"); });
+$("#w-camp").addEventListener("click", saveWorldToCampaign);
 if (S.world) { $("#w-kind").value = S.world.kind; $("#w-sys").value = S.world.sys || ""; }
 $("#log-filter").addEventListener("change", renderLog);
 $("#go-data").addEventListener("click", () => go("data"));

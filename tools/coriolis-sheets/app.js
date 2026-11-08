@@ -10,7 +10,7 @@ if(!sheets.some(s=>s.id===active))active=sheets[0].id;
 const current=()=>sheets.find(s=>s.id===active);
 function status(s){$('#save-status').textContent=[s,saveWarning].filter(Boolean).join(' ');}
 function persist(){if(loadFailed){status(startupError);return;}try{localStorage.setItem(KEY,JSON.stringify({sheets,active,type}));saveWarning='';status('Saved in this browser.');}catch{saveWarning='Changes are not saved: browser storage is unavailable or full. Export a backup now.';status('');}}
-function touch(){current().updated=new Date().toISOString();persist();updateLibrary();}
+function touch(){current().updated=new Date().toISOString();persist();updateLibrary();pushSheet();}
 function title(s){return s.values.name||`Untitled ${TYPES[s.type].toLowerCase()}`;}
 function updateLibrary(){const l=$('#library');l.replaceChildren(...sheets.filter(s=>s.type===type).map(s=>el('option',{value:s.id,text:title(s)})));l.value=active;}
 function switchType(t){type=t;let s=sheets.find(s=>s.type===t);if(!s){s=newSheet(t);sheets.push(s);}active=s.id;persist();render();}
@@ -48,6 +48,7 @@ function ship(grid){
 }
 function repeats(grid,fields,label){const s=current();s.entries.forEach((obj,i)=>{
  const section=fieldset(`${label} ${String(i+1).padStart(2,'0')}`,fields,obj,true,`entry${i}`);section.classList.add('repeat-card');if(type==='npc')section.prepend(presetPicker('npc',obj,i));if(type==='npc')section.append(derived(obj,'Stress points'));
+ if(obj.cid&&CAMPAIGN){const linked=CAMPAIGN.get(type,obj.cid);section.append(el('div',{class:'campaign-link no-print'},el('span',{class:'campaign-chip',text:'Campaign'}),el('span',{class:'campaign-name',text:(linked&&linked.name)||'shared'}),type==='npc'?el('a',{class:'mini',href:`/tools/icon-spreads/?npc=${encodeURIComponent(obj.cid)}`,text:'Draw a spread'}):null,el('button',{class:'mini',text:'Unlink',onclick:()=>{delete obj.cid;touch();render();status('Unlinked here. The campaign keeps its own copy.');}})));}
  section.append(el('button',{class:'mini actions no-print',text:`Remove ${label.toLowerCase()}`,onclick:()=>{s.entries.splice(i,1);touch();render();}}));grid.append(section);
  });grid.append(el('button',{class:'btn no-print',text:`Add ${label.toLowerCase()}`,onclick:()=>{if(s.entries.length>=100)return status('Maximum 100 entries per sheet.');s.entries.push(type==='system'?{kind:'Planet'}:{});touch();render();}}));}
 function system(grid){grid.append(fieldset('System registry',[F('name','System name'),F('star','Star / stars'),F('notes','System notes','area')],current().values,true));grid.append(el('section',{class:'section wide'},el('h3',{text:'Orbital sketch'}),el('div',{id:'chart'}),el('p',{class:'note',text:'Bodies are ordered by distance. Positions use a square-root scale; add distances in AD to chart them.'})));repeats(grid,bodyFields,'Body');drawChart();}
@@ -62,12 +63,89 @@ function presetPicker(kind,obj,index){
   touch();render();status('Preset loaded. All fields are editable.');
  }}),el('p',{class:'note',text:kind==='ship'?'Creates a new ship with model stats, modules and features. Your current ship is kept.':'Uses Table 15.1 attributes, reputation and skills. Fills a blank entry or adds a new NPC.'}));
 }
+/* ---------- the campaign ---------- */
+const CAMPAIGN=window.CoriolisCampaign||null;
+const saveCampaign=CAMPAIGN?CAMPAIGN.saver(700):()=>{};
+const seen=new Map();
+const SHIP_TABLES=['crew','modules','weapons','features','log'];
+const isRepeatable=()=>type==='npc'||type==='mission';
+function flatData(obj){const out={};for(const [k,v] of Object.entries(obj)){if(k==='cid'||k==='updated'||k==='rollLog')continue;if(typeof v==='string'||typeof v==='number'||typeof v==='boolean')out[k]=v;}return out;}
+function tablesFor(){const s=current(),out={};if(type==='ship')for(const k of SHIP_TABLES)out[k]=structuredClone(s.tables[k]||[]);if(type==='system')out.bodies=structuredClone(s.entries);return out;}
+function entityFor(obj){return {id:obj.cid,name:obj.name||undefined,source:'sheets',data:{...flatData(obj),...tablesFor()},refs:{sheetId:current().id}};}
+function pushObj(obj){if(!CAMPAIGN||!obj||!obj.cid)return;const e=CAMPAIGN.upsert(type,entityFor(obj));if(e)seen.set(e.id,e.updated);}
+function pushSheet(){if(!CAMPAIGN)return;if(isRepeatable())current().entries.forEach(o=>o.cid&&pushObj(o));else if(current().values.cid)pushObj(current().values);}
+function blanks(obj){return !Object.entries(obj).some(([k,v])=>k!=='cid'&&v!==''&&v!=null);}
+function shareSheet(){
+ if(!CAMPAIGN)return status('The campaign store did not load. Reload the page and try again.');
+ const s=current();let n=0,single='';
+ if(isRepeatable())s.entries.forEach(o=>{if(blanks(o))return;if(!o.cid)o.cid=CAMPAIGN.makeId(type);pushObj(o);n++;single=o.name||'';});
+ else{if(!s.values.cid)s.values.cid=CAMPAIGN.makeId(type);pushObj(s.values);n=1;single=title(s);}
+ touch();render();
+ status(n?`Shared ${n===1?`“${single}”`:`${n} entries from “${title(s)}”`} with the campaign. The Mission Board and Icon Spreads can see ${n===1?'it':'them'} now.`:'Give the sheet a name first. There is nothing to share yet.');
+}
+function fromEntity(e,kind){const o={cid:e.id};for(const [k,v] of Object.entries(e.data||{})){if(k==='bodies'||SHIP_TABLES.includes(k))continue;o[k]=v;}if(!o.name&&e.name)o.name=e.name;if(e.spread&&e.spread.reading)o[kind==='mission'?'reading':'spread']=e.spread.reading;return o;}
+function importEntity(kind,id){
+ if(!CAMPAIGN)return status('The campaign store did not load. Reload the page and try again.');
+ const e=CAMPAIGN.get(kind,id);if(!e)return status('That entry is no longer in the campaign.');
+ const s=current();
+ if(isRepeatable()){
+  const obj=fromEntity(e,kind),same=s.entries.find(o=>!o.cid&&o.name&&o.name===e.name),blank=s.entries.find(o=>blanks(o));
+  if(same)Object.assign(same,obj);else if(blank)Object.assign(blank,obj);else{if(s.entries.length>=100)return status('Maximum 100 entries per sheet.');s.entries.push(obj);}
+  touch();render();status(`Imported “${e.name||'the entry'}” from the campaign. It stays linked, so changes follow either way.`);
+  return;
+ }
+ const next=newSheet(kind);
+ next.values={...next.values,cid:e.id};
+ for(const [k,v] of Object.entries(e.data||{})){if(k==='bodies'||SHIP_TABLES.includes(k))continue;next.values[k]=v;}
+ if(kind==='system'&&Array.isArray(e.data.bodies))next.entries=structuredClone(e.data.bodies);
+ if(kind==='ship')for(const k of SHIP_TABLES)if(Array.isArray(e.data[k]))next.tables[k]=structuredClone(e.data[k]);
+ sheets.push(next);active=next.id;persist();render();
+ status(`Imported “${e.name||'the entry'}” as a new ${TYPES[kind].toLowerCase()} sheet. It stays linked, so changes follow either way.`);
+}
+function targets(kind){if(kind!==type)return null;const s=current();return isRepeatable()?s.entries:s.values.cid?[s.values]:[];}
+function applyEntity(obj,e,kind){
+ let changed=false;const set=(k,v)=>{if(v===undefined||v===null)return;if(obj[k]!==v){obj[k]=v;changed=true;}};
+ for(const [k,v] of Object.entries(e.data||{})){if(k==='bodies'||SHIP_TABLES.includes(k))continue;if(typeof v!=='string'&&typeof v!=='number'&&typeof v!=='boolean')continue;set(k,v);}
+ if(e.name&&!Object.hasOwn(e.data||{},'name')&&obj.name!==e.name)set('name',e.name);
+ if(e.spread&&e.spread.reading)set(kind==='mission'?'reading':'spread',e.spread.reading);
+ if(kind==='system'&&Array.isArray(e.data.bodies)&&JSON.stringify(obj.bodies||[])!==JSON.stringify(e.data.bodies)){current().entries=structuredClone(e.data.bodies);changed=true;}
+ if(kind==='ship')for(const k of SHIP_TABLES)if(Array.isArray(e.data[k])&&JSON.stringify(current().tables[k]||[])!==JSON.stringify(e.data[k])){current().tables[k]=structuredClone(e.data[k]);changed=true;}
+ return changed;
+}
+function receive(db){
+ if(!CAMPAIGN)return;let dirty=null;
+ for(const kind of ['npc','mission','system','ship']){
+  for(const [id,e] of Object.entries((db.entities&&db.entities[kind])||{})){
+   if(e.writer===CAMPAIGN.WRITER||seen.get(id)===e.updated)continue;
+   seen.set(id,e.updated);
+   if(kind!==type)continue;
+   const list=targets(kind);if(!list)continue;
+   const obj=list.find(o=>o.cid===id);if(!obj)continue;
+   if(applyEntity(obj,e,kind))dirty=e;
+  }
+ }
+ if(dirty){current().updated=new Date().toISOString();persist();render();status(`Updated from the campaign: ${dirty.name||'a linked entry'}.`);}
+}
+function updateCampaign(){
+ const box=$('#campaign');if(!box)return;
+ const share=$('#campaign-share'),pick=$('#campaign-pick'),imp=$('#campaign-import'),unlink=$('#campaign-unlink'),backup=$('#campaign-backup');
+ if(!CAMPAIGN){box.hidden=true;return;}
+ box.hidden=false;
+ const linked=isRepeatable()?current().entries.filter(o=>o.cid):current().values.cid?[current().values]:[];
+ const pool=CAMPAIGN.all(type).filter(e=>!linked.some(o=>o.cid===e.id));
+ pick.replaceChildren(el('option',{value:'',text:pool.length?`${CAMPAIGN.all(type).length} ${TYPES[type].toLowerCase()}${CAMPAIGN.all(type).length===1?'':'s'} in the campaign`:'Nothing shared yet'}),...pool.map(e=>el('option',{value:e.id,text:(e.name||'Unnamed')+` · ${e.source}`})));
+ pick.disabled=!pool.length;imp.disabled=!pool.length;unlink.disabled=!linked.length;
+ share.textContent=linked.length?'Update the campaign':isRepeatable()?'Share these entries':'Share this sheet';
+ const total=CAMPAIGN.count(CAMPAIGN.read());
+ $('#campaign-status').textContent=linked.length?`${linked.length} linked here · ${total} in the campaign.`:total?`Nothing from this sheet is shared yet · ${total} in the campaign.`:'The campaign is empty. Share a sheet to start it.';
+}
+const campaignCount=()=>(CAMPAIGN?CAMPAIGN.count(CAMPAIGN.read()):0);
 function render(){const s=current();type=s.type;$('#types').replaceChildren(...Object.entries(TYPES).map(([t,name])=>el('button',{class:'btn quiet','aria-current':String(t===type),text:name,onclick:()=>switchType(t)})));updateLibrary();const ed=$('#editor'),grid=el('div',{class:'sheet-grid'});ed.dataset.sheetType=type;ed.replaceChildren(el('div',{class:'sheet-title'},el('div',{},el('div',{class:'eyebrow',text:'Coriolis · The Third Horizon'}),el('h2',{id:'sheet-heading',text:title(s)})),el('div',{class:'seal','aria-hidden':'true'},el('span',{text:'✦'}))),grid);
  if(type==='ship')grid.append(presetPicker('ship'));
  if(type==='character')character(grid);if(type==='ship')ship(grid);if(type==='system')system(grid);
  if(type==='mission'){grid.append(fieldset('Mission board',[F('name','Board name'),F('concept','Group concept',Object.values(CONCEPTS)),F('notes','Board notes','area')],s.values,true));repeats(grid,missionFields,'Mission');}
  if(type==='npc'){grid.append(fieldset('Cast of characters',[F('name','Collection name'),F('notes','Notes','area')],s.values,true));repeats(grid,npcFields,'NPC');}
- updateDerived();updateDataStatus();requestAnimationFrame(()=>document.querySelectorAll('textarea').forEach(grow));}
+ updateDerived();updateDataStatus();updateCampaign();requestAnimationFrame(()=>document.querySelectorAll('textarea').forEach(grow));}
 function download(name,x){const url=URL.createObjectURL(new Blob([JSON.stringify(x,null,2)],{type:'application/json'})),a=el('a',{href:url,download:name});document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);}
 function backup(list){return {format:'coriolis-sheets-backup/1',saved:new Date().toISOString(),sheets:list};}
 function readFile(callback){const input=$('#file');input.value='';input.onchange=async()=>{const f=input.files[0];if(!f)return;if(f.size>5*1024*1024)return status('Choose a JSON file smaller than 5 MB.');try{callback(JSON.parse(await f.text()));}catch(e){status(e.message||'Could not read that JSON file.');}};input.click();}
@@ -86,5 +164,13 @@ $('#generate').onclick=()=>{try{const g=generator(data),s=current(),concept=Obje
 async function loadDefault(){const response=await fetch('./data/launch-tables.json');if(!response.ok)throw Error('Launch tables could not be loaded. You can import a local table pack.');data=validateData(await response.json());dataSource='launch data';updateDataStatus();}
 const theme=$('#theme');try{theme.value=localStorage.getItem('coriolis-sheets-theme')||'auto';}catch{}function setTheme(){if(theme.value==='auto')delete document.documentElement.dataset.theme;else document.documentElement.dataset.theme=theme.value;}setTheme();theme.onchange=()=>{setTheme();try{localStorage.setItem('coriolis-sheets-theme',theme.value);}catch{}};
 try{const r=await fetch('./data/presets.json');if(r.ok)presets=await r.json();}catch{}
+if(CAMPAIGN){
+ $('#campaign-share').onclick=shareSheet;
+ $('#campaign-import').onclick=()=>{const id=$('#campaign-pick').value;if(!id)return status('Choose something from the campaign first.');importEntity(type,id);};
+ $('#campaign-unlink').onclick=()=>{const linked=isRepeatable()?current().entries.filter(o=>o.cid):current().values.cid?[current().values]:[];if(!linked.length)return status('Nothing on this sheet is linked to the campaign.');linked.forEach(o=>delete o.cid);touch();render();status('Unlinked here. The campaign keeps its own copies, and the other tools still see them.');};
+ $('#campaign-backup').onclick=()=>download('coriolis-campaign.json',CAMPAIGN.exportAll());
+ CAMPAIGN.subscribe(receive);
+}
 render();if(startupError)status(startupError);else persist();
+if(CAMPAIGN)receive(CAMPAIGN.read());
 try{const imported=localStorage.getItem(DATAKEY);if(imported){data=validateData(JSON.parse(imported));dataSource='visitor import';updateDataStatus();}else await loadDefault();}catch(e){status(e.message);try{await loadDefault();}catch{updateDataStatus();}}
