@@ -33,7 +33,8 @@ table and result to read.
   jobs go to a system one jump away on the map, faraway jobs to one two or three jumps
   away, and the card shows the route with any unstable portal or dangerous area on it.
   The map above the board shows the crew and the jobs; click a system to move the crew.
-  The map is drawn as an amber hologram in both themes. Under it, the crew's system has
+  The map is drawn in the printed map's colours in both themes: gold links, an orange
+  glow round each star, dust and nebulae behind. Under it, the crew's system has
   a chart in the Great Dark's manner: the star with its portals, then each body along
   the line at its distance (spaced by square root so the inner system stays legible),
   with companion stars on rows of their own. An Icon card can be drawn for each job as an omen, from a

@@ -135,23 +135,25 @@ textarea{resize:vertical;min-height:60px}
 .fail{border:1px dashed var(--accent);background:var(--accent-soft);padding:8px;margin-top:8px}
 
 /* Holographic projection: amber light on near-black, in both themes, as the ship's holotable would show it */
-.holo{--holo:#ff9d45;--holo-hi:#ffd9a6;--holo-dim:rgba(255,157,69,.38);--holo-faint:rgba(255,157,69,.12);
-  position:relative;background:radial-gradient(ellipse at 50% 40%,#21140b 0%,#0b0806 70%);border:1px solid var(--holo-dim);padding:10px 12px;color:var(--holo-hi);overflow:hidden}
+.holo{--holo:#f2b84b;--holo-hi:#ffd98a;--holo-dim:rgba(242,184,75,.4);--holo-faint:rgba(242,184,75,.13);
+  position:relative;background:radial-gradient(ellipse at 55% 45%,#1a0e08 0%,#060403 75%);border:1px solid var(--holo-dim);padding:10px 12px;color:var(--holo-hi);overflow:hidden}
 .holo + .holo{margin-top:10px}
-.holo::after{content:"";position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(0deg,rgba(255,170,90,.045) 0 1px,transparent 1px 3px)}
-.holo svg{display:block;width:100%;height:auto;filter:drop-shadow(0 0 2px rgba(255,140,50,.75))}
+.holo svg{display:block;width:100%;height:auto}
+.holo .speck{fill:#ffcf9a}
+.holo .lines{filter:drop-shadow(0 0 2px rgba(255,170,60,.7))}
 .holocap,.holokey{font-family:var(--font-data);font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;color:var(--holo)}
 .holokey{display:flex;flex-wrap:wrap;gap:4px 14px;margin-top:4px;opacity:.85;text-transform:none;letter-spacing:.04em}
 .holo.compact{padding:4px 8px;margin-top:8px}
 .hmap .grid{stroke:var(--holo-faint);stroke-width:1}
-.hmap .region{fill:var(--holo);font-family:var(--font-data);font-size:12px;letter-spacing:4px;opacity:.55}
+.hmap .region{fill:var(--holo);font-family:var(--font-data);font-size:10px;letter-spacing:2px;opacity:.85}
+.hmap .regionbox{fill:rgba(20,10,4,.6);stroke:var(--holo);stroke-width:1;opacity:.75}
 .hmap .link{stroke:var(--holo);stroke-width:1.6;opacity:.75}
 .hmap .link.unstable{stroke-dasharray:5 6}
-.hmap .danger{stroke:#ff4f2e;stroke-width:22;stroke-linecap:round;opacity:.18}
+.hmap .danger{stroke:#c2361f;stroke-width:26;stroke-linecap:round;opacity:.35;filter:blur(3px)}
 .hmap .route{stroke:var(--holo-hi);stroke-width:4.5;stroke-linecap:round}
-.hmap .star{fill:var(--holo)}
+.hmap .star{fill:#fff0c4}
 .hmap .halo{fill:none;stroke:var(--holo);stroke-width:1;opacity:.6}
-.hmap .on .star{fill:#fff3e0}
+.hmap .on .star{fill:#fff}
 .hmap .lbl{fill:var(--holo-hi);font-family:var(--font-data);font-size:13px;letter-spacing:2px;text-transform:uppercase}
 .hmap .here{fill:none;stroke:#fff3e0;stroke-width:2;stroke-dasharray:4 3}
 .hmap .mark{fill:none;stroke:var(--holo-hi);stroke-width:1.5}
@@ -164,7 +166,7 @@ textarea{resize:vertical;min-height:60px}
 .syschart .sym{fill:none;stroke:var(--holo);stroke-width:1.4}
 .syschart .sym.dash{stroke-dasharray:3 4}
 .syschart .sym.faint{opacity:.5}
-.syschart .core{fill:var(--holo)}
+.syschart .core{fill:#ffe3a3}
 .syschart .ring{stroke:#fff3e0;stroke-dasharray:4 3}
 .syschart .hl .core,.syschart .sym.hl{fill:#fff3e0;stroke:#fff3e0}
 .syschart .leg{stroke:var(--holo-hi);stroke-width:4;stroke-linecap:round;opacity:.8}
@@ -924,13 +926,27 @@ function voyageMd(v) {
 }
 
 /* ---------- the Horizon map ---------- */
+// The glow behind each star and the dust of the background, as on the printed Horizon map.
+let glowN = 0;
+function holoBase(svg, x0, y0, w, hgt, seed) {
+  const id = "g" + (++glowN); const defs = sv("defs", {}, svg);
+  const mk = (gid, stops) => { const g = sv("radialGradient", { id:gid }, defs); stops.forEach(([o, c, a]) => sv("stop", { offset:o, "stop-color":c, "stop-opacity":a }, g)); };
+  mk(id + "s", [[0, "#ffb347", .85], [.25, "#ff8a2a", .38], [.6, "#d4561b", .12], [1, "#a03a10", 0]]);
+  mk(id + "n", [[0, "#c8581f", .22], [1, "#6b2a0c", 0]]);
+  let r = seed || 7; const rnd = () => (r = (r * 9301 + 49297) % 233280) / 233280;
+  for (let i = 0; i < (w * hgt) / 1800; i++) sv("circle", { cx:x0 + rnd() * w, cy:y0 + rnd() * hgt, r:rnd() < .92 ? .7 : 1.4, class:"speck", opacity:(.15 + rnd() * .55).toFixed(2) }, svg);
+  return { star:`url(#${id}s)`, neb:`url(#${id}n)` };
+}
 function drawMap(box, opt = {}) {
   const svg = sv("svg", { viewBox:"180 175 1230 715", class:"hmap", role:"img", "aria-label":"Map of the Third Horizon's portal links" });
-  for (let gx = 200; gx < 1410; gx += 60) sv("line", { x1:gx, y1:175, x2:gx, y2:890, class:"grid" }, svg);
-  for (let gy = 190; gy < 890; gy += 60) sv("line", { x1:180, y1:gy, x2:1410, y2:gy, class:"grid" }, svg);
-  REGIONS.forEach(([n, x, y]) => { const t = sv("text", { x, y, class:"region", "text-anchor":"middle" }, svg); t.textContent = n.toUpperCase(); });
+  const G = holoBase(svg, 180, 175, 1230, 715, 11);
+  [[300,420,150],[560,330,110],[960,300,140],[1180,560,170],[700,720,150],[980,700,120]].forEach(([cx, cy, r]) => sv("circle", { cx, cy, r, fill:G.neb }, svg));
+  MAP.forEach(([id, , x, y]) => sv("circle", { cx:x, cy:y, r: CORE.has(id) ? 34 : 24, fill:G.star }, svg));
+  REGIONS.forEach(([n, x, y]) => { const w = n.length * 7.4 + 14; sv("rect", { x:x - w / 2, y:y - 13, width:w, height:19, class:"regionbox" }, svg); const t = sv("text", { x, y:y + 1, class:"region", "text-anchor":"middle" }, svg); t.textContent = n.toUpperCase(); });
   const P = id => MAP.find(m => m[0] === id);
-  LINKS.forEach(([a, b, f]) => { const A = P(a), B = P(b); if (f === "danger") sv("line", { x1:A[2], y1:A[3], x2:B[2], y2:B[3], class:"danger" }, svg); sv("line", { x1:A[2], y1:A[3], x2:B[2], y2:B[3], class:"link" + (f === "unstable" ? " unstable" : "") }, svg); });
+  LINKS.forEach(([a, b, f]) => { const A = P(a), B = P(b); if (f === "danger") sv("line", { x1:A[2], y1:A[3], x2:B[2], y2:B[3], class:"danger" }, svg); });
+  const lines = sv("g", { class:"lines" }, svg);
+  LINKS.forEach(([a, b, f]) => { const A = P(a), B = P(b); sv("line", { x1:A[2], y1:A[3], x2:B[2], y2:B[3], class:"link" + (f === "unstable" ? " unstable" : "") }, lines); });
   const path = opt.path || [];
   for (let i = 1; i < path.length; i++) { const A = P(path[i - 1]), B = P(path[i]); if (A && B) sv("line", { x1:A[2], y1:A[3], x2:B[2], y2:B[3], class:"route" }, svg); }
   MAP.forEach(([id, n, x, y]) => {
@@ -952,15 +968,19 @@ function systemChart(sy, opt = {}) {
   const real = sy.bodies.filter(b => b[2] !== "portal" && b[1] != null);
   if (real.length < 2) return null;
   const stars = sy.stars || [sy.n]; const portals = sy.bodies.filter(b => b[2] === "portal");
-  const W = 960, RH = opt.compact ? 120 : 150, rows = stars.map((_, i) => i).filter(i => i === 0 || real.some(b => (b[3] || 0) === i));
+  const W = 960, RH = opt.compact ? 150 : 170, rows = stars.map((_, i) => i).filter(i => i === 0 || real.some(b => (b[3] || 0) === i));
   const svg = sv("svg", { viewBox:`0 0 ${W} ${rows.length * RH + 10}`, class:"syschart", role:"img", "aria-label":`System chart of ${sy.n}` });
+  const G = holoBase(svg, 0, 0, W, rows.length * RH + 10, sy.n.length * 13);
   const max = Math.max(...real.map(b => b[1])); const X = au => 120 + Math.sqrt(au) / Math.sqrt(max) * (W - 190);
   const hl = new Set([opt.from, opt.to].filter(Boolean));
   rows.forEach((si, ri) => {
     const cy = ri * RH + RH / 2 + 18, sx = 44;
     const here = real.filter(b => (b[3] || 0) === si).sort((a, b) => a[1] - b[1]);
-    here.forEach(b => { const rx = X(b[1]) - sx; sv("path", { d:`M${sx} ${cy - rx * .28} A${rx} ${rx * .28} 0 0 1 ${sx} ${cy + rx * .28}`, class:"orbit" }, svg); });
+    const cid = `clip${++glowN}`; const cp = sv("clipPath", { id:cid }, svg); sv("rect", { x:0, y:cy - RH / 2 + 4, width:W, height:RH - 8 }, cp);
+    const og = sv("g", { "clip-path":`url(#${cid})` }, svg);
+    here.forEach(b => { const rx = X(b[1]) - sx; sv("ellipse", { cx:sx, cy, rx, ry:rx * .3, class:"orbit" }, og); });
     sv("line", { x1:sx, y1:cy, x2:W - 20, y2:cy, class:"axis" }, svg);
+    sv("circle", { cx:sx, cy, r:58, fill:G.star }, svg);
     sv("circle", { cx:sx, cy, r:9, class:"core" }, svg); sv("circle", { cx:sx, cy, r:15, class:"sym" }, svg); sv("circle", { cx:sx, cy, r:22, class:"sym dash" }, svg);
     for (let k = 0; k < 12; k++) { const a = k * Math.PI / 6; sv("line", { x1:sx + 17 * Math.cos(a), y1:cy + 17 * Math.sin(a), x2:sx + 20 * Math.cos(a), y2:cy + 20 * Math.sin(a), class:"sym" }, svg); }
     const st = sv("text", { x:sx - 10, y:cy - RH / 2 + 2, class:"cap" }, svg); st.textContent = starName(sy, si).toUpperCase();
@@ -976,6 +996,7 @@ function systemChart(sy, opt = {}) {
     let lastX = -99, lift = 0;
     here.forEach(b => { const x = X(b[1]), on = hl.has(b[0]); const g = sv("g", { class:on ? "hl" : "" }, svg);
       const k = b[2];
+      if (k !== "belt") sv("circle", { cx:x, cy, r: k === "giant" ? 26 : 16, fill:G.star, opacity:.8 }, g);
       if (k === "giant") { sv("circle", { cx:x, cy, r:8, class:"core" }, g); sv("circle", { cx:x, cy, r:14, class:"sym" }, g); }
       else if (k === "belt") for (let q = -5; q <= 5; q++) sv("circle", { cx:x + Math.sin(q * 1.9) * 3, cy:cy + q * 4.2, r:1.7, class:"core" }, g);
       else if (k === "station") sv("rect", { x:x - 5, y:cy - 5 - (b[0].includes("Lance") ? 0 : 0), width:10, height:10, class:"sym" }, g);
@@ -983,10 +1004,11 @@ function systemChart(sy, opt = {}) {
       else if (k === "moon") sv("circle", { cx:x, cy:cy - 12, r:3, class:"core" }, g);
       else sv("circle", { cx:x, cy, r:5.5, class:"core" }, g);
       if (on) sv("circle", { cx:x, cy, r:19, class:"sym ring" }, g);
-      lift = x - lastX < 26 ? lift + 1 : 0; lastX = x;
-      const ty = cy - 22 - (lift % 3) * 14;
-      const t = sv("text", { x:x + 2, y:ty, class:"name", transform:`rotate(-30 ${x + 2} ${ty})` }, g); t.textContent = b[0].toUpperCase();
-      const a = sv("text", { x, y:cy + 26 + (lift % 2) * 11, class:"au", "text-anchor":"middle" }, g); a.textContent = String(b[1]).replace(".", ",") === "" ? "" : `${b[1]}`;
+      // Crowded bodies alternate their names above and below the line.
+      lift = x - lastX < 40 ? lift + 1 : 0; lastX = x;
+      const below = lift % 2 === 1, ty = below ? cy + 30 : cy - 22;
+      const t = sv("text", { x:x + 2, y:ty, class:"name", transform:`rotate(${below ? 30 : -30} ${x + 2} ${ty})` }, g); t.textContent = b[0].toUpperCase();
+      const a = sv("text", { x, y: below ? cy - 14 : cy + 26, class:"au", "text-anchor":"middle" }, g); a.textContent = String(b[1]);
     });
   });
   const wrap = h("div", { class:"holo" + (opt.compact ? " compact" : "") }, svg);
