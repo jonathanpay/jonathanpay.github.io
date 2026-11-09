@@ -156,6 +156,15 @@ textarea{resize:vertical;min-height:70px}
 .scans figure{margin:0;text-align:center;font-family:var(--font-data);font-size:.72rem;color:var(--muted)}
 .scans .tcard{cursor:default}
 footer.notice{margin-top:24px;padding-top:10px;border-top:1px solid var(--line-soft);color:var(--muted);font-size:var(--step--1);max-width:75ch}
+/* The About tab: the method written out, in the page's own voice. */
+.about{max-width:70ch;line-height:1.6}
+.about h2{margin-bottom:10px}
+.about h3{margin:18px 0 6px;font-family:var(--font-display);font-size:1rem;letter-spacing:.04em;text-transform:uppercase;color:var(--line)}
+.about p{margin:0 0 10px}
+.about ul{margin:0 0 12px;padding-left:20px;display:grid;gap:6px}
+.about li{margin:0}
+.about a{color:var(--accent)}
+.about .about-foot{margin-top:18px;padding-top:12px;border-top:1px solid var(--line-soft);font-size:var(--step--1);color:var(--muted)}
 </style>
 </head>
 <body>
@@ -184,6 +193,7 @@ footer.notice{margin-top:24px;padding-top:10px;border-top:1px solid var(--line-s
     <button class="tab" role="tab" id="tab-deck" type="button">The deck</button>
     <button class="tab" role="tab" id="tab-npcs" type="button">NPCs</button>
     <button class="tab" role="tab" id="tab-cards" type="button">Your cards</button>
+    <button class="tab" role="tab" id="tab-about" type="button">About</button>
   </nav>
 </header>
 
@@ -256,6 +266,40 @@ footer.notice{margin-top:24px;padding-top:10px;border-top:1px solid var(--line-s
     </div>
   </aside>
   <div class="main"><div class="card"><h2>Loaded</h2><div class="scans" id="scans"></div></div></div>
+</section>
+
+<section class="view" id="view-about" role="tabpanel" aria-labelledby="tab-about" hidden>
+  <div class="main">
+    <article class="card about">
+      <h2>About Icon Spreads</h2>
+      <p>Every card in the Coriolis Icon deck pairs one of the nine Icons with a theme word: the Judge with A Soldier, the Gambler with Debt. Icon Spreads reads those cards the way you'd read a tarot spread, to build a non-player character (or a mission, or the outline of a story) from what falls where.</p>
+
+      <h3>How a reading works</h3>
+      <p>An NPC keeps the Icon they were born under, and the cards never change it. Then deal five cards, one per position:</p>
+      <ul>
+        <li><b>Serves:</b> which Icon they act for in this story. It can differ from their own, and the gap is a story.</li>
+        <li><b>Surface:</b> how the port sees them. Your opening rumour.</li>
+        <li><b>Want:</b> what they're after. Your hook.</li>
+        <li><b>Secret:</b> what they're hiding. Your complication.</li>
+        <li><b>Owed:</b> who they owe, or who owes them. A favour, and a thread to another NPC.</li>
+      </ul>
+      <p>For a quick NPC, draw three: Serves, Want and Secret. Read each card against its position, so Debt on the Surface is a reputation, and Debt as the Secret is a hold someone has over them. The deck has no reversals, so neither does the reading.</p>
+
+      <h3>Shadows and echoes</h3>
+      <p>When two cards share an Icon, the later one is the shadow of the earlier: the NPC acts for that Icon openly and in secret at once. In a pentagon, a pair side by side stays a shadow; two places apart, it's an echo, and the Icon recurs in the story without being hidden. The pentagon also puts Owed beside Serves, so the favour comes back round. An optional sixth card, face down in the centre, is what the story turns on.</p>
+
+      <h3>Missions and stories</h3>
+      <p>Change <i>Reading for</i> and the same deck reads a mission (Hook, Opposition, Complication, Secret, Payoff) or a story arc (Opening, Pressure, Turn, Secret, Reckoning).</p>
+
+      <h3>Keeping it</h3>
+      <p>Save NPCs here with notes, copy a reading as Markdown, or send it to the campaign, where it appears on the NPC's sheet in <a href="/tools/ctth-sheets/">Coriolis Sheets</a>. Everything stays in your browser.</p>
+
+      <h3>The cards</h3>
+      <p>The art is original: an arched window over a girih star pattern holding each Icon's sigil, with the Faceless cards' window left empty. The back is a nine-pointed star, a point for each Icon, with a scarab at its heart. The cloth carries a wheel of thirty-six decans, one for each card, which light up as you draw. If you own the printed deck, you can load your own scans on the <i>Your cards</i> tab, and they stay in your browser too.</p>
+
+      <p class="about-foot">This is an optional homebrew method, not a Free League rule. The Icons and the card titles are Free League's; the method and the card designs are mine. Part of a set: <a href="/tools/ctth-sheets/">Sheets</a>, <a href="/tools/ctth-mission/">Mission</a>, <a href="/tools/ctth-system/">System</a>.</p>
+    </article>
+  </div>
 </section>
 
 <footer class="notice">
@@ -731,7 +775,7 @@ function syncControls() {
 }
 
 /* ---------- wiring ---------- */
-const TABS = ["spread","deck","npcs","cards"];
+const TABS = ["spread","deck","npcs","cards","about"];
 function setTab(t) { if (!TABS.includes(t)) t = "spread"; TABS.forEach(x => { $("#view-" + x).hidden = x !== t; $("#tab-" + x).setAttribute("aria-selected", String(x === t)); }); if (t === "deck") renderDeck(); if (t === "npcs") renderNpcs(); if (t === "cards") renderScans(); }
 function go(t) { if (location.hash.slice(1) === t) setTab(t); else location.hash = t; }
 TABS.forEach(t => $("#tab-" + t).addEventListener("click", () => go(t)));

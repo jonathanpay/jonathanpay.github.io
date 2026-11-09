@@ -79,6 +79,10 @@ page works as it did before.
   are matched by the number in their name (11 to 66), or failing that by the card's
   title; a file with "back" in its name becomes the card back. Images are
   kept in the browser's IndexedDB and never uploaded.
+- **About.** The method written out for a reader who has not used the tool: the five
+  positions, the three-card cut, shadows and echoes, the mission and story spreads,
+  what saving does, and who owns what. Reached at `#about`, so it can be linked to
+  directly.
 
 ## The design
 
