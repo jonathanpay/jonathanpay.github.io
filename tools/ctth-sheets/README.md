@@ -101,9 +101,10 @@ Visitor imports **replace** the active table pack locally; they do not silently
 merge with the launch pack. **Use launch tables** removes the local override and
 fetches the bundled pack again. An incomplete pack is allowed for preparation,
 but a generation operation requiring a missing table reports the table ID and
-leaves all sheet fields unchanged. The downloadable template is an abbreviated
-example, not a complete generator pack. Start from `data/launch-tables.json` for the
-ids, dice and ranges, and add your own text.
+leaves all sheet fields unchanged. **Download template** gives the full blank template from `/tools/ctth-data/`: every table
+with its dice and ranges and blank results. A table whose results are all blank is
+treated as not supplied, so fill it in a table at a time. The how-to for visitors is at
+`/tools/ctth-data/`.
 
 ### Table format
 

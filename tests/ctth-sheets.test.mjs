@@ -48,3 +48,16 @@ test('the public launch pack carries names only, apart from numeric mechanics',(
  for(const [id,t] of Object.entries(pack.tables))if(!numeric.has(id))for(const r of t.rows)assert.ok(!('d' in r),`${id} row ${r.lo} has a description`);
  for(const r of pack.tables['mission.type'].rows)assert.match(r.d,/^[^|]+\|\s*\d+\s*\|[^|]+\|\s*\d+\s*\|[^|]+$/);
 });
+test('the downloadable template imports, ignores unfilled tables and accepts a filled one',()=>{
+ const tpl=JSON.parse(readFileSync(new URL('../tools/ctth-data/ctth-data-template.json',import.meta.url)));
+ assert.equal(tpl.format,'mission-board-data/1');
+ assert.deepEqual(Object.keys(tpl.tables),Object.keys(pack.tables));
+ for(const [id,t] of Object.entries(tpl.tables)){
+  assert.deepEqual(t.rows.map(r=>[r.lo,r.hi]),pack.tables[id].rows.map(r=>[r.lo,r.hi]),id);
+  if(!['mission.type','w.spaceport'].includes(id))for(const r of t.rows)assert.ok(!r.n.trim()&&!r.d,`${id} ships text`);
+ }
+ const blank=validateData(tpl);
+ assert.deepEqual(Object.keys(blank.tables).sort(),['mission.type','w.factionCount','w.spaceport']);
+ const filled=structuredClone(tpl);filled.tables['w.size'].rows.forEach((r,i)=>{r.n='Size '+i;});
+ assert.ok(validateData(filled).tables['w.size']);
+});

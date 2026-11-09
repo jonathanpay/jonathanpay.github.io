@@ -21,6 +21,7 @@ export function validateData(x){
   if(!['D6','2D6','D66'].includes(dice))throw Error(`Unsupported dice in ${id}.`);
   const rows=t.rows.map(r=>{if(!r||!Number.isInteger(r.lo)||!Number.isInteger(r.hi)||r.lo>r.hi||typeof r.n!=='string'||r.n.length>20000||(r.d!=null&&typeof r.d!=='string'))throw Error(`Invalid row in ${id}.`);return {lo:r.lo,hi:r.hi,n:r.n,d:r.d||'',...(r.count!=null?{count:r.count}:{})};}).sort((a,b)=>a.lo-b.lo);
   for(let i=1;i<rows.length;i++)if(rows[i].lo<=rows[i-1].hi)throw Error(`Overlapping rows in ${id}.`);
+  if(rows.every(r=>!r.n.trim()&&r.count==null))continue; // an unfilled template table counts as not supplied
   tables[id]={dice,rows};
  }
  return {format:FORMAT,name:typeof x.name==='string'?x.name:'Imported tables',tables};

@@ -351,7 +351,8 @@ if (!H) { document.body.append(h("p", { class:"nodata", text:"The horizon file (
 /* Book data: nothing from the books' table text ships with this page. Your data file, imported on the Data tab, lives in this browser. */
 const FORMAT = "mission-board-data/1";
 const DATA = (() => { const x = store.get("mb-data", null); return x && x.format === FORMAT ? x : null; })();
-const T = (DATA && DATA.tables) || {};
+// A table whose names are all blank is a template left unfilled: treat it as not supplied.
+const T = Object.fromEntries(Object.entries((DATA && DATA.tables) || {}).filter(([, t]) => t && Array.isArray(t.rows) && t.rows.some(r => r && ((typeof r.n === "string" && r.n.trim()) || r.count != null))));
 
 /* ---------- dice ---------- */
 const d6 = () => 1 + Math.floor(Math.random() * 6);
@@ -1224,7 +1225,7 @@ function renderData() {
     h("p", { class:"note", text:"Restoring adds the backup's log entries to yours and replaces the board, the voyage and the deck. The worlds and the system list are left alone. A backup from the older single-page tool still restores its jobs and its trip, but not its worlds." }));
   M.append(bk);
   Sd.append(h("div", { class:"card" }, h("h2", { text:"The data file" }), h("p", { class:"small", text:`A JSON file with format "${FORMAT}". Every part is optional. The README beside this page describes each field: the mission tables for each concept, travel encounters, misfortunes, failed jumps and Icon card titles. The world tables it carries are read in the System tool.` }),
-    h("p", { class:"small" }, h("a", { href:"https://github.com/jonathanpay/jonathanpay.github.io/tree/master/tools/ctth-mission", text:"Read the README on GitHub" }))));
+    h("p", { class:"small" }, h("a", { href:"/tools/ctth-data/", text:"Get the template and a how-to" }), " · ", h("a", { href:"https://github.com/jonathanpay/jonathanpay.github.io/tree/master/tools/ctth-mission", text:"Read the README on GitHub" }))));
 }
 function importData(st) { readFile(text => { try { const x = JSON.parse(text); if (x.format !== FORMAT) throw 0; if (!store.set("mb-data", x)) throw 0; location.reload(); } catch { st.textContent = "That file isn't a data file for this page, or this browser couldn't store it."; } }); }
 
