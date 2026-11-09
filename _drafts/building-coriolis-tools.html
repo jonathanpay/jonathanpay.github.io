@@ -1,0 +1,85 @@
+---
+layout: "post"
+title: "Three Tools for the Third Horizon"
+date: "2026-11-09 12:00:00"
+permalink: "/2026/11/09/three-tools-for-the-third-horizon/"
+categories:
+  - "Fun"
+---
+
+<p><em>Draft. Facts to check before publishing are marked [check].</em></p>
+
+<p>I run <i>Coriolis</i>, Free League's science-fantasy game: Arabian Nights in space, factions and portals, a sky full of Icons. It's a lovely game to run and a fiddly one to prep. A mission needs an employer, a job, a place, a complication and a reward. The trip there needs encounters, misfortunes, a portal jump and a count of Darkness Points. All of that lives in tables spread across two or three books.</p>
+
+<p>So I built tools for it. Three of them, over a couple of long sessions with Claude doing the typing while I steered. This is how each one came together, what I changed my mind about along the way, and the one rule that shaped all three.</p>
+
+<h2>The rule: no book text on the page</h2>
+
+<p>Free League's tables are their work. I own the books; the internet doesn't. So every tool here follows the same split. The page carries the machinery: the dice, the table numbers, the arithmetic the rules run on, place names and my own redrawn maps. The words from the tables live in a data file that I wrote for myself, from my own copies, and import into my own browser. It never goes near the site.</p>
+
+<p>Without that file, each tool still works. It rolls the dice, applies the modifiers, and tells you which table to read and which result you got. With it, the same screen fills in with employers, complications and encounters by name. It's the difference between a GM screen and a GM screen with your notes clipped to it.</p>
+
+<p>It was a little more work to build that way. I think it's the honest way to do it, and it means anyone who owns the books can make their own file and get the same tool.</p>
+
+<h2>The Voyage Chart Table</h2>
+
+<p>The first tool was for the newer game, <i>Coriolis: The Great Dark</i>, where ships cross the Charted Sphere week by week through slipstreams. The Voyage Chart Table plots a route by leagues, then lays out each week of the trip: a hazard, a voyage event and a crew duty, rolled or chosen. It projects Hull and Morale on arrival and flags the week either one hits zero. [check: anything you'd add about how this one started]</p>
+
+<p>The look came from the book's own maps: a Navigators Guild chart table in gold on dark, or parchment by day. That set the tone for what followed.</p>
+
+<h2>The Mission Board</h2>
+
+<p>The second tool is for the original game, <i>The Third Horizon</i>. I gave Claude the mission generator chapter from the Atlas Compendium, the travel chapter, the system generator, the core rules on star travel, and a pile of setting chapters, and asked for a travel and mission generator in the same spirit as the first.</p>
+
+<p>What came back was a page with five tabs.</p>
+
+<ul>
+  <li><b>Board.</b> Pick the crew's concept (agents, mercenaries, explorers, pilgrims of three kinds, free traders) and where they are, and it posts jobs. Each job rolls the mission type table for difficulty, pay and how far away it is, then the concept's own tables for the rest. Every line can be rerolled or picked by hand.</li>
+  <li><b>Travel.</b> Accept a job and the trip lays itself out: out to the portal, each jump, a day crossing each system on the way, the flight in, and the ground at the end. Every leg rolls its own encounters, reactions and misfortunes.</li>
+  <li><b>Worlds.</b> The system generator, with its modifiers chained: atmosphere moves temperature, temperature moves the geosphere, population moves the spaceport.</li>
+  <li><b>Log</b> and <b>Data</b>, for keeping things and loading the private file.</li>
+</ul>
+
+<p>Then the real work started, which was all about the map.</p>
+
+<h3>Giving it a map</h3>
+
+<p>The first version knew system names but not how they connected, so "a nearby system" was a guess. I sent a photo of the Third Horizon map and Claude redrew it: thirty-six systems, the portal links, the dangerous areas. Nearby jobs now go one jump away, faraway jobs two or three, and trips follow the fewest jumps.</p>
+
+<p>I asked for the map as an amber hologram, then corrected myself. The printed map is gold lines between stars sitting in soft orange glows, with dust and faint nebulae behind. That's what it is now, on the system charts too.</p>
+
+<p>Later passes caught things I only noticed by looking closely at the printed map. The "unstable portal" labels belong to systems, not to the links between them, and those systems are etched in red. Binary and trinary systems have their companion stars drawn as small dots. Those first went in two fixed spots that sometimes sat on a route line, so now each one finds the widest gap round its system instead.</p>
+
+<h3>System charts</h3>
+
+<p>I fed in screenshots of every published system chart. Twenty systems now have proper charts with distances, drawn the way <i>The Great Dark</i> does them: star on the left, orbits as faint arcs, bodies strung out along the line. Companion stars get rows of their own, and the distances between them fill in when a flight crosses from one to the other.</p>
+
+<p>Free League didn't chart all thirty-six systems, and that's deliberate. The Horizon map still gives each one a star type, a planet count and the kind of space it sits in. The uncharted systems are sketched from that count, in dashed outline, ready to be filled in at the table.</p>
+
+<p>Stars are coloured by class now (a white dwarf small and hard, a red giant swollen, a black hole a dark disc with a burning ring), and every system has a portal station at 0.5 AD. Only a couple are named in print. The rest wait for a name.</p>
+
+<h3>Small things that mattered</h3>
+
+<ul>
+  <li><b>AD, not AU.</b> The books use astronomical units. It's a fictional setting, so the tools use AD, the setting's own measure.</li>
+  <li><b>Fonts.</b> The books use Foundry Gridnik, DIN and Chaparral. The tools now use free near matches: Chakra Petch, Barlow and Source Serif.</li>
+  <li><b>An audit.</b> Near the end I asked Claude to check the tool against the star travel chapters line by line. It found a few gaps (cursed ships, antimatter rockets, the service roll and ship wear) and filled them.</li>
+</ul>
+
+<h2>Icon Spreads</h2>
+
+<p>The third tool started as a Google Doc: a draft method for building NPCs by drawing from the Icon card deck and reading it like a tarot spread. Five positions: what they <i>serve</i>, how the port sees them on the <i>surface</i>, what they <i>want</i>, what they keep <i>secret</i>, and what they're <i>owed</i>. Their birth Icon never changes; the cards are prompts for this story.</p>
+
+<p>The tool deals the cards face down and lets you turn them one at a time, on a line, a pentagon or a cloth you can drag them across. When two cards share an Icon it marks a shadow (neighbours) or an echo (across the pentagon). NPCs save with their spread, and the Owed card can link one NPC to another, so a cast starts to knit itself together.</p>
+
+<p>The design took the most back and forth. I wanted something between arabesque patterns and the Horizon map's astrological feel. The cards are an arched window on a girih star lattice, with a rosette holding each Icon's sign. I tried a closer copy of the printed deck's layout and went back to the first design. The Faceless cards are just an empty window, nothing in it but the lattice, which feels right for an Icon with no face. The back is a nine-pointed star, one point for each Icon, with a scarab at its heart: the mark on the six of the Coriolis dice. Not luck, not doom, just the roll that counts.</p>
+
+<p>I have scans of the real deck. They can't go on the site, so the tool lets me load them from a folder into my own browser, and it shows my scans wherever I have them and the drawn cards where I don't.</p>
+
+<h2>What I'd tell another GM</h2>
+
+<p>The useful part wasn't the code. It was being specific about what I wanted and looking hard at what came back. Most of the best changes came from me holding the printed map next to the screen and saying "no, it's gold, and the glow is round the stars." The tools got better each time I did that.</p>
+
+<p>And keep the split. Build the machinery, keep the book's words in your own file. It's fairer to the people who made the game, and it makes a better tool.</p>
+
+<p>The three tools are on the <a href="/tools/#tabletop-tools">tools page</a>. They're free, they run in your browser, and what you save stays there.</p>
