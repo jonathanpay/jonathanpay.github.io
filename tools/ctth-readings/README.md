@@ -1,8 +1,8 @@
-# Icon Spreads
+# Icon Readings
 
 An optional way to build a non-player character for *Coriolis: The Third Horizon* by
 drawing from the Icon deck and reading the cards like a tarot spread. Opened at
-`/tools/ctth-spreads/`. One self-contained HTML file, no build step, no dependencies
+`/tools/ctth-readings/`. One self-contained HTML file, no build step, no dependencies
 beyond Google Fonts.
 
 Not affiliated with, sponsored or endorsed by Free League Publishing (Fria Ligan AB).
@@ -42,13 +42,22 @@ used:
 | Target | Five cards | Three cards |
 |---|---|---|
 | An NPC | Serves, Surface, Want, Secret, Owed | Serves, Want, Secret |
-| A mission | Hook, Opposition, Complication, Secret, Payoff | Hook, Opposition, Payoff |
+| A twist | The turn, The tell, The silence, The cost, The after | The turn, The tell, The cost |
 | The story | Opening, Pressure, Turn, Secret, Reckoning | Opening, Turn, Reckoning |
 
 Each position has its own question and a note on what to do with it, and the reading
 and the Markdown copy follow the target. The set Icon belongs to NPCs only; for a
-mission or a story the cloth names the job or the arc instead. The target is kept with
+twist or a story the cloth names the job or the arc instead. The target is kept with
 the spread, and spreads saved before there were targets read as NPCs.
+
+**A twist is not a mission.** Table 18 in the Atlas Compendium builds the job, and the
+complications tables already hand you a third party, a double agent, bad intel or a
+scapegoat. What no table says is what the job turns out to have been, so this reading
+takes that layer: the turn re-reads the job rather than adding to it, the tell makes
+the turn fair when it lands, the silence names who knew, the cost is what no fee
+covers, and the after is the state of things once it lands. Read it beside a job you
+have already rolled and take whichever card contradicts what you had. Spreads marked
+`mission` before this reading was renamed stay readable and open as a twist.
 
 ## The campaign
 

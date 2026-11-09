@@ -50,7 +50,7 @@ function ship(grid){
 }
 function repeats(grid,fields,label){const s=current();s.entries.forEach((obj,i)=>{
  const section=fieldset(`${label} ${String(i+1).padStart(2,'0')}`,fields,obj,true,`entry${i}`);section.classList.add('repeat-card');if(type==='npc')section.prepend(presetPicker('npc',obj,i));if(type==='npc')section.append(derived(obj,'Stress points'));
- if(obj.cid&&CAMPAIGN){const linked=CAMPAIGN.get(type,obj.cid);section.append(el('div',{class:'campaign-link no-print'},el('span',{class:'campaign-chip',text:'Campaign'}),el('span',{class:'campaign-name',text:(linked&&linked.name)||'shared'}),type==='npc'?el('a',{class:'mini',href:`/tools/ctth-spreads/?npc=${encodeURIComponent(obj.cid)}`,text:'Draw a spread'}):null,el('button',{class:'mini',text:'Unlink',onclick:()=>{delete obj.cid;touch();render();status('Unlinked here. The campaign keeps its own copy.');}})));}
+ if(obj.cid&&CAMPAIGN){const linked=CAMPAIGN.get(type,obj.cid);section.append(el('div',{class:'campaign-link no-print'},el('span',{class:'campaign-chip',text:'Campaign'}),el('span',{class:'campaign-name',text:(linked&&linked.name)||'shared'}),type==='npc'?el('a',{class:'mini',href:`/tools/ctth-readings/?npc=${encodeURIComponent(obj.cid)}`,text:'Draw a spread'}):null,el('button',{class:'mini',text:'Unlink',onclick:()=>{delete obj.cid;touch();render();status('Unlinked here. The campaign keeps its own copy.');}})));}
  section.append(el('button',{class:'mini actions no-print',text:`Remove ${label.toLowerCase()}`,onclick:()=>{s.entries.splice(i,1);touch();render();}}));grid.append(section);
  });grid.append(el('button',{class:'btn no-print',text:`Add ${label.toLowerCase()}`,onclick:()=>{if(s.entries.length>=100)return status('Maximum 100 entries per sheet.');s.entries.push(type==='system'?{kind:'Planet'}:{});touch();render();}}));}
 function system(grid){grid.append(fieldset('System registry',[F('name','System name'),F('star','Star / stars'),F('notes','System notes','area')],current().values,true));grid.append(el('section',{class:'section wide'},el('h3',{text:'Orbital sketch'}),el('div',{id:'chart'}),el('p',{class:'note',text:'Bodies are ordered by distance. Positions use a square-root scale; add distances in AD to chart them.'})));repeats(grid,bodyFields,'Body');drawChart();}
@@ -83,7 +83,7 @@ function shareSheet(){
  if(isRepeatable())s.entries.forEach(o=>{if(blanks(o))return;if(!o.cid)o.cid=CAMPAIGN.makeId(type);pushObj(o);n++;single=o.name||'';});
  else{if(!s.values.cid)s.values.cid=CAMPAIGN.makeId(type);pushObj(s.values);n=1;single=title(s);}
  touch();render();
- status(n?`Shared ${n===1?`“${single}”`:`${n} entries from “${title(s)}”`} with the campaign. The Mission Board and Icon Spreads can see ${n===1?'it':'them'} now.`:'Give the sheet a name first. There is nothing to share yet.');
+ status(n?`Shared ${n===1?`“${single}”`:`${n} entries from “${title(s)}”`} with the campaign. The Mission Board and Icon Readings can see ${n===1?'it':'them'} now.`:'Give the sheet a name first. There is nothing to share yet.');
 }
 function fromEntity(e,kind){const o={cid:e.id};for(const [k,v] of Object.entries(e.data||{})){if(k==='bodies'||SHIP_TABLES.includes(k))continue;o[k]=v;}if(!o.name&&e.name)o.name=e.name;if(e.spread&&e.spread.reading)o[kind==='mission'?'reading':'spread']=e.spread.reading;return o;}
 function importEntity(kind,id){
