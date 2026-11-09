@@ -43,3 +43,8 @@ test('NPC and ship presets retain their supplied baseline stats',()=>{
  const scarab=presets.ships[0];assert.equal(scarab.values.hull,6);assert.equal(scarab.values.energy,5);assert.equal(scarab.tables.modules.length,10);
  const destroyer=presets.ships.find(x=>x.label==='Destroyer');assert.equal(destroyer.values.armour,8);assert.equal(destroyer.tables.modules.filter(x=>x.name==='Accelerator cannon').length,2);
 });
+test('the public launch pack carries names only, apart from numeric mechanics',()=>{
+ const numeric=new Set(['mission.type','w.spaceport']);
+ for(const [id,t] of Object.entries(pack.tables))if(!numeric.has(id))for(const r of t.rows)assert.ok(!('d' in r),`${id} row ${r.lo} has a description`);
+ for(const r of pack.tables['mission.type'].rows)assert.match(r.d,/^[^|]+\|\s*\d+\s*\|[^|]+\|\s*\d+\s*\|[^|]+$/);
+});

@@ -80,13 +80,15 @@ Board's copy. The campaign is the connection, not the table data.
 
 ## Launch tables and visitor imports
 
-`data/launch-tables.json` is the public launch pack. It contains 50 keyed tables
-extracted from the user-supplied Atlas Compendium system and mission chapters
-(Tables 1–42, counting variant columns separately). Chapter prose and the uploaded
-PDFs are not copied into the repository. `data/presets.json` holds the 11 typical
-NPCs from Campaign Table 15.1 and 17 model stat blocks from Spaceships and Star
-Travel. Travel and general reference chapters were used as reference; this tool
-does not add a second travel simulator.
+`data/launch-tables.json` is the public launch pack, and it is a skeleton: 50 keyed
+tables with their dice, roll ranges and result names, and no descriptive text.
+`mission.type` and `w.spaceport` keep their `d` values because those are numbers that
+drive the mechanics (difficulty, jumps, pay, port modifiers), not prose. Everything
+else in a row is a name. For descriptions, import your own pack with **Import tables**;
+it is kept in this browser only. Chapter prose and the source PDFs are not in the
+repository. `data/presets.json` holds the 11 typical NPCs from Campaign Table 15.1 and
+17 model stat blocks from Spaceships and Star Travel. Travel and general reference
+chapters were used as reference; this tool does not add a second travel simulator.
 
 To revise launch data, edit these JSON files on a branch, run the checks below,
 review the data changes and merge through the repository's usual process. The
@@ -100,8 +102,8 @@ merge with the launch pack. **Use launch tables** removes the local override and
 fetches the bundled pack again. An incomplete pack is allowed for preparation,
 but a generation operation requiring a missing table reports the table ID and
 leaves all sheet fields unchanged. The downloadable template is an abbreviated
-example, not a complete generator pack. Start from `data/launch-tables.json` for a
-complete editable pack.
+example, not a complete generator pack. Start from `data/launch-tables.json` for the
+ids, dice and ranges, and add your own text.
 
 ### Table format
 
