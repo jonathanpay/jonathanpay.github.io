@@ -1,0 +1,67 @@
+{
+  "format": "ctth-readings-prompts/1",
+  "updated": "2026-11-09",
+  "note": "Prompts for a card in a position, keyed by the position's key and the card's number. A card with no prompt falls back to its gloss, so this fills in at whatever pace the writing goes. Relations are sentence templates with an {other} slot; shadow has self and other variants because direction matters.",
+  "positions": {
+    "npc": [
+      "serves",
+      "surface",
+      "want",
+      "secret",
+      "owed"
+    ],
+    "twist": [
+      "turn",
+      "tell",
+      "silence",
+      "cost",
+      "after"
+    ],
+    "story": [
+      "opening",
+      "pressure",
+      "turn",
+      "secret",
+      "reckoning"
+    ],
+    "turning": [
+      "centre"
+    ]
+  },
+  "prompts": {
+    "npc": {
+      "serves": {
+        "11": "Serves the Judge the way a good soldier serves an order: without needing the reason, and willing to say it out loud in company.",
+        "15": "Serves the Dancer in company, and knows what every room in the port is buying. Whatever they are for, they are charming about it.",
+        "33": "Acts for the Deckhand the way rock acts on the crews who work it: patiently, and without negotiating. They keep the people everyone else wrote off."
+      },
+      "surface": {
+        "24": "The port knows them as the one with money, which brings work and no friends. Nobody has asked how the ledger got that way.",
+        "65": "The port blames them for a run of bad luck, and they have stopped correcting anyone. The rumour arrives before they do."
+      },
+      "want": {
+        "43": "Wants something that is not theirs, and has already worked out how to take it. The only question left is whether the crew is in the way.",
+        "54": "Wants a thing they heard once, in a place they cannot describe, and wants the crew to come and hear it too."
+      },
+      "secret": {
+        "11": "Hides that the orders came from somewhere they will not name. The discipline is real. So is the thing they were told not to say.",
+        "36": "Keeps a tune the whole port sings. What they hide is that the song is a message, and they are the only one who does not know who it is for."
+      },
+      "owed": {
+        "45": "They are owed by chance itself, and will tell you so at the table. Whoever they talk into the bet ends up owing something too.",
+        "63": "Someone with weight owes them, and would rather settle in coin than in kind. Coin can be refused, which is why they ask for it."
+      }
+    },
+    "twist": {},
+    "story": {},
+    "turning": {}
+  },
+  "relations": {
+    "shadow": {
+      "self": "Shadow of the {other}: the same Icon, once where it can be seen and once where it cannot. What you answered there is also true here.",
+      "other": "Casts a shadow on the {other}: the same Icon, said again where it cannot be seen."
+    },
+    "echo": "Echoes the {other}: the Icon comes back unhidden, so the crew will recognise it before the character admits it.",
+    "pair": "Pairs with the {other}: two cards of the same Icon, read as one answer."
+  }
+}

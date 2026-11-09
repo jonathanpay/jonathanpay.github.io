@@ -156,6 +156,8 @@ textarea{resize:vertical;min-height:70px}
 .scans figure{margin:0;text-align:center;font-family:var(--font-data);font-size:.72rem;color:var(--muted)}
 .scans .tcard{cursor:default}
 footer.notice{margin-top:24px;padding-top:10px;border-top:1px solid var(--line-soft);color:var(--muted);font-size:var(--step--1);max-width:75ch}
+/* A position prompt sits above the card's gloss: the answer first, then the flavour. */
+.reading .prompt{margin:6px 0 4px;font-size:var(--step-0);line-height:1.45;color:var(--ink)}
 /* The About tab: the method written out, in the page's own voice. */
 .about{max-width:70ch;line-height:1.6}
 .about h2{margin-bottom:10px}
@@ -291,6 +293,9 @@ footer.notice{margin-top:24px;padding-top:10px;border-top:1px solid var(--line-s
       <h3>Twists and stories</h3>
       <p>This is not a mission generator. The books' own tables already build a job: employer, task, place, complication, reward. What they cannot roll is the thing that was not in the brief, so the deck reads that instead. Set <i>Reading for</i> to <b>A twist</b> and five cards answer: <b>The turn</b> (what changes the situation), <b>The hand</b> (who is really moving it), <b>The tell</b> (what was there to see all along), <b>The cost</b> (what it takes from the crew) and <b>The after</b> (what is left when it lands). Three cards cut it to the turn, the hand and the cost.</p>
       <p>Use it beside a job you have already rolled and take whichever card contradicts what you had. <b>The story</b> reads a whole arc instead: Opening, Pressure, Turn, Secret, Reckoning.</p>
+
+      <h3>Where the words come from</h3>
+      <p>Each card carries a short gloss, and where one has been written, a prompt for the position it fell in. The prompt answers the question the position asks; the gloss stays underneath as colour. The prompts are being written a card at a time, so a position without one yet shows the gloss alone. When two cards share an Icon, a line under both says what the repetition means.</p>
 
       <h3>Keeping it</h3>
       <p>Save NPCs here with notes, copy a reading as Markdown, or send it to the campaign, where it appears on the NPC's sheet in <a href="/tools/ctth-sheets/">Coriolis Sheets</a>. Everything stays in your browser.</p>
@@ -527,9 +532,16 @@ function relations(x = S) {
   return out;
 }
 const REL_TEXT = { shadow:"shadow", echo:"echo", pair:"pair across the spread" };
+/* Prompts for a card in a position live in data/prompts.json. A card without one falls back
+   to its gloss, so the file can be filled in at whatever pace the writing goes. */
+let PROMPTS = { prompts:{}, relations:{} };
+const promptFor = (target, k, n) => { const t = PROMPTS.prompts && PROMPTS.prompts[target]; const set = t && t[k]; return (set && set[String(n)]) || ""; };
+const relTemplate = (kind, side) => { const v = PROMPTS.relations && PROMPTS.relations[kind]; if (!v) return ""; return typeof v === "string" ? v : (v[side] || ""); };
 function relNote(i, rels, P) {
   return rels.filter(r => r.i === i || r.j === i).map(r => {
     const other = r.i === i ? r.j : r.i;
+    const tpl = relTemplate(r.kind, r.kind === "shadow" && r.j !== i ? "other" : "self");
+    if (tpl) return tpl.replace("{other}", P[other].n);
     if (r.kind === "shadow") return r.j === i ? `Shadow of the ${P[r.i].n}: they act for ${ICONS[r.icon].n} openly and in secret at once.` : `Cast a shadow on the ${P[r.j].n}: ${ICONS[r.icon].n} works openly and in secret.`;
     if (r.kind === "echo") return `Echoes the ${P[other].n} across the pentagon: ${ICONS[r.icon].n} recurs in the story without being hidden.`;
     return `Pairs with the ${P[other].n} across the spread: read the two ${ICONS[r.icon].n} cards together.`;
@@ -630,7 +642,9 @@ function renderReadings() {
     box.append(h("div", { class:"reading" },
       h("div", { class:"thumb" }, tcard(c.n, c.up, () => { c.up = true; save(); render(); })),
       h("div", {}, h("div", { class:"q", text:`${pos.n} · ${pos.q}` }),
-        c.up ? h("div", { class:"what" }, h("b", { text:`${card.iconName}: ${card.title}` }), h("span", { class:"muted small", text:` · ${c.n}` }), h("p", { class:"gloss", text:card.gloss }),
+        c.up ? h("div", { class:"what" }, h("b", { text:`${card.iconName}: ${card.title}` }), h("span", { class:"muted small", text:` · ${c.n}` }),
+          (pr => pr ? h("p", { class:"prompt", text:pr }) : null)(promptFor(i < 0 ? "turning" : S.target, i < 0 ? "centre" : pos.k, c.n)),
+          h("p", { class:"gloss", text:card.gloss }),
           h("p", { class:"note", text:`Use it for: ${pos.use}.${pos.k === "serves" && card.icon !== S.setIcon ? ` Born under ${ICONS[S.setIcon].n} but serving ${card.iconName} here: that tension is part of the story.` : ""}` }),
           i >= 0 ? relNote(i, rels, P).map(t => h("p", { class:"rel", text:t })) : null, owedSel)
         : h("p", { class:"small muted", text:"Face down. Turn it over on the cloth, or here." })),
@@ -641,7 +655,9 @@ function markdown(x = S) {
   const P = posFor(x.size, x.target), t = setFor(x.target);
   const lines = [`## ${x.name || t.none}`, ""];
   if (t === SETS.npc) lines.push(`- **Set Icon:** ${ICONS[x.setIcon].n}`);
-  x.cards.forEach((c, i) => { const k = CARD[c.n]; lines.push(`- **${P[i].n}:** ${k.iconName}, ${k.title} (${c.n}). ${k.gloss}`); });
+  x.cards.forEach((c, i) => { const k = CARD[c.n], pr = promptFor(x.target, P[i].k, c.n);
+    lines.push(`- **${P[i].n}:** ${k.iconName}, ${k.title} (${c.n}). ${k.gloss}`);
+    if (pr) lines.push(`  *${pr}*`); });
   if (x.centre) { const k = CARD[x.centre.n]; lines.push(`- **Turning point:** ${k.iconName}, ${k.title} (${x.centre.n})`); }
   relations(x).forEach(r => lines.push(`- *${REL_TEXT[r.kind][0].toUpperCase() + REL_TEXT[r.kind].slice(1)}:* ${P[r.i].n} and ${P[r.j].n}, both ${ICONS[r.icon].n}`));
   if (x.owedTo) { const o = NPCS.find(n => n.id === x.owedTo); if (o) lines.push(`- **Owed link:** ${o.name || "Unnamed NPC"}`); }
@@ -653,8 +669,10 @@ function plainReading(x = S) {
   const P = posFor(x.size, x.target), t = setFor(x.target), out = [`${t.label}: ${x.name || t.none}`];
   if (t === SETS.npc) out.push(`Set Icon: ${ICONS[x.setIcon].n}.`);
   out.push("");
-  x.cards.forEach((c, i) => { const k = CARD[c.n], p = P[i];
-    out.push(`${p.n}: ${k.iconName}, ${k.title} (${c.n}). ${p.q}.`, k.gloss, ""); });
+  x.cards.forEach((c, i) => { const k = CARD[c.n], p = P[i], pr = promptFor(x.target, p.k, c.n);
+    out.push(`${p.n}: ${k.iconName}, ${k.title} (${c.n}). ${p.q}.`);
+    if (pr) out.push(pr);
+    out.push(k.gloss, ""); });
   if (x.centre) { const k = CARD[x.centre.n]; out.push(`Turning point: ${k.iconName}, ${k.title} (${x.centre.n}).`, ""); }
   relations(x).forEach(r => out.push(`${REL_TEXT[r.kind][0].toUpperCase() + REL_TEXT[r.kind].slice(1)}: ${P[r.i].n} and ${P[r.j].n}, both ${ICONS[r.icon].n}.`));
   if (x.owedTo) { const o = NPCS.find(n => n.id === x.owedTo); if (o) out.push(`Owed link: ${o.name || "an unnamed NPC"}.`); }
@@ -845,6 +863,10 @@ $("#use-scans").addEventListener("change", e => { useScans = e.target.checked; s
 syncControls(); renderCampaign();
 if (CAMPAIGN()) CAMPAIGN().subscribe(() => renderCampaign());
 if (!deepLink()) render();
+fetch("./data/prompts.json").then(r => (r.ok ? r.json() : null)).then(x => {
+  if (!x || x.format !== "ctth-readings-prompts/1") return;
+  PROMPTS = x; render();
+}).catch(() => {});
 setTab(location.hash.slice(1));
 loadScans().then(() => { if (Object.keys(SCANS).length) { render(); if (!$("#view-cards").hidden) renderScans(); } });
 })();
