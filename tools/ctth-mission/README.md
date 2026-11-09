@@ -54,7 +54,8 @@ table and result to read.
   Every system has a portal station at 0.5 AD beside its portals. Print names only a
   few (Khôban at Odacon, Hamurabi at Hamura); the rest are called "<system> portal
   station" until you name them.
-  Unstable portals belong to a system (Dziban, Zamusa, Yastapol and Algebar), which
+  Unstable portals belong to a system (Dziban, Zamusa, Yastapol and Algebar, from the printed map's labels, and Odacon,
+  whose two portals the core rulebook calls unstable), which
   the map rings in red; companion stars show as small dots beside their system.
   The map above the board shows the crew and the jobs; click a system to move the crew.
   The map is drawn in the printed map's colours in both themes: gold links, an orange

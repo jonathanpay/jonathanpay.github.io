@@ -531,7 +531,7 @@ function setDestination(m) {
   m.jumps = m.type.dest === "nearby" ? 1 : 2;
 }
 function setRoute(m) { const r = route(m.here, m.dest); m.route = r; if (r) m.jumps = r.length - 1; }
-function routeFlags(p) { const out = []; p.forEach((id, i) => { if (!i) return; const f = linkFlag(p[i - 1], id); if (f === "unstable") out.push(`Unstable portals at ${unstableAt(p[i - 1], id)}`); if (f === "danger") out.push(`Dangerous area, ${sysName(p[i - 1])}–${sysName(id)}`); }); return out; }
+function routeFlags(p) { const out = []; p.forEach((id, i) => { if (!i) return; const f = linkFlag(p[i - 1], id), ua = unstableAt(p[i - 1], id); if (ua) out.push(`Unstable portals at ${ua}`); if (f === "danger") out.push(`Dangerous area, ${sysName(p[i - 1])}–${sysName(id)}`); }); return out; }
 function totalBirr(m) { return m.base.birr + m.rewards.reduce((a, x) => a + (x.birr ? x.birr.total : 0), 0); }
 
 function rollPicker(id, current, onPick, onReroll) {
@@ -828,7 +828,7 @@ function renderLeg(l, idx, v) {
         legField("PCs awake (3 DP each)", h("input", { type:"number", min:"0", max:"12", value:String(l.awake || 0), onchange:e => editLeg(l, L => { L.awake = parseInt(e.target.value, 10) || 0; }) }))),
       h("div", { class:"row", style:"margin-top:8px" }, ck("chapel", "Chapel aboard +1"), ck("priest", "Anointed priest +2"), ck("prayer", "Prayer and sacrifice +1 (4 h)"), ck("blessed", "Blessed Ship +1")),
       h("p", { class:"note", text:j.prep + "." }),
-      l.flag === "unstable" ? h("p", { class:"note", style:"color:var(--accent)", text:`The map marks the portals at ${unstableAt(l.from, l.to)} unstable. Make the jump harder, or riskier, as your table rules it.` }) : null,
+      unstableAt(l.from, l.to) ? h("p", { class:"note", style:"color:var(--accent)", text:`The portals at ${unstableAt(l.from, l.to)} are unstable. Make the jump harder, or riskier, as your table rules it.` }) : null,
       l.flag === "danger" ? h("p", { class:"note", style:"color:var(--accent)", text:"This link runs through a dangerous area on the map." }) : null);
   } else {
     title = `Planetside, ${LAND[l.terrain][0].toLowerCase()}`;

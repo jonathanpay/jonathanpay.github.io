@@ -272,7 +272,7 @@ const sv = (tag, attrs = {}, parent) => { const e = document.createElementNS(NS,
 const store = { get(k, d){ try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch { return d; } }, set(k, v){ try { localStorage.setItem(k, JSON.stringify(v)); } catch {} } };
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
 
-/* ---------- the deck: card titles from the Icon deck, glosses my own ---------- */
+/* ---------- the deck: card titles as printed on the Icon deck (63 is "Person of Influence" and 66 is "Djinn", with no article), glosses my own ---------- */
 const ICONS = [
   { n:"The Judge", cards:[["A Soldier","Disciplined, loyal, and loud about it. Takes orders and keeps them."],["Blood","Ties of kin or feud. A debt paid in the family line."],["Revenge","Wants a score settled, and will spend anything to settle it."],["Punishment","Believes in consequences, and hands them out."]] },
   { n:"The Dancer", cards:[["A Courtesan","Charm as a trade. Knows who is in every room, and who pays."],["A Chance Encounter","A meeting that was not planned, and that both sides may regret."],["Passion","Wants something with their whole body, and makes the crew feel it too."],["Beast","Wild, unpredictable, and honest about what they are."]] },
@@ -282,7 +282,7 @@ const ICONS = [
   { n:"The Gambler", cards:[["A Thief","Takes what is not theirs, and is usually good at it."],["A Treasure","Wants a prize, and will risk a lot for it."],["Luck","Believes in chance, and bets on it."],["Debt","Owes a sum that cannot be repaid in birr alone."]] },
   { n:"The Messenger", cards:[["A Preacher","Carries a message, and believes it. Wants others to believe it too."],["A Book","Keeps a record. What is written there is worth more than the people in it."],["A Secret","Knows something the town does not, and chooses when to share it."],["Madness","Hears things others do not, and passes them on anyway."]] },
   { n:"The Traveler", cards:[["Forest","Rooted in a place. Knows the paths others do not see."],["Sea","Restless, always moving, and easier to find on the water."],["Desert","Patient, plain, and aware of how far the next well is."],["Mountain","Keeps to the high ground. Hard to move, and hard to reach."]] },
-  { n:"The Faceless", cards:[["Person of Influence","Someone others owe, and who collects."],["An Artifact","Holds an object of power, and says little about it."],["Misfortune","Carries bad luck, and the people nearby feel it."],["A Djinn","Has dealings with the spirits, and does not explain them."]] }
+  { n:"The Faceless", cards:[["Person of Influence","Someone others owe, and who collects."],["An Artifact","Holds an object of power, and says little about it."],["Misfortune","Carries bad luck, and the people nearby feel it."],["Djinn","Has dealings with the spirits, and does not explain them."]] }
 ];
 const NUMS = []; for (let a = 1; a <= 6; a++) for (let b = 1; b <= 6; b++) NUMS.push(a * 10 + b);
 const CARD = {}; NUMS.forEach((num, i) => { const ic = Math.floor(i / 4); CARD[num] = { num, icon:ic, iconName:ICONS[ic].n, title:ICONS[ic].cards[i % 4][0], gloss:ICONS[ic].cards[i % 4][1], col:i % 4 }; });
