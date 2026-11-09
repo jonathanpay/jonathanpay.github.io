@@ -35,7 +35,7 @@
 const clone = o => JSON.parse(JSON.stringify(o));
 
 /* The Third Horizon's portal map, redrawn: 36 systems at rough map positions, the portal links between them,
-   the four systems with unstable portals and the two dangerous areas. Orbital distances in AD from the star only where the core rules give them (Kua). */
+   the systems with unstable portals (the four the printed map labels, and Odacon) and the two dangerous areas. Orbital distances in AD from the star only where the core rules give them (Kua). */
 const MAP = [["menkar","Menkar",232,409,"sadaal"],["daybul","Daybul",289,337,"sadaal"],["ghodar","Ghodar",389,284,"sadaal"],["dziban","Dziban",489,245,"sadaal"],
   ["sadaal","Sadaal",437,387,"sadaal"],["nagar","Nagar",393,428,"sadaal"],["errai","Errai",542,331,"sadaal"],["aiwaz","Aiwaz",673,401,""],
   ["tarazug","Tarazug",680,216,"miran"],["zib","Zib",669,274,"miran"],["mira","Mira",722,331,"miran"],["zalos","Zalos",773,382,"miran"],["odacon","Odacon",814,206,"miran"],
@@ -127,12 +127,18 @@ const zoneFor = dAU => ZONES.findIndex(z => dAU <= z[1]);
 
 const ADJ = {}; LINKS.forEach(([a, b, f]) => { (ADJ[a] ||= []).push({ to:b, f }); (ADJ[b] ||= []).push({ to:a, f }); });
 // Unstable portals belong to a system, not a link: every jump into or out of these systems uses one.
-const UNSTABLE = new Set(["dziban","zamusa","yastapol","algebar"]);
+// Dziban, Zamusa, Yastapol and Algebar carry the printed map's unstable-portal labels. Odacon is from the text:
+// "Both portals in the system are unstable" (core rulebook and Atlas Compendium, Odacon).
+const UNSTABLE = new Set(["dziban","zamusa","yastapol","algebar","odacon"]);
 const linkFlag = (a, b) => (LINKS.find(l => (l[0] === a && l[1] === b) || (l[0] === b && l[1] === a)) || [])[2] || (UNSTABLE.has(a) || UNSTABLE.has(b) ? "unstable" : "");
 const unstableAt = (a, b) => [a, b].filter(x => UNSTABLE.has(x)).map(sysName).join(" and ");
+// A link can be both: Odacon–Zhau runs through a dangerous area and uses Odacon's unstable portals. linkFlag names one
+// for display; the route cost counts each.
+const linkDanger = (a, b) => (LINKS.find(l => (l[0] === a && l[1] === b) || (l[0] === b && l[1] === a)) || [])[2] === "danger";
+const linkRisk = (a, b) => (linkDanger(a, b) ? 1 : 0) + (UNSTABLE.has(a) || UNSTABLE.has(b) ? 1 : 0);
 function bfs(from) { const dist = { [from]:0 }, prev = {}; const q = [from]; while (q.length) { const u = q.shift(); (ADJ[u] || []).forEach(({ to }) => { if (dist[to] == null) { dist[to] = dist[u] + 1; prev[to] = u; q.push(to); } }); } return { dist, prev }; }
 // Fewest jumps, and of those, the fewest unstable portals and dangerous links.
-function safest(from) { const cost = { [from]:0 }, prev = {}, done = new Set(); for (;;) { let u = null; for (const k in cost) if (!done.has(k) && (u === null || cost[k] < cost[u])) u = k; if (u === null) break; done.add(u); (ADJ[u] || []).forEach(({ to }) => { const c = cost[u] + 1 + (linkFlag(u, to) ? 0.01 : 0); if (cost[to] == null || c < cost[to]) { cost[to] = c; prev[to] = u; } }); } return { prev, dist:cost }; }
+function safest(from) { const cost = { [from]:0 }, prev = {}, done = new Set(); for (;;) { let u = null; for (const k in cost) if (!done.has(k) && (u === null || cost[k] < cost[u])) u = k; if (u === null) break; done.add(u); (ADJ[u] || []).forEach(({ to }) => { const c = cost[u] + 1 + 0.01 * linkRisk(u, to); if (cost[to] == null || c < cost[to]) { cost[to] = c; prev[to] = u; } }); } return { prev, dist:cost }; }
 function route(from, to) { if (!onMap(from) || !onMap(to)) return null; if (from === to) return [from]; const { prev, dist } = safest(from); if (dist[to] == null) return null; const p = [to]; while (p[0] !== from) p.unshift(prev[p[0]]); return p; }
 const routeText = p => p.map((id, i) => i ? `${({ unstable:" ⇢ ", danger:" ⇝ " })[linkFlag(p[i - 1], id)] || " → "}${sysName(id)}` : sysName(id)).join("");
 
@@ -185,7 +191,7 @@ function portalBody(sysObj, otherId) { return sysObj.bodies.find(b => b[0] === `
 window.CtthHorizon = {
   MAP, LINKS, BODIES, CORE, REGIONS, LABEL_AT, INFO, SPACE_NAME, SPACE_COL, STAR_LOOK, DANGER, UNSTABLE, ADJ, ZONES,
   parseCount, countText, starKind, starCount,
-  sysName, onMap, linkFlag, unstableAt, portalBody, bfs, safest, route, routeText, zoneFor,
+  sysName, onMap, linkFlag, linkDanger, linkRisk, unstableAt, portalBody, bfs, safest, route, routeText, zoneFor,
   campaignSystemId, campaignBodyRow, buildSystems
 };
 })();
