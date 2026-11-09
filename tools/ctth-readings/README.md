@@ -59,6 +59,29 @@ covers, and the after is the state of things once it lands. Read it beside a job
 have already rolled and take whichever card contradicts what you had. Spreads marked
 `mission` before this reading was renamed stay readable and open as a twist.
 
+## Position prompts
+
+`data/prompts.json` holds a written prompt for a card in a position, keyed by target,
+then position key, then card number:
+
+```json
+{
+  "format": "ctth-readings-prompts/1",
+  "prompts": { "npc": { "serves": { "33": "Acts for the Deckhand the way rock acts..." } } },
+  "relations": { "shadow": { "self": "...", "other": "..." }, "echo": "...", "pair": "..." }
+}
+```
+
+A card with no prompt falls back to its gloss, so the file can be filled in a card at a
+time and a half-written file is never broken. The prompt is shown above the gloss in the
+reading, and both are carried into the Markdown copy and the campaign reading. The
+`relations` object holds the sentences printed under a repeated Icon: `shadow` has a
+`self` and an `other` variant because direction matters, `echo` and `pair` are single
+strings, and every template takes `{other}` for the other position's name.
+
+Written so far: the twelve NPC prompts. The twist and story sets, and the turning point,
+are empty by design, and cost nothing to add.
+
 ## The campaign
 
 Coriolis Sheets and the Mission Board keep a campaign in the same browser, on the same
