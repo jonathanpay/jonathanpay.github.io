@@ -1,0 +1,908 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>System</title>
+<meta name="description" content="An unofficial system chart and world generator for Coriolis: The Third Horizon: every system on the Horizon map, its star and its bodies in AD, and a world rolled for any of them.">
+<link rel="icon" href="/favicon.ico">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600&family=Open+Sans:wght@400;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=Barlow+Semi+Condensed:wght@400;500;600&display=swap">
+<style>
+/* A Bulletin terminal in a Free League field office. Light theme: a printed job sheet on sand. Dark theme: the terminal at night, brass on indigo. */
+:root{
+  --ground:#ece5d6; --sheet:#f6f1e6; --line:#23305c; --line-soft:rgba(35,48,92,.26); --line-faint:rgba(35,48,92,.1);
+  --ink:#1d2340; --muted:#5f6380; --accent:#b4482a; --accent-soft:rgba(180,72,42,.12); --teal:#1f6f6b; --ok:#2f6b4a; --warn:#a4561b;
+  --font-display:"Chakra Petch","Eurostile","Bank Gothic",system-ui,sans-serif;
+  --font-body:"Source Serif 4","Iowan Old Style",Georgia,serif;
+  --font-data:"Barlow Semi Condensed","DIN Alternate","Arial Narrow",system-ui,sans-serif;
+  --step--1:.8rem; --step-0:.95rem; --step-1:1.15rem; --step-2:1.5rem;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --ground:#10122a; --sheet:#171a36; --line:#d6a95a; --line-soft:rgba(214,169,90,.32); --line-faint:rgba(214,169,90,.11);
+  --ink:#ece2cb; --muted:#a39d8e; --accent:#e9a05a; --accent-soft:rgba(233,160,90,.14); --teal:#6fc2b8; --ok:#8cc29b; --warn:#e39a5b; color-scheme:dark } }
+:root[data-theme="dark"]{
+  --ground:#10122a; --sheet:#171a36; --line:#d6a95a; --line-soft:rgba(214,169,90,.32); --line-faint:rgba(214,169,90,.11);
+  --ink:#ece2cb; --muted:#a39d8e; --accent:#e9a05a; --accent-soft:rgba(233,160,90,.14); --teal:#6fc2b8; --ok:#8cc29b; --warn:#e39a5b; color-scheme:dark }
+
+*{box-sizing:border-box}
+body{margin:0}
+#site-nav{position:fixed;top:0;left:0;right:0;height:calc(32px + env(safe-area-inset-top,0px));padding:env(safe-area-inset-top,0px) max(16px,env(safe-area-inset-right,0px)) 0 max(16px,env(safe-area-inset-left,0px));background:#2c3e50;display:flex;align-items:center;justify-content:space-between;gap:16px;z-index:40;font-family:"Open Sans",system-ui,sans-serif;font-size:12px;line-height:1}
+.snav-brand{font-weight:700;color:#dfb81f;text-decoration:none;white-space:nowrap}
+.snav-brand:hover{color:#f0ca3a}
+.snav-links{display:flex;gap:16px;overflow-x:auto;scrollbar-width:none}
+.snav-links a{color:rgba(255,255,255,.7);text-decoration:none;white-space:nowrap}
+.snav-links a:hover,.snav-brand:focus-visible,.snav-links a:focus-visible{color:#fff}
+[hidden]{display:none!important}
+html,body{min-height:100%}
+body{background:var(--ground);color:var(--ink);font-family:var(--font-body);font-size:var(--step-0);line-height:1.5;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:calc(44px + env(safe-area-inset-top,0px)) 24px}
+h1,h2,h3{font-family:var(--font-display);font-weight:600;text-transform:uppercase;margin:0;text-wrap:balance;letter-spacing:.03em}
+button,select,input,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+a{color:var(--teal)}
+
+.top{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:10px 24px;border-bottom:1px solid var(--line-soft);padding-bottom:10px}
+.top h1{font-size:var(--step-2);color:var(--line)}
+.top .issued{font-family:var(--font-data);font-size:var(--step--1);color:var(--muted);letter-spacing:.06em;text-transform:uppercase}
+.top .sub{margin:2px 0 0;color:var(--muted);font-size:var(--step--1)}
+.tabs{display:flex;gap:4px;flex-wrap:wrap}
+.tab{background:none;border:1px solid var(--line-soft);padding:6px 14px;cursor:pointer;font-family:var(--font-display);font-weight:500;text-transform:uppercase;font-size:.9rem;letter-spacing:.04em;color:var(--muted)}
+.tab[aria-selected="true"]{background:var(--accent-soft);border-color:var(--line);color:var(--ink)}
+.nodata{margin:12px 0 0;padding:8px 12px;border:1px dashed var(--line-soft);font-size:var(--step--1);color:var(--muted)}
+.nodata button{all:unset;cursor:pointer;color:var(--accent);text-decoration:underline}
+
+.view{display:grid;grid-template-columns:300px minmax(0,1fr);gap:16px;margin-top:14px;align-items:start}
+@media (max-width:900px){.view{grid-template-columns:minmax(0,1fr)}}
+.side{position:sticky;top:44px;max-height:calc(100vh - 56px);overflow:auto;display:flex;flex-direction:column;gap:14px}
+@media (max-width:900px){.side{position:static;max-height:none}}
+.main{display:flex;flex-direction:column;gap:14px;min-width:0}
+.card{border:1px solid var(--line-soft);background:var(--sheet);padding:14px;min-width:0}
+.card h2{font-size:var(--step-1);color:var(--line);margin-bottom:8px}
+.card h3{font-size:1rem;color:var(--line);margin:12px 0 4px}
+.eyebrow{font-family:var(--font-data);font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.muted{color:var(--muted)}
+.small{font-size:var(--step--1)}
+.data{font-family:var(--font-data);font-variant-numeric:tabular-nums}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.stack{display:flex;flex-direction:column;gap:8px}
+.stack>.field,.stack>.row>.field{flex:0 0 auto}
+.stack>.row>.field{flex:1 1 0}
+.field{display:flex;flex-direction:column;gap:2px;min-width:0;flex:1 1 120px}
+.field>span{font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-family:var(--font-data)}
+.check{display:inline-flex;gap:6px;align-items:center;font-size:var(--step--1);cursor:pointer}
+select,input[type=text],input[type=number],textarea{background:var(--ground);border:1px solid var(--line-soft);padding:5px 7px;width:100%;min-width:0}
+textarea{resize:vertical;min-height:60px}
+.btn{border:1px solid var(--line);background:var(--accent-soft);padding:7px 12px;cursor:pointer;font-family:var(--font-display);font-weight:500;text-transform:uppercase;letter-spacing:.04em;font-size:.9rem}
+.btn.primary{background:var(--line);color:var(--ground)}
+.btn.quiet{background:none;border-color:var(--line-soft)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.mini{border:1px solid var(--line-soft);background:none;padding:2px 8px;cursor:pointer;font-family:var(--font-data);font-size:.82rem;white-space:nowrap}
+.mini:disabled{opacity:.4;cursor:not-allowed}
+.chip{display:inline-block;font-family:var(--font-data);font-size:.68rem;letter-spacing:.06em;text-transform:uppercase;border:1px solid var(--line-soft);padding:1px 6px;color:var(--muted);white-space:nowrap}
+.chip.hot{border-color:var(--accent);color:var(--accent)}
+.chip.teal{border-color:var(--teal);color:var(--teal)}
+.note{font-size:var(--step--1);color:var(--muted);margin:6px 0 0}
+.status{font-size:var(--step--1);color:var(--muted);min-height:1.2em;margin:6px 0 0}
+.confirm{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:6px}
+
+/* job sheets */
+.board{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,460px),1fr));gap:14px}
+.job{position:relative;border:1px solid var(--line-soft);background:var(--sheet);padding:14px 14px 10px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.job::before{content:"";position:absolute;inset:4px;border:1px solid var(--line-faint);pointer-events:none}
+.jobhead{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+.jobhead h3{margin:0;font-size:1.15rem;color:var(--line)}
+.ref{font-family:var(--font-data);font-size:.7rem;color:var(--muted);letter-spacing:.08em;text-transform:uppercase}
+.stats{display:flex;flex-wrap:wrap;gap:4px 14px;padding:6px 0;border-block:1px dashed var(--line-soft)}
+.stats div{display:flex;flex-direction:column}
+.stats b{font-family:var(--font-data);font-weight:500;font-size:1.05rem}
+.stats span{font-size:.68rem;font-family:var(--font-data);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.line{display:grid;grid-template-columns:6.4em minmax(0,1fr) auto;gap:6px 10px;align-items:start;padding:3px 0}
+@media (max-width:520px){.line{grid-template-columns:minmax(0,1fr) auto}.line .tag{grid-column:1/-1}}
+.tag{font-family:var(--font-data);font-size:.74rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding-top:4px}
+.val b{font-weight:600}
+.val .d{display:block;font-size:var(--step--1);color:var(--muted)}
+.val .roll{font-family:var(--font-data);font-size:.72rem;color:var(--muted);margin-left:6px}
+.ctl{display:flex;gap:4px;align-items:center}
+.ctl select{width:auto;max-width:8em;font-size:var(--step--1);padding:2px 4px}
+.omen{display:flex;gap:10px;align-items:center;border:1px solid var(--line-soft);padding:6px 8px;background:var(--ground)}
+.omen .num{font-family:var(--font-data);font-size:1.3rem;color:var(--accent);min-width:2ch;text-align:center}
+.jobfoot{display:flex;flex-wrap:wrap;gap:6px;justify-content:flex-end;padding-top:4px}
+
+/* travel */
+.legs{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px;counter-reset:leg}
+.leg{border:1px solid var(--line-soft);border-left:3px solid var(--line);background:var(--sheet);padding:10px 12px;counter-increment:leg}
+.leg.jump{border-left-color:var(--accent)}
+.leg.land{border-left-color:var(--teal)}
+.leghead{display:flex;justify-content:space-between;gap:8px;align-items:center;margin-bottom:8px}
+.leghead b{font-family:var(--font-display);font-weight:600;text-transform:uppercase;font-size:1.05rem;color:var(--line)}
+.leghead b::before{content:counter(leg) ". ";font-family:var(--font-data);font-size:.8rem;color:var(--muted)}
+.grid3{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px}
+.grid2{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:8px}
+.zonebar{display:flex;height:10px;border:1px solid var(--line-soft);margin:8px 0 2px}
+.zonebar i{display:block;height:100%}
+.zonekey{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:.72rem;font-family:var(--font-data);color:var(--muted)}
+.zonekey i{display:inline-block;width:10px;height:10px;margin-right:4px;vertical-align:-1px}
+.z0{background:var(--accent)} .z1{background:color-mix(in srgb,var(--accent) 55%,var(--line))} .z2{background:var(--line)} .z3{background:color-mix(in srgb,var(--line) 50%,var(--sheet))} .z4{background:var(--line-soft)}
+.events{list-style:none;padding:0;margin:8px 0 0;display:flex;flex-direction:column;gap:6px}
+.events li{display:grid;grid-template-columns:7.4em minmax(0,1fr) auto;gap:4px 10px;padding:5px 0;border-bottom:1px dotted var(--line-soft);align-items:start}
+@media (max-width:520px){.events li{grid-template-columns:minmax(0,1fr) auto}.events li .tag{grid-column:1/-1}}
+.totals{display:flex;gap:16px;flex-wrap:wrap}
+.totals div{display:flex;flex-direction:column}
+.totals b{font-family:var(--font-data);font-weight:500;font-size:1.2rem}
+.totals span{font-size:.68rem;font-family:var(--font-data);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.fail{border:1px dashed var(--accent);background:var(--accent-soft);padding:8px;margin-top:8px}
+
+/* Holographic projection: amber light on near-black, in both themes, as the ship's holotable would show it */
+.holo{--holo:#f2b84b;--holo-hi:#ffd98a;--holo-dim:rgba(242,184,75,.4);--holo-faint:rgba(242,184,75,.13);
+  position:relative;background:radial-gradient(ellipse at 55% 45%,#1a0e08 0%,#060403 75%);border:1px solid var(--holo-dim);padding:10px 12px;color:var(--holo-hi);overflow:hidden}
+.holo + .holo{margin-top:10px}
+.holo svg{display:block;width:100%;height:auto}
+.holo .speck{fill:#ffcf9a}
+.holo .lines{filter:drop-shadow(0 0 2px rgba(255,170,60,.7))}
+.holocap,.holokey{font-family:var(--font-data);font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;color:var(--holo)}
+.holokey{display:flex;flex-wrap:wrap;gap:4px 14px;margin-top:4px;opacity:.85;text-transform:none;letter-spacing:.04em}
+.chartkey{align-items:center;gap:4px 12px;margin-top:8px;padding-top:6px;border-top:1px solid var(--holo-faint)}
+.chartkey .keyitem{display:inline-flex;align-items:center;gap:4px}
+.holo .chartkey svg{width:20px;height:20px;flex:0 0 auto;display:inline-block}
+.chartkey .keyitem,.chartkey .keyhead{white-space:nowrap}
+.chartkey .keyhead{letter-spacing:.14em;text-transform:uppercase;opacity:.7}
+.holo.compact{padding:4px 8px;margin-top:8px}
+.hmap .grid{stroke:var(--holo-faint);stroke-width:1}
+.hmap .region{fill:var(--holo);font-family:var(--font-data);font-size:11px;letter-spacing:2px;opacity:.85}
+.hmap .regionbox{fill:rgba(20,10,4,.6);stroke:var(--holo);stroke-width:1;opacity:.75}
+.hmap .link{stroke:var(--holo);stroke-width:1.6;opacity:.75}
+.hmap .etch{fill:none;stroke:#c2361f;stroke-width:9;opacity:.28;filter:blur(1.5px)}
+.hmap .etch-line{fill:none;stroke:#e0553a;stroke-width:1;stroke-dasharray:1.5 2.5;opacity:.9}
+.hmap .danger{stroke:#c2361f;stroke-width:26;stroke-linecap:round;opacity:.35;filter:blur(3px)}
+.hmap .route{stroke:var(--holo-hi);stroke-width:4.5;stroke-linecap:round}
+.hmap .star{fill:#fff0c4}
+.hmap .halo{fill:none;stroke:var(--holo);stroke-width:1;opacity:.6}
+.hmap .on .star{fill:#fff}
+.hmap .lbl{fill:var(--holo-hi);font-family:var(--font-data);font-size:13px;letter-spacing:2px;text-transform:uppercase}
+.hmap .here{fill:none;stroke:#fff3e0;stroke-width:2;stroke-dasharray:4 3}
+.hmap .mark{fill:none;stroke:var(--holo-hi);stroke-width:1.5}
+.hmap .markn{fill:var(--holo-hi);font-family:var(--font-data);font-size:11px}
+.hmap .hit{cursor:pointer}
+.hmap .hit:hover .lbl,.hmap .hit:focus .lbl{fill:#fff}
+.hmap .hit:focus{outline:none}
+.syschart .sketch .core{fill:none;stroke:var(--holo);stroke-width:1.2;stroke-dasharray:2 2}
+.syschart .orbit{fill:none;stroke:var(--holo-faint);stroke-width:1}
+.syschart .axis{stroke:var(--holo-dim);stroke-width:1}
+.syschart .sym{fill:none;stroke:var(--holo);stroke-width:1.4}
+.syschart .sym.dash{stroke-dasharray:3 4}
+.syschart .sym.faint{opacity:.5}
+.syschart .core{fill:#ffe3a3}
+.syschart .ring{stroke:#fff3e0;stroke-dasharray:4 3}
+.syschart .hl .core,.syschart .sym.hl{fill:#fff3e0;stroke:#fff3e0}
+.syschart .leg{stroke:var(--holo-hi);stroke-width:4;stroke-linecap:round;opacity:.8}
+.syschart .name{fill:var(--holo-hi);font-family:var(--font-data);font-size:11px;letter-spacing:1.5px}
+.syschart .hl .name,.syschart .tiny.hl{fill:#fff}
+.syschart .au{fill:var(--holo);font-family:var(--font-data);font-size:10px}
+.syschart .cap{fill:var(--holo);font-family:var(--font-data);font-size:11px;letter-spacing:3px}
+.syschart .tiny{fill:var(--holo);font-family:var(--font-data);font-size:9px;letter-spacing:1px;opacity:.85}
+#systems-map{padding:0;border:0;background:none}
+
+/* world */
+.world{display:grid;grid-template-columns:minmax(0,1fr) 220px;gap:14px;align-items:start}
+@media (max-width:700px){.world{grid-template-columns:minmax(0,1fr)}}
+.globe{width:100%;height:auto;display:block}
+.globe .rim{fill:none;stroke:var(--line);stroke-width:1.5}
+.globe .orb{fill:none;stroke:var(--line-soft);stroke-width:1;stroke-dasharray:3 5}
+
+/* log */
+.logentry{border:1px solid var(--line-soft);background:var(--sheet);padding:12px 14px}
+.logentry pre{white-space:pre-wrap;font-family:var(--font-body);margin:6px 0 0;font-size:var(--step--1)}
+footer.notice{margin-top:24px;padding-top:10px;border-top:1px solid var(--line-soft);color:var(--muted);font-size:var(--step--1);max-width:75ch}
+footer.notice a{color:inherit}
+@media print{#site-nav,.tabs,.side,.ctl,.jobfoot,footer,.nodata{display:none!important}.view{display:block}body{padding:0;background:#fff;color:#000}}
+</style>
+</head>
+<body>
+<div id="site-nav">
+  <a class="snav-brand" href="/">Jonathan Pay</a>
+  <nav class="snav-links" aria-label="Site">
+    <a href="/tools/">All Tools</a>
+    <a href="/tools/ctth-sheets/">Sheets</a>
+    <a href="/tools/ctth-mission/">Mission</a>
+    <a href="/tools/ctth-system/" aria-current="page">System</a>
+    <a href="/tools/ctth-spreads/">Icon Spreads</a>
+    <a href="https://jonathanpay.com/blog/">Blog</a>
+    <a href="https://jonathanpay.com/holistic-email-marketing/">HEM</a>
+    <a href="https://holisticemailacademy.com">HEA</a>
+  </nav>
+</div>
+
+<header class="top">
+  <div>
+    <div class="issued">Free League field office · Chart office</div>
+    <h1>System</h1>
+    <p class="sub">An unofficial system chart and world generator for <i>Coriolis: The Third Horizon</i>. The jobs, and the trip between systems, live in <a href="/tools/ctth-mission/">the Mission tool</a>.</p>
+  </div>
+  <nav class="tabs" role="tablist" aria-label="Sections">
+    <button class="tab" role="tab" id="tab-systems" type="button">Systems</button>
+    <button class="tab" role="tab" id="tab-worlds" type="button">Worlds</button>
+    <button class="tab" role="tab" id="tab-log" type="button">Log</button>
+    <button class="tab" role="tab" id="tab-data" type="button">Data</button>
+  </nav>
+</header>
+<p class="nodata" id="nodata" hidden>No data file loaded, so the charts show the map's own counts and the world tables show rolls and table numbers rather than results. <button type="button" id="go-data">Import one on the Data tab.</button></p>
+
+<section class="view" id="view-systems" role="tabpanel" aria-labelledby="tab-systems">
+  <aside class="side">
+    <div class="card stack">
+      <h2>Find a system</h2>
+      <label class="field"><span>System</span><select id="s-pick"></select></label>
+      <div class="row"><button class="mini" type="button" id="s-refresh">Refresh the list</button></div>
+      <p class="small muted" id="s-count"></p>
+      <p class="note">The map carries the Horizon's 36 systems and the portal links between them. Your data file, your own list and any system saved to the campaign join it here, and a campaign system brings its bodies with it.</p>
+    </div>
+    <div class="card stack">
+      <h2>Roll a world here</h2>
+      <p class="small">The Worlds tab rolls a planet, gas giant or asteroid belt for the system you have open.</p>
+      <button class="btn" type="button" id="s-world">Roll a world for it</button>
+    </div>
+  </aside>
+  <div class="main">
+    <div class="card" id="systems-map"></div>
+    <div class="card" id="sys-detail" aria-live="polite"></div>
+  </div>
+</section>
+
+<section class="view" id="view-worlds" role="tabpanel" aria-labelledby="tab-worlds" hidden>
+  <aside class="side">
+    <div class="card stack">
+      <h2>Generate a world</h2>
+      <label class="field"><span>Name</span><input type="text" id="w-name" placeholder="Quidar"></label>
+      <label class="field"><span>System</span><select id="w-sys"></select></label>
+      <label class="field"><span>Body</span><select id="w-kind"><option value="planet">Planet or moon</option><option value="gas">Gas giant</option><option value="belt">Asteroid belt</option></select></label>
+      <label class="field"><span>Hooks</span><input type="number" id="w-hooks" min="0" max="6" value="2"></label>
+      <div class="row"><button class="btn primary" type="button" id="w-roll">Roll a world</button><button class="btn quiet" type="button" id="w-save">Save to the log</button><button class="btn quiet" type="button" id="w-camp">Save to the campaign</button></div>
+      <p class="status" id="w-status" role="status"></p>
+      <p class="note">Modifiers chain as you go: atmosphere moves temperature and geosphere, size moves population, population moves the spaceport. Rerolling a line reworks the lines below it.</p>
+    </div>
+  </aside>
+  <div class="main"><div class="card" id="world"></div></div>
+</section>
+
+<section class="view" id="view-log" role="tabpanel" aria-labelledby="tab-log" hidden>
+  <aside class="side">
+    <div class="card stack">
+      <h2>The log</h2>
+      <p class="small">Worlds you save, with their tables, their hooks and their factions. Copy any entry as Markdown for your notes. Jobs and voyages are logged in the <a href="/tools/ctth-mission/">Mission tool</a>.</p>
+      <p class="small muted" id="log-count"></p>
+    </div>
+  </aside>
+  <div class="main" id="log"></div>
+</section>
+
+<section class="view" id="view-data" role="tabpanel" aria-labelledby="tab-data" hidden>
+  <aside class="side" id="data-side"></aside>
+  <div class="main" id="data-main"></div>
+</section>
+
+<footer class="notice">
+  <p>An unofficial fan tool. It is not affiliated with, sponsored or endorsed by Free League Publishing (Fria Ligan AB). <i>Coriolis: The Third Horizon</i> and its names are theirs. No rules text, table entries, art or setting text from the books is included: the page carries dice, table numbers and place names, and anything more comes from a data file you make and keep yourself. What you save stays in this browser.</p>
+</footer>
+<script src="/tools/ctth-horizon.js"></script>
+<script src="/tools/ctth-campaign.js"></script>
+<script>
+(() => {
+const $ = s => document.querySelector(s);
+const h = (tag, attrs = {}, ...kids) => { const e = document.createElement(tag); for (const k in attrs) { if (attrs[k] == null || attrs[k] === false) continue; if (k === "text") e.textContent = attrs[k]; else if (k.startsWith("on")) e.addEventListener(k.slice(2), attrs[k]); else if (k === "value") e.value = attrs[k]; else e.setAttribute(k, attrs[k]); } kids.flat().forEach(c => c != null && c !== false && e.append(c)); return e; };
+const NS = "http://www.w3.org/2000/svg";
+const keep = kids => kids.flat().filter(c => c != null && c !== false);
+const sv = (tag, attrs = {}, parent) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (parent) parent.appendChild(e); return e; };
+const store = {
+  get(k, d){ try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch { return d; } },
+  set(k, v){ try { localStorage.setItem(k, JSON.stringify(v)); return true; } catch { return false; } },
+  del(k){ try { localStorage.removeItem(k); } catch {} }
+};
+const clone = o => JSON.parse(JSON.stringify(o));
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+
+const plural = (n, w, p) => `${n} ${n === 1 ? w : (p || w + "s")}`;
+
+/* The map, the charts and the system list come from /tools/ctth-horizon.js, which the Mission tool loads too. */
+const H = window.CtthHorizon;
+if (!H) { document.body.append(h("p", { class:"nodata", text:"The horizon file (/tools/ctth-horizon.js) didn't load, so the map and the charts can't run. Reload the page; if it keeps failing, the file is missing from the server." })); return; }
+
+/* Book data: nothing from the books' table text ships with this page. Your data file, imported on the Data tab, lives in this browser. */
+const FORMAT = "mission-board-data/1";
+const DATA = (() => { const x = store.get("mb-data", null); return x && x.format === FORMAT ? x : null; })();
+const T = (DATA && DATA.tables) || {};
+
+/* ---------- dice ---------- */
+const d6 = () => 1 + Math.floor(Math.random() * 6);
+function roll(expr) {
+  expr = String(expr).replace(/\s/g, "").toUpperCase();
+  if (expr === "D66") { const a = d6(), b = d6(); return { total: a * 10 + b, dice: [a, b], text: `${a}${b}` }; }
+  const m = expr.match(/^(\d*)D(\d+)([+-]\d+)?$/);
+  if (!m) { const n = parseInt(expr, 10) || 0; return { total: n, dice: [], text: String(n) }; }
+  const n = parseInt(m[1] || "1", 10), sides = parseInt(m[2], 10), mod = parseInt(m[3] || "0", 10);
+  const dice = Array.from({ length: n }, () => 1 + Math.floor(Math.random() * sides));
+  const total = dice.reduce((a, b) => a + b, 0) + mod;
+  return { total, dice, text: `${dice.join("+")}${mod ? (mod > 0 ? "+" : "") + mod : ""}` };
+}
+const d66Values = () => { const out = []; for (let a = 1; a <= 6; a++) for (let b = 1; b <= 6; b++) out.push(a * 10 + b); return out; };
+
+/* The world tables: the same numbers and dice the mission page carries, since both read one data file.
+   Nothing from the books' table text ships with this page; your data file holds the rows. */
+const META = {
+  "w.size":{num:1,title:"Planet size",dice:"2D6"}, "w.gasSize":{num:2,title:"Gas giant size",dice:"2D6"}, "w.gasColour":{num:3,title:"Gas giant colour",dice:"2D6"},
+  "w.gasTemp":{num:4,title:"Gas giant temperature",dice:"2D6"}, "w.gasChar":{num:5,title:"Gas giant characteristics",dice:"2D6"},
+  "w.beltSize":{num:6,title:"Asteroid belt size",dice:"D6"}, "w.beltComp":{num:7,title:"Asteroid belt composition",dice:"D6"}, "w.beltChar":{num:8,title:"Asteroid belt characteristics",dice:"2D6"},
+  "w.orbit":{num:9,title:"Orbit",dice:"2D6"}, "w.atmosphere":{num:10,title:"Atmosphere",dice:"2D6"}, "w.temperature":{num:11,title:"Temperature",dice:"2D6"},
+  "w.geosphere":{num:12,title:"Geosphere",dice:"2D6"}, "w.population":{num:13,title:"Population",dice:"2D6"}, "w.spaceport":{num:14,title:"Spaceport",dice:"2D6"},
+  "w.hook":{num:15,title:"Hooks",dice:"D66"}, "w.factionCount":{num:16,title:"Number of factions",dice:"D6"}, "w.faction":{num:17,title:"Factions",dice:"2D6"}
+};
+
+const tableName = id => META[id] ? `Table ${META[id].num}: ${META[id].title}` : id;
+function lookup(id, r) {
+  const rows = (T[id] && T[id].rows) || [];
+  if (!rows.length) return null;
+  let hit = rows.find(x => r >= x.lo && r <= x.hi);
+  if (!hit) hit = r < rows[0].lo ? rows[0] : rows[rows.length - 1];
+  return hit;
+}
+function rollOn(id, mod = 0) { const meta = META[id] || { dice: "D66" }; const rr = roll(meta.dice); const r = rr.total + mod; return { id, r, raw: rr.total, mod, text: rr.text }; }
+function rowLabel(id, r) { const x = lookup(id, r); return x ? x.n : `Read ${tableName(id)}, result ${r}`; }
+function rowDesc(id, r) { const x = lookup(id, r); return x && x.d ? x.d : ""; }
+function choices(id) {
+  const rows = (T[id] && T[id].rows) || [];
+  if (rows.length) return rows.map(x => ({ v: x.lo, label: `${x.lo === x.hi ? x.lo : x.lo + "–" + x.hi} ${x.n}` }));
+  const dice = (META[id] || {}).dice;
+  const vals = dice === "D66" ? d66Values() : dice === "D6" ? [1,2,3,4,5,6] : [2,3,4,5,6,7,8,9,10,11,12];
+  return vals.map(v => ({ v, label: String(v) }));
+}
+
+function rollPicker(id, current, onPick, onReroll) {
+  const sel = h("select", { "aria-label":`Pick from ${tableName(id)}`, onchange: e => onPick(parseInt(e.target.value, 10)) },
+    choices(id).map(o => h("option", { value:String(o.v), text:o.label })));
+  const hit = lookup(id, current);
+  const opts = choices(id).map(o => o.v);
+  sel.value = String(hit ? hit.lo : Math.min(Math.max(current, opts[0]), opts[opts.length - 1]));
+  return h("div", { class:"ctl" }, sel, h("button", { class:"mini", type:"button", title:"Reroll", text:"Reroll", onclick:onReroll }));
+}
+function valueView(id, x, extra) {
+  const row = lookup(id, x.r);
+  return h("div", { class:"val" }, h("b", { text: row ? row.n : `${tableName(id)}` }),
+    h("span", { class:"roll", text: row ? `${META[id] ? "T" + META[id].num : ""} · ${x.r}` : `result ${x.r}${x.mod ? ` (${x.text}${x.mod > 0 ? "+" : ""}${x.mod})` : ""}` }),
+    row && row.d ? h("span", { class:"d", text:row.d }) : null, extra || null);
+}
+
+/* ---------- the campaign ---------- */
+/* This page shares one campaign with Coriolis Sheets and Icon Spreads: /tools/ctth-campaign.js keeps it in
+   localStorage. Every use is guarded, so the page works as before when that script fails to load. */
+function campaign() { const C = window.CtthCampaign; return C && typeof C.upsert === "function" ? C : null; }
+function campaignAll(kind) { const C = campaign(); if (!C) return []; try { return C.all(kind) || []; } catch { return []; } }
+
+function say(id, msg) { const el = document.getElementById(id); if (el) el.textContent = msg; }
+
+/* ---------- the horizon ---------- */
+/* The map, the charts, the stars and the portal links come from the shared horizon file. Nothing about the Horizon
+   is stored on this page; the Mission tool draws the same map from the same file. */
+const { MAP, LINKS, REGIONS, LABEL_AT, INFO, CORE, DANGER, UNSTABLE, SPACE_NAME, STAR_LOOK } = H;
+const { parseCount, countText, starKind, starCount, sysName, linkFlag, unstableAt, campaignSystemId, buildSystems } = H;
+const REGION_NAME = { sadaal:"The Sadaal Route", miran:"The Miran Chain", pillar:"The Quadrant of the Pillar", algol:"The Algol Route", dabaran:"The Dabaran Circle" };
+
+const extraSystems = store.get("mb-systems", []);
+/* Every system the tools know: the map's, your data file's, your own list's and the campaign's, each map system
+   given a portal body per link and a portal station beside them. */
+let SYS = buildSystems({ data:DATA, extra:extraSystems, campaign:campaignAll("system") });
+
+/* ---------- state ---------- */
+const S = {
+  world: store.get("mb-world", null),
+  log: store.get("mb-log", [])
+};
+const save = k => store.set("mb-" + k, S[k]);
+/* One log, two tools. This page owns the worlds; the Mission tool owns the jobs and the voyages. Writes merge the
+   log back with whatever is in storage, so a job accepted in the other tab or the other tool is never lost. */
+const LOG_KINDS = new Set(["world"]);
+function saveLog() { const mine = S.log.filter(e => LOG_KINDS.has(e.kind)), theirs = store.get("mb-log", []).filter(e => !LOG_KINDS.has(e.kind)); store.set("mb-log", [...mine, ...theirs]); }
+
+function starName(s, i) { return (s && s.stars && s.stars[i || 0]) || (i ? `star ${"ABC"[i]}` : (s ? s.n : "the star")); }
+
+/* ---------- the Horizon map ---------- */
+// The glow behind each star and the dust of the background, as on the printed Horizon map.
+let glowN = 0;
+function holoBase(svg, x0, y0, w, hgt, seed) {
+  const id = "g" + (++glowN); const defs = sv("defs", {}, svg);
+  const mk = (gid, stops) => { const g = sv("radialGradient", { id:gid }, defs); stops.forEach(([o, c, a]) => sv("stop", { offset:o, "stop-color":c, "stop-opacity":a }, g)); };
+  mk(id + "s", [[0, "#ffb347", .85], [.25, "#ff8a2a", .38], [.6, "#d4561b", .12], [1, "#a03a10", 0]]);
+  mk(id + "n", [[0, "#c8581f", .22], [1, "#6b2a0c", 0]]);
+  let r = seed || 7; const rnd = () => (r = (r * 9301 + 49297) % 233280) / 233280;
+  for (let i = 0; i < (w * hgt) / 1800; i++) sv("circle", { cx:x0 + rnd() * w, cy:y0 + rnd() * hgt, r:rnd() < .92 ? .7 : 1.4, class:"speck", opacity:(.15 + rnd() * .55).toFixed(2) }, svg);
+  return { star:`url(#${id}s)`, neb:`url(#${id}n)` };
+}
+// Companion stars sit in the widest open angles round their system: away from its portal links and its name.
+function companionSpots(id, n) {
+  if (!n) return [];
+  const me = MAP.find(m => m[0] === id), P = o => MAP.find(m => m[0] === o);
+  const avoid = LINKS.filter(l => l[0] === id || l[1] === id).map(l => { const o = P(l[0] === id ? l[1] : l[0]); return Math.atan2(o[3] - me[3], o[2] - me[2]); });
+  const [ldx, ldy] = LABEL_AT[id] || [10, -9]; avoid.push(Math.atan2(ldy - 4, ldx + 20));
+  const gap = (a, b) => { const d = Math.abs(a - b) % (2 * Math.PI); return Math.min(d, 2 * Math.PI - d); };
+  let seed = [...id].reduce((t, c) => t * 31 + c.charCodeAt(0), 7); const rnd = () => (seed = (seed * 9301 + 49297) % 233280) / 233280;
+  const out = [], placed = [];
+  for (let k = 0; k < n; k++) {
+    let best = 0, bestScore = -1;
+    // a companion already placed counts as more crowded than a link, so a second one moves well clear of it
+    for (let a = -Math.PI; a < Math.PI; a += Math.PI / 36) { const score = Math.min(...avoid.map(v => gap(a, v)), ...placed.map(v => gap(a, v) * .6)); if (score > bestScore) { bestScore = score; best = a; } }
+    const r = 10 + rnd() * 5, a = best + (rnd() - .5) * .3;
+    out.push([r * Math.cos(a), r * Math.sin(a)]); placed.push(a);
+  }
+  return out;
+}
+function drawMap(box, opt = {}) {
+  const svg = sv("svg", { viewBox:"180 175 1230 715", class:"hmap", role:"img", "aria-label":"Map of the Third Horizon's portal links" });
+  const G = holoBase(svg, 180, 175, 1230, 715, 11);
+  [[300,420,150],[560,330,110],[960,300,140],[1180,560,170],[700,720,150],[980,700,120]].forEach(([cx, cy, r]) => sv("circle", { cx, cy, r, fill:G.neb }, svg));
+  MAP.forEach(([id, , x, y]) => sv("circle", { cx:x, cy:y, r: CORE.has(id) ? 34 : 24, fill:G.star }, svg));
+  REGIONS.forEach(([n, x, y]) => { const w = n.length * 7.4 + 14; sv("rect", { x:x - w / 2, y:y - 13, width:w, height:19, class:"regionbox" }, svg); const t = sv("text", { x, y:y + 1, class:"region", "text-anchor":"middle" }, svg); t.textContent = n.toUpperCase(); });
+  const P = id => MAP.find(m => m[0] === id);
+  LINKS.forEach(([a, b, f]) => { const A = P(a), B = P(b); if (f === "danger") sv("line", { x1:A[2], y1:A[3], x2:B[2], y2:B[3], class:"danger" }, svg); });
+  const lines = sv("g", { class:"lines" }, svg);
+  LINKS.forEach(([a, b, f]) => { const A = P(a), B = P(b); sv("line", { x1:A[2], y1:A[3], x2:B[2], y2:B[3], class:"link" }, lines); });
+  const path = opt.path || [];
+  for (let i = 1; i < path.length; i++) { const A = P(path[i - 1]), B = P(path[i]); if (A && B) sv("line", { x1:A[2], y1:A[3], x2:B[2], y2:B[3], class:"route" }, svg); }
+  MAP.forEach(([id, n, x, y]) => {
+    const g = sv("g", { class:"sys" + (opt.onPick ? " hit" : "") + (path.includes(id) ? " on" : ""), tabindex: opt.onPick ? "0" : "-1" }, svg);
+    if (id === opt.here) sv("circle", { cx:x, cy:y, r:15, class:"here" }, g);
+    if (UNSTABLE.has(id)) { sv("circle", { cx:x, cy:y, r:20, class:"etch" }, g); sv("circle", { cx:x, cy:y, r:20, class:"etch-line" }, g); }
+    // companion stars, as the small dots beside a binary or trinary system
+    const ns = INFO[id] && /^Trinary/.test(INFO[id][0]) ? 2 : INFO[id] && /^Binary/.test(INFO[id][0]) ? 1 : 0;
+    companionSpots(id, ns).forEach(([dx, dy]) => sv("circle", { cx:(x + dx).toFixed(1), cy:(y + dy).toFixed(1), r:2.4, class:"star" }, g));
+    sv("circle", { cx:x, cy:y, r: CORE.has(id) ? 6 : 4, class:"star" }, g);
+    if (CORE.has(id)) sv("circle", { cx:x, cy:y, r:10, class:"halo" }, g);
+    const [ldx, ldy, la] = LABEL_AT[id] || [10, -9, "start"];
+    const t = sv("text", { x:x + ldx, y:y + ldy, class:"lbl", "text-anchor":la }, g); t.textContent = n;
+    const tt = sv("title", {}, g); tt.textContent = n + (opt.onPick ? " — click to set" : "");
+    if (opt.onPick) { g.setAttribute("role", "button"); g.addEventListener("click", () => opt.onPick(id)); g.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); opt.onPick(id); } }); }
+  });
+  (opt.marks || []).forEach(([id, label], k) => { const m = P(id); if (!m) return; const dx = -12 - (k % 3) * 4, dy = 14 + Math.floor(k / 3) * 4; sv("circle", { cx:m[2] + dx, cy:m[3] + dy, r:9, class:"mark" }, svg); const t = sv("text", { x:m[2] + dx, y:m[3] + dy + 4, class:"markn", "text-anchor":"middle" }, svg); t.textContent = label; });
+  box.replaceChildren(h("div", { class:"holo" }, h("div", { class:"holocap", text:"The Third Horizon · portal links" }), svg,
+    h("div", { class:"holokey" }, h("span", { text:"— portal link" }), h("span", { text:"◌ red etching: unstable portals" }), h("span", { text:"▬ dangerous area" }), h("span", { text:"· companion stars" }), opt.legend ? h("span", { text:opt.legend }) : null)));
+}
+
+let starGrad = 0;
+function drawStar(svg, x, y, kind) {
+  const [core, glow, ring, r] = STAR_LOOK[kind], id = "sg" + (++starGrad);
+  const d = sv("defs", {}, svg), g = sv("radialGradient", { id }, d);
+  [[0, glow, .9], [.28, glow, .42], [.62, glow, .12], [1, glow, 0]].forEach(([o, c, a]) => sv("stop", { offset:o, "stop-color":c, "stop-opacity":a }, g));
+  sv("circle", { cx:x, cy:y, r:r * 6.5, fill:`url(#${id})` }, svg);
+  if (kind === "black hole") { sv("ellipse", { cx:x, cy:y, rx:r * 2.2, ry:r * .7, fill:"none", stroke:ring, "stroke-width":2.2, opacity:.9 }, svg); sv("circle", { cx:x, cy:y, r, fill:core, stroke:ring, "stroke-width":1 }, svg); }
+  else sv("circle", { cx:x, cy:y, r, fill:core }, svg);
+  const R1 = r + 6, R2 = r + 13;
+  sv("circle", { cx:x, cy:y, r:R1, fill:"none", stroke:ring, "stroke-width":1.4 }, svg);
+  sv("circle", { cx:x, cy:y, r:R2, fill:"none", stroke:ring, "stroke-width":1.4, "stroke-dasharray":"3 4" }, svg);
+  for (let k = 0; k < 12; k++) { const a = k * Math.PI / 6; sv("line", { x1:x + (R1 + 2) * Math.cos(a), y1:y + (R1 + 2) * Math.sin(a), x2:x + (R1 + 5) * Math.cos(a), y2:y + (R1 + 5) * Math.sin(a), stroke:ring, "stroke-width":1.4 }, svg); }
+  const t = sv("title", {}, svg); t.textContent = kind[0].toUpperCase() + kind.slice(1);
+}
+// The key under a system chart: what each mark means, and the classes of this system's stars
+function chartKey(sy, kinds) {
+  const item = (label, draw) => { const s = sv("svg", { viewBox:"-12 -12 24 24", width:22, height:22, "aria-hidden":"true" }); draw(s); return h("span", { class:"keyitem" }, s, label); };
+  const C = "var(--holo)", F = "#ffe3a3";
+  const items = [
+    item("Planet", s => sv("circle", { r:4, fill:F }, s)),
+    item("Gas giant", s => { sv("circle", { r:5, fill:F }, s); sv("circle", { r:9, fill:"none", stroke:C, "stroke-width":1.2 }, s); }),
+    item("Asteroid belt", s => { for (let q = -2; q <= 2; q++) sv("circle", { cx:Math.sin(q * 1.9) * 2, cy:q * 4, r:1.4, fill:F }, s); }),
+    item("Moon", s => { sv("line", { x1:-10, y1:5, x2:10, y2:5, stroke:C, "stroke-width":.6, opacity:.6 }, s); sv("circle", { cy:-3, r:2.4, fill:F }, s); }),
+    item("Station", s => sv("rect", { x:-4.5, y:-4.5, width:9, height:9, fill:"none", stroke:C, "stroke-width":1.3 }, s)),
+    item("Comet or region", s => { sv("circle", { r:8, fill:"none", stroke:C, "stroke-width":1.1, "stroke-dasharray":"2 2.5" }, s); sv("circle", { r:2, fill:F }, s); }),
+    item("Portal", s => sv("circle", { r:5, fill:"none", stroke:C, "stroke-width":1.3 }, s)),
+    item("Not yet charted", s => sv("circle", { r:5, fill:"none", stroke:C, "stroke-width":1.1, "stroke-dasharray":"2 2" }, s))
+  ];
+  const seen = [...new Set(kinds)];
+  const stars = seen.map(k => item(k[0].toUpperCase() + k.slice(1), s => { const [core, glow, , r] = STAR_LOOK[k]; sv("circle", { r:10, fill:glow, opacity:.35 }, s); sv("circle", { r:Math.min(7, r * .6), fill:core, stroke:k === "black hole" ? glow : "none", "stroke-width":1.2 }, s); }));
+  return h("div", { class:"holokey chartkey" }, h("span", { class:"keyhead", text:"Key" }), items, h("span", { class:"keyhead", text:seen.length > 1 ? "Stars" : "Star" }), stars);
+}
+// A system chart in the Great Dark's manner: the star on the left, orbits as faint arcs, bodies strung along the line at their distance.
+function systemChart(sy, opt = {}) {
+  let real = sy.bodies.filter(b => b[2] !== "portal" && b[1] != null), sketch = false;
+  const info = INFO[sy.id];
+  // Not charted: sketch the bodies the Horizon map counts, without positions
+  if (real.length < 2 && info && info[1]) {
+    sketch = true; real = real.filter(b => b[0] === sy.portalStationName);
+    info[1].split("/").forEach((part, si) => { const c = parseCount(part); if (!c) return;
+      const kinds = Array.from({ length:c.n }, () => "planet"); if (c.a && c.n) kinds[Math.min(c.n - 1, Math.floor(c.n / 2))] = "belt"; if (c.g && c.n) kinds[c.n - 1 - (c.a && c.n > 1 && Math.floor(c.n / 2) === c.n - 1 ? 1 : 0)] = "giant";
+      kinds.forEach((k, j) => real.push(["", (j + 1) * (j + 1) * 1.5, k, si, true])); });
+    if (!sy.stars && info[0].startsWith("Binary")) sy = { ...sy, stars:[sy.n, `${sy.n} B`] };
+    if (!sy.stars && info[0].startsWith("Trinary")) sy = { ...sy, stars:[sy.n, `${sy.n} B`, `${sy.n} C`] };
+  }
+  if (real.length < 2) return null;
+  const stars = sy.stars || [sy.n]; const portals = sy.bodies.filter(b => b[2] === "portal");
+  const W = 960, RH = opt.compact ? 150 : 170, rows = stars.map((_, i) => i).filter(i => i === 0 || real.some(b => (b[3] || 0) === i) || (!opt.compact && i < starCount(sy.id)));
+  const svg = sv("svg", { viewBox:`0 0 ${W} ${rows.length * RH + 10}`, class:"syschart", role:"img", "aria-label":`System chart of ${sy.n}` });
+  const G = holoBase(svg, 0, 0, W, rows.length * RH + 10, sy.n.length * 13);
+  const max = Math.max(...real.map(b => b[1])); const X = au => 150 + Math.sqrt(au) / Math.sqrt(max) * (W - 220);
+  const hl = new Set([opt.from, opt.to].filter(Boolean));
+  rows.forEach((si, ri) => {
+    const cy = ri * RH + RH / 2 + 18, sx = 70;
+    const here = real.filter(b => (b[3] || 0) === si).sort((a, b) => a[1] - b[1]);
+    const cid = `clip${++glowN}`; const cp = sv("clipPath", { id:cid }, svg); sv("rect", { x:0, y:cy - RH / 2 + 4, width:W, height:RH - 8 }, cp);
+    const og = sv("g", { "clip-path":`url(#${cid})` }, svg);
+    here.forEach(b => { const rx = X(b[1]) - sx; sv("ellipse", { cx:sx, cy, rx, ry:rx * .3, class:"orbit" }, og); });
+    sv("line", { x1:sx, y1:cy, x2:W - 20, y2:cy, class:"axis" }, svg);
+    drawStar(svg, sx, cy, starKind(sy.id, si));
+    const st = sv("text", { x:sx - 10, y:cy - RH / 2 + 2, class:"cap" }, svg); st.textContent = `${starName(sy, si).toUpperCase()} · ${starKind(sy.id, si).toUpperCase()}`;
+    if (si === 0 && portals.length) {
+      sv("ellipse", { cx:sx, cy, rx:44, ry:13, class:"sym faint" }, svg);
+      // Each portal sits on the ring round the star with its name on a leader line, as on the printed charts:
+      // the bottom one labelled below, the rest above at staggered heights.
+      var portalX = {};
+      const ANG = [[180], [180, 0], [180, 0, 90], [180, -90, 0, 90]][Math.min(portals.length, 4) - 1] || [];
+      portals.forEach((pt, k) => { const deg = ANG[k] != null ? ANG[k] : 180 + k * 40, a = deg * Math.PI / 180;
+        const px = sx + 44 * Math.cos(a), py = cy + 13 * Math.sin(a), on = hl.has(pt[0]); portalX[pt[0]] = px;
+        const below = deg === 90, ly = below ? cy + 40 : cy - (deg === -90 ? 46 : 34);
+        sv("line", { x1:px, y1:py + (below ? 5 : -5), x2:px, y2:ly + (below ? -9 : 3), class:"sym" + (on ? " hl" : ""), "stroke-width":.7, opacity:.8 }, svg);
+        sv("circle", { cx:px, cy:py, r:5, class:"sym" + (on ? " hl" : "") }, svg);
+        const t = sv("text", { x:px, y:ly, class:"tiny" + (on ? " hl" : ""), "text-anchor":"middle" }, svg); t.textContent = pt[0].replace("Portal to ", "⊙ ").toUpperCase(); });
+    }
+    // route bracket
+    if (opt.from && opt.to) { const A = sy.bodies.find(b => b[0] === opt.from), B = sy.bodies.find(b => b[0] === opt.to);
+      if (A && B && (A[3] || 0) === si && (B[3] || 0) === si && A[1] != null && B[1] != null) { const px = typeof portalX === "object" ? portalX : {}; const xa = A[2] === "portal" ? (px[A[0]] ?? sx + 44) : X(A[1]), xb = B[2] === "portal" ? (px[B[0]] ?? sx + 44) : X(B[1]); sv("line", { x1:xa, y1:cy, x2:xb, y2:cy, class:"leg" }, svg); } }
+    let lastX = -99, lift = 0;
+    here.forEach(b => { const x = X(b[1]), on = hl.has(b[0]); const g = sv("g", { class:(on ? "hl" : "") + (b[4] ? " sketch" : "") }, svg);
+      const k = b[2];
+      if (k === "star") { sv("circle", { cx:x, cy, r:30, fill:G.star }, g); sv("circle", { cx:x, cy, r:6, class:"core" }, g); sv("circle", { cx:x, cy, r:11, class:"sym dash" }, g);
+        const t = sv("text", { x, y:cy + 30, class:"name", "text-anchor":"middle" }, g); t.textContent = b[0].toUpperCase(); const a = sv("text", { x, y:cy + 42, class:"au", "text-anchor":"middle" }, g); a.textContent = String(b[1]); return; }
+      if (k !== "belt") sv("circle", { cx:x, cy, r: k === "giant" ? 26 : 16, fill:G.star, opacity:.8 }, g);
+      if (k === "giant") { sv("circle", { cx:x, cy, r:8, class:"core" }, g); sv("circle", { cx:x, cy, r:14, class:"sym" }, g); }
+      else if (k === "belt") for (let q = -5; q <= 5; q++) sv("circle", { cx:x + Math.sin(q * 1.9) * 3, cy:cy + q * 4.2, r:1.7, class:"core" }, g);
+      else if (k === "station") sv("rect", { x:x - 5, y:cy - 5 - (b[0].includes("Lance") ? 0 : 0), width:10, height:10, class:"sym" }, g);
+      else if (k === "field") { sv("circle", { cx:x, cy, r:11, class:"sym dash" }, g); sv("circle", { cx:x, cy, r:2.5, class:"core" }, g); }
+      else if (k === "moon") sv("circle", { cx:x, cy:cy - 12, r:3, class:"core" }, g);
+      else sv("circle", { cx:x, cy, r:5.5, class:"core" }, g);
+      if (on) sv("circle", { cx:x, cy, r:19, class:"sym ring" }, g);
+      // Crowded bodies alternate their names above and below the line.
+      lift = x - lastX < 40 ? lift + 1 : 0; lastX = x;
+      const below = lift % 2 === 1, ty = below ? cy + 30 : cy - 22;
+      if (b[4]) return;
+      const t = sv("text", { x:x + 2, y:ty, class:"name", transform:`rotate(${below ? 30 : -30} ${x + 2} ${ty})` }, g); t.textContent = b[0].toUpperCase();
+      const a = sv("text", { x, y: below ? cy - 14 : cy + 26, class:"au", "text-anchor":"middle" }, g); a.textContent = String(b[1]);
+    });
+  });
+  const wrap = h("div", { class:"holo" + (opt.compact ? " compact" : "") }, svg);
+  if (!opt.compact) {
+    const parts = info && info[1] ? info[1].split("/").map(parseCount) : [];
+    const stars = sy.stars || [sy.n];
+    const counts = parts.map((c, i) => parts.length > 1 ? `${stars[i] || "star " + "ABC"[i]}: ${countText(c)}` : countText(c)).join(" · ");
+    wrap.prepend(h("div", { class:"holocap", text:`System chart · ${sy.n}${info ? ` · ${info[0]} · ${SPACE_NAME[info[2]]}${info[3] ? " · major spaceport" : ""}` : ""}` }));
+    wrap.append(chartKey(sy, rows.map(i => starKind(sy.id, i))));
+    wrap.append(h("div", { class:"holokey" }, counts ? h("span", { text:`On the Horizon map: ${counts}.` }) : null,
+      sketch ? h("span", { text:"Not charted in the books: the bodies are sketched from the count, with no positions. Name and place them as you need, or roll them on the Worlds tab." }) : h("span", { text:"Distances in AD from each star, spaced by square root." }),
+      sy.chartNote ? h("span", { text:sy.chartNote }) : null,
+      sy.unnamedStation ? h("span", { text:`${sy.n}'s portal station isn't named in print: give it a name with "portalStation" in your data file, or as a station at 0.5 AD in your systems list.` }) : null,
+      sy.known && sy.known.length ? h("span", { text:`Known for: ${sy.known.join("; ")}.` }) : null,
+      sy.exports || sy.imports ? h("span", { text:[sy.exports ? `Exports: ${sy.exports}` : "", sy.imports ? `Imports: ${sy.imports}` : ""].filter(Boolean).join(" · ") + "." }) : null,
+      sy.note ? h("span", { text:sy.note }) : null,
+      sy.gaps ? h("span", { text:"Between the stars: " + sy.gaps.map((g, i) => i && g != null ? `${(sy.stars || [])[i]} ${g} AD` : null).filter(Boolean).join(", ") + "." }) : null));
+  }
+  return wrap;
+}
+
+const ATMO_TEMP = { 9:1, 10:6, 11:6 }, ATMO_GEO = { 3:-4, 9:-4, 10:-4, 11:-4 };
+const tempGeo = r => r >= 12 ? -4 : r >= 10 ? -2 : 0;
+const POP_PORT = r => r <= 3 ? -8 : r <= 5 ? -6 : r <= 7 ? -4 : r <= 9 ? 0 : r <= 11 ? 1 : 4;
+function rollWorld(kind, from) {
+  const w = from ? clone(from) : { id:uid(), kind, lines:{}, hooks:[], factions:[] };
+  w.kind = kind; const L = w.lines;
+  const order = kind === "gas" ? ["gasSize","gasColour","gasTemp","gasChar","moons","population","spaceport"] :
+    kind === "belt" ? ["beltSize","beltComp","beltChar","population","spaceport"] :
+    ["size","orbit","atmosphere","temperature","geosphere","population","spaceport"];
+  w.order = order;
+  const start = !from ? 0 : from.redoFrom ? order.indexOf(from.redoFrom) : order.length;
+  order.slice(Math.max(0, start)).forEach(k => {
+    if (k === "moons") { const r = roll("3D6"); L.moons = { r:r.total, text:r.text }; return; }
+    if (k === "atmosphere") {
+      if (L.size && L.size.r <= 3) { const r = roll("D6").total <= 3 ? 2 : 3; L.atmosphere = { id:"w.atmosphere", r, raw:r, mod:0, text:"small world", small:true }; return; }
+      L.atmosphere = rollOn("w.atmosphere"); return;
+    }
+    if (k === "temperature") { L.temperature = rollOn("w.temperature", ATMO_TEMP[L.atmosphere.r] || 0); return; }
+    if (k === "geosphere") { L.geosphere = rollOn("w.geosphere", (ATMO_GEO[L.atmosphere.r] || 0) + tempGeo(L.temperature.r)); return; }
+    if (k === "population") {
+      const small = kind === "belt" || (L.size && L.size.r <= 3);
+      if (kind === "gas") { const r = roll("D6"); L.population = { id:"w.population", r:r.total, raw:r.total, mod:0, text:r.text, gas:true }; return; }
+      L.population = rollOn("w.population", small ? -4 : 0); return;
+    }
+    if (k === "spaceport") { L.spaceport = rollOn("w.spaceport", POP_PORT(L.population.r)); return; }
+    L[k] = rollOn("w." + k);
+  });
+  delete w.redoFrom;
+  if (!from || from.rerollHooks) { const n = Math.max(0, +$("#w-hooks").value || 0); w.hooks = Array.from({ length:n }, () => rollOn("w.hook")); delete w.rerollHooks; }
+  if (!from || from.rerollFactions) { w.factionCount = rollOn("w.factionCount"); w.factions = factionsFor(w.factionCount.r); delete w.rerollFactions; }
+  return w;
+}
+function factionsFor(c) {
+  const row = lookup("w.factionCount", c);
+  let n = row && row.count != null ? (typeof row.count === "string" ? roll(row.count).total : row.count) : (c === 1 ? 1 : c <= 4 ? 2 : c === 5 ? 3 : d6());
+  const out = []; const seen = new Set(); let guard = 0;
+  while (out.length < n && guard++ < 50) { const f = rollOn("w.faction"); if (seen.has(f.r) && guard < 40) continue; seen.add(f.r); if (c === 6) f.strength = d6(); out.push(f); }
+  return out;
+}
+const WORLD_LABELS = { size:"Size", orbit:"In orbit", atmosphere:"Atmosphere", temperature:"Temperature", geosphere:"Geosphere", population:"Population", spaceport:"Spaceport",
+  gasSize:"Size", gasColour:"Colour", gasTemp:"Temperature", gasChar:"Character", moons:"Moons", beltSize:"Size", beltComp:"Composition", beltChar:"Character" };
+function renderWorld() {
+  const box = $("#world"); box.replaceChildren();
+  const w = S.world;
+  $("#w-name").value = w ? w.name || "" : $("#w-name").value;
+  if (!w) { box.append(h("h2", { text:"No world yet" }), h("p", { class:"small", text:"Roll a planet, gas giant or asteroid belt using the system generator's tables. Use it for the far end of a job, or for the system the crew just jumped into." })); return; }
+  const kindName = { planet:"Planet", gas:"Gas giant", belt:"Asteroid belt" }[w.kind];
+  const lines = h("div", {});
+  w.order.forEach(k => {
+    const x = w.lines[k]; if (!x) return;
+    if (k === "moons") { lines.append(h("div", { class:"line" }, h("span", { class:"tag", text:"Moons" }), h("div", { class:"val" }, h("b", { text:String(x.r) }), h("span", { class:"roll", text:`3d6 ${x.text}` })), h("div", { class:"ctl" }, h("button", { class:"mini", type:"button", text:"Reroll", onclick:() => { S.world.redoFrom = "moons"; S.world = rollWorld(S.world.kind, S.world); save("world"); renderWorld(); } })))); return; }
+    const id = "w." + k;
+    const notes = [];
+    if (x.mod) notes.push(`Rolled ${x.raw}, ${x.mod > 0 ? "+" : "−"}${Math.abs(x.mod)} = ${x.r}`);
+    if (x.small) notes.push("Small world: toxic or thin only, picked at random");
+    if (x.gas) notes.push("Gas giant: population rolled on D6");
+    const redo = v => { S.world.lines[k] = v; const i = S.world.order.indexOf(k); if (i < S.world.order.length - 1) { S.world.redoFrom = S.world.order[i + 1]; S.world = rollWorld(S.world.kind, S.world); } save("world"); renderWorld(); };
+    lines.append(h("div", { class:"line" }, h("span", { class:"tag", text:WORLD_LABELS[k] }),
+      valueView(id, x, notes.length ? h("span", { class:"d", text:notes.join(" · ") }) : null),
+      rollPicker(id, x.r, v => redo({ ...x, r:v, raw:v - (x.mod || 0) }), () => { S.world.redoFrom = k; S.world = rollWorld(S.world.kind, S.world); save("world"); renderWorld(); })));
+  });
+  const hooks = h("div", {}, h("h3", { text:"Hooks" }), w.hooks.length ? w.hooks.map((x, i) => h("div", { class:"line" }, h("span", { class:"tag", text:hookGroup(x.r) }), valueView("w.hook", x),
+    rollPicker("w.hook", x.r, v => { S.world.hooks[i].r = v; save("world"); renderWorld(); }, () => { S.world.hooks[i] = rollOn("w.hook"); save("world"); renderWorld(); }))) : h("p", { class:"small muted", text:"None. Set how many in the sidebar." }));
+  const fac = h("div", {}, h("h3", { text:"Factions" }),
+    h("div", { class:"line" }, h("span", { class:"tag", text:"Balance" }), valueView("w.factionCount", w.factionCount),
+      h("div", { class:"ctl" }, h("button", { class:"mini", type:"button", text:"Reroll", onclick:() => { S.world.rerollFactions = true; S.world = rollWorld(S.world.kind, S.world); save("world"); renderWorld(); } }))),
+    w.factions.map((f, i) => h("div", { class:"line" }, h("span", { class:"tag", text:f.strength ? `Strength ${f.strength}` : `Faction ${i + 1}` }), valueView("w.faction", f),
+      rollPicker("w.faction", f.r, v => { S.world.factions[i].r = v; save("world"); renderWorld(); }, () => { S.world.factions[i] = { ...rollOn("w.faction"), strength:f.strength }; save("world"); renderWorld(); }))));
+  const art = worldArt(w);
+  box.append(h("div", { class:"eyebrow", text:`${kindName}${w.sys ? ` · ${sysName(w.sys)}` : ""}` }), h("h2", { text:w.name || "Unnamed world" }),
+    h("div", { class:"world" }, h("div", {}, lines, hooks, fac), art),
+    h("div", { class:"row", style:"margin-top:10px" }, h("button", { class:"mini", type:"button", text:"Copy as Markdown", onclick:e => copy(worldMd(w), e.target) })));
+}
+function hookGroup(r) { return ["Ruins","Weather","Inhabitants","Threats","Politics","Events"][Math.floor(r / 10) - 1] || "Hook"; }
+// A small orrery-style sketch: body size from the size roll, rings or moons from orbit, haze for atmosphere.
+function worldArt(w) {
+  const s = sv("svg", { viewBox:"0 0 220 220", class:"globe", role:"img", "aria-label":"Sketch of the body" });
+  const L = w.lines;
+  if (w.kind === "belt") { for (let i = 0; i < 160; i++) { const a = Math.random() * Math.PI * 2, rr = 55 + Math.random() * 40; sv("circle", { cx:110 + rr * Math.cos(a), cy:110 + rr * Math.sin(a) * .45, r:Math.random() * 2 + .6, fill:"var(--line)", opacity:.4 + Math.random() * .5 }, s); } sv("circle", { cx:110, cy:110, r:6, fill:"var(--accent)" }, s); return s; }
+  const size = w.kind === "gas" ? 70 : 22 + ((L.size ? L.size.r : 7) - 2) * 4.5;
+  sv("ellipse", { cx:110, cy:110, rx:100, ry:34, class:"orb" }, s);
+  const thick = L.atmosphere ? ({ 2:2, 3:1, 9:9, 10:7, 11:7, 12:5 }[L.atmosphere.r] || 4) : 6;
+  sv("circle", { cx:110, cy:110, r:size + thick, fill:"var(--teal)", opacity:.15 }, s);
+  const geo = L.geosphere ? L.geosphere.r : 7, temp = L.temperature ? L.temperature.r : 7;
+  const fill = w.kind === "gas" ? "var(--accent)" : temp <= 2 ? "#cfd8e3" : geo >= 11 ? "#2f5f8a" : geo <= 4 ? "#b88a4a" : "#4f7d5a";
+  sv("circle", { cx:110, cy:110, r:size, fill, stroke:"var(--line)", "stroke-width":1.5 }, s);
+  for (let i = 1; i <= 3; i++) sv("ellipse", { cx:110, cy:110, rx:size, ry:size * (.22 * i), fill:"none", stroke:"var(--line)", "stroke-width":.6, opacity:.35 }, s);
+  const orbit = L.orbit ? L.orbit.r : 0;
+  if (w.kind === "gas" ? L.gasChar && L.gasChar.r <= 3 : orbit === 11 || orbit === 12) sv("ellipse", { cx:110, cy:110, rx:size * 1.75, ry:size * .38, fill:"none", stroke:"var(--line)", "stroke-width":3, opacity:.6 }, s);
+  const moons = w.kind === "gas" ? Math.min(8, L.moons ? L.moons.r : 0) : orbit === 9 || orbit === 10 ? 2 : 0;
+  for (let i = 0; i < moons; i++) { const a = i / Math.max(1, moons) * Math.PI * 2 + .4; sv("circle", { cx:110 + 100 * Math.cos(a), cy:110 + 34 * Math.sin(a), r:4, fill:"var(--line)" }, s); }
+  if (orbit === 3 || orbit === 4 || orbit === 5) for (let i = 0; i < 3; i++) { const a = i * 2.1 + 1; sv("rect", { x:110 + 100 * Math.cos(a) - 3, y:110 + 34 * Math.sin(a) - 3, width:6, height:6, fill:"none", stroke:"var(--accent)", "stroke-width":1.5 }, s); }
+  return s;
+}
+/* ---------- the world in the campaign ---------- */
+/* A world becomes one body of a campaign system, in the shape Coriolis Sheets writes a system with: flat strings, one row per body. */
+function campaignWorldBody(w) {
+  const L = w.lines || {};
+  const pick = (...keys) => { for (const k of keys) { const x = L[k]; if (x) return rowLabel("w." + k, x.r); } return ""; };
+  const extras = [
+    L.gasColour ? `Colour: ${rowLabel("w.gasColour", L.gasColour.r)}` : null,
+    L.gasChar ? `Character: ${rowLabel("w.gasChar", L.gasChar.r)}` : null,
+    L.beltComp ? `Composition: ${rowLabel("w.beltComp", L.beltComp.r)}` : null,
+    L.beltChar ? `Character: ${rowLabel("w.beltChar", L.beltChar.r)}` : null,
+    L.moons ? `Moons: ${L.moons.r}` : null
+  ].filter(Boolean);
+  return {
+    name: w.name || "Unnamed world",
+    kind: { planet:"Planet", gas:"Gas giant", belt:"Asteroid belt" }[w.kind] || "Planet",
+    distance: "",
+    size: pick("size", "gasSize", "beltSize"),
+    atmosphere: pick("atmosphere"),
+    geosphere: pick("geosphere"),
+    temperature: pick("temperature", "gasTemp"),
+    orbit: pick("orbit"),
+    population: pick("population"),
+    spaceport: pick("spaceport"),
+    factions: (w.factions || []).map(f => rowLabel("w.faction", f.r) + (f.strength ? ` (${f.strength})` : "")).join("\n"),
+    other: extras.join("\n"),
+    hooks: (w.hooks || []).map(x => rowLabel("w.hook", x.r)).join("\n")
+  };
+}
+// A system of the same name already in the campaign takes the body rather than a second copy of itself.
+function saveWorldToCampaign() {
+  const w = S.world;
+  if (!w) { say("w-status", "Roll a world first, then save it."); return; }
+  const C = campaign();
+  if (!C) { say("w-status", "The campaign store is not loaded, so the world stays on this page."); return; }
+  const body = campaignWorldBody(w), name = body.name;
+  const same = x => String(x || "").trim().toLowerCase() === name.trim().toLowerCase();
+  const target = (w.cid ? C.get("system", w.cid) : null) || campaignAll("system").find(e => same(e.name) || same((e.data || {}).name)) || null;
+  const base = target && target.data ? target.data : { name, star:"", notes:"" };
+  const bodies = (Array.isArray(base.bodies) ? base.bodies : []).slice();
+  const at = bodies.findIndex(b => b && same(b.name));
+  if (at >= 0) bodies[at] = { ...bodies[at], ...body }; else bodies.push(body);
+  const id = target ? target.id : (C.makeId ? C.makeId("mb-sys") : "mb-sys-" + uid());
+  const entity = C.upsert("system", { id, name: base.name || name, source:"ctth-system", data: { ...base, name: base.name || name, star: base.star || "", notes: base.notes || "", bodies } });
+  if (!entity) { say("w-status", "The campaign refused that world: the store may be full."); return; }
+  w.cid = entity.id; save("world");
+  // The new system joins this page's lists at once: the horizon file rebuilds them from the campaign.
+  refreshSystems(); picked = campaignSystemId(entity.id); renderSystems();
+  say("w-status", `${target ? "Updated" : "Saved"} "${name}": ${plural(bodies.length, "body", "bodies")} in the campaign system ${entity.name || name}. It shows in Coriolis Sheets and on the Systems tab.`);
+}
+
+function worldMd(w) {
+  const out = [`## ${w.name || "Unnamed world"}`, "", `${{ planet:"Planet", gas:"Gas giant", belt:"Asteroid belt" }[w.kind]}${w.sys ? ` in ${sysName(w.sys)}` : ""}`, ""];
+  w.order.forEach(k => { const x = w.lines[k]; if (!x) return; out.push(`- **${WORLD_LABELS[k]}:** ${k === "moons" ? x.r : rowLabel("w." + k, x.r)}`); });
+  if (w.hooks.length) out.push(`- **Hooks:** ${w.hooks.map(x => rowLabel("w.hook", x.r)).join("; ")}`);
+  out.push(`- **Factions:** ${rowLabel("w.factionCount", w.factionCount.r)}: ${w.factions.map(f => rowLabel("w.faction", f.r) + (f.strength ? ` (${f.strength})` : "")).join(", ")}`);
+  return out.join("\n");
+}
+
+/* ---------- the systems tab ---------- */
+const BODY_LABEL = { planet:"Planet", giant:"Gas giant", belt:"Belt", moon:"Moon", station:"Station", field:"Comet", portal:"Portal" };
+let picked = S.world && S.world.sys && SYS.some(s => s.id === S.world.sys) ? S.world.sys : "kua";
+function fillPicks() {
+  const sel = $("#s-pick"), was = sel.value || picked;
+  sel.replaceChildren(...SYS.map(s => h("option", { value:s.id, text:s.n })));
+  sel.value = SYS.some(s => s.id === was) ? was : (SYS[0] || {}).id || "";
+  const ws = $("#w-sys"), world = ws.value;
+  ws.replaceChildren(h("option", { value:"", text:"—" }), ...SYS.map(s => h("option", { value:s.id, text:s.n })));
+  ws.value = world;
+}
+/* The campaign can gain a system while this page is open: saving a world here, or another tool writing one. */
+function refreshSystems() {
+  SYS = buildSystems({ data:DATA, extra:extraSystems, campaign:campaignAll("system") });
+  fillPicks(); renderSystems();
+  if (S.world && S.world.sys) $("#w-sys").value = S.world.sys;
+}
+function systemDetail(sy) {
+  if (!sy) return h("p", { class:"small", text:"Pick a system on the map, or in the list on the left." });
+  const info = INFO[sy.id], region = (MAP.find(m => m[0] === sy.id) || [])[4];
+  const stars = sy.stars && sy.stars.length ? sy.stars : [sy.n];
+  const links = LINKS.filter(l => l[0] === sy.id || l[1] === sy.id).map(l => (l[0] === sy.id ? l[1] : l[0]));
+  const real = sy.bodies.filter(b => b[2] !== "portal");
+  const chart = systemChart(sy);
+  const head = h("div", {},
+    h("div", { class:"eyebrow", text:[region ? REGION_NAME[region] || region : "Off the Horizon map", info ? SPACE_NAME[info[2]] : "A system of your own", sy.campaign ? "In the campaign" : null].filter(Boolean).join(" · ") }),
+    h("h2", { text:sy.n }),
+    h("div", { class:"row", style:"margin-top:6px" }, ...keep([
+      CORE.has(sy.id) ? h("span", { class:"chip teal", text:"Core system" }) : null,
+      info && info[3] ? h("span", { class:"chip", text:"Major spaceport" }) : null,
+      DANGER.has(sy.id) ? h("span", { class:"chip hot", text:"Dangerous area" }) : null,
+      UNSTABLE.has(sy.id) ? h("span", { class:"chip hot", text:"Unstable portals" }) : null,
+      sy.campaign ? h("span", { class:"chip teal", text:"From the campaign" }) : null])));
+  const starList = h("div", {},
+    h("h3", { text: stars.length > 1 ? "The stars" : "The star" }),
+    stars.map((n, i) => h("div", { class:"line" },
+      h("span", { class:"tag", text: stars.length > 1 ? `Star ${"ABC"[i] || i + 1}` : "Star" }),
+      h("div", { class:"val" }, h("b", { text:n }), info && i === 0 ? h("span", { class:"d", text:info[0] }) : null),
+      h("span", { class:"data small", text: starKind(sy.id, i)[0].toUpperCase() + starKind(sy.id, i).slice(1) }))));
+  const bodies = h("div", {},
+    h("h3", { text: real.length ? plural(real.length, "body", "bodies") : "Bodies" }),
+    real.length ? h("div", {}, real.map(b => h("div", { class:"line" },
+      h("span", { class:"tag", text:BODY_LABEL[b[2]] || "Body" }),
+      h("div", { class:"val" }, h("b", { text:b[0] }),
+        (b[3] || 0) ? h("span", { class:"d", text:`Orbits ${starName(sy, b[3])}` }) : null,
+        b[0] === sy.portalStationName ? h("span", { class:"d", text:"Portal station" }) : null),
+      h("span", { class:"data small", text: b[1] == null || !isFinite(b[1]) ? "no distance" : `${b[1]} AD` })))) :
+      h("p", { class:"small muted", text: sy.campaign ? "The campaign holds this system but no bodies for it yet. Roll one on the Worlds tab, or add bodies in Coriolis Sheets." : "The map counts this system's planets but gives no positions. Roll one on the Worlds tab, or give it bodies in your data file." }));
+  const portals = h("div", {},
+    h("h3", { text: links.length ? `${plural(links.length, "portal")} away` : "Portals" }),
+    links.length ? h("div", {}, links.map(id => {
+      const f = linkFlag(sy.id, id), pa = sy.portal != null ? sy.portal : 0.5;
+      return h("div", { class:"line" },
+        h("span", { class:"tag", text: f === "danger" ? "Danger" : f === "unstable" ? "Unstable" : "Portal" }),
+        h("div", { class:"val" }, h("b", { text:sysName(id) }),
+          f === "danger" ? h("span", { class:"d", text:"The link runs through a dangerous area." }) : null,
+          f === "unstable" ? h("span", { class:"d", text:`Unstable portals at ${unstableAt(sy.id, id)}.` }) : null),
+        h("span", { class:"data small", text:`${pa} AD` }));
+    })) : h("p", { class:"small muted", text: sy.campaign ? "A campaign system: no portal links are charted to it." : "No portal links on the map, so no traffic and no chart." }));
+  return h("div", { class:"stack" }, head, chart,
+    h("div", { class:"grid2", style:"margin-top:10px" }, starList, bodies, portals));
+}
+function renderSystems() {
+  if (!SYS.some(s => s.id === picked)) picked = (SYS[0] || {}).id || "";
+  drawMap($("#systems-map"), { here:picked, onPick:id => { picked = id; $("#s-pick").value = id; renderSystems(); }, legend:"Ringed: the system charted below. Click a system to read it." });
+  $("#s-pick").value = picked;
+  const more = SYS.length - MAP.length;
+  $("#s-count").textContent = `${plural(SYS.length, "system")}: ${MAP.length} on the map${more > 0 ? `, ${more} more from the data file, your list or the campaign` : ""}.`;
+  $("#sys-detail").replaceChildren(systemDetail(SYS.find(s => s.id === picked)));
+}
+
+/* ---------- log ---------- */
+function renderLog() {
+  const box = $("#log"); box.replaceChildren();
+  const items = S.log.filter(x => LOG_KINDS.has(x.kind));
+  $("#log-count").textContent = items.length ? `${plural(items.length, "world")} logged.` : "";
+  if (!items.length) { box.append(h("div", { class:"card" }, h("h2", { text:"Nothing logged yet" }), h("p", { class:"small", text:"Roll a world on the Worlds tab and save it, and it lands here. Jobs and voyages are logged in the Mission tool." }))); return; }
+  items.forEach(x => {
+    const conf = h("div", { class:"confirm" });
+    const status = h("select", { "aria-label":"Status", style:"width:auto", onchange:e => { x.status = e.target.value; saveLog(); } },
+      ["Offered","Accepted","Planned","Under way","Done","Failed","Abandoned"].map(s => h("option", { value:s, text:s })));
+    status.value = x.status || "Done";
+    box.append(h("article", { class:"logentry" },
+      h("div", { class:"jobhead" }, h("div", {}, h("div", { class:"ref", text:`${x.kind} · ${new Date(x.saved).toLocaleDateString("en-GB", { day:"numeric", month:"short", year:"numeric" })}` }), h("h3", { text:x.title })), status),
+      h("pre", { text:x.md.split("\n").slice(1).join("\n").trim() }),
+      h("label", { class:"field", style:"margin-top:8px" }, h("span", { text:"Notes" }), h("textarea", { rows:"2", value:x.notes || "", oninput:e => { x.notes = e.target.value; saveLog(); } })),
+      h("div", { class:"jobfoot" },
+        h("button", { class:"mini", type:"button", text:"Copy as Markdown", onclick:e => copy(x.md + (x.notes ? `\n\n${x.notes}` : ""), e.target) }),
+        h("button", { class:"mini", type:"button", text:"Delete", onclick:() => conf.replaceChildren(h("span", { class:"small", text:"Delete this entry?" }),
+          h("button", { class:"mini", type:"button", text:"Delete", onclick:() => { S.log = S.log.filter(y => y.id !== x.id); saveLog(); renderLog(); } }),
+          h("button", { class:"mini", type:"button", text:"Keep", onclick:() => conf.replaceChildren() })) })), conf));
+  });
+}
+
+/* ---------- data ---------- */
+function download(name, text) { const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([text], { type:"application/json" })); a.download = name; document.body.append(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000); }
+function readFile(fn) { const i = document.createElement("input"); i.type = "file"; i.accept = ".json,application/json"; i.addEventListener("change", () => { const f = i.files[0]; if (!f) return; const r = new FileReader(); r.onload = () => fn(String(r.result)); r.readAsText(f); }); i.click(); }
+function renderData() {
+  const M = $("#data-main"), Sd = $("#data-side"); M.replaceChildren(); Sd.replaceChildren();
+  const st = h("p", { class:"status", role:"status" });
+  const book = h("div", { class:"card" }, h("h2", { text:"Your book data" }));
+  if (DATA) {
+    const ids = Object.keys(T); const missing = Object.keys(META).filter(k => !T[k]);
+    book.append(...keep([h("p", { class:"small" }, h("b", { text:DATA.name || "Data file" }), DATA.created ? ` · ${DATA.created}` : ""),
+      h("p", { class:"small muted data", text:`${ids.length} tables in the file · ${Object.keys(META).length - missing.length} of ${Object.keys(META).length} world tables · ${Object.keys(DATA.cards || {}).length} Icon card titles · ${(DATA.systems || []).length} systems` }),
+      missing.length ? h("p", { class:"note", text:`Not in the file: ${missing.map(tableName).join("; ")}.` }) : null]));
+    const conf = h("div", { class:"confirm" });
+    book.append(h("div", { class:"row", style:"margin-top:8px" }, h("button", { class:"btn", type:"button", text:"Replace with another file", onclick:() => importData(st) }),
+      h("button", { class:"btn quiet", type:"button", text:"Remove data file", onclick:() => conf.replaceChildren(h("span", { class:"small", text:"Remove the data file from this browser? Your world and your log stay." }),
+        h("button", { class:"btn", type:"button", text:"Remove", onclick:() => { store.del("mb-data"); location.reload(); } }), h("button", { class:"btn quiet", type:"button", text:"Keep", onclick:() => conf.replaceChildren() })) })), conf);
+  } else {
+    book.append(h("p", { class:"small", text:"The page works without one: it rolls every die, chains the world-building modifiers (atmosphere moves temperature and geosphere, size moves population, population moves the spaceport) and tells you which table and result to read. A data file adds the table text from your own books, so each line reads by name. It stays in this browser and is never uploaded, and the Mission tool reads the same file." }),
+      h("div", { class:"row", style:"margin-top:8px" }, h("button", { class:"btn primary", type:"button", text:"Import a data file", onclick:() => importData(st) })));
+  }
+  book.append(st); M.append(book);
+
+  const sys = h("div", { class:"card" }, h("h2", { text:"Your systems" }),
+    h("p", { class:"small", text:"The page knows the systems named in the core rules and setting chapters. Add the rest of your Horizon here, one per line. Add bodies after a colon with their distance from the star in AD, if you know it." }),
+    h("textarea", { id:"sys-extra", rows:"6", placeholder:"Hamura\nLalande: Inner moon 2, Outer giant 22", value: extraSystems.map(s => s.n + (s.bodies && s.bodies.length ? ": " + s.bodies.map(b => b[0] + (b[1] != null ? " " + b[1] : "")).join(", ") : "")).join("\n") }),
+    h("div", { class:"row", style:"margin-top:8px" }, h("button", { class:"btn", type:"button", text:"Save systems", onclick:() => {
+      const list = $("#sys-extra").value.split("\n").map(x => x.trim()).filter(Boolean).map(line => { const [n, rest] = line.split(":"); const bodies = (rest || "").split(",").map(b => b.trim()).filter(Boolean).map(b => { const m = b.match(/^(.*?)\s+([\d.]+)$/); return m ? [m[1], parseFloat(m[2])] : [b]; }); return { n:n.trim(), bodies }; });
+      store.set("mb-systems", list); location.reload(); } })));
+  M.append(sys);
+
+  const bk = h("div", { class:"card" }, h("h2", { text:"Backup" }), h("p", { class:"small", text:"The world, the log and your systems are saved in this browser only. Export a backup to keep them or move them to another device. The Mission tool keeps its own backup of the board, the trips and the jobs." }),
+    h("div", { class:"row", style:"margin-top:8px" },
+      h("button", { class:"btn", type:"button", text:"Export a backup", onclick:() => download(`ctth-system-backup-${new Date().toISOString().slice(0, 10)}.json`, JSON.stringify({ format:"ctth-system-backup/1", saved:new Date().toISOString(), world:S.world, log:S.log.filter(e => LOG_KINDS.has(e.kind)), systems:extraSystems }, null, 1)) }),
+      h("button", { class:"btn quiet", type:"button", text:"Restore a backup", onclick:() => readFile(text => { try { const x = JSON.parse(text); if (x.format !== "ctth-system-backup/1" && x.format !== "mission-board-backup/1") throw 0;
+        const mine = S.log.filter(e => LOG_KINDS.has(e.kind)), theirs = store.get("mb-log", []).filter(e => !LOG_KINDS.has(e.kind));
+        const ids = new Set(mine.map(e => e.id)), incoming = (x.log || []).filter(e => e && e.id && LOG_KINDS.has(e.kind) && !ids.has(e.id));
+        store.set("mb-log", [...incoming, ...mine, ...theirs]);
+        if (x.world) store.set("mb-world", x.world);
+        if (x.systems) store.set("mb-systems", x.systems);
+        location.reload(); } catch { st.textContent = "That file isn't a backup from this page."; } }) })),
+    h("p", { class:"note", text:"Restoring adds the backup's world log entries to yours, and replaces the world and your systems list. The board, the trips and the jobs are left alone. A backup from the older single-page tool still restores its world and its systems list." }));
+  M.append(bk);
+  Sd.append(h("div", { class:"card" }, h("h2", { text:"The data file" }), h("p", { class:"small", text:`A JSON file with format "${FORMAT}". Every part is optional. The README beside this page describes each field: the system generator's tables, its hooks and its factions, and the systems it adds to the map. The mission tables it carries are read in the Mission tool.` }),
+    h("p", { class:"small" }, h("a", { href:"https://github.com/jonathanpay/jonathanpay.github.io/tree/master/tools/ctth-system", text:"Read the README on GitHub" }))));
+}
+function importData(st) { readFile(text => { try { const x = JSON.parse(text); if (x.format !== FORMAT) throw 0; if (!store.set("mb-data", x)) throw 0; location.reload(); } catch { st.textContent = "That file isn't a data file for this page, or this browser couldn't store it."; } }); }
+
+function copy(text, btn) { const done = () => flashBtn(btn, "Copied"); if (navigator.clipboard) navigator.clipboard.writeText(text).then(done, () => fallbackCopy(text, done)); else fallbackCopy(text, done); }
+function fallbackCopy(text, done) { const t = h("textarea", { value:text, style:"position:fixed;left:-9999px" }); document.body.append(t); t.select(); try { document.execCommand("copy"); done(); } catch {} t.remove(); }
+function flashBtn(btn, msg) { const old = btn.textContent; btn.textContent = msg; setTimeout(() => { btn.textContent = old; }, 1400); }
+
+/* ---------- tabs and wiring ---------- */
+const TABS = ["systems","worlds","log","data"];
+function setTab(t) { if (!TABS.includes(t)) t = "systems"; TABS.forEach(x => { $("#view-" + x).hidden = x !== t; $("#tab-" + x).setAttribute("aria-selected", String(x === t)); }); if (t === "log") renderLog(); if (t === "data") renderData(); if (t === "systems") renderSystems(); }
+function go(t) { if (location.hash.slice(1) === t) setTab(t); else location.hash = t; window.scrollTo(0, 0); }
+TABS.forEach(t => $("#tab-" + t).addEventListener("click", () => go(t)));
+window.addEventListener("hashchange", () => setTab(location.hash.slice(1)));
+
+fillPicks();
+$("#s-pick").addEventListener("change", e => { picked = e.target.value; renderSystems(); });
+$("#s-refresh").addEventListener("click", e => { refreshSystems(); flashBtn(e.target, "Refreshed"); });
+$("#s-world").addEventListener("click", () => { go("worlds"); if (picked) $("#w-sys").value = picked; });
+
+$("#w-roll").addEventListener("click", () => { const w = rollWorld($("#w-kind").value); w.name = $("#w-name").value.trim(); w.sys = $("#w-sys").value; S.world = w; save("world"); renderWorld(); });
+$("#w-name").addEventListener("change", e => { if (S.world) { S.world.name = e.target.value.trim(); save("world"); renderWorld(); } });
+$("#w-save").addEventListener("click", e => { if (!S.world) return; S.log.unshift({ id:uid(), kind:"world", title:S.world.name || "Unnamed world", status:"Done", notes:"", md:worldMd(S.world), saved:new Date().toISOString() }); saveLog(); flashBtn(e.target, "Saved"); });
+$("#w-camp").addEventListener("click", saveWorldToCampaign);
+if (S.world) { $("#w-kind").value = S.world.kind; $("#w-sys").value = S.world.sys || ""; }
+$("#go-data").addEventListener("click", () => go("data"));
+$("#nodata").hidden = !!DATA;
+
+renderSystems(); renderWorld();
+setTab(location.hash.slice(1));
+})();
+</script>
+</body>
+</html>

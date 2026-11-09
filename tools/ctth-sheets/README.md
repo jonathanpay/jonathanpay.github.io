@@ -1,7 +1,7 @@
 # Coriolis Sheets
 
 An unofficial sheet editor for **Coriolis: The Third Horizon**, at
-`/tools/coriolis-sheets/`. Plain HTML, CSS and JavaScript modules; no build step or
+`/tools/ctth-sheets/`. Plain HTML, CSS and JavaScript modules; no build step or
 new runtime dependencies. Uses the typography, colours, light/dark themes and site
 navigation of Mission Board and Icon Spreads.
 
@@ -50,6 +50,33 @@ space beneath short entries. Long entries may need extra pages. Wide desktop
 windows also use these columns; smaller screens stack them for readability.
 Choose A4 landscape and disable your browser's headers/footers for a clean copy. Blank fields retain
 writing lines. Print only contains the selected sheet, not navigation or controls.
+
+## The campaign
+
+This sheet, the Mission Board and Icon Spreads share one campaign: a record of the
+things in play, held in this browser and nowhere else. `tools/ctth-campaign.js`
+is the shared store, `localStorage` key `ctth-campaign-v1`. Each thing carries a
+stable id, so the tools point at the same NPC or mission rather than copying it.
+
+**Share this sheet** publishes what is on it. On a character or ship sheet that is
+the sheet itself; on an NPC or mission sheet it is every named entry, each with its
+own id. **Import** brings something from the campaign onto this sheet. For NPCs and
+missions it fills a blank entry, or re-links an unlinked entry with the same name,
+rather than making a duplicate; for systems and ships it opens a new sheet. Either
+way the copy stays linked, so an edit here reaches the other tools and an edit there
+reaches this sheet. **Unlink** stops following an entry and leaves the campaign's
+own copy alone. **Back up campaign** downloads the whole campaign as JSON.
+
+What the other tools read: an NPC entity carries the sheet's NPC fields plus the
+Icon spread as text, so a reading drawn in Icon Spreads arrives in the NPC sheet's
+**Icon spread** field and a saved NPC appears here with **Draw a spread** beside it.
+A mission entity carries employer, destination, reward, complications and reading.
+A system entity carries the star and its bodies. A ship entity carries speed, crew
+stations and modules, which the Mission Board uses to lay out a trip.
+
+Launch table files are still per tool: this page reads `coriolis-sheets-data/1` and
+`mission-board-data/1`, and importing a pack here does not change the Mission
+Board's copy. The campaign is the connection, not the table data.
 
 ## Launch tables and visitor imports
 
@@ -163,8 +190,8 @@ From the repository root:
 
 ```sh
 python -m http.server 8000
-# Open http://localhost:8000/tools/coriolis-sheets/
-node --test tests/coriolis-sheets.test.mjs
+# Open http://localhost:8000/tools/ctth-sheets/
+node --test tests/ctth-sheets.test.mjs
 ```
 
 Tests cover roll coverage, boundary rolls for all concepts, linked world modifiers,

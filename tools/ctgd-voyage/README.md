@@ -1,7 +1,7 @@
 # Voyage Chart Table
 
 An unofficial voyage planner and tracker for *Coriolis: The Great Dark*. Opened at
-`/tools/voyage-chart-table/`. One self-contained HTML file, no build step, no
+`/tools/ctgd-voyage/`. One self-contained HTML file, no build step, no
 dependencies beyond Google Fonts. Everything runs and is saved in the browser.
 
 Not affiliated with, sponsored or endorsed by Free League Publishing (Fria Ligan AB).

@@ -121,3 +121,12 @@ tr{break-inside:avoid}.table-scroll{overflow:visible;break-inside:auto}table{tab
 .main[data-sheet-type=npc] .repeat-card{min-height:145mm}
 .main[data-sheet-type=mission] .repeat-card .long .print-value{min-height:22mm}
 }
+
+/* The campaign: what this sheet shares with the Mission Board and Icon Spreads. */
+#campaign select{width:100%}
+#campaign .row.actions{gap:6px;flex-wrap:wrap}
+.campaign-link{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:8px;padding-top:7px;border-top:1px dashed var(--line-soft);font-family:var(--font-data);font-size:.82rem;color:var(--muted)}
+.campaign-chip{font-size:.68rem;letter-spacing:.09em;text-transform:uppercase;color:var(--accent);border:1px solid currentColor;padding:1px 6px;white-space:nowrap}
+.campaign-name{color:var(--line);font-weight:600;letter-spacing:.02em}
+.campaign-link a.mini{text-decoration:none;color:var(--teal)}
+@media print{.campaign-link{display:none!important}}
