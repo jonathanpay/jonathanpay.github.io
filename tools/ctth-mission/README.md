@@ -118,7 +118,7 @@ The one exception to `mb-*` is the campaign below, which lives under `ctth-campa
 ## The campaign
 
 The Coriolis tools on this site share one campaign: this board, Coriolis Sheets and
-Icon Spreads run on the same origin and keep their entities under one key,
+Icon Readings run on the same origin and keep their entities under one key,
 `ctth-campaign-v1`, read through `/tools/ctth-campaign.js`. This page loads that script
 before its own and checks for it at every hand-off, so the page works as before
 without it.

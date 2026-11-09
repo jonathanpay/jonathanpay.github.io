@@ -200,7 +200,7 @@ footer.notice a{color:inherit}
     <a href="/tools/ctth-sheets/">Sheets</a>
     <a href="/tools/ctth-mission/" aria-current="page">Mission</a>
     <a href="/tools/ctth-system/">System</a>
-    <a href="/tools/ctth-spreads/">Icon Spreads</a>
+    <a href="/tools/ctth-readings/">Icon Readings</a>
     <a href="https://jonathanpay.com/blog/">Blog</a>
     <a href="https://jonathanpay.com/holistic-email-marketing/">HEM</a>
     <a href="https://holisticemailacademy.com">HEA</a>
@@ -448,7 +448,7 @@ const ICONS = ["The Judge","The Dancer","The Merchant","The Deckhand","The Lady 
 const iconOfCard = num => ICONS[Math.floor(d66Values().indexOf(num) / 4)];
 
 /* ---------- the campaign ---------- */
-/* This page shares one campaign with Coriolis Sheets and Icon Spreads: /tools/ctth-campaign.js keeps it in
+/* This page shares one campaign with Coriolis Sheets and Icon Readings: /tools/ctth-campaign.js keeps it in
    localStorage. Every use is guarded, so the page works as before when that script fails to load. */
 function campaign() { const C = window.CtthCampaign; return C && typeof C.upsert === "function" ? C : null; }
 function campaignAll(kind) { const C = campaign(); if (!C) return []; try { return C.all(kind) || []; } catch { return []; } }

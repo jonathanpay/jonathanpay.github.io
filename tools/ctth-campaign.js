@@ -110,7 +110,7 @@
         ? entity.spread.cards.slice(0, 12).map(c => ({ position: String((c && c.position) || ""), card: Number(c && c.card) || 0, up: c ? c.up !== false : true }))
         : [];
       spread = {
-        target: ["npc", "mission", "story"].includes(entity.spread.target) ? entity.spread.target : "npc",
+        target: ["npc", "twist", "mission", "story"].includes(entity.spread.target) ? (entity.spread.target === "mission" ? "twist" : entity.spread.target) : "npc",
         cards,
         reading: typeof entity.spread.reading === "string" ? entity.spread.reading.slice(0, 20000) : ""
       };

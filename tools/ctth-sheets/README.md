@@ -3,7 +3,7 @@
 An unofficial sheet editor for **Coriolis: The Third Horizon**, at
 `/tools/ctth-sheets/`. Plain HTML, CSS and JavaScript modules; no build step or
 new runtime dependencies. Uses the typography, colours, light/dark themes and site
-navigation of Mission Board and Icon Spreads.
+navigation of Mission Board and Icon Readings.
 
 ## Sheets
 
@@ -53,7 +53,7 @@ writing lines. Print only contains the selected sheet, not navigation or control
 
 ## The campaign
 
-This sheet, the Mission Board and Icon Spreads share one campaign: a record of the
+This sheet, the Mission Board and Icon Readings share one campaign: a record of the
 things in play, held in this browser and nowhere else. `tools/ctth-campaign.js`
 is the shared store, `localStorage` key `ctth-campaign-v1`. Each thing carries a
 stable id, so the tools point at the same NPC or mission rather than copying it.
@@ -68,7 +68,7 @@ reaches this sheet. **Unlink** stops following an entry and leaves the campaign'
 own copy alone. **Back up campaign** downloads the whole campaign as JSON.
 
 What the other tools read: an NPC entity carries the sheet's NPC fields plus the
-Icon spread as text, so a reading drawn in Icon Spreads arrives in the NPC sheet's
+Icon spread as text, so a reading drawn in Icon Readings arrives in the NPC sheet's
 **Icon spread** field and a saved NPC appears here with **Draw a spread** beside it.
 A mission entity carries employer, destination, reward, complications and reading.
 A system entity carries the star and its bodies. A ship entity carries speed, crew
