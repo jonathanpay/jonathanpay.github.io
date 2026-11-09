@@ -634,8 +634,15 @@ function renderReadings() {
   const all = [...S.cards.map((c, i) => [c, P[i], i]), ...(S.centre ? [[S.centre, TURN, -1]] : [])];
   all.forEach(([c, pos, i]) => {
     const card = CARD[c.n];
-    const pick = h("select", { "aria-label":`Choose the ${pos.n} card`, onchange:e => { const v = +e.target.value; if (i < 0) S.centre = { n:v, up:true }; else S.cards[i] = { n:v, up:true }; save(); render(); } },
-      NUMS.map(nm => h("option", { value:String(nm), text:`${nm} ${CARD[nm].iconName.replace("The ", "")}: ${CARD[nm].title}` })));
+    /* The deck is drawn without replacement, so a card already lying in another position is
+       not offered by hand either. The current card stays selectable so the list still shows it. */
+    const elsewhere = new Set([...S.cards.map((x, idx) => (idx === i ? null : x.n)).filter(v => v != null), ...(S.centre && i >= 0 ? [S.centre.n] : [])]);
+    const pick = h("select", { "aria-label":`Choose the ${pos.n} card`, onchange:e => {
+        const v = +e.target.value;
+        if (!CARD[v] || (v !== c.n && elsewhere.has(v))) { e.target.value = String(c.n); return; }
+        if (i < 0) S.centre = { n:v, up:true }; else S.cards[i] = { n:v, up:true }; save(); render(); } },
+      NUMS.filter(nm => nm === c.n || !elsewhere.has(nm))
+        .map(nm => h("option", { value:String(nm), text:`${nm} ${CARD[nm].iconName.replace("The ", "")}: ${CARD[nm].title}` })));
     pick.value = String(c.n);
     const owedSel = pos.k === "owed" && c.up && NPCS.length ? h("label", { class:"field", style:"margin-top:6px" }, h("span", { text:"Linked NPC" }),
       h("select", { onchange:e => { S.owedTo = e.target.value; save(); } }, h("option", { value:"", text:"—" }), NPCS.filter(x => x.id !== S.id).map(x => h("option", { value:x.id, text:x.name || "Unnamed NPC", selected: S.owedTo === x.id ? "" : null })))) : null;
