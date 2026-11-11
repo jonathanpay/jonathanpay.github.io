@@ -17,7 +17,7 @@
 
   const KEY = "ctth-campaign-v1";
   const FORMAT = "ctth-campaign/1";
-  const KINDS = ["npc", "mission", "system", "ship", "story"];
+  const KINDS = ["npc", "mission", "system", "ship", "story", "map"];
   const MAX_ENTITIES = 400;
   const MAX_BYTES = 200000; // one entity's data, as JSON
   const WRITER = Math.random().toString(36).slice(2, 10);
