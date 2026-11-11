@@ -7,3 +7,7 @@ vendor/
 /scripts/
 /Design System/
 /archive/
+
+# Private Great Dark data files (book text): never commit these
+*.private.json
+/private/
