@@ -57,8 +57,11 @@ back to ids and numbers.
   entrance marked as known, along open paths), which the hazard roll will use later.
   Two views come from one map: **GM view** shows everything; **Deep scan** shows what a
   scan could reach (zones joined to an entrance by open paths, not hidden), and shows
-  Blight levels, cores and oases only for zones you have marked read. The map saves with
-  the delve.
+  Blight levels, cores and oases only for zones you have marked read. The deep-scan view
+  is drawn as a player handout: amber on black, a lettered and numbered grid, corridors as
+  glowing outlined tubes at right angles, hexagon Blight badges (a dim ? on a key location
+  not yet read), scanlines, and interference below the deepest zone the scan reached. The
+  GM view stays a plain schematic. The map saves with the delve.
 - **Data.** Import or remove the data file, download a template, see which tables the
   file covers, and back up or restore all your delves.
 

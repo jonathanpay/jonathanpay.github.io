@@ -160,3 +160,10 @@ body{background:#fff!important;color:#000!important;padding:0;font-size:9pt}
 .mapview{display:block}.mapside{display:none}.mapbox{max-height:none;border:0}
 }
 @page{size:A4 landscape;margin:10mm}
+
+.mapbox.scan{background:#0a0702;border-color:#6b4a14}
+.s-lab{fill:#f0a020;font:13px var(--font-data);letter-spacing:.04em}
+.s-lab.head{fill:#ffd36a;text-decoration:underline;font-size:14px}
+.s-num{fill:#ffd36a;font:600 14px var(--font-data)}
+.s-num.dim{fill:#8a5a12}
+.mapbox.scan svg{min-width:760px}

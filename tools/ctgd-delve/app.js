@@ -182,7 +182,8 @@ function placeMap() {
 }
 function visible(map) { return view === 'gm' ? null : scanReach(map); }
 function drawSvg(holder) {
-  const d = cur(), map = d.map, vis = visible(map), scan = view === 'scan';
+  if (view === 'scan') return drawScan(holder);
+  const d = cur(), map = d.map, vis = visible(map), scan = false;
   const maxD = Math.max(10, ...map.zones.map(z => z.d)), H = TOP + (maxD + 2) * SC + 24;
   const svg = sv('svg', { viewBox: `0 0 ${W} ${H}`, role: 'img', 'aria-label': scan ? 'Deep-scan view of the delve map' : 'GM view of the delve map' });
   for (let m = 0; m <= maxD + 1; m += 5) { svg.append(sv('line', { x1: 0, x2: W, y1: TOP + m * SC, y2: TOP + m * SC, class: m === 0 ? 'm-surf' : 'm-grid' }), sv('text', { x: 6, y: TOP + m * SC - 3, class: 'm-label' }, m === 0 ? 'Surface' : `${m}`)); }
@@ -212,7 +213,96 @@ function drawSvg(holder) {
     if (z.n) g.append(sv('text', { x, y: y - 16, class: 'm-note' }, z.n));
     svg.append(g);
   }
+  holder.replaceChildren(svg); holder.classList.remove('scan');
+  wireDrag(svg);
+}
+
+/* The player's deep-scan view: an amber scan handout. Amber on black, a lettered and numbered grid,
+ * corridors drawn as glowing outlined tubes, hexagon Blight badges, scanlines, and interference below
+ * the deepest zone the scan reached. Drawn from the same map as the GM view. */
+const AMBER = '#f0a020', BRIGHT = '#ffd36a', DIM = '#8a5a12', BLACK = '#0a0702';
+const hexPts = (x, y, r) => Array.from({ length: 6 }, (_, i) => { const a = Math.PI / 3 * i + Math.PI / 6; return `${(x + r * Math.cos(a)).toFixed(1)},${(y + r * Math.sin(a)).toFixed(1)}`; }).join(' ');
+function drawScan(holder) {
+  const d = cur(), map = d.map, vis = scanReach(map);
+  const ML = 64, MT = 60, RM = 200, SCN = 32, W2 = ML + W + RM;
+  const maxD = Math.max(10, ...map.zones.map(z => z.d)), H = MT + (maxD + 3) * SCN + 50;
+  const X = x => ML + x, Y = dd => MT + dd * SCN;
+  const zs = map.zones.filter(z => vis.has(z.id));
+  const deepest = Math.max(0, ...zs.map(z => z.d));
+  const svg = sv('svg', { viewBox: `0 0 ${W2} ${H}`, role: 'img', 'aria-label': 'Deep-scan view of the delve map' });
+  const defs = sv('defs');
+  defs.innerHTML = `<filter id="glow" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="3.2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+<filter id="smear" x="-30%" y="-100%" width="160%" height="300%"><feGaussianBlur stdDeviation="9 1.2"/></filter>
+<filter id="blob"><feGaussianBlur stdDeviation="5"/></filter>
+<pattern id="scanlines" width="4" height="4" patternUnits="userSpaceOnUse"><rect width="4" height="2" fill="#000" opacity=".38"/></pattern>
+<radialGradient id="vig" cx="50%" cy="45%" r="75%"><stop offset="0" stop-color="#2a1a04" stop-opacity=".55"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient>`;
+  svg.append(defs, sv('rect', { x: 0, y: 0, width: W2, height: H, fill: BLACK }), sv('rect', { x: 0, y: 0, width: W2, height: H, fill: 'url(#vig)' }));
+  /* grid: letters across, numbers down (one row per four markers) */
+  const grid = sv('g', { stroke: AMBER, 'stroke-width': 1, opacity: 0.28 });
+  for (let c = 0; c <= 10; c++) grid.append(sv('line', { x1: X(c * 100), x2: X(c * 100), y1: MT - 14, y2: H - 24 }));
+  const rows = Math.ceil((maxD + 3) / 4);
+  for (let r = 0; r <= rows; r++) grid.append(sv('line', { x1: ML - 14, x2: ML + W, y1: Y(r * 4), y2: Y(r * 4) }));
+  svg.append(grid);
+  const lab = (x, y, t, anchor = 'middle') => sv('text', { x, y, class: 's-lab', 'text-anchor': anchor }, t);
+  for (let c = 0; c < 10; c++) svg.append(lab(X(c * 100 + 50), MT - 24, String.fromCharCode(65 + c)));
+  for (let r = 0; r < rows; r++) svg.append(lab(ML - 24, Y(r * 4 + 2) + 4, String(r + 1)));
+  svg.append(sv('line', { x1: ML - 14, x2: ML + W + 10, y1: Y(0), y2: Y(0), stroke: BRIGHT, 'stroke-width': 2, opacity: 0.8, filter: 'url(#glow)' }), lab(ML + W + 14, Y(0) + 4, 'Surface', 'start'));
+  /* interference below what the scan reached */
+  let seed = 0; for (const ch of d.id) seed = (seed * 31 + ch.charCodeAt(0)) % 2147483647; seed = seed || 7;
+  const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+  const noise = sv('g');
+  const y0 = Y(deepest + 1.5), y1 = H - 40;
+  if (y1 > y0) {
+    for (let i = 0; i < 70; i++) { const y = y0 + rnd() * (y1 - y0), x = ML + rnd() * W, rx = 50 + rnd() * 180; noise.append(sv('ellipse', { cx: x, cy: y, rx, ry: 1.5 + rnd() * 4, fill: AMBER, opacity: 0.12 + rnd() * 0.3, filter: 'url(#smear)' })); }
+    for (let i = 0; i < 55; i++) { const y = y0 + rnd() * (y1 - y0), x = ML + rnd() * W; noise.append(sv('circle', { cx: x, cy: y, r: 1.5 + rnd() * 5, fill: BRIGHT, opacity: 0.25 + rnd() * 0.5, filter: 'url(#blob)' })); }
+  }
+  for (let i = 0; i < 14; i++) { const y = Y(rnd() * deepest), x = ML + rnd() * W; noise.append(sv('ellipse', { cx: x, cy: y, rx: 30 + rnd() * 90, ry: 1.2 + rnd() * 2, fill: AMBER, opacity: 0.08 + rnd() * 0.1, filter: 'url(#smear)' })); }
+  svg.append(noise);
+  /* corridors: a glowing outline with a dark core, so they read as hollow tubes */
+  const tubes = sv('g', { filter: 'url(#glow)' }), cores = sv('g');
+  for (const e of map.edges) {
+    if (e.t !== 'open') continue;
+    const a = zoneById(map, e.a), b = zoneById(map, e.b); if (!a || !b || !vis.has(a.id) || !vis.has(b.id)) continue;
+    /* right-angled corridors, like the printed scans: down, across, down */
+    const x1 = X(a.x), y1 = Y(a.d), x2 = X(b.x), y2 = Y(b.d);
+    let h = 0; for (const ch of e.a + e.b) h = (h * 31 + ch.charCodeAt(0)) % 97;
+    const ym = Math.round(y1 + (y2 - y1) * (0.3 + 0.4 * (h / 97)));
+    const dpath = Math.abs(x2 - x1) < 4 || Math.abs(y2 - y1) < 4 ? `M${x1} ${y1} L${x2} ${y2}` : `M${x1} ${y1} V${ym} H${x2} V${y2}`;
+    const p = { d: dpath, fill: 'none', 'stroke-linecap': 'round', 'stroke-linejoin': 'round' };
+    tubes.append(sv('path', { ...p, stroke: AMBER, 'stroke-width': 11 })); cores.append(sv('path', { ...p, stroke: '#150d03', 'stroke-width': 6 }));
+  }
+  svg.append(tubes, cores);
+  /* rooms, entrances and the zones themselves */
+  const rooms = sv('g');
+  for (const z of zs) {
+    const x = X(z.x), y = Y(z.d), read = z.s, sel = z.id === selected, g = sv('g', { 'data-zone': z.id, tabindex: 0, role: 'button', 'aria-label': `${zoneName(z)}, depth ${z.d}`, style: 'cursor:pointer' });
+    g.append(sv('title', {}, `${zoneName(z)} · ${z.d} markers`), sv('circle', { cx: x, cy: y, r: 22, fill: 'transparent' }));
+    const stroke = sel ? '#ffffff' : BRIGHT;
+    if (z.e) { g.append(sv('rect', { x: x - 16, y: y - 7, width: 32, height: 14, fill: AMBER, opacity: 0.35, stroke, 'stroke-width': 2.5, filter: 'url(#glow)' }), sv('path', { d: `M${x - 6} ${y - 16} L${x} ${y - 24} L${x + 6} ${y - 16}`, fill: 'none', stroke: BRIGHT, 'stroke-width': 2 })); }
+    else if (z.k != null) { g.append(sv('rect', { x: x - 22, y: y - 14, width: 44, height: 28, rx: 3, fill: AMBER, opacity: 0.22, stroke, 'stroke-width': 3, filter: 'url(#glow)' }), sv('text', { x, y: y + 4, class: 's-num', 'text-anchor': 'middle' }, String(z.k + 1))); }
+    else { g.append(sv('circle', { cx: x, cy: y, r: 6, fill: '#150d03', stroke, 'stroke-width': 2.5, filter: 'url(#glow)' })); }
+    if (read && z.o) g.append(sv('circle', { cx: x, cy: y, r: z.k != null ? 28 : 15, fill: 'none', stroke: '#c8e060', 'stroke-width': 2, 'stroke-dasharray': '4 3', filter: 'url(#glow)' }));
+    if (read && z.c) g.append(sv('polygon', { points: hexPts(x, y, z.k != null ? 30 : 17), fill: AMBER, opacity: 0.4, stroke: BRIGHT, 'stroke-width': 2.5, filter: 'url(#glow)' }));
+    if (!z.e) {
+      const bx = x + (z.k != null ? 36 : 20), by = y - (z.k != null ? 0 : 14);
+      if (read && z.b != null) g.append(sv('polygon', { points: hexPts(bx, by, 11), fill: '#150d03', stroke: BRIGHT, 'stroke-width': 2, filter: 'url(#glow)' }), sv('text', { x: bx, y: by + 5, class: 's-num', 'text-anchor': 'middle' }, String(z.b)));
+      else if (!read && z.k != null) g.append(sv('polygon', { points: hexPts(bx, by, 11), fill: 'none', stroke: DIM, 'stroke-width': 2 }), sv('text', { x: bx, y: by + 5, class: 's-num dim', 'text-anchor': 'middle' }, '?'));
+    }
+    if (z.n) g.append(sv('text', { x, y: y - 22, class: 's-lab', 'text-anchor': 'middle' }, z.n));
+    rooms.append(g);
+  }
+  svg.append(rooms);
+  /* the readout and the little instruments in the margin */
+  const rx = ML + W + 28, readN = zs.filter(z => z.s).length;
+  const lines = [['Deep scan', true], [`Zones: ${zs.length}`], [`Structure depth: ${deepest} markers`], [`Blight read: ${readN} of ${zs.length}`], [`Entrances: ${zs.filter(z => z.e).length}`]];
+  lines.forEach(([t, head], i) => svg.append(sv('text', { x: rx, y: H - 150 + i * 24, class: 's-lab' + (head ? ' head' : '') }, t)));
+  const dial = (cx, cy, r) => { const g = sv('g', { fill: 'none', stroke: AMBER, 'stroke-width': 1.5, opacity: 0.8 }); g.append(sv('circle', { cx, cy, r }), sv('circle', { cx, cy, r: r * 0.55, 'stroke-dasharray': '3 4' }), sv('line', { x1: cx - r - 6, x2: cx + r + 6, y1: cy, y2: cy }), sv('line', { x1: cx, x2: cx, y1: cy - r - 6, y2: cy + r + 6 }), sv('path', { d: `M${cx - r} ${cy} A${r} ${r} 0 0 1 ${cx} ${cy - r}`, 'stroke-width': 4, stroke: BRIGHT })); return g; };
+  svg.append(dial(rx + 40, MT + 50, 30), dial(rx + 40, MT + 150, 22));
+  for (let i = 0; i < 5; i++) svg.append(sv('rect', { x: rx + 4, y: MT + 220 + i * 12, width: 60 + ((i * 37) % 70), height: 6, fill: AMBER, opacity: 0.55 }));
+  /* scanlines and frame over everything */
+  svg.append(sv('rect', { x: 0, y: 0, width: W2, height: H, fill: 'url(#scanlines)', 'pointer-events': 'none' }), sv('rect', { x: 4, y: 4, width: W2 - 8, height: H - 8, rx: 14, fill: 'none', stroke: DIM, 'stroke-width': 2, 'pointer-events': 'none' }));
   holder.replaceChildren(svg);
+  holder.classList.add('scan');
   wireDrag(svg);
 }
 function wireDrag(svg) {
