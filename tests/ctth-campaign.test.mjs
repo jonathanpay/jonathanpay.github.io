@@ -25,7 +25,7 @@ test('an empty store reads as a valid campaign', () => {
   reset();
   const db = C.read();
   assert.equal(db.format, C.FORMAT);
-  assert.deepEqual(Object.keys(db.entities).sort(), ['mission', 'npc', 'ship', 'story', 'system']);
+  assert.deepEqual(Object.keys(db.entities).sort(), ['map', 'mission', 'npc', 'ship', 'story', 'system']);
   assert.equal(C.count(db), 0);
 });
 
