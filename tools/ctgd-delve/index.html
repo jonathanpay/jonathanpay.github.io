@@ -8,7 +8,7 @@
 <link rel="icon" href="/favicon.ico">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600&family=Open+Sans:wght@400;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=Barlow+Semi+Condensed:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IM+Fell+English+SC&family=Open+Sans:wght@400;700&family=Spectral:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <link rel="stylesheet" href="delve.css">
 <script src="/tools/ctgd-campaign.js"></script>
 <script type="module" src="app.js"></script>
@@ -25,12 +25,12 @@
     <a href="https://holisticemailacademy.com">HEA</a>
   </nav>
 </div>
-<header class="top"><div><div class="issued">The Great Dark · Delve archive</div><h1>Delve Table</h1><p class="sub">Roll a ruin. Draw it in markers. Show the players only what the scan finds.</p></div><label class="field"><span>Appearance</span><select id="theme"><option value="auto">Use device theme</option><option value="light">Light</option><option value="dark">Dark</option></select></label></header>
+<header class="top"><div><div class="issued">Explorers Guild · delve table</div><h1>Delve Table</h1><p class="sub">Roll a ruin. Draw it in markers. Show the players only what the scan finds.</p></div>
 <nav class="tabs" role="tablist" aria-label="Delve Table" id="tabs">
   <button class="tab" role="tab" id="tab-ruin" aria-selected="true" aria-controls="view-ruin">Ruin</button>
   <button class="tab" role="tab" id="tab-map" aria-selected="false" aria-controls="view-map">Map</button>
   <button class="tab" role="tab" id="tab-data" aria-selected="false" aria-controls="view-data">Data</button>
-</nav>
+</nav></header>
 <div class="view"><aside class="side">
 <section class="card"><h2>Delves</h2><label class="field"><span>Saved delves</span><select id="library" aria-label="Saved delves"></select></label><label class="field" style="margin-top:8px"><span>Name</span><input type="text" id="delve-name" aria-label="Delve name"></label><div class="row actions"><button class="btn primary" id="new">New delve</button><button class="btn quiet" id="duplicate">Duplicate</button></div><div class="row actions"><button class="mini" id="export">Export delve</button><button class="mini" id="delete">Delete delve</button></div><p class="status" id="save-status" role="status"></p></section>
 <section class="card" id="campaign"><h2>The campaign</h2><p class="small" id="campaign-status"></p><div class="row actions"><button class="btn primary" id="campaign-send">Send to the campaign</button><button class="btn quiet" id="campaign-unlink">Unlink</button></div><p class="note">Writes this delve as a site in the Great Dark campaign, where the Sheets can read it. Stays in this browser.</p></section>
@@ -39,7 +39,7 @@
 <section id="view-map" role="tabpanel" aria-labelledby="tab-map" hidden></section>
 <section id="view-data" role="tabpanel" aria-labelledby="tab-data" hidden></section>
 </main></div>
-<footer><p>An unofficial fan tool for <i>Coriolis: The Great Dark</i>. Not affiliated with or endorsed by Free League Publishing (Fria Ligan AB). The page holds dice, ranges and arithmetic only; every name and description comes from a data file you import yourself, kept in this browser.</p></footer>
+<footer class="notice"><p>An unofficial fan tool for <i>Coriolis: The Great Dark</i>. Not affiliated with or endorsed by Free League Publishing (Fria Ligan AB). The page holds dice, ranges and arithmetic only; every name and description comes from a data file you import yourself, kept in this browser.</p></footer>
 <input type="file" id="file" accept=".json,application/json" hidden>
 <dialog id="confirm"><form method="dialog"><h2>Delete this delve?</h2><p>This removes the open delve from this browser. Export it first if you want a copy.</p><div class="row"><button class="btn quiet" value="cancel">Keep delve</button><button class="btn" value="delete">Delete delve</button></div></form></dialog>
 </body></html>

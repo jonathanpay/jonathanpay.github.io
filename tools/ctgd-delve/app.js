@@ -6,7 +6,7 @@ import {
 } from './model.js';
 
 const $ = s => document.querySelector(s);
-const KEY = 'ctgd-delve-v1', DATAKEY = 'ctgd-delve-data-v1', THEMEKEY = 'ctgd-delve-theme';
+const KEY = 'ctgd-delve-v1', DATAKEY = 'ctgd-delve-data-v1';
 const el = (tag, attrs = {}, ...kids) => {
   const n = document.createElement(tag);
   for (const [k, v] of Object.entries(attrs)) {
@@ -395,10 +395,6 @@ $('#confirm').addEventListener('close', () => {
   delves = delves.filter(d => d.id !== active); if (!delves.length) delves = [newDelve()];
   active = delves[0].id; selected = null; persist(); renderAll();
 });
-const theme = $('#theme');
-try { theme.value = localStorage.getItem(THEMEKEY) || 'auto'; } catch { /* storage blocked */ }
-function setTheme() { if (theme.value === 'auto') delete document.documentElement.dataset.theme; else document.documentElement.dataset.theme = theme.value; }
-setTheme(); theme.onchange = () => { setTheme(); try { localStorage.setItem(THEMEKEY, theme.value); } catch { /* storage blocked */ } };
 const hashTab = location.hash.slice(1); if (TABS.includes(hashTab)) tab = hashTab;
 renderAll();
 if (startupError) status(startupError); else persist();

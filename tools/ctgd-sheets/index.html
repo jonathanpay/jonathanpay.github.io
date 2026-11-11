@@ -8,7 +8,7 @@
 <link rel="icon" href="/favicon.ico">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600&family=Open+Sans:wght@400;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=Barlow+Semi+Condensed:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IM+Fell+English+SC&family=Open+Sans:wght@400;700&family=Spectral:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <link rel="stylesheet" href="sheets.css">
 <script src="/tools/ctgd-sphere.js"></script>
 <script src="/tools/ctgd-campaign.js"></script>
@@ -25,7 +25,7 @@
     <a href="https://holisticemailacademy.com">HEA</a>
   </nav>
 </div>
-<header class="top"><div><div class="issued">The Great Dark · Campaign archive</div><h1>Great Dark Sheets</h1><p class="sub">Your Explorers. Your greatship. Your delve.</p></div><label class="field"><span>Appearance</span><select id="theme"><option value="auto">Use device theme</option><option value="light">Light</option><option value="dark">Dark</option></select></label></header>
+<header class="top"><div><div class="issued">Explorers Guild · campaign archive</div><h1>Great Dark Sheets</h1><p class="sub">Your Explorers. Your greatship. Your delve.</p></div></header>
 <nav class="tabs sheet-tabs" aria-label="Sheet types" id="types"></nav>
 <div class="view"><aside class="side">
 <section class="card"><h2>Campaign archive</h2><label class="field"><span>Saved sheets</span><select id="library" aria-label="Saved sheets"></select></label><div class="row actions"><button class="btn primary" id="new">New sheet</button><button class="btn quiet" id="duplicate">Duplicate</button></div><div class="row actions"><button class="mini" id="export">Export sheet</button><button class="mini" id="backup">Back up archive</button><button class="mini" id="restore">Import sheets</button><button class="mini" id="delete">Delete sheet</button></div><p class="note">Edits save in this browser. Export a backup to keep them safe or move to another device.</p><p class="status" id="save-status" role="status"></p></section>
@@ -33,7 +33,7 @@
 <section class="card" id="campaign"><h2>The campaign</h2><p class="small" id="campaign-status">Working out what is shared…</p><label class="field"><span>In the campaign</span><select id="campaign-pick" aria-label="Entities in the campaign"></select></label><div class="row actions"><button class="btn primary" id="campaign-share">Share this sheet</button><button class="btn quiet" id="campaign-import">Import</button></div><div class="row actions"><button class="mini" id="campaign-unlink">Unlink</button><button class="mini" id="campaign-backup">Back up campaign</button></div><p class="note">Explorers, NPCs, ships, delves and voyages shared here go into the Great Dark campaign, separate from the Third Horizon one. Everything stays in this browser.</p></section>
 <section class="card" id="tables"><h2>Tables file</h2><p class="small" id="data-status"></p><div class="row actions"><button class="btn" id="import-tables">Import tables</button><button class="btn quiet" id="clear-tables">Remove</button></div><details><summary>About the tables file</summary><div class="stack actions"><button class="btn quiet" id="template">Download template</button><a href="README.md">Data format and publishing guide</a></div><p class="note">Your own list of talents, gear and archetypes, as a JSON file in format ctgd-sheets-tables/1. It stays in this browser, is never uploaded, and the sheets work fully without it.</p></details></section>
 </aside><main id="editor" class="main" aria-label="Sheet editor"></main></div>
-<footer><p>An unofficial fan tool for <i>Coriolis: The Great Dark</i>. Not affiliated with or endorsed by Free League Publishing (Fria Ligan AB). The page holds layout and arithmetic only; any book lists are your own imported file. Your entries and imports stay in your browser.</p></footer>
+<footer class="notice"><p>An unofficial fan tool for <i>Coriolis: The Great Dark</i>. Not affiliated with or endorsed by Free League Publishing (Fria Ligan AB). The page holds layout and arithmetic only; any book lists are your own imported file. Your entries and imports stay in your browser.</p></footer>
 <input type="file" id="file" accept=".json,application/json" hidden>
 <dialog id="confirm"><form method="dialog"><h2>Delete this sheet?</h2><p>This removes the open sheet from this browser. Export it first if you want to keep a copy.</p><div class="row"><button class="btn quiet" value="cancel">Keep sheet</button><button class="btn" value="delete">Delete sheet</button></div></form></dialog>
 </body></html>

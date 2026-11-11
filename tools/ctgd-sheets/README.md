@@ -123,5 +123,5 @@ than a file called `sample.json` declares a `ctgd-*` format.
 ## Storage keys
 
 `ctgd-sheets-v1` (archive), `ctgd-sheets-tables-v1` (your tables file),
-`ctgd-sheets-theme`, `ctgd-campaign-v1`. The voyage tool's `gd-*` keys are only ever read
+`ctgd-campaign-v1`. The voyage tool's `gd-*` keys are only ever read
 (`gd-data`, `gd-db`, `gd-spoil`), never written.

@@ -111,4 +111,4 @@ git-ignored, and a test fails if any tracked JSON under `tools/` other than a fi
 ## Storage keys
 
 `ctgd-delve-v1` (delves and the open tab), `ctgd-delve-data-v1` (your data file),
-`ctgd-delve-theme`, `ctgd-campaign-v1`. The voyage tool's `gd-*` keys are not touched.
+`ctgd-campaign-v1`. The voyage tool's `gd-*` keys are not touched.

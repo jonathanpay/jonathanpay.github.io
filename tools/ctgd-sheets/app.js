@@ -7,7 +7,7 @@ import {
 } from './model.js';
 
 const $ = s => document.querySelector(s);
-const KEY = 'ctgd-sheets-v1', DATAKEY = 'ctgd-sheets-tables-v1', THEMEKEY = 'ctgd-sheets-theme';
+const KEY = 'ctgd-sheets-v1', DATAKEY = 'ctgd-sheets-tables-v1';
 const el = (tag, attrs = {}, ...children) => {
   const n = document.createElement(tag);
   for (const [k, v] of Object.entries(attrs)) {
@@ -381,11 +381,6 @@ $('#import-tables').onclick = () => readFile(x => {
 $('#clear-tables').onclick = () => { try { localStorage.removeItem(DATAKEY); } catch { /* storage blocked */ } tables = null; render(); status('Tables removed from this browser.'); };
 $('#template').onclick = () => download('ctgd-sheets-tables-template.json', { format: TABLES_FORMAT, name: 'My tables', talents: [{ n: 'Sample talent', levels: '0-3', type: 'general' }], archetypes: [{ n: 'Sample archetype', key: '', keyTalents: ['Sample talent'], equipment: ['Sample item'], specialties: [{ n: 'Sample specialty', talent: 'Sample talent' }] }], gear: { 'Sample group': ['Sample item'] }, weapons: { 'Sample kind': [{ n: 'Sample weapon' }] }, armor: [{ n: 'Sample armour' }], birds: [{ n: 'Sample bird' }], roles: ['Sample role'] });
 
-const theme = $('#theme');
-try { theme.value = localStorage.getItem(THEMEKEY) || 'auto'; } catch { /* storage blocked */ }
-function setTheme() { if (theme.value === 'auto') delete document.documentElement.dataset.theme; else document.documentElement.dataset.theme = theme.value; }
-setTheme();
-theme.onchange = () => { setTheme(); try { localStorage.setItem(THEMEKEY, theme.value); } catch { /* storage blocked */ } };
 
 try { const t = localStorage.getItem(DATAKEY); if (t) tables = validateTables(JSON.parse(t)); } catch { tables = null; }
 if (CAMPAIGN) {
