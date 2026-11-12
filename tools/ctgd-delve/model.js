@@ -5,6 +5,7 @@
  * supplies labels, by position: row 0 of a table is its first range, row 1 its second,
  * and so on. Without a data file, every result is shown as its table id and rolled number.
  */
+import { cleanMap } from './map.js';
 export const FORMAT = 'ctgd-delve-data/1';
 export const BACKUP_FORMAT = 'ctgd-delve-backup/1';
 export const DELVE_VERSION = 1;
@@ -64,7 +65,7 @@ export const BLIGHT_BANDS = [
 ];
 export const CLASS_NAMES = ['I', 'II', 'III', 'IV'];
 export const QUIRK_COUNT_DEFAULT = 2;
-export const LIMITS = { keys: 100, zones: 200, edges: 600, quirks: 12 };
+export const LIMITS = { keys: 100, quirks: 12 };
 
 export const indexOf = (id, r) => TABLES[id].ranges.findIndex(([lo, hi]) => r >= lo && r <= hi);
 export const rollTable = (id, rng = Math.random) => roll(TABLES[id].dice, rng);
@@ -280,23 +281,6 @@ function cleanItem(id, x) {
   return i < 0 ? null : { r, i, l: !!x.l };
 }
 const cleanNum = x => (x && typeof x === 'object' ? { v: int(x.v, 0, 9999, 0), l: !!x.l, e: /^(\d*D\d+([+-]\d+)?|\d+)$/.test(String(x.e)) ? String(x.e) : '' } : null);
-export function cleanMap(m) {
-  if (!m || typeof m !== 'object' || !Array.isArray(m.zones)) return null;
-  const ids = new Set(), zones = [];
-  for (const z of m.zones.slice(0, LIMITS.zones)) {
-    if (!z || typeof z !== 'object' || typeof z.id !== 'string' || !/^[a-zA-Z0-9_-]{1,20}$/.test(z.id) || ids.has(z.id)) continue;
-    ids.add(z.id);
-    zones.push({ id: z.id, d: int(z.d, 0, 200, 0), x: Math.max(0, Math.min(1000, Number.isFinite(Number(z.x)) ? Math.round(Number(z.x)) : 500)), b: z.b == null || z.b === '' ? null : int(z.b, 1, 99, null), e: !!z.e, u: !!z.u, k: z.k == null ? null : int(z.k, 0, LIMITS.keys - 1, null), c: !!z.c, o: !!z.o, h: !!z.h, s: !!z.s, n: S(z.n, 80) });
-  }
-  const edges = [];
-  for (const e of Array.isArray(m.edges) ? m.edges.slice(0, LIMITS.edges) : []) {
-    if (!e || !ids.has(e.a) || !ids.has(e.b) || e.a === e.b) continue;
-    const o = { a: e.a, b: e.b, t: ['open', 'hidden', 'blocked'].includes(e.t) ? e.t : 'open' };
-    if (e.len != null && Number.isFinite(Number(e.len))) o.len = int(e.len, 1, 500, 1);
-    edges.push(o);
-  }
-  return { zones, edges, next: int(m.next, 1, 100000, zones.length + 1) };
-}
 export function cleanDelve(x) {
   if (!x || typeof x !== 'object') throw Error('Invalid delve.');
   const d = newDelve();
@@ -317,137 +301,4 @@ export function cleanDelve(x) {
 export function validateBackup(x) {
   if (!x || x.format !== BACKUP_FORMAT || !Array.isArray(x.delves) || !x.delves.length || x.delves.length > 200) throw Error('Choose a Delve Table backup or exported delve.');
   return x.delves.map(d => { const c = cleanDelve(d); c.id = crypto.randomUUID(); c.cid = ''; return c; });
-}
-
-/* ---------- the map: zones in markers, joined by paths ---------- */
-export const emptyMap = () => ({ zones: [], edges: [], next: 1 });
-export function addZone(map, o = {}) {
-  if (map.zones.length >= LIMITS.zones) return null;
-  const z = { id: 'z' + map.next++, d: 1, x: 500, b: null, e: false, u: false, k: null, c: false, o: false, h: false, s: false, n: '', ...o };
-  map.zones.push(z); return z;
-}
-export function addEdge(map, a, b, t = 'open', len) {
-  if (a === b || map.edges.length >= LIMITS.edges) return null;
-  if (map.edges.some(e => (e.a === a && e.b === b) || (e.a === b && e.b === a))) return null;
-  const e = { a, b, t }; if (len) e.len = len; map.edges.push(e); return e;
-}
-export function removeZone(map, id) { map.zones = map.zones.filter(z => z.id !== id); map.edges = map.edges.filter(e => e.a !== id && e.b !== id); }
-export const zoneById = (map, id) => map.zones.find(z => z.id === id) || null;
-export function edgeLength(map, e) { if (e.len) return e.len; const a = zoneById(map, e.a), b = zoneById(map, e.b); return Math.max(1, Math.abs((a ? a.d : 0) - (b ? b.d : 0))); }
-
-/* Shortest distance in markers from a zone, along paths the crew can use (open ones by default). */
-export function distances(map, from, usable = e => e.t === 'open') {
-  const dist = new Map([[from, 0]]), done = new Set();
-  const adj = new Map(); map.zones.forEach(z => adj.set(z.id, []));
-  for (const e of map.edges) { if (!usable(e)) continue; const w = edgeLength(map, e); if (adj.has(e.a) && adj.has(e.b)) { adj.get(e.a).push([e.b, w]); adj.get(e.b).push([e.a, w]); } }
-  for (;;) {
-    let u = null; for (const [k, v] of dist) if (!done.has(k) && (u === null || v < dist.get(u))) u = k;
-    if (u === null) break; done.add(u);
-    for (const [n, w] of adj.get(u) || []) { const nd = dist.get(u) + w; if (!dist.has(n) || nd < dist.get(n)) dist.set(n, nd); }
-  }
-  return dist;
-}
-/* Distance from a zone to the nearest known exit: an entrance marked known (u). Used by the hazard roll in a later milestone. */
-export function nearestExit(map, id, { knownOnly = true, usable } = {}) {
-  if (!zoneById(map, id)) return null;
-  const dist = distances(map, id, usable);
-  let best = null;
-  for (const z of map.zones) if (z.e && (!knownOnly || z.u) && dist.has(z.id) && (!best || dist.get(z.id) < best.dist)) best = { exit: z.id, dist: dist.get(z.id) };
-  return best;
-}
-/* Zones a deep scan could reach: through open paths from any entrance, skipping hidden zones. */
-export function scanReach(map) {
-  const seen = new Set(), hidden = new Set(map.zones.filter(z => z.h).map(z => z.id));
-  const adj = new Map(); map.zones.forEach(z => adj.set(z.id, []));
-  for (const e of map.edges) if (e.t === 'open' && adj.has(e.a) && adj.has(e.b)) { adj.get(e.a).push(e.b); adj.get(e.b).push(e.a); }
-  const queue = map.zones.filter(z => z.e && !z.h).map(z => z.id); queue.forEach(q => seen.add(q));
-  while (queue.length) { const u = queue.shift(); for (const n of adj.get(u) || []) if (!seen.has(n) && !hidden.has(n)) { seen.add(n); queue.push(n); } }
-  return seen;
-}
-/* How many separate routes (paths that share no path) reach a zone from the entrances? Used to check "most key locations have two routes". */
-export function routeCount(map, id) {
-  const ids = new Set(map.zones.map(z => z.id)); if (!ids.has(id)) return 0;
-  const cap = new Map(), key = (a, b) => (a < b ? a + '|' + b : b + '|' + a);
-  for (const e of map.edges) cap.set(key(e.a, e.b), 1);
-  const SRC = '#src';
-  const nb = new Map(); const add = (a, b) => { (nb.get(a) || nb.set(a, []).get(a)).push(b); };
-  for (const e of map.edges) { add(e.a, e.b); add(e.b, e.a); }
-  for (const z of map.zones) if (z.e) { add(SRC, z.id); add(z.id, SRC); cap.set(key(SRC, z.id), 1); }
-  const flow = new Map(); const f = (a, b) => flow.get(a + '>' + b) || 0;
-  let total = 0;
-  for (let it = 0; it < 12; it++) {
-    const prev = new Map([[SRC, null]]), q = [SRC];
-    while (q.length && !prev.has(id)) { const u = q.shift(); for (const v of nb.get(u) || []) { if (prev.has(v)) continue; if ((cap.get(key(u, v)) || 0) - f(u, v) + f(v, u) <= 0) continue; prev.set(v, u); q.push(v); } }
-    if (!prev.has(id)) break;
-    for (let v = id; prev.get(v) != null; v = prev.get(v)) { const u = prev.get(v); if (f(v, u) > 0) flow.set(v + '>' + u, f(v, u) - 1); else flow.set(u + '>' + v, f(u, v) + 1); }
-    total++;
-  }
-  return total;
-}
-
-/* Place the generated features. Following the final-touches guidance: entrances at different
- * distances from the first key locations, key locations 4–8 markers apart by path, most
- * reachable by two routes, no obvious end point at the bottom, some paths hidden or blocked. */
-export function generateMap(spec, rng = Math.random) {
-  const M = Math.max(4, spec.markers | 0), E = Math.max(1, spec.entrances | 0), K = Math.max(1, Math.min(LIMITS.keys, spec.keys | 0));
-  const lo = spec.levelLo | 0, hi = spec.levelHi | 0;
-  const map = emptyMap(), W = 1000;
-  const Z = o => addZone(map, o);
-  const jitter = (v, a) => Math.round(v + (rng() - 0.5) * a);
-  const clampX = x => Math.max(40, Math.min(960, x));
-  /* A route of 4–8 markers between two zones; longer drops get junction zones, so no stretch is over 8. */
-  function route(a, b, kind = 'open', minLen = 4, maxLen = 8) {
-    const dd = Math.abs(b.d - a.d);
-    const exists = map.edges.some(e => (e.a === a.id && e.b === b.id) || (e.a === b.id && e.b === a.id));
-    if (dd > maxLen || exists) {
-      const n = Math.max(2, Math.ceil(dd / maxLen)); let prev = a;
-      const seg = (p, q) => { const base = Math.max(1, Math.abs(q.d - p.d)), want = Math.max(base, Math.ceil(minLen / n)); return want === base ? undefined : want; };
-      for (let s = 1; s < n; s++) {
-        const t = s / n; const j = Z({ d: Math.round(a.d + (b.d - a.d) * t) + (dd === 0 ? 1 : 0), x: clampX(jitter(a.x + (b.x - a.x) * t, 160)) });
-        if (!j) return;
-        addEdge(map, prev.id, j.id, s === 1 ? kind : 'open', seg(prev, j)); prev = j;
-      }
-      addEdge(map, prev.id, b.id, 'open', seg(prev, b));
-      return;
-    }
-    const target = Math.max(dd, integer(rng, minLen, maxLen));
-    addEdge(map, a.id, b.id, kind, target === Math.max(1, dd) ? undefined : target);
-  }
-  const lanes = Array.from({ length: K }, (_, i) => i); for (let i = lanes.length - 1; i > 0; i--) { const j = Math.floor(rng() * (i + 1)); [lanes[i], lanes[j]] = [lanes[j], lanes[i]]; }
-  const entrances = Array.from({ length: E }, (_, j) => Z({ d: 0, x: Math.round(60 + (W - 120) * (E === 1 ? 0.5 : j / (E - 1))), e: true, u: j === 0 }));
-  const top = Math.max(3, Math.round(M * 0.15)), bottom = Math.max(top + 1, M - 4);
-  const keys = [];
-  for (let i = 0; i < K; i++) {
-    const d = Math.max(top, Math.min(bottom, Math.round(top + (bottom - top) * (i + rng() * 0.6) / K)));
-    keys.push(Z({ d, x: Math.round(60 + (W - 120) * (lanes[i] + 0.5) / K), k: i }));
-  }
-  keys.sort((a, b) => a.d - b.d || a.k - b.k);
-  /* Spine: every key location sits on one unflagged chain from the surface. */
-  entrances.forEach((en, j) => { if (j === 0) route(en, keys[0], 'open', 4 + 0, 8); else route(en, keys[Math.min(j, K - 1)], rng() < 0.3 ? 'hidden' : 'open', 4 + j * 2, 8 + j * 2); });
-  for (let i = 0; i + 1 < K; i++) route(keys[i], keys[i + 1], 'open');
-  /* Second routes. */
-  if (K >= 1) route(entrances[Math.min(1, E - 1)], keys[0], entrances.length > 1 && E > 1 ? (rng() < 0.3 ? 'hidden' : 'open') : (rng() < 0.4 ? 'hidden' : 'blocked'), 6, 10);
-  for (let i = 1; i < K; i++) { const kind = rng() < 0.2 ? 'hidden' : rng() < 0.2 ? 'blocked' : 'open'; route(keys[i], keys[Math.max(0, i - 2)], i === 1 ? 'open' : kind); }
-  /* No obvious end point: several non-key dead ends reach the deepest marker. */
-  const deepKey = keys[K - 1];
-  const ends = Math.min(3, Math.max(2, Math.ceil(K / 3)));
-  for (let n = 0; n < ends; n++) { const from = n === 0 ? deepKey : keys[Math.max(0, K - 1 - n * 2)]; const z = Z({ d: M, x: clampX(jitter(from.x + (n % 2 ? 140 : -140), 160)) }); if (z) route(from, z, 'open'); }
-  /* Blight. */
-  const inner = map.zones.filter(z => !z.e);
-  const maxDepth = Math.max(1, ...map.zones.map(z => z.d));
-  for (const z of inner) {
-    if (hi <= 0) { z.b = null; continue; }
-    const lvl = Math.round(lo + (hi - lo) * (z.d / maxDepth) + (rng() - 0.5));
-    const v = Math.max(lo, Math.min(hi, lvl)); z.b = v >= 1 ? v : null;
-  }
-  const spare = (taken, deep) => {
-    let pool = map.zones.filter(z => !z.e && !z.c && !z.o && !taken.has(z.id));
-    if (deep) pool.sort((a, b) => b.d - a.d), pool = pool.slice(0, Math.max(1, Math.ceil(pool.length * 0.6)));
-    if (!pool.length) { const base = inner[Math.floor(rng() * inner.length)] || keys[0]; const z = Z({ d: Math.min(M, base.d + 2), x: clampX(jitter(base.x, 200)) }); if (z) { addEdge(map, base.id, z.id, 'open'); return z; } return null; }
-    return pool[Math.floor(rng() * pool.length)];
-  };
-  const taken = new Set();
-  for (let c = 0; c < Math.min(40, spec.cores | 0); c++) { const z = spare(taken, true); if (!z) break; taken.add(z.id); z.c = true; z.b = hi >= 1 ? hi : null; }
-  for (let o = 0; o < Math.min(40, spec.oases | 0); o++) { const z = spare(taken, false); if (!z) break; taken.add(z.id); z.o = true; z.b = null; }
-  return map;
 }

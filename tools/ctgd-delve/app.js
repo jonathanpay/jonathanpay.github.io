@@ -2,8 +2,9 @@ import {
   TABLES, TABLE_IDS, DEPTH_BANDS, FIND_BANDS, BLIGHT_BANDS, CLASS_NAMES, LIMITS, BACKUP_FORMAT, FORMAT,
   newDelve, cleanDelve, validateData, validateBackup, coverage, generate, rerollKey, pickKey, rerollNum, setNumValue, rerollLoc, rerollShards, rollQuirks, rerollQuirk, rollItem,
   chainsFate, combinesType, describe, describeIndexed, textOf, eraColumn, rowFor, classEstimate, classShown, levelRange, HELD_KEYS,
-  generateMap, addZone, addEdge, removeZone, zoneById, edgeLength, nearestExit, scanReach, emptyMap, pickItem, tableOf
+  pickItem, tableOf, locText
 } from './model.js';
+import { MAP_LIMITS, DEFAULT_W, generateMap, emptyMap, resizeMap, cloneMap, paint, line, addPoint, movePoint, removePoint, pointAt, pointById, nearestExit, scanReach, blightAt, isRead, setRead } from './map.js';
 
 const $ = s => document.querySelector(s);
 const KEY = 'ctgd-delve-v1', DATAKEY = 'ctgd-delve-data-v1';
@@ -23,7 +24,7 @@ const NS = 'http://www.w3.org/2000/svg';
 const sv = (tag, attrs = {}, text) => { const n = document.createElementNS(NS, tag); for (const [k, v] of Object.entries(attrs)) n.setAttribute(k, v); if (text != null) n.textContent = text; return n; };
 
 let delves = [], active, tab = 'ruin', data = null, startupError = '', loadFailed = false, saveWarning = '';
-let selected = null, view = 'gm', armed = '', dataMsg = '';
+let view = 'gm', dataMsg = '';
 const TABS = ['ruin', 'map', 'data'];
 
 /* ---------- storage ---------- */
@@ -157,221 +158,228 @@ function classRow(d) {
   return el('div', { class: 'item' }, el('div', { class: 'k', text: 'Delve class' }), el('div', { class: 'v' }, sel, x && x.name ? el('div', { class: 'detail', text: x.name + (x.detail ? ' · ' + x.detail : '') }) : null, el('p', { class: 'hint', text: 'An estimate only: the book gives no numeric rule for classes, so this maps the Blight band to I–IV. Change it to suit.' })), el('div', { class: 'ctl' }));
 }
 
-/* ---------- the Map tab ---------- */
-const SC = 22, TOP = 44, W = 1000;
-const zoneName = z => z.n || (z.e ? 'Entrance' : z.k != null ? `Key location ${z.k + 1}` : `Zone ${z.id}`);
+/* ---------- the Map tab: a painted grid, with the delve's points placed on it ---------- */
+const CS = 16, ML = 44, MT = 40, BM = 26;
+const AMBER = '#f0a020', BRIGHT = '#ffd36a', DIM = '#8a5a12', BLACK = '#0a0702';
+const TOOLS = [['open', 'Dig'], ['hidden', 'Hidden'], ['blocked', 'Blocked'], ['erase', 'Erase'], ['blight', 'Blight'], ['read', 'Mark read'], ['unread', 'Unread']];
+const POINT_TOOLS = [['select', 'Select'], ['e', 'Entrance'], ['k', 'Key location'], ['c', 'Core'], ['o', 'Oasis'], ['n', 'Note']];
+let tool = 'open', brush = 1, mirror = false, level = 2, keyNo = 0, undo = [], hover = null, selPoint = null, regen = false, mapCanvas = null;
+const colLabel = i => (i < 26 ? String.fromCharCode(65 + i) : String.fromCharCode(65 + (i - 26) % 26) + String.fromCharCode(97 + (i - 26) % 26));
+const cellName = (x, y) => `${colLabel(x)}${y}`;
+const cellsToChar = { open: 'o', hidden: 'h', blocked: 'x' };
+
 function renderMap() {
   const d = cur(), box = $('#view-map');
   if (!d.map) {
     const ready = d.items.depth && d.items.blight && d.nums.markers;
-    box.replaceChildren(el('div', { class: 'stage' }, el('h3', { text: 'Map' }), el('p', { text: ready ? 'The ruin is rolled but has no map yet.' : 'Roll a ruin first (depth band and Blight infestation), then place its map here.' }),
-      el('div', { class: 'bar' }, el('button', { class: 'btn primary', text: 'Place the map from the ruin', disabled: !ready, onclick: () => placeMap() }), el('button', { class: 'btn quiet', text: 'Start with an empty map', onclick: () => { d.map = emptyMap(); touch(); renderMap(); } }))));
+    box.replaceChildren(el('div', { class: 'stage' }, el('h3', { text: 'Map' }), el('p', { text: 'Paint the structure of the delve on a grid, one cell to a marker, then place its entrances, key locations, Blight cores and oases on it.' }),
+      el('div', { class: 'bar' }, el('button', { class: 'btn primary', text: 'Generate a structure from the ruin', disabled: !ready, onclick: () => placeMap() }), el('button', { class: 'btn quiet', text: 'Start with a blank grid', onclick: () => { d.map = emptyMap(DEFAULT_W, Math.max(MAP_LIMITS.hMin, (d.nums.markers ? d.nums.markers.v : 24) + 4)); undo = []; touch(); renderMap(); } })),
+      ready ? null : el('p', { class: 'hint', text: 'Roll a depth band and a Blight infestation on the Ruin tab to generate one.' })));
     return;
   }
-  const map = d.map;
-  if (selected && !zoneById(map, selected)) selected = null;
-  const holder = el('div', { class: 'mapbox', id: 'mapbox' });
+  const holder = el('div', { class: 'mapbox' + (view === 'scan' ? ' scan' : ''), id: 'mapbox' });
+  mapCanvas = el('canvas', { id: 'mapcanvas', 'aria-label': view === 'scan' ? 'Deep-scan view of the delve map' : 'Delve map editor', role: 'img' });
+  holder.append(mapCanvas);
   const side = el('div', { class: 'mapside', id: 'mapside' });
   box.replaceChildren(el('div', { class: 'mapview' }, holder, side));
-  drawSvg(holder); drawSide(side);
+  wireCanvas(mapCanvas); drawCanvas(); drawSide(side);
 }
 function placeMap() {
   const d = cur(), r = levelRange(d);
   d.map = generateMap({ markers: d.nums.markers.v, entrances: d.nums.entrances.v, keys: d.nums.keys.v, cores: d.nums.cores ? d.nums.cores.v : 0, oases: d.nums.oases ? d.nums.oases.v : 0, levelLo: r[0], levelHi: r[1] });
-  selected = null; armed = ''; touch(); renderMap(); status('Map placed from the ruin. Drag, add, remove and edit zones freely.');
+  undo = []; selPoint = null; regen = false; touch(); renderMap(); status('Structure generated from the ruin. Paint over it, move points, or generate again.');
 }
-function visible(map) { return view === 'gm' ? null : scanReach(map); }
-function drawSvg(holder) {
-  if (view === 'scan') return drawScan(holder);
-  const d = cur(), map = d.map, vis = visible(map), scan = false;
-  const maxD = Math.max(10, ...map.zones.map(z => z.d)), H = TOP + (maxD + 2) * SC + 24;
-  const svg = sv('svg', { viewBox: `0 0 ${W} ${H}`, role: 'img', 'aria-label': scan ? 'Deep-scan view of the delve map' : 'GM view of the delve map' });
-  for (let m = 0; m <= maxD + 1; m += 5) { svg.append(sv('line', { x1: 0, x2: W, y1: TOP + m * SC, y2: TOP + m * SC, class: m === 0 ? 'm-surf' : 'm-grid' }), sv('text', { x: 6, y: TOP + m * SC - 3, class: 'm-label' }, m === 0 ? 'Surface' : `${m}`)); }
-  const show = z => !vis || vis.has(z.id);
-  const pos = z => [z.x, TOP + z.d * SC];
-  for (const e of map.edges) {
-    const a = zoneById(map, e.a), b = zoneById(map, e.b); if (!a || !b || !show(a) || !show(b)) continue;
-    if (scan && e.t !== 'open') continue;
-    const [x1, y1] = pos(a), [x2, y2] = pos(b);
-    svg.append(sv('line', { x1, y1, x2, y2, class: 'm-edge ' + e.t }));
-    const mx = (x1 + x2) / 2, my = (y1 + y2) / 2;
-    if (e.t === 'blocked') svg.append(sv('line', { x1: mx - 6, y1: my - 6, x2: mx + 6, y2: my + 6, class: 'm-x' }), sv('line', { x1: mx - 6, y1: my + 6, x2: mx + 6, y2: my - 6, class: 'm-x' }));
-    if (!scan && selected && (e.a === selected || e.b === selected)) svg.append(sv('text', { x: mx + 8, y: my - 4, class: 'm-label' }, `${edgeLength(map, e)}`));
+function snapshot() { undo.push(cloneMap(cur().map)); if (undo.length > 40) undo.shift(); }
+
+/* ----- drawing ----- */
+function palette() {
+  if (view === 'scan') return { scan: true, bg: BLACK, rock: BLACK, fill: 'rgba(240,160,32,.14)', edge: AMBER, edge2: BRIGHT, ink: BRIGHT, dim: DIM, grid: 'rgba(240,160,32,.28)', accent: AMBER, ok: '#c8e060', text: AMBER };
+  const cs = getComputedStyle(document.body), v = n => cs.getPropertyValue(n).trim();
+  return { scan: false, bg: v('--ground'), rock: v('--ground'), fill: v('--sheet'), edge: v('--line'), edge2: v('--ink'), ink: v('--ink'), dim: v('--muted'), grid: 'rgba(128,128,128,.16)', accent: v('--accent'), ok: v('--ok'), text: v('--muted') };
+}
+const hexPath = (c, x, y, r) => { c.beginPath(); for (let i = 0; i < 6; i++) { const a = Math.PI / 3 * i + Math.PI / 6; const px = x + r * Math.cos(a), py = y + r * Math.sin(a); i ? c.lineTo(px, py) : c.moveTo(px, py); } c.closePath(); };
+function drawCanvas() {
+  const cv = mapCanvas; if (!cv || !cur().map) return;
+  const m = cur().map, P = palette(), scan = P.scan, RM = scan ? 190 : 12;
+  const W = ML + m.w * CS + RM, H = Math.max(MT + m.h * CS + BM, scan ? MT + 330 : 0), dpr = Math.min(2, window.devicePixelRatio || 1);
+  cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); cv.style.aspectRatio = `${W} / ${H}`;
+  const c = cv.getContext('2d'); c.scale(dpr, dpr); c.lineJoin = 'round'; c.lineCap = 'round';
+  const X = x => ML + x * CS, Y = y => MT + y * CS;
+  const field = scan ? scanReach(m) : null;
+  const seen = (x, y) => (scan ? reachedCell(m, field, x, y) && m.cells[y][x] === 'o' : inBoundsCell(m, x, y) && m.cells[y][x] !== '.');
+  c.fillStyle = P.bg; c.fillRect(0, 0, W, H);
+  if (scan) { const g = c.createRadialGradient(W * 0.45, H * 0.45, 20, W * 0.45, H * 0.45, W * 0.8); g.addColorStop(0, 'rgba(70,40,5,.5)'); g.addColorStop(1, 'rgba(0,0,0,0)'); c.fillStyle = g; c.fillRect(0, 0, W, H); }
+  /* grid and labels */
+  c.strokeStyle = P.grid; c.lineWidth = 1; c.beginPath();
+  for (let x = 0; x <= m.w; x++) { if (scan && x % 4) continue; c.moveTo(X(x) + 0.5, MT - 6); c.lineTo(X(x) + 0.5, Y(m.h)); }
+  for (let y = 0; y <= m.h; y++) { if (scan && y % 4) continue; c.moveTo(ML - 6, Y(y) + 0.5); c.lineTo(X(m.w), Y(y) + 0.5); }
+  c.stroke();
+  c.fillStyle = P.text; c.font = '11px "IBM Plex Mono", monospace'; c.textAlign = 'center';
+  for (let x = 0; x < m.w; x++) c.fillText(colLabel(x), X(x) + CS / 2, MT - 12);
+  c.textAlign = 'right'; for (let y = 0; y < m.h; y++) c.fillText(String(y), ML - 9, Y(y) + CS / 2 + 4);
+  /* passage fills */
+  for (let y = 0; y < m.h; y++) for (let x = 0; x < m.w; x++) {
+    const ch = m.cells[y][x]; if (ch === '.') continue;
+    if (scan && !seen(x, y)) continue;
+    c.fillStyle = P.fill; c.fillRect(X(x), Y(y), CS, CS);
+    const b = blightAt(m, x, y);
+    if (b && (!scan || isRead(m, x, y))) { c.fillStyle = scan ? `rgba(240,160,32,${0.05 + b * 0.05})` : P.accent; if (!scan) c.globalAlpha = 0.07 + b * 0.05; c.fillRect(X(x), Y(y), CS, CS); c.globalAlpha = 1; }
+    if (!scan && ch === 'h') { c.strokeStyle = P.dim; c.lineWidth = 1; c.beginPath(); for (let k = -CS; k < CS; k += 5) { c.moveTo(X(x) + Math.max(0, k), Y(y) + Math.max(0, -k)); c.lineTo(X(x) + Math.min(CS, k + CS), Y(y) + Math.min(CS, CS - k)); } c.stroke(); }
+    if (!scan && ch === 'x') { c.strokeStyle = P.accent; c.lineWidth = 2; c.beginPath(); c.moveTo(X(x) + 3, Y(y) + 3); c.lineTo(X(x) + CS - 3, Y(y) + CS - 3); c.moveTo(X(x) + CS - 3, Y(y) + 3); c.lineTo(X(x) + 3, Y(y) + CS - 3); c.stroke(); }
   }
-  for (const z of map.zones) {
-    if (!show(z)) continue;
-    const [x, y] = pos(z), read = !scan || z.s, g = sv('g', { 'data-zone': z.id, tabindex: 0, role: 'button', 'aria-label': `${zoneName(z)}, depth ${z.d}` });
-    g.append(sv('title', {}, `${zoneName(z)} · ${z.d} markers`));
-    if (z.o && read) g.append(sv('circle', { cx: x, cy: y, r: 17, class: 'm-ring' }));
-    const cls = 'm-zone' + (z.id === selected ? ' sel' : '') + (z.k != null ? ' m-key' : '') + (z.c && read ? ' m-core' : '') + (z.h ? ' m-hidden-zone' : '');
-    g.append(z.e ? sv('rect', { x: x - 11, y: y - 11, width: 22, height: 22, class: cls }) : sv('circle', { cx: x, cy: y, r: 11, class: cls }));
-    const showB = z.b != null && read;
-    const inside = z.e ? 'E' : z.k != null ? String(z.k + 1) : showB ? String(z.b) : '';
-    if (inside) g.append(sv('text', { x, y: y + 4, class: 'm-txt' + (z.c && read && z.k == null ? ' inv' : '') }, inside));
-    if (z.k != null && showB) g.append(sv('text', { x, y: y + 25, class: 'm-note' }, `B${z.b}${z.c ? ' core' : ''}`));
-    else if (z.c && read && z.k == null) g.append(sv('text', { x, y: y + 25, class: 'm-note' }, 'core'));
-    if (z.n) g.append(sv('text', { x, y: y - 16, class: 'm-note' }, z.n));
-    svg.append(g);
+  /* interference below what the scan reached */
+  if (scan) drawInterference(c, m, field, X, Y, W);
+  /* outlines round the passages */
+  c.strokeStyle = P.edge; c.lineWidth = scan ? 2.5 : 2; if (scan) { c.shadowColor = AMBER; c.shadowBlur = 9; }
+  c.beginPath();
+  for (let y = 0; y < m.h; y++) for (let x = 0; x < m.w; x++) {
+    if (!seen(x, y)) continue;
+    if (!seen(x, y - 1) && y > 0) { c.moveTo(X(x), Y(y)); c.lineTo(X(x + 1), Y(y)); }
+    if (!seen(x, y + 1)) { c.moveTo(X(x), Y(y + 1)); c.lineTo(X(x + 1), Y(y + 1)); }
+    if (!seen(x - 1, y)) { c.moveTo(X(x), Y(y)); c.lineTo(X(x), Y(y + 1)); }
+    if (!seen(x + 1, y)) { c.moveTo(X(x + 1), Y(y)); c.lineTo(X(x + 1), Y(y + 1)); }
   }
-  holder.replaceChildren(svg); holder.classList.remove('scan');
-  wireDrag(svg);
+  c.stroke(); c.shadowBlur = 0;
+  /* surface line */
+  c.strokeStyle = P.edge2; c.lineWidth = 2; c.beginPath(); c.moveTo(ML - 6, Y(0)); c.lineTo(X(m.w), Y(0)); c.stroke();
+  /* Blight badges, sparse along the passages */
+  c.font = '600 9px "IBM Plex Mono", monospace'; c.textAlign = 'center';
+  for (let y = 2; y < m.h; y++) for (let x = 0; x < m.w; x++) {
+    const b = blightAt(m, x, y); if (!b || !seen(x, y) || (x * 3 + y * 5) % 7 || (scan && !isRead(m, x, y))) continue;
+    hexPath(c, X(x) + CS / 2, Y(y) + CS / 2, 7.5); c.fillStyle = P.bg; c.fill(); c.strokeStyle = scan ? BRIGHT : P.accent; c.lineWidth = 1.6; c.stroke();
+    c.fillStyle = scan ? BRIGHT : P.accent; c.fillText(String(b), X(x) + CS / 2, Y(y) + CS / 2 + 3.2);
+  }
+  /* points */
+  c.textAlign = 'center';
+  for (const p of m.points) {
+    const cx = X(p.x) + CS / 2, cy = Y(p.y) + CS / 2, rd = isRead(m, p.x, p.y), sel = p.id === selPoint;
+    if (scan && !reachedCell(m, field, p.x, p.y)) continue;
+    if (scan && (p.t === 'c' || p.t === 'o' || p.t === 'n') && !rd && p.t !== 'n') continue;
+    c.lineWidth = 2.5; c.strokeStyle = sel ? '#ffffff' : (scan ? BRIGHT : P.edge2);
+    if (p.t === 'e') { c.fillStyle = scan ? 'rgba(240,160,32,.45)' : P.edge2; c.fillRect(cx - 7, cy - 4, 14, 8); c.strokeRect(cx - 7, cy - 4, 14, 8); c.beginPath(); c.moveTo(cx - 5, cy - 11); c.lineTo(cx, cy - 6); c.lineTo(cx + 5, cy - 11); c.stroke(); if (!scan && p.u) { c.fillStyle = P.ok; c.beginPath(); c.arc(cx + 11, cy - 8, 3, 0, 7); c.fill(); } }
+    else if (p.t === 'k') { c.fillStyle = scan ? 'rgba(240,160,32,.3)' : P.accent; c.beginPath(); c.arc(cx, cy, 9, 0, 7); c.fill(); c.stroke(); c.fillStyle = scan ? BRIGHT : P.bg; c.font = '700 11px "IBM Plex Mono", monospace'; c.fillText(String(p.k + 1), cx, cy + 4); if (scan && !rd) { hexPath(c, cx + 18, cy, 8); c.strokeStyle = DIM; c.lineWidth = 1.5; c.stroke(); c.fillStyle = DIM; c.font = '700 10px "IBM Plex Mono", monospace'; c.fillText('?', cx + 18, cy + 3.5); } }
+    else if (p.t === 'c') { hexPath(c, cx, cy, 10); c.fillStyle = scan ? 'rgba(240,160,32,.55)' : P.accent; c.fill(); c.stroke(); }
+    else if (p.t === 'o') { c.strokeStyle = sel ? '#fff' : P.ok; c.setLineDash([4, 3]); c.beginPath(); c.arc(cx, cy, 10, 0, 7); c.stroke(); c.setLineDash([]); }
+    else if (p.t === 'n') { c.fillStyle = P.ink; c.beginPath(); c.moveTo(cx, cy - 7); c.lineTo(cx + 6, cy); c.lineTo(cx, cy + 7); c.lineTo(cx - 6, cy); c.closePath(); c.fill(); if (sel) { c.stroke(); } }
+    if (p.n) { c.fillStyle = scan ? BRIGHT : P.ink; c.font = '11px "IBM Plex Mono", monospace'; c.textAlign = 'left'; c.fillText(p.n, cx + 13, cy - 8); c.textAlign = 'center'; }
+  }
+  /* brush preview */
+  if (!scan && hover && POINT_TOOLS.every(([k]) => k !== tool) && inBoundsCell(m, hover.x, hover.y)) {
+    const r0 = -Math.floor((brush - 1) / 2); c.strokeStyle = P.accent; c.lineWidth = 1.5; c.setLineDash([3, 2]);
+    for (const hx of mirror ? [hover.x, m.w - 1 - hover.x] : [hover.x]) c.strokeRect(X(hx + r0) + 0.5, Y(hover.y + r0) + 0.5, brush * CS - 1, brush * CS - 1);
+    c.setLineDash([]);
+  }
+  if (scan) drawScanChrome(c, m, field, W, H, X, Y);
+}
+function drawInterference(c, m, field, X, Y, W) {
+  let deepest = 0; for (let y = 0; y < m.h; y++) for (let x = 0; x < m.w; x++) if (m.cells[y][x] === 'o' && reachedCell(m, field, x, y)) deepest = Math.max(deepest, y);
+  let seed = 0; for (const ch of cur().id) seed = (seed * 31 + ch.charCodeAt(0)) % 2147483647; seed = seed || 7;
+  const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+  const y0 = Y(deepest + 2), y1 = Y(m.h);
+  c.save();
+  for (let i = 0; i < 90; i++) { const y = y0 + rnd() * Math.max(10, y1 - y0), x = X(0) + rnd() * m.w * CS, rx = 40 + rnd() * 170; c.globalAlpha = 0.1 + rnd() * 0.28; c.fillStyle = AMBER; c.filter = 'blur(5px)'; c.beginPath(); c.ellipse(x, y, rx, 1.5 + rnd() * 3.5, 0, 0, 7); c.fill(); }
+  for (let i = 0; i < 50; i++) { const y = y0 + rnd() * Math.max(10, y1 - y0), x = X(0) + rnd() * m.w * CS; c.globalAlpha = 0.25 + rnd() * 0.5; c.fillStyle = BRIGHT; c.filter = 'blur(3px)'; c.beginPath(); c.arc(x, y, 1.5 + rnd() * 4, 0, 7); c.fill(); }
+  c.restore();
+}
+function drawScanChrome(c, m, field, W, H, X, Y) {
+  let reach = 0, deepest = 0, readN = 0, keys = 0;
+  for (let y = 0; y < m.h; y++) for (let x = 0; x < m.w; x++) if (m.cells[y][x] === 'o' && reachedCell(m, field, x, y)) { reach++; deepest = Math.max(deepest, y); if (isRead(m, x, y)) readN++; }
+  keys = m.points.filter(p => p.t === 'k' && reachedCell(m, field, p.x, p.y)).length;
+  const rx = X(m.w) + 22; c.textAlign = 'left'; c.fillStyle = AMBER;
+  [['Deep scan', true], [`Passage: ${reach} markers`], [`Structure depth: ${deepest}`], [`Blight read: ${reach ? Math.round(100 * readN / reach) : 0}%`], [`Key locations: ${keys}`]].forEach(([t, head], i) => { c.font = (head ? '700 14px' : '13px') + ' "IBM Plex Mono", monospace'; c.fillStyle = head ? BRIGHT : AMBER; c.fillText(t, rx, H - 130 + i * 22); if (head) { c.fillRect(rx, H - 126, 80, 1.5); } });
+  const dial = (cx, cy, r) => { c.strokeStyle = AMBER; c.lineWidth = 1.5; c.globalAlpha = 0.8; c.beginPath(); c.arc(cx, cy, r, 0, 7); c.stroke(); c.setLineDash([3, 4]); c.beginPath(); c.arc(cx, cy, r * 0.55, 0, 7); c.stroke(); c.setLineDash([]); c.beginPath(); c.moveTo(cx - r - 6, cy); c.lineTo(cx + r + 6, cy); c.moveTo(cx, cy - r - 6); c.lineTo(cx, cy + r + 6); c.stroke(); c.strokeStyle = BRIGHT; c.lineWidth = 4; c.beginPath(); c.arc(cx, cy, r, Math.PI, Math.PI * 1.5); c.stroke(); c.globalAlpha = 1; };
+  dial(rx + 40, MT + 50, 30); dial(rx + 40, MT + 140, 22);
+  c.fillStyle = AMBER; for (let i = 0; i < 5; i++) { c.globalAlpha = 0.55; c.fillRect(rx + 4, MT + 200 + i * 12, 60 + ((i * 37) % 70), 6); } c.globalAlpha = 1;
+  c.fillStyle = 'rgba(0,0,0,.38)'; for (let y = 0; y < H; y += 4) c.fillRect(0, y, W, 2);
+  c.strokeStyle = DIM; c.lineWidth = 2; c.beginPath(); c.roundRect(4, 4, W - 8, H - 8, 14); c.stroke();
+}
+const reachedCell = (m, f, x, y) => inBoundsCell(m, x, y) && f[y * m.w + x] >= 0;
+const inBoundsCell = (m, x, y) => x >= 0 && y >= 0 && x < m.w && y < m.h;
+
+/* ----- painting and points ----- */
+function cellFrom(e, cv) { const r = cv.getBoundingClientRect(), m = cur().map, W = ML + m.w * CS + (view === 'scan' ? 190 : 12), H = Math.max(MT + m.h * CS + BM, view === 'scan' ? MT + 330 : 0); const px = (e.clientX - r.left) * (W / r.width), py = (e.clientY - r.top) * (H / r.height); return { x: Math.floor((px - ML) / CS), y: Math.floor((py - MT) / CS) }; }
+function wireCanvas(cv) {
+  const d = cur(); let stroke = null, dragPoint = null, raf = 0;
+  const redraw = () => { if (!raf) raf = requestAnimationFrame(() => { raf = 0; drawCanvas(); }); };
+  cv.addEventListener('contextmenu', e => e.preventDefault());
+  cv.addEventListener('pointerdown', e => {
+    if (view === 'scan') { const m = d.map, c0 = cellFrom(e, cv), p = pointAt(m, c0.x, c0.y); selPoint = p ? p.id : null; drawCanvas(); drawSide($('#mapside')); return; }
+    const m = d.map, c0 = cellFrom(e, cv); if (!inBoundsCell(m, c0.x, c0.y)) return;
+    try { cv.setPointerCapture(e.pointerId); } catch { /* not capturable */ }
+    const right = e.button === 2;
+    if (!right && (tool === 'select' || POINT_TOOLS.some(([k]) => k === tool))) {
+      snapshot();
+      if (tool === 'select') { const p = pointAt(m, c0.x, c0.y); selPoint = p ? p.id : null; dragPoint = p ? p.id : null; }
+      else { const o = tool === 'k' ? { t: 'k', k: keyNo, x: c0.x, y: c0.y } : { t: tool, x: c0.x, y: c0.y }; const p = addPoint(m, o); if (p) selPoint = p.id; else status('No room for another point.'); touch(); }
+      drawCanvas(); drawSide($('#mapside')); return;
+    }
+    snapshot(); const brushDef = { tool: right ? 'erase' : tool, size: brush, mirror, level };
+    stroke = { last: c0, brushDef }; paint(m, c0.x, c0.y, brushDef); redraw();
+  });
+  cv.addEventListener('pointermove', e => {
+    const m = d.map, c0 = cellFrom(e, cv);
+    if (dragPoint) { if (inBoundsCell(m, c0.x, c0.y)) { movePoint(m, dragPoint, c0.x, c0.y); redraw(); } return; }
+    if (stroke) { if (inBoundsCell(m, c0.x, c0.y)) { line(m, stroke.last.x, stroke.last.y, c0.x, c0.y, stroke.brushDef); stroke.last = c0; } redraw(); return; }
+    if (!hover || hover.x !== c0.x || hover.y !== c0.y) { hover = c0; const r = $('#cellreadout'); if (r) r.textContent = inBoundsCell(m, c0.x, c0.y) ? `${cellName(c0.x, c0.y)} · ${c0.y} marker${c0.y === 1 ? '' : 's'} deep` : ''; redraw(); }
+  });
+  const end = () => { if (stroke || dragPoint) { touch(); drawSide($('#mapside')); } stroke = null; dragPoint = null; };
+  cv.addEventListener('pointerup', end); cv.addEventListener('pointercancel', end);
+  cv.addEventListener('pointerleave', () => { hover = null; redraw(); });
 }
 
-/* The player's deep-scan view: an amber scan handout. Amber on black, a lettered and numbered grid,
- * corridors drawn as glowing outlined tubes, hexagon Blight badges, scanlines, and interference below
- * the deepest zone the scan reached. Drawn from the same map as the GM view. */
-const AMBER = '#f0a020', BRIGHT = '#ffd36a', DIM = '#8a5a12', BLACK = '#0a0702';
-const hexPts = (x, y, r) => Array.from({ length: 6 }, (_, i) => { const a = Math.PI / 3 * i + Math.PI / 6; return `${(x + r * Math.cos(a)).toFixed(1)},${(y + r * Math.sin(a)).toFixed(1)}`; }).join(' ');
-function drawScan(holder) {
-  const d = cur(), map = d.map, vis = scanReach(map);
-  const ML = 64, MT = 60, RM = 200, SCN = 32, W2 = ML + W + RM;
-  const maxD = Math.max(10, ...map.zones.map(z => z.d)), H = MT + (maxD + 3) * SCN + 50;
-  const X = x => ML + x, Y = dd => MT + dd * SCN;
-  const zs = map.zones.filter(z => vis.has(z.id));
-  const deepest = Math.max(0, ...zs.map(z => z.d));
-  const svg = sv('svg', { viewBox: `0 0 ${W2} ${H}`, role: 'img', 'aria-label': 'Deep-scan view of the delve map' });
-  const defs = sv('defs');
-  defs.innerHTML = `<filter id="glow" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="3.2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-<filter id="smear" x="-30%" y="-100%" width="160%" height="300%"><feGaussianBlur stdDeviation="9 1.2"/></filter>
-<filter id="blob"><feGaussianBlur stdDeviation="5"/></filter>
-<pattern id="scanlines" width="4" height="4" patternUnits="userSpaceOnUse"><rect width="4" height="2" fill="#000" opacity=".38"/></pattern>
-<radialGradient id="vig" cx="50%" cy="45%" r="75%"><stop offset="0" stop-color="#2a1a04" stop-opacity=".55"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient>`;
-  svg.append(defs, sv('rect', { x: 0, y: 0, width: W2, height: H, fill: BLACK }), sv('rect', { x: 0, y: 0, width: W2, height: H, fill: 'url(#vig)' }));
-  /* grid: letters across, numbers down (one row per four markers) */
-  const grid = sv('g', { stroke: AMBER, 'stroke-width': 1, opacity: 0.28 });
-  for (let c = 0; c <= 10; c++) grid.append(sv('line', { x1: X(c * 100), x2: X(c * 100), y1: MT - 14, y2: H - 24 }));
-  const rows = Math.ceil((maxD + 3) / 4);
-  for (let r = 0; r <= rows; r++) grid.append(sv('line', { x1: ML - 14, x2: ML + W, y1: Y(r * 4), y2: Y(r * 4) }));
-  svg.append(grid);
-  const lab = (x, y, t, anchor = 'middle') => sv('text', { x, y, class: 's-lab', 'text-anchor': anchor }, t);
-  for (let c = 0; c < 10; c++) svg.append(lab(X(c * 100 + 50), MT - 24, String.fromCharCode(65 + c)));
-  for (let r = 0; r < rows; r++) svg.append(lab(ML - 24, Y(r * 4 + 2) + 4, String(r + 1)));
-  svg.append(sv('line', { x1: ML - 14, x2: ML + W + 10, y1: Y(0), y2: Y(0), stroke: BRIGHT, 'stroke-width': 2, opacity: 0.8, filter: 'url(#glow)' }), lab(ML + W + 14, Y(0) + 4, 'Surface', 'start'));
-  /* interference below what the scan reached */
-  let seed = 0; for (const ch of d.id) seed = (seed * 31 + ch.charCodeAt(0)) % 2147483647; seed = seed || 7;
-  const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
-  const noise = sv('g');
-  const y0 = Y(deepest + 1.5), y1 = H - 40;
-  if (y1 > y0) {
-    for (let i = 0; i < 70; i++) { const y = y0 + rnd() * (y1 - y0), x = ML + rnd() * W, rx = 50 + rnd() * 180; noise.append(sv('ellipse', { cx: x, cy: y, rx, ry: 1.5 + rnd() * 4, fill: AMBER, opacity: 0.12 + rnd() * 0.3, filter: 'url(#smear)' })); }
-    for (let i = 0; i < 55; i++) { const y = y0 + rnd() * (y1 - y0), x = ML + rnd() * W; noise.append(sv('circle', { cx: x, cy: y, r: 1.5 + rnd() * 5, fill: BRIGHT, opacity: 0.25 + rnd() * 0.5, filter: 'url(#blob)' })); }
-  }
-  for (let i = 0; i < 14; i++) { const y = Y(rnd() * deepest), x = ML + rnd() * W; noise.append(sv('ellipse', { cx: x, cy: y, rx: 30 + rnd() * 90, ry: 1.2 + rnd() * 2, fill: AMBER, opacity: 0.08 + rnd() * 0.1, filter: 'url(#smear)' })); }
-  svg.append(noise);
-  /* corridors: a glowing outline with a dark core, so they read as hollow tubes */
-  const tubes = sv('g', { filter: 'url(#glow)' }), cores = sv('g');
-  for (const e of map.edges) {
-    if (e.t !== 'open') continue;
-    const a = zoneById(map, e.a), b = zoneById(map, e.b); if (!a || !b || !vis.has(a.id) || !vis.has(b.id)) continue;
-    /* right-angled corridors, like the printed scans: down, across, down */
-    const x1 = X(a.x), y1 = Y(a.d), x2 = X(b.x), y2 = Y(b.d);
-    let h = 0; for (const ch of e.a + e.b) h = (h * 31 + ch.charCodeAt(0)) % 97;
-    const ym = Math.round(y1 + (y2 - y1) * (0.3 + 0.4 * (h / 97)));
-    const dpath = Math.abs(x2 - x1) < 4 || Math.abs(y2 - y1) < 4 ? `M${x1} ${y1} L${x2} ${y2}` : `M${x1} ${y1} V${ym} H${x2} V${y2}`;
-    const p = { d: dpath, fill: 'none', 'stroke-linecap': 'round', 'stroke-linejoin': 'round' };
-    tubes.append(sv('path', { ...p, stroke: AMBER, 'stroke-width': 11 })); cores.append(sv('path', { ...p, stroke: '#150d03', 'stroke-width': 6 }));
-  }
-  svg.append(tubes, cores);
-  /* rooms, entrances and the zones themselves */
-  const rooms = sv('g');
-  for (const z of zs) {
-    const x = X(z.x), y = Y(z.d), read = z.s, sel = z.id === selected, g = sv('g', { 'data-zone': z.id, tabindex: 0, role: 'button', 'aria-label': `${zoneName(z)}, depth ${z.d}`, style: 'cursor:pointer' });
-    g.append(sv('title', {}, `${zoneName(z)} · ${z.d} markers`), sv('circle', { cx: x, cy: y, r: 22, fill: 'transparent' }));
-    const stroke = sel ? '#ffffff' : BRIGHT;
-    if (z.e) { g.append(sv('rect', { x: x - 16, y: y - 7, width: 32, height: 14, fill: AMBER, opacity: 0.35, stroke, 'stroke-width': 2.5, filter: 'url(#glow)' }), sv('path', { d: `M${x - 6} ${y - 16} L${x} ${y - 24} L${x + 6} ${y - 16}`, fill: 'none', stroke: BRIGHT, 'stroke-width': 2 })); }
-    else if (z.k != null) { g.append(sv('rect', { x: x - 22, y: y - 14, width: 44, height: 28, rx: 3, fill: AMBER, opacity: 0.22, stroke, 'stroke-width': 3, filter: 'url(#glow)' }), sv('text', { x, y: y + 4, class: 's-num', 'text-anchor': 'middle' }, String(z.k + 1))); }
-    else { g.append(sv('circle', { cx: x, cy: y, r: 6, fill: '#150d03', stroke, 'stroke-width': 2.5, filter: 'url(#glow)' })); }
-    if (read && z.o) g.append(sv('circle', { cx: x, cy: y, r: z.k != null ? 28 : 15, fill: 'none', stroke: '#c8e060', 'stroke-width': 2, 'stroke-dasharray': '4 3', filter: 'url(#glow)' }));
-    if (read && z.c) g.append(sv('polygon', { points: hexPts(x, y, z.k != null ? 30 : 17), fill: AMBER, opacity: 0.4, stroke: BRIGHT, 'stroke-width': 2.5, filter: 'url(#glow)' }));
-    if (!z.e) {
-      const bx = x + (z.k != null ? 36 : 20), by = y - (z.k != null ? 0 : 14);
-      if (read && z.b != null) g.append(sv('polygon', { points: hexPts(bx, by, 11), fill: '#150d03', stroke: BRIGHT, 'stroke-width': 2, filter: 'url(#glow)' }), sv('text', { x: bx, y: by + 5, class: 's-num', 'text-anchor': 'middle' }, String(z.b)));
-      else if (!read && z.k != null) g.append(sv('polygon', { points: hexPts(bx, by, 11), fill: 'none', stroke: DIM, 'stroke-width': 2 }), sv('text', { x: bx, y: by + 5, class: 's-num dim', 'text-anchor': 'middle' }, '?'));
-    }
-    if (z.n) g.append(sv('text', { x, y: y - 22, class: 's-lab', 'text-anchor': 'middle' }, z.n));
-    rooms.append(g);
-  }
-  svg.append(rooms);
-  /* the readout and the little instruments in the margin */
-  const rx = ML + W + 28, readN = zs.filter(z => z.s).length;
-  const lines = [['Deep scan', true], [`Zones: ${zs.length}`], [`Structure depth: ${deepest} markers`], [`Blight read: ${readN} of ${zs.length}`], [`Entrances: ${zs.filter(z => z.e).length}`]];
-  lines.forEach(([t, head], i) => svg.append(sv('text', { x: rx, y: H - 150 + i * 24, class: 's-lab' + (head ? ' head' : '') }, t)));
-  const dial = (cx, cy, r) => { const g = sv('g', { fill: 'none', stroke: AMBER, 'stroke-width': 1.5, opacity: 0.8 }); g.append(sv('circle', { cx, cy, r }), sv('circle', { cx, cy, r: r * 0.55, 'stroke-dasharray': '3 4' }), sv('line', { x1: cx - r - 6, x2: cx + r + 6, y1: cy, y2: cy }), sv('line', { x1: cx, x2: cx, y1: cy - r - 6, y2: cy + r + 6 }), sv('path', { d: `M${cx - r} ${cy} A${r} ${r} 0 0 1 ${cx} ${cy - r}`, 'stroke-width': 4, stroke: BRIGHT })); return g; };
-  svg.append(dial(rx + 40, MT + 50, 30), dial(rx + 40, MT + 150, 22));
-  for (let i = 0; i < 5; i++) svg.append(sv('rect', { x: rx + 4, y: MT + 220 + i * 12, width: 60 + ((i * 37) % 70), height: 6, fill: AMBER, opacity: 0.55 }));
-  /* scanlines and frame over everything */
-  svg.append(sv('rect', { x: 0, y: 0, width: W2, height: H, fill: 'url(#scanlines)', 'pointer-events': 'none' }), sv('rect', { x: 4, y: 4, width: W2 - 8, height: H - 8, rx: 14, fill: 'none', stroke: DIM, 'stroke-width': 2, 'pointer-events': 'none' }));
-  holder.replaceChildren(svg);
-  holder.classList.add('scan');
-  wireDrag(svg);
-}
-function wireDrag(svg) {
-  const d = cur(), map = d.map;
-  let drag = null;
-  const toSvg = e => { const p = svg.createSVGPoint(); p.x = e.clientX; p.y = e.clientY; const m = svg.getScreenCTM(); return m ? p.matrixTransform(m.inverse()) : { x: 0, y: 0 }; };
-  svg.addEventListener('pointerdown', e => {
-    const g = e.target.closest('[data-zone]'); if (!g) return;
-    const id = g.getAttribute('data-zone');
-    if (armed === 'link' && selected && selected !== id) { if (addEdge(map, selected, id)) { armed = ''; touch(); renderMap(); status('Path added.'); } else status('Those zones are already joined.'); return; }
-    selected = id; drag = { id, moved: false };
-    try { svg.setPointerCapture(e.pointerId); } catch { /* not capturable */ }
-    drawSide($('#mapside')); drawSvg($('#mapbox'));
-  });
-  svg.addEventListener('pointermove', e => {
-    if (!drag || view === 'scan') return;
-    const z = zoneById(map, drag.id); if (!z) return;
-    const p = toSvg(e), nx = Math.max(20, Math.min(W - 20, Math.round(p.x))), nd = Math.max(0, Math.round((p.y - TOP) / SC));
-    if (nx !== z.x || nd !== z.d) { z.x = nx; z.d = nd; drag.moved = true; const holder = $('#mapbox'), top = holder.scrollTop; drawSvg(holder); holder.scrollTop = top; }
-  });
-  const end = () => { if (drag && drag.moved) { touch(); drawSide($('#mapside')); } drag = null; };
-  svg.addEventListener('pointerup', end); svg.addEventListener('pointercancel', end);
-  svg.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { const g = e.target.closest('[data-zone]'); if (g) { selected = g.getAttribute('data-zone'); drawSide($('#mapside')); drawSvg($('#mapbox')); } } });
-}
+/* ----- the side panel ----- */
 function drawSide(side) {
-  const d = cur(), map = d.map;
-  const redraw = () => { touch(); drawSvg($('#mapbox')); drawSide(side); };
+  const d = cur(), m = d.map, scan = view === 'scan';
+  const refresh = () => { touch(); drawCanvas(); drawSide(side); };
   const toggle = el('div', { class: 'seg', role: 'group', 'aria-label': 'Map view' },
-    el('button', { 'aria-pressed': String(view === 'gm'), text: 'GM view', onclick: () => { view = 'gm'; renderMap(); } }),
-    el('button', { 'aria-pressed': String(view === 'scan'), text: 'Deep scan', onclick: () => { view = 'scan'; armed = ''; renderMap(); } }));
-  const tools = el('section', { class: 'card' }, el('h2', { text: 'Map' }), toggle,
-    el('p', { class: 'hint', text: view === 'gm' ? 'Everything, as the GM sees it. Drag a zone to move it; depth snaps to whole markers.' : 'What a deep scan would show the players: only zones reachable by open paths from an entrance, and Blight levels, cores and oases only where you have marked them read.' }),
-    el('div', { class: 'row actions' },
-      el('button', { class: 'mini', text: armed === 'place' ? 'Click again to replace' : 'Place from ruin', onclick: () => { if (!d.items.depth || !d.items.blight) return status('Roll the ruin first.'); if (armed !== 'place') { armed = 'place'; return drawSide(side); } placeMap(); } }),
-      el('button', { class: 'mini', text: 'Add zone', onclick: () => { const z = addZone(map, { d: Math.max(1, ...[selected ? zoneById(map, selected).d : 1]), x: 500 }); if (!z) return status('Zone limit reached.'); selected = z.id; redraw(); } }),
-      el('button', { class: 'mini', text: 'Blight: read all', onclick: () => { map.zones.forEach(z => { z.s = true; }); redraw(); } }),
-      el('button', { class: 'mini', text: 'Read none', onclick: () => { map.zones.forEach(z => { z.s = false; }); redraw(); } })),
-    el('div', { class: 'legend' }, el('span', { text: 'Square: entrance' }), el('span', { text: 'Numbered: key location' }), el('span', { text: 'Filled: Blight core' }), el('span', { text: 'Ringed: oasis' }), el('span', { text: 'Dotted line: hidden path' }), el('span', { text: 'Crossed dashes: blocked path' })));
-  const z = selected && zoneById(map, selected);
-  side.replaceChildren(tools, z ? zonePanel(z, redraw) : el('section', { class: 'card' }, el('p', { class: 'hint', text: 'Select a zone to edit it, link it, and see how far it is from the nearest known exit.' })));
+    el('button', { 'aria-pressed': String(!scan), text: 'GM view', onclick: () => { view = 'gm'; renderMap(); } }),
+    el('button', { 'aria-pressed': String(scan), text: 'Deep scan', onclick: () => { view = 'scan'; renderMap(); } }));
+  const card = el('section', { class: 'card' }, el('h2', { text: 'Map' }), toggle,
+    el('p', { class: 'hint', text: scan ? 'What a deep scan would show the players: passages joined to an entrance by open cells (hidden and blocked ones are missed). Blight levels, cores and oases show only where you have marked cells read.' : 'Paint the structure, then place points on it. Right-click erases. One cell is one marker; row 0 is the surface.' }),
+    el('p', { class: 'data hint', id: 'cellreadout', text: '' }));
+  const parts = [card];
+  if (!scan) {
+    const btn = (id, label, pressed, fn) => el('button', { class: 'tool', 'aria-pressed': String(pressed), text: label, onclick: fn });
+    const seg = (items, cur2, set) => el('div', { class: 'seg' }, items.map(([v, l]) => el('button', { 'aria-pressed': String(v === cur2), text: l, onclick: () => { set(v); renderMapSide(); } })));
+    const renderMapSide = () => drawSide(side);
+    const chk = (label, val, set) => { const c = el('input', { type: 'checkbox' }); c.checked = val; c.addEventListener('change', () => { set(c.checked); }); return el('label', { class: 'check' }, c, label); };
+    const keySel = el('select', { 'aria-label': 'Key location number' }, ...Array.from({ length: Math.max(1, d.locs.length) }, (_, i) => { const placed = m.points.some(p => p.t === 'k' && p.k === i); return el('option', { value: i, text: `Key location ${i + 1}${placed ? ' (placed)' : ''}` }); }));
+    keySel.value = String(Math.min(keyNo, Math.max(0, d.locs.length - 1))); keySel.addEventListener('change', () => { keyNo = Number(keySel.value); });
+    const lvl = el('select', { 'aria-label': 'Blight level to paint' }, ...[0, 1, 2, 3, 4, 5, 6].map(v => el('option', { value: v, text: v ? `Blight level ${v}` : 'Clear Blight' }))); lvl.value = String(level); lvl.addEventListener('change', () => { level = Number(lvl.value); });
+    parts.push(el('section', { class: 'card' }, el('h2', { text: 'Paint' }), el('div', { class: 'tools' }, TOOLS.map(([k, l]) => btn(k, l, tool === k, () => { tool = k; renderMapSide(); }))),
+      el('div', { class: 'row', style: 'margin-top:8px' }, el('span', { class: 'hint', text: 'Brush' }), seg([[1, '1'], [2, '2'], [3, '3'], [5, '5']], brush, v => { brush = v; }), chk('Mirror', mirror, v => { mirror = v; })),
+      tool === 'blight' ? el('div', { style: 'margin-top:8px' }, lvl) : null,
+      el('h3', { text: 'Points' }), el('div', { class: 'tools' }, POINT_TOOLS.map(([k, l]) => btn(k, l, tool === k, () => { tool = k; renderMapSide(); }))),
+      tool === 'k' ? el('div', { style: 'margin-top:8px' }, keySel, el('p', { class: 'hint', text: d.locs[keyNo] ? `${locText(data, d.locs[keyNo])} · ${d.locs[keyNo].shards.v} shards` : 'Roll key locations on the Ruin tab to number them.' })) : null,
+      el('div', { class: 'row actions' }, el('button', { class: 'mini', text: `Undo${undo.length ? ` (${undo.length})` : ''}`, disabled: !undo.length, onclick: () => { const s = undo.pop(); if (s) { d.map = s; refresh(); } } }),
+        el('button', { class: 'mini', text: 'Blight: read all', onclick: () => { snapshot(); for (let y = 0; y < m.h; y++) for (let x = 0; x < m.w; x++) if (m.cells[y][x] !== '.') setRead(m, x, y, true); refresh(); } }),
+        el('button', { class: 'mini', text: 'Read none', onclick: () => { snapshot(); m.read = m.read.map(r => '.'.repeat(m.w)); refresh(); } }))));
+    const wIn = el('input', { type: 'number', min: MAP_LIMITS.wMin, max: MAP_LIMITS.wMax, 'aria-label': 'Grid width' }); wIn.value = m.w;
+    const hIn = el('input', { type: 'number', min: MAP_LIMITS.hMin, max: MAP_LIMITS.hMax, 'aria-label': 'Grid rows' }); hIn.value = m.h;
+    parts.push(el('section', { class: 'card' }, el('h2', { text: 'Grid' }),
+      el('div', { class: 'row' }, el('label', { class: 'field' }, el('span', { text: 'Columns' }), wIn), el('label', { class: 'field' }, el('span', { text: 'Rows' }), hIn)),
+      el('div', { class: 'row actions' }, el('button', { class: 'mini', text: 'Resize', onclick: () => { snapshot(); d.map = resizeMap(m, Number(wIn.value), Number(hIn.value)); refresh(); renderMap(); } }),
+        el('button', { class: 'mini', text: regen ? 'Click again to replace' : 'Generate from ruin', onclick: () => { if (!d.items.depth || !d.items.blight) return status('Roll the ruin first.'); if (!regen) { regen = true; return drawSide(side); } placeMap(); } }),
+        el('button', { class: 'mini', text: 'Clear', onclick: () => { snapshot(); d.map = emptyMap(m.w, m.h); selPoint = null; refresh(); } })),
+      el('p', { class: 'hint', text: 'Generating lays a structure out from the ruin’s depth, entrances, key locations, cores, oases and Blight band, then you paint over it.' })));
+  }
+  parts.push(el('section', { class: 'card' }, el('h2', { text: 'Export' }), el('div', { class: 'row actions' }, el('button', { class: 'mini', text: 'Save image (PNG)', onclick: exportPng }))));
+  const p = selPoint && pointById(m, selPoint);
+  if (p) parts.push(pointPanel(p, refresh)); else parts.push(el('section', { class: 'card' }, el('p', { class: 'hint', text: 'Use Select (or click a point in the deep-scan view) to see its details and its distance to the nearest known exit.' })));
+  side.replaceChildren(...parts);
 }
-function zonePanel(z, redraw) {
-  const d = cur(), map = d.map;
-  const f = (label, input) => el('label', { class: 'field' }, el('span', { text: label }), input);
-  const numIn = (v, set, o = {}) => { const i = el('input', { type: 'number', ...o }); i.value = v == null ? '' : v; i.addEventListener('change', () => { set(i.value); redraw(); }); return i; };
-  const chk = (label, key, extra) => { const c = el('input', { type: 'checkbox' }); c.checked = !!z[key]; c.addEventListener('change', () => { z[key] = c.checked; if (extra) extra(c.checked); redraw(); }); return el('label', { class: 'check' }, c, label); };
-  const nameIn = el('input', { type: 'text', 'aria-label': 'Zone name' }); nameIn.value = z.n; nameIn.addEventListener('change', () => { z.n = nameIn.value.slice(0, 80); redraw(); });
-  const keySel = el('select', { 'aria-label': 'Key location number' }, el('option', { value: '', text: 'Not a key location' }), ...d.locs.map((_, i) => el('option', { value: i, text: `Key location ${i + 1}` })));
-  keySel.value = z.k == null ? '' : z.k; keySel.addEventListener('change', () => { z.k = keySel.value === '' ? null : Number(keySel.value); redraw(); });
-  const near = nearestExit(map, z.id), nearAll = nearestExit(map, z.id, { knownOnly: false });
-  const other = map.zones.filter(o => o.id !== z.id && !map.edges.some(e => (e.a === z.id && e.b === o.id) || (e.b === z.id && e.a === o.id)));
-  const linkSel = el('select', { 'aria-label': 'Join to zone' }, el('option', { value: '', text: 'Join to…' }), ...other.map(o => el('option', { value: o.id, text: `${zoneName(o)} · ${o.d}` })));
-  const edges = map.edges.filter(e => e.a === z.id || e.b === z.id);
-  const kd = z.k != null && d.locs[z.k] ? describeIndexed(data, 'loc.shape', d.locs[z.k].shape) : null;
-  return el('section', { class: 'card' }, el('h2', { text: zoneName(z) }),
-    el('p', { class: 'data', 'aria-live': 'polite', text: near ? `Nearest known exit: ${near.dist} marker${near.dist === 1 ? '' : 's'} (${zoneName(zoneById(map, near.exit))}).` : nearAll ? `No known exit by open paths; the nearest of any entrance is ${nearAll.dist} markers away. Mark an entrance as a known exit.` : 'No entrance can be reached by open paths.' }),
-    f('Name (optional)', nameIn),
-    el('div', { class: 'row' }, f('Depth (markers)', numIn(z.d, v => { z.d = Math.max(0, Math.min(200, Math.trunc(Number(v) || 0))); }, { min: 0 })), f('Blight level', numIn(z.b, v => { z.b = v === '' || Number(v) < 1 ? null : Math.min(99, Math.trunc(Number(v))); }, { min: 1 }))),
-    f('Key location', keySel), kd ? el('p', { class: 'hint', text: `${kd.name || kd.chip}${kd.detail ? ' · ' + kd.detail : ''}${d.locs[z.k] ? ' · ' + d.locs[z.k].shards.v + ' shards' : ''}` }) : null,
-    el('div', { class: 'stack', style: 'margin-top:6px' }, chk('Entrance', 'e'), z.e ? chk('Known exit', 'u') : null, chk('Blight core', 'c'), chk('Blight oasis', 'o'), chk('Hidden (a deep scan would miss it)', 'h'), chk('Blight level read', 's')),
-    el('h3', { text: 'Paths' }),
-    ...edges.map(e => {
-      const o = zoneById(map, e.a === z.id ? e.b : e.a);
-      const st = el('select', { 'aria-label': `Path to ${zoneName(o)}` }, ...['open', 'hidden', 'blocked'].map(t => el('option', { value: t, text: t }))); st.value = e.t; st.addEventListener('change', () => { e.t = st.value; redraw(); });
-      const len = el('input', { type: 'number', min: 1, placeholder: String(Math.max(1, Math.abs(zoneById(map, e.a).d - zoneById(map, e.b).d))), 'aria-label': `Length to ${zoneName(o)} in markers`, style: 'width:64px' }); len.value = e.len || ''; len.addEventListener('change', () => { if (len.value === '') delete e.len; else e.len = Math.max(1, Math.trunc(Number(len.value) || 1)); redraw(); });
-      return el('div', { class: 'row', style: 'margin:4px 0' }, el('span', { class: 'small', style: 'flex:1 1 90px', text: zoneName(o) }), st, len, el('button', { class: 'mini', text: '×', 'aria-label': `Remove path to ${zoneName(o)}`, onclick: () => { map.edges.splice(map.edges.indexOf(e), 1); redraw(); } }));
-    }),
-    el('div', { class: 'row actions' }, linkSel, el('button', { class: 'mini', text: 'Add path', onclick: () => { if (!linkSel.value) return; if (addEdge(map, z.id, linkSel.value)) redraw(); } })),
-    el('div', { class: 'row actions' }, el('button', { class: 'mini', text: 'Remove zone', onclick: () => { removeZone(map, z.id); selected = null; redraw(); } }), el('button', { class: 'mini', text: 'Deselect', onclick: () => { selected = null; drawSvg($('#mapbox')); drawSide($('#mapside')); } })));
+function exportPng() { if (!mapCanvas) return; mapCanvas.toBlob(b => { if (!b) return; const url = URL.createObjectURL(b), a = el('a', { href: url, download: `ctgd-delve-${view}.png` }); document.body.append(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 1000); }); }
+function pointPanel(p, refresh) {
+  const d = cur(), m = d.map, names = { e: 'Entrance', k: `Key location ${p.k + 1}`, c: 'Blight core', o: 'Blight oasis', n: 'Note' };
+  const near = nearestExit(m, p.x, p.y), any = nearestExit(m, p.x, p.y, { knownOnly: false });
+  const nameIn = el('input', { type: 'text', 'aria-label': 'Point name' }); nameIn.value = p.n; nameIn.addEventListener('change', () => { p.n = nameIn.value.slice(0, 80); refresh(); });
+  const kd = p.t === 'k' && d.locs[p.k] ? describeIndexed(data, 'loc.shape', d.locs[p.k].shape) : null;
+  const known = (() => { const c = el('input', { type: 'checkbox' }); c.checked = p.u; c.addEventListener('change', () => { p.u = c.checked; refresh(); }); return el('label', { class: 'check' }, c, 'Known exit'); })();
+  return el('section', { class: 'card' }, el('h2', { text: names[p.t] }),
+    el('p', { class: 'data', 'aria-live': 'polite', text: `${cellName(p.x, p.y)} · ${p.y} markers deep. ${near ? `Nearest known exit: ${near.dist} marker${near.dist === 1 ? '' : 's'} by open passage.` : any ? `No known exit by open passage; the nearest entrance is ${any.dist} markers away.` : 'No entrance reaches it by passage.'}` }),
+    kd ? el('p', { class: 'hint', text: `${kd.name || kd.chip}${kd.detail ? ' · ' + kd.detail : ''}${d.locs[p.k] ? ' · ' + d.locs[p.k].shards.v + ' shards' : ''}` }) : null,
+    el('label', { class: 'field' }, el('span', { text: 'Name (optional)' }), nameIn), p.t === 'e' ? known : null,
+    el('div', { class: 'row actions' }, el('button', { class: 'mini', text: 'Remove point', onclick: () => { snapshot(); removePoint(m, p.id); selPoint = null; refresh(); } }), el('button', { class: 'mini', text: 'Deselect', onclick: () => { selPoint = null; drawCanvas(); drawSide($('#mapside')); } })));
 }
 
 /* ---------- the Data tab ---------- */
@@ -440,8 +448,8 @@ function siteEntity(d) {
     locations: d.locs.slice(0, 100).map(l => { const x = describeIndexed(data, 'loc.shape', l.shape); return { name: l.name, shape: x.name || x.chip, func: x.detail, shards: l.shards.v }; })
   };
   if (d.map) {
-    out.zones = d.map.zones.slice(0, 200).map(z => ({ id: z.id, d: z.d, x: z.x, b: z.b == null ? 0 : z.b, k: z.k == null ? -1 : z.k, f: (z.e ? 'e' : '') + (z.u ? 'u' : '') + (z.c ? 'c' : '') + (z.o ? 'o' : '') + (z.h ? 'h' : '') + (z.s ? 's' : ''), n: z.n }));
-    out.edges = d.map.edges.slice(0, 200).map(e => [e.a, e.b, e.t[0], e.len || 0]);
+    out.mapW = d.map.w; out.mapH = d.map.h; out.mapCells = d.map.cells; out.mapBlight = d.map.blight;
+    out.mapPoints = d.map.points.slice(0, 200).map(p => ({ id: p.id, t: p.t, x: p.x, y: p.y, k: p.k == null ? -1 : p.k, n: p.n, u: p.u ? 1 : 0 }));
   }
   return { id: d.cid, name: title(d), source: 'delve', data: out, refs: { delveId: d.id } };
 }
@@ -474,16 +482,16 @@ function showTab(t, quiet) {
 }
 TABS.forEach(t => { $('#tab-' + t).addEventListener('click', () => showTab(t)); });
 $('#tabs').addEventListener('keydown', e => { const i = TABS.indexOf(tab); if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') { const n = TABS[(i + (e.key === 'ArrowRight' ? 1 : TABS.length - 1)) % TABS.length]; showTab(n); $('#tab-' + n).focus(); } });
-$('#new').onclick = () => { const d = newDelve(); delves.push(d); active = d.id; selected = null; persist(); renderAll(); };
-$('#duplicate').onclick = () => { const d = cleanDelve(JSON.parse(JSON.stringify(cur()))); d.id = crypto.randomUUID(); d.cid = ''; d.name = title(cur()) + ' (copy)'; delves.push(d); active = d.id; selected = null; persist(); renderAll(); };
-$('#library').onchange = e => { active = e.target.value; selected = null; persist(); renderAll(); };
+$('#new').onclick = () => { const d = newDelve(); delves.push(d); active = d.id; selPoint = null; undo = []; persist(); renderAll(); };
+$('#duplicate').onclick = () => { const d = cleanDelve(JSON.parse(JSON.stringify(cur()))); d.id = crypto.randomUUID(); d.cid = ''; d.name = title(cur()) + ' (copy)'; delves.push(d); active = d.id; selPoint = null; undo = []; persist(); renderAll(); };
+$('#library').onchange = e => { active = e.target.value; selPoint = null; undo = []; persist(); renderAll(); };
 $('#delve-name').oninput = e => { cur().name = e.target.value; touch(); const o = $('#library').selectedOptions[0]; if (o) o.textContent = title(cur()); };
 $('#export').onclick = () => download('ctgd-delve.json', backup([cur()]));
 $('#delete').onclick = () => $('#confirm').showModal();
 $('#confirm').addEventListener('close', () => {
   if ($('#confirm').returnValue !== 'delete') return;
   delves = delves.filter(d => d.id !== active); if (!delves.length) delves = [newDelve()];
-  active = delves[0].id; selected = null; persist(); renderAll();
+  active = delves[0].id; selPoint = null; undo = []; persist(); renderAll();
 });
 const hashTab = location.hash.slice(1); if (TABS.includes(hashTab)) tab = hashTab;
 renderAll();

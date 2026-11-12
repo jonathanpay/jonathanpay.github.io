@@ -45,23 +45,25 @@ back to ids and numbers.
   The **delve class** is an estimate mapped from the Blight band (I to IV). The book
   gives no numeric rule for classes, so the page says so and lets you change it.
   How many quirks to roll is your choice (default 2).
-- **Map.** A side-view map in markers: zones joined by paths, surface at the top, depth
-  down the side. Each zone has a depth, a Blight level and flags: entrance, key location
-  (with its shape, function and shards from the ruin), Blight core, oasis, hidden. Paths
-  are open, hidden or blocked and can have their own length. **Place from ruin** lays out
-  the generated features: entrances at the surface at different distances from the first
-  key locations, key locations a few markers apart along their routes, most reachable
-  by two routes, no single obvious end point at the bottom, and some paths hidden or
-  blocked. Drag zones, add and remove them, join them and edit them freely. The side
-  panel shows the distance from the selected zone to the **nearest known exit** (an
-  entrance marked as known, along open paths), which the hazard roll will use later.
-  Two views come from one map: **GM view** shows everything; **Deep scan** shows what a
-  scan could reach (zones joined to an entrance by open paths, not hidden), and shows
-  Blight levels, cores and oases only for zones you have marked read. The deep-scan view
-  is drawn as a player handout: amber on black, a lettered and numbered grid, corridors as
-  glowing outlined tubes at right angles, hexagon Blight badges (a dim ? on a key location
-  not yet read), scanlines, and interference below the deepest zone the scan reached. The
-  GM view stays a plain schematic. The map saves with the delve.
+- **Map.** The structure is painted on a grid, one cell to a marker, with the surface as row 0
+  and each row down one marker deeper. Paint with **Dig**, **Hidden** and **Blocked**
+  brushes (sizes 1 to 5, optional left-right mirror), erase (or right-click), and undo. Then
+  put **points** on it: entrances, numbered key locations (taken from the ruin, with their
+  shape and shards), Blight cores, oases and free notes, and paint **Blight levels** and
+  **read** areas onto the cells. **Generate from ruin** carves a structure to start from:
+  entrances at the surface at different distances from the first key locations, key
+  locations 4–8 markers apart by passage, a second route round most of them, dead ends
+  reaching the bottom so there is no obvious end point, some passages hidden or blocked
+  (the first route to every key location is always open), and Blight by depth within the
+  band's range. Points can be dragged; **Save image** writes a PNG. The panel shows the
+  distance in markers from a point to the **nearest known exit** (an entrance marked
+  known, along open passages), which the hazard roll uses.
+  Two views come from one map. **GM view** shows everything. **Deep scan** is drawn as a
+  player handout (amber on black, lettered and numbered grid, outlined passages, hexagon
+  Blight badges, scanlines, interference below the deepest cell reached) and shows only
+  the passages joined to an entrance by open cells, with Blight levels, cores and oases
+  only where you have marked cells read (a dim ? marks a key location not yet read).
+  The map saves with the delve. Maps from the first, zone-graph version are not carried over.
 - **Data.** Import or remove the data file, download a template, see which tables the
   file covers, and back up or restore all your delves.
 

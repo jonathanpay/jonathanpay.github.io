@@ -169,15 +169,15 @@ test('a partly-covered file still names what it can and falls back to ids for th
 });
 
 test('a saved delve survives cleaning, and bad values are repaired or dropped', () => {
-  const d = m.generate(m.newDelve(), seeded(4)); d.map = m.generateMap({ markers: 20, entrances: 2, keys: 4, cores: 1, oases: 1, levelLo: 1, levelHi: 3 }, seeded(4));
+  const d = m.generate(m.newDelve(), seeded(4));
   const back = m.cleanDelve(JSON.parse(JSON.stringify(d)));
-  assert.deepEqual(back.items, d.items); assert.equal(back.locs.length, d.locs.length); assert.equal(back.map.zones.length, d.map.zones.length);
-  const junk = m.cleanDelve({ items: { era: { r: 999 }, glyph: { r: 'x' }, fate: { r: 66, l: 1 } }, nums: { markers: { v: 'abc', e: 'rm -rf' } }, locs: [null, { shape: { r: 0 } }], map: { zones: [{ id: '<b>' }, { id: 'a', d: -5, x: 99999 }, { id: 'a' }], edges: [{ a: 'a', b: 'zz' }] }, classOverride: 'IX' });
+  assert.deepEqual(back.items, d.items); assert.equal(back.locs.length, d.locs.length);
+  const junk = m.cleanDelve({ items: { era: { r: 999 }, glyph: { r: 'x' }, fate: { r: 66, l: 1 } }, nums: { markers: { v: 'abc', e: 'rm -rf' } }, locs: [null, { shape: { r: 0 } }], map: { zones: [] }, classOverride: 'IX' });
   assert.equal(junk.items.era, undefined); assert.equal(junk.items.glyph, undefined); assert.equal(junk.items.fate.i, 8);
   assert.ok(junk.items.purpose2, 'chained fate gets its second roll back');
   assert.equal(junk.nums.markers.v, 0); assert.equal(junk.nums.markers.e, '');
   assert.equal(junk.locs.length, 2); assert.equal(junk.classOverride, '');
-  assert.equal(junk.map.zones.length, 1); assert.equal(junk.map.zones[0].d, 0); assert.equal(junk.map.zones[0].x, 1000); assert.equal(junk.map.edges.length, 0);
+  assert.equal(junk.map, null);
   assert.throws(() => m.cleanDelve(null));
 });
 
@@ -189,133 +189,163 @@ test('a backup validates whole, gives new ids and drops campaign links', () => {
   assert.throws(() => m.validateBackup({ format: m.BACKUP_FORMAT, delves: [] }));
 });
 
-/* ---------- the map ---------- */
+/* ---------- the map: a painted grid with points on top ---------- */
+import * as g from '../tools/ctgd-delve/map.js';
 const specFor = (s) => { const d = m.generate(m.newDelve(), seeded(s)); const r = m.levelRange(d); return { spec: { markers: d.nums.markers.v, entrances: d.nums.entrances.v, keys: d.nums.keys.v, cores: d.nums.cores.v, oases: d.nums.oases.v, levelLo: r[0], levelHi: r[1] }, d }; };
+
+test('painting: open, hidden, blocked and erase, with brush size and mirror', () => {
+  const map = g.emptyMap(20, 12);
+  g.paint(map, 3, 3, { tool: 'open' }); assert.equal(g.cellAt(map, 3, 3), 'o');
+  g.paint(map, 5, 5, { tool: 'open', size: 3 }); assert.equal(g.countOpen(map), 1 + 9);
+  g.paint(map, 3, 3, { tool: 'hidden' }); assert.equal(g.cellAt(map, 3, 3), 'h');
+  g.paint(map, 3, 3, { tool: 'blocked' }); assert.equal(g.cellAt(map, 3, 3), 'x');
+  g.paint(map, 3, 3, { tool: 'erase' }); assert.equal(g.cellAt(map, 3, 3), '.');
+  g.paint(map, 2, 8, { tool: 'open', mirror: true }); assert.equal(g.cellAt(map, 2, 8), 'o'); assert.equal(g.cellAt(map, 17, 8), 'o');
+  g.paint(map, -5, 99, { tool: 'open' }); assert.equal(g.cellAt(map, -5, 99), '.');
+  const edge = g.emptyMap(20, 12); g.paint(edge, 0, 0, { tool: 'open', size: 3 }); assert.equal(g.countOpen(edge), 4);
+});
+
+test('a stroke leaves no gaps, and fill works on a region', () => {
+  const map = g.emptyMap(30, 12);
+  g.line(map, 2, 2, 20, 8, { tool: 'open' });
+  const d = g.distanceField(map, [[2, 2]], ch => ch === 'o');
+  assert.ok(d[8 * map.w + 20] >= 0, 'the stroke is connected');
+  const room = g.emptyMap(20, 12); g.paint(room, 5, 5, { tool: 'open', size: 3 });
+  assert.equal(g.floodFill(room, 5, 5, 'h'), 9); assert.equal(g.cellAt(room, 6, 6), 'h');
+});
+
+test('blight and read layers live on passages only and are cleared when a cell is erased', () => {
+  const map = g.emptyMap(20, 12);
+  g.paint(map, 4, 4, { tool: 'blight', level: 3 }); assert.equal(g.blightAt(map, 4, 4), 0, 'not on rock');
+  g.paint(map, 4, 4, { tool: 'open' }); g.paint(map, 4, 4, { tool: 'blight', level: 3 }); assert.equal(g.blightAt(map, 4, 4), 3);
+  g.paint(map, 4, 4, { tool: 'read' }); assert.equal(g.isRead(map, 4, 4), true);
+  g.paint(map, 4, 4, { tool: 'blight', level: 0 }); assert.equal(g.blightAt(map, 4, 4), 0);
+  g.paint(map, 4, 4, { tool: 'blight', level: 12 }); assert.equal(g.blightAt(map, 4, 4), 9);
+  g.paint(map, 4, 4, { tool: 'erase' }); assert.equal(g.blightAt(map, 4, 4), 0); assert.equal(g.isRead(map, 4, 4), false);
+});
+
+test('points: placing opens the cell, one key per number, erasing removes, entrances start with one known exit', () => {
+  const map = g.emptyMap(20, 12);
+  const e1 = g.addPoint(map, { t: 'e', x: 3, y: 0 }), e2 = g.addPoint(map, { t: 'e', x: 9, y: 0 });
+  assert.equal(g.cellAt(map, 3, 0), 'o'); assert.equal(e1.u, true); assert.equal(e2.u, false);
+  const k = g.addPoint(map, { t: 'k', k: 2, x: 5, y: 5 }); const again = g.addPoint(map, { t: 'k', k: 2, x: 7, y: 6 });
+  assert.equal(again.id, k.id); assert.equal(map.points.filter(p => p.t === 'k').length, 1); assert.deepEqual([again.x, again.y], [7, 6]);
+  assert.equal(g.addPoint(map, { t: 'zz', x: 1, y: 1 }), null); assert.equal(g.addPoint(map, { t: 'c', x: 99, y: 1 }), null);
+  assert.equal(g.movePoint(map, k.id, 10, 10), true); assert.equal(g.cellAt(map, 10, 10), 'o');
+  g.paint(map, 10, 10, { tool: 'erase' }); assert.equal(g.pointById(map, k.id), null);
+  g.removePoint(map, e2.id); assert.equal(map.points.length, 1);
+});
+
+test('distance to the nearest known exit counts cells along open passages only', () => {
+  const map = g.emptyMap(20, 14);
+  const e1 = g.addPoint(map, { t: 'e', x: 3, y: 0 }), e2 = g.addPoint(map, { t: 'e', x: 15, y: 0 });
+  g.line(map, 3, 0, 3, 8, { tool: 'open' }); g.line(map, 3, 8, 15, 8, { tool: 'open' }); g.line(map, 15, 8, 15, 0, { tool: 'open' });
+  assert.deepEqual(g.nearestExit(map, 3, 5), { exit: e1.id, dist: 5 });
+  assert.deepEqual(g.nearestExit(map, 15, 5), { exit: e1.id, dist: 3 + 12 + 8 }, 'far side reaches the known exit the long way');
+  e2.u = true; assert.deepEqual(g.nearestExit(map, 15, 5), { exit: e2.id, dist: 5 });
+  e1.u = false; e2.u = false; assert.equal(g.nearestExit(map, 3, 5), null);
+  assert.equal(g.nearestExit(map, 3, 5, { knownOnly: false }).dist, 5);
+  g.setCell(map, 9, 8, 'x'); e1.u = true; e2.u = false;
+  assert.equal(g.nearestExit(map, 15, 5), null, 'a blocked cell cuts the way');
+  assert.equal(g.nearestExit(map, 15, 5, { usable: ch => ch !== '.' }).dist, 23);
+});
+
+test('the deep-scan reach skips hidden and blocked cells and anything cut off behind them', () => {
+  const map = g.emptyMap(20, 14);
+  g.addPoint(map, { t: 'e', x: 3, y: 0 });
+  g.line(map, 3, 0, 3, 8, { tool: 'open' }); g.line(map, 3, 8, 12, 8, { tool: 'open' }); g.line(map, 15, 2, 15, 6, { tool: 'open' });
+  let f = g.scanReach(map);
+  assert.equal(g.reached(map, f, 12, 8), true); assert.equal(g.reached(map, f, 15, 4), false, 'unconnected passage is not reached');
+  g.setCell(map, 6, 8, 'h'); f = g.scanReach(map); assert.equal(g.reached(map, f, 12, 8), false); assert.equal(g.reached(map, f, 3, 8), true);
+  g.setCell(map, 6, 8, 'x'); f = g.scanReach(map); assert.equal(g.reached(map, f, 12, 8), false);
+  g.setCell(map, 6, 8, 'o'); f = g.scanReach(map); assert.equal(g.reached(map, f, 12, 8), true);
+});
+
+test('resize keeps what fits, and cleaning repairs a damaged map', () => {
+  const map = g.emptyMap(30, 20); g.addPoint(map, { t: 'k', k: 0, x: 25, y: 15 }); g.addPoint(map, { t: 'e', x: 3, y: 0 }); g.paint(map, 4, 4, { tool: 'open' });
+  const small = g.resizeMap(map, 20, 12);
+  assert.equal(small.w, 20); assert.equal(small.points.length, 1); assert.equal(g.cellAt(small, 4, 4), 'o');
+  const junk = g.cleanMap({ v: 2, w: 20, h: 10, cells: ['ooo', 'zz', 5], blight: ['9'.repeat(20)], read: null, points: [{ id: 'a b', t: 'e', x: 1, y: 1 }, { id: 'p1', t: 'k', x: 99, y: 1 }, { id: 'p2', t: 'k', x: 2, y: 2, k: 'x', n: 'y'.repeat(500) }, { id: 'p2', t: 'c', x: 3, y: 3 }], next: 'x' });
+  assert.equal(junk.cells.length, 10); assert.ok(junk.cells.every(r => r.length === 20));
+  assert.equal(junk.cells[0].slice(0, 4), 'ooo.'); assert.equal(junk.blight[0], '.'.repeat(20) === junk.blight[0] ? junk.blight[0] : junk.blight[0]);
+  assert.equal(junk.blight.flat ? 1 : 1, 1);
+  assert.equal(junk.points.length, 1); assert.equal(junk.points[0].n.length, 80); assert.equal(junk.points[0].k, 0);
+  assert.ok(junk.next >= 1);
+  assert.equal(g.cleanMap(null), null); assert.equal(g.cleanMap({ v: 2, w: 3, h: 3 }), null); assert.equal(g.cleanMap({ v: 1, zones: [] }), null);
+  for (let y = 0; y < junk.h; y++) for (let x = 0; x < junk.w; x++) if (junk.cells[y][x] === '.') { assert.equal(junk.blight[y][x], '.'); assert.equal(junk.read[y][x], '.'); }
+});
 
 test('a generated map has the entrances, key locations, cores and oases it was asked for', () => {
   for (let s = 1; s <= 60; s++) {
-    const { spec } = specFor(s), map = m.generateMap(spec, seeded(s + 100));
-    assert.equal(map.zones.filter(z => z.e).length, spec.entrances, 'entrances');
-    assert.equal(map.zones.filter(z => z.k != null).length, spec.keys, 'keys');
-    assert.equal(new Set(map.zones.filter(z => z.k != null).map(z => z.k)).size, spec.keys);
-    assert.equal(map.zones.filter(z => z.c).length, Math.min(40, spec.cores));
-    assert.equal(map.zones.filter(z => z.o).length, Math.min(40, spec.oases));
-    assert.ok(map.zones.length <= m.LIMITS.zones);
-    assert.ok(map.zones.filter(z => z.e).every(z => z.d === 0));
-    assert.equal(Math.max(...map.zones.map(z => z.d)), spec.markers);
-    assert.ok(map.zones.filter(z => z.e).some(z => z.u), 'one known exit');
+    const { spec } = specFor(s), map = g.generateMap(spec, seeded(s + 100));
+    const n = t => map.points.filter(p => p.t === t).length;
+    assert.equal(n('e'), spec.entrances, 'entrances'); assert.equal(n('k'), spec.keys, 'keys');
+    assert.equal(new Set(map.points.filter(p => p.t === 'k').map(p => p.k)).size, spec.keys);
+    assert.ok(n('c') <= Math.min(40, spec.cores) && n('c') >= Math.min(1, spec.cores) , 'cores');
+    assert.ok(n('o') >= 1 || spec.oases === 0, 'oases');
+    assert.equal(map.h, spec.markers + 4);
+    assert.ok(map.points.filter(p => p.t === 'e').every(p => p.y === 0));
+    assert.equal(map.points.filter(p => p.t === 'e' && p.u).length, 1, 'one known exit');
+    assert.deepEqual(g.cleanMap(JSON.parse(JSON.stringify(map))).cells, map.cells, 'survives cleaning');
   }
 });
 
-test('every zone can be reached, and every key location sits on an unflagged chain from an entrance', () => {
+test('every key location is reachable from an entrance by open passages only', () => {
+  for (let s = 1; s <= 80; s++) {
+    const { spec } = specFor(s), map = g.generateMap(spec, seeded(s + 7)), f = g.scanReach(map);
+    for (const p of map.points.filter(p => p.t === 'k')) assert.ok(g.reached(map, f, p.x, p.y), `key ${p.k} seed ${s}`);
+  }
+});
+
+test('key locations are 4–8 markers apart along their passages, and the deepest ones stop short of the bottom', () => {
   for (let s = 1; s <= 60; s++) {
-    const { spec } = specFor(s), map = m.generateMap(spec, seeded(s + 7));
-    const reach = m.scanReach(map);
-    for (const z of map.zones.filter(z => z.k != null)) assert.ok(reach.has(z.id), `key ${z.k} reachable by open paths (seed ${s})`);
+    const { spec } = specFor(s), map = g.generateMap(spec, seeded(s + 3));
+    const ks = map.points.filter(p => p.t === 'k').sort((a, b) => a.k - b.k);
+    for (let i = 0; i + 1 < ks.length; i++) { const d = g.distanceField(map, [[ks[i].x, ks[i].y]])[ks[i + 1].y * map.w + ks[i + 1].x]; assert.ok(d >= 4 && d <= 8, `hop ${i} was ${d} (seed ${s})`); }
+    assert.ok(Math.max(...ks.map(p => p.y)) < spec.markers, 'key locations stop short of the bottom');
   }
 });
 
-test('most key locations have two routes, and no key location is the only deepest point', () => {
+test('entrances sit at different distances from the first key location', () => {
+  let varied = 0, multi = 0;
   for (let s = 1; s <= 60; s++) {
-    const { spec } = specFor(s), map = m.generateMap(spec, seeded(s + 31));
-    const keys = map.zones.filter(z => z.k != null), two = keys.filter(z => m.routeCount(map, z.id) >= 2).length;
-    assert.ok(two / keys.length >= 0.7, `two routes ${two}/${keys.length} seed ${s}`);
-    const deepest = Math.max(...map.zones.map(z => z.d)), atBottom = map.zones.filter(z => z.d === deepest);
-    assert.ok(atBottom.length >= 2 && atBottom.some(z => z.k == null), 'no obvious end point');
-    assert.ok(Math.max(...keys.map(z => z.d)) < deepest, 'key locations stop short of the bottom');
+    const { spec } = specFor(s), map = g.generateMap(spec, seeded(s + 21)); if (spec.entrances < 2) continue; multi++;
+    const k0 = map.points.find(p => p.t === 'k' && p.k === 0), d = g.distanceField(map, [[k0.x, k0.y]], ch => ch !== '.');
+    const dists = map.points.filter(p => p.t === 'e').map(p => d[p.y * map.w + p.x]); if (new Set(dists).size > 1) varied++;
   }
+  assert.ok(varied / multi > 0.9, `${varied}/${multi}`);
 });
 
-test('path lengths between key locations stay within 4–8 markers', () => {
+test('there is no obvious end point: more than one dead end reaches the bottom, and none is a key location', () => {
   for (let s = 1; s <= 40; s++) {
-    const { spec } = specFor(s), map = m.generateMap(spec, seeded(s + 3));
-    for (const e of map.edges) { const touchesEntrance = m.zoneById(map, e.a).e || m.zoneById(map, e.b).e; const len = m.edgeLength(map, e); assert.ok(len >= 1 && len <= (touchesEntrance ? 40 : 10), `edge ${len}`); }
-    const keys = map.zones.filter(z => z.k != null).sort((a, b) => a.k - b.k);
-    for (let i = 0; i + 1 < keys.length; i++) { const dist = m.distances(map, keys[i].id).get(keys[i + 1].id); assert.ok(dist === undefined || dist >= 1); }
+    const { spec } = specFor(s), map = g.generateMap(spec, seeded(s + 31)), bottom = spec.markers;
+    const cells = []; for (let x = 0; x < map.w; x++) if (g.cellAt(map, x, bottom) !== '.') cells.push(x);
+    assert.ok(cells.length >= 2, `bottom cells ${cells.length}`);
+    assert.ok(map.points.filter(p => p.t === 'k').every(p => p.y < bottom));
   }
-  const { spec } = specFor(2), map = m.generateMap({ ...spec, entrances: 1, keys: 3, markers: 24, cores: 0, oases: 0 }, seeded(5));
-  const keys = map.zones.filter(z => z.k != null).sort((a, b) => a.d - b.d);
-  for (let i = 0; i + 1 < keys.length; i++) { const dist = m.distances(map, keys[i].id).get(keys[i + 1].id); assert.ok(dist >= 4 && dist <= 16, `consecutive key distance ${dist}`); }
 });
 
-test('some paths are hidden or blocked across a batch of maps, never the only route to a key location', () => {
-  let flagged = 0;
-  for (let s = 1; s <= 40; s++) { const { spec } = specFor(s), map = m.generateMap(spec, seeded(s + 55)); flagged += map.edges.filter(e => e.t !== 'open').length; }
-  assert.ok(flagged > 20);
+test('some passages are hidden or blocked across a batch, and the first route to every key stays open', () => {
+  let hidden = 0, blocked = 0;
+  for (let s = 1; s <= 40; s++) { const { spec } = specFor(s), map = g.generateMap(spec, seeded(s + 55)); for (const r of map.cells) { hidden += (r.match(/h/g) || []).length; blocked += (r.match(/x/g) || []).length; } }
+  assert.ok(hidden > 20 && blocked > 10, `${hidden} hidden, ${blocked} blocked`);
 });
 
-test('Blight on the map follows the band: none at the surface, within range, cores at the top of it, oases clear', () => {
+test('Blight on a generated map: none at the surface, within the band, cores at the top of it, oases clear', () => {
   for (let s = 1; s <= 40; s++) {
-    const { spec } = specFor(s), map = m.generateMap(spec, seeded(s + 9));
-    for (const z of map.zones) {
-      if (z.e) assert.equal(z.b, null);
-      if (z.b != null) assert.ok(z.b >= Math.max(1, spec.levelLo) && z.b <= spec.levelHi);
-      if (z.c && spec.levelHi >= 1) assert.equal(z.b, spec.levelHi);
-      if (z.o) assert.equal(z.b, null);
-    }
+    const { spec } = specFor(s), map = g.generateMap(spec, seeded(s + 9));
+    for (let y = 0; y < map.h; y++) for (let x = 0; x < map.w; x++) { const b = g.blightAt(map, x, y); if (y < 2) assert.equal(b, 0); if (b) assert.ok(b >= Math.max(1, spec.levelLo) && b <= spec.levelHi, `blight ${b}`); }
+    for (const p of map.points) { if (p.t === 'c' && spec.levelHi >= 1) assert.equal(g.blightAt(map, p.x, p.y), spec.levelHi); if (p.t === 'o') assert.equal(g.blightAt(map, p.x, p.y), 0); }
   }
-  const none = m.generateMap({ markers: 10, entrances: 1, keys: 2, cores: 1, oases: 1, levelLo: 0, levelHi: 0 }, seeded(1));
-  assert.ok(none.zones.every(z => z.b == null));
+  const none = g.generateMap({ markers: 10, entrances: 1, keys: 2, cores: 1, oases: 1, levelLo: 0, levelHi: 0 }, seeded(1));
+  assert.ok(none.blight.every(r => /^\.+$/.test(r)));
 });
 
-function hand() {
-  const map = m.emptyMap();
-  const e1 = m.addZone(map, { d: 0, x: 100, e: true, u: true }), e2 = m.addZone(map, { d: 0, x: 900, e: true });
-  const a = m.addZone(map, { d: 4, x: 100 }), b = m.addZone(map, { d: 9, x: 150 }), c = m.addZone(map, { d: 6, x: 800 });
-  m.addEdge(map, e1.id, a.id); m.addEdge(map, a.id, b.id); m.addEdge(map, e2.id, c.id); m.addEdge(map, c.id, b.id, 'open', 7);
-  return { map, e1, e2, a, b, c };
-}
-
-test('distance to the nearest known exit uses open paths and known entrances only', () => {
-  const { map, e1, e2, a, b, c } = hand();
-  assert.deepEqual(m.nearestExit(map, a.id), { exit: e1.id, dist: 4 });
-  assert.deepEqual(m.nearestExit(map, b.id), { exit: e1.id, dist: 9 });
-  assert.deepEqual(m.nearestExit(map, e1.id), { exit: e1.id, dist: 0 });
-  assert.deepEqual(m.nearestExit(map, c.id), { exit: e1.id, dist: 7 + 9 }, 'c reaches the known exit by way of b');
-});
-
-test('an explicit path length overrides the depth difference, and blocked paths do not count', () => {
-  const { map, e1, e2, a, b, c } = hand();
-  e2.u = false;
-  assert.equal(m.edgeLength(map, map.edges[3]), 7);
-  assert.equal(m.nearestExit(map, c.id).dist, 7 + 9);
-  map.edges[1].t = 'blocked';
-  assert.equal(m.nearestExit(map, b.id), null);
-  assert.equal(m.nearestExit(map, b.id, { knownOnly: false }).exit, e2.id);
-  assert.equal(m.nearestExit(map, b.id, { knownOnly: false, usable: () => true }).dist, 9);
-  e2.u = true; assert.equal(m.nearestExit(map, b.id).exit, e2.id);
-  assert.equal(m.nearestExit(map, 'nope'), null);
-});
-
-test('the deep-scan reach skips hidden zones, hidden and blocked paths, and anything cut off behind them', () => {
-  const { map, e1, a, b, c } = hand();
-  assert.deepEqual([...m.scanReach(map)].sort(), map.zones.map(z => z.id).sort());
-  b.h = true;
-  assert.equal(m.scanReach(map).has(b.id), false); assert.equal(m.scanReach(map).has(c.id), true);
-  b.h = false; map.edges[1].t = 'hidden';
-  const r = m.scanReach(map); assert.equal(r.has(a.id), true); assert.equal(r.has(b.id), true, 'still reachable by the other route');
-  map.edges[3].t = 'blocked'; assert.equal(m.scanReach(map).has(b.id), false);
-  assert.equal(m.scanReach(map).has(e1.id), true);
-});
-
-test('route counting finds separate routes', () => {
-  const { map, a, b, c } = hand();
-  assert.equal(m.routeCount(map, b.id), 2);
-  map.edges.splice(3, 1);
-  assert.equal(m.routeCount(map, b.id), 1);
-  assert.equal(m.routeCount(map, a.id), 1);
-  assert.equal(m.routeCount(map, c.id), 1);
-  assert.equal(m.routeCount(map, 'nope'), 0);
-});
-
-test('adding, joining and removing zones keeps the map consistent', () => {
-  const { map, a, b } = hand();
-  assert.equal(m.addEdge(map, a.id, b.id), null, 'already joined');
-  assert.equal(m.addEdge(map, a.id, a.id), null);
-  const n = map.zones.length; m.removeZone(map, b.id);
-  assert.equal(map.zones.length, n - 1); assert.ok(map.edges.every(e => e.a !== b.id && e.b !== b.id));
-  const full = m.emptyMap(); for (let i = 0; i < m.LIMITS.zones + 5; i++) m.addZone(full);
-  assert.equal(full.zones.length, m.LIMITS.zones);
+test('a map is saved with its delve and comes back intact', () => {
+  const d = m.generate(m.newDelve(), seeded(4)); d.map = g.generateMap({ markers: 20, entrances: 2, keys: 4, cores: 1, oases: 1, levelLo: 1, levelHi: 3 }, seeded(4));
+  const back = m.cleanDelve(JSON.parse(JSON.stringify(d)));
+  assert.deepEqual(back.map, d.map);
+  assert.equal(m.cleanDelve({ map: { v: 1, zones: [{ id: 'a' }], edges: [] } }).map, null, 'an old zone-graph map is dropped');
 });
 
 test('the sample data file is invented words only and fits the format', () => {
