@@ -6,6 +6,7 @@
  * and so on. Without a data file, every result is shown as its table id and rolled number.
  */
 import { cleanMap } from './map.js';
+import { emptyRun, cleanRun } from './run.js';
 export const FORMAT = 'ctgd-delve-data/1';
 export const BACKUP_FORMAT = 'ctgd-delve-backup/1';
 export const DELVE_VERSION = 1;
@@ -79,7 +80,7 @@ export const NUM_KEYS = ['markers', 'entrances', 'keys', 'lesser', 'major', 'cor
 
 export function newDelve() {
   const now = new Date().toISOString();
-  return { id: crypto.randomUUID(), v: DELVE_VERSION, name: '', cid: '', created: now, updated: now, items: {}, quirks: [], nums: {}, locs: [], includeParty: false, quirkCount: QUIRK_COUNT_DEFAULT, classOverride: '', map: null, notes: '' };
+  return { id: crypto.randomUUID(), v: DELVE_VERSION, name: '', cid: '', storyCid: '', created: now, updated: now, items: {}, quirks: [], nums: {}, locs: [], includeParty: false, quirkCount: QUIRK_COUNT_DEFAULT, classOverride: '', map: null, run: emptyRun(), notes: '' };
 }
 const mk = (id, r) => ({ r, i: indexOf(id, r), l: false });
 export function rollItem(key, rng = Math.random) { const id = ITEM_TABLE[key]; return mk(id, rollTable(id, rng)); }
@@ -285,7 +286,7 @@ export function cleanDelve(x) {
   if (!x || typeof x !== 'object') throw Error('Invalid delve.');
   const d = newDelve();
   d.id = typeof x.id === 'string' && /^[a-zA-Z0-9-]{8,60}$/.test(x.id) ? x.id : d.id;
-  d.name = S(x.name, 200); d.cid = S(x.cid, 60); d.notes = S(x.notes, 20000);
+  d.name = S(x.name, 200); d.cid = S(x.cid, 60); d.storyCid = S(x.storyCid, 60); d.notes = S(x.notes, 20000);
   if (typeof x.created === 'string') d.created = x.created.slice(0, 40);
   if (typeof x.updated === 'string') d.updated = x.updated.slice(0, 40);
   for (const k of ITEM_KEYS) { const it = x.items && cleanItem(ITEM_TABLE[k], x.items[k]); if (it) d.items[k] = it; }
@@ -295,10 +296,11 @@ export function cleanDelve(x) {
   d.includeParty = !!x.includeParty; d.quirkCount = int(x.quirkCount, 0, LIMITS.quirks, QUIRK_COUNT_DEFAULT);
   d.classOverride = CLASS_NAMES.includes(x.classOverride) ? x.classOverride : '';
   d.map = cleanMap(x.map);
+  d.run = cleanRun(x.run);
   settleChains(d);
   return d;
 }
 export function validateBackup(x) {
   if (!x || x.format !== BACKUP_FORMAT || !Array.isArray(x.delves) || !x.delves.length || x.delves.length > 200) throw Error('Choose a Delve Table backup or exported delve.');
-  return x.delves.map(d => { const c = cleanDelve(d); c.id = crypto.randomUUID(); c.cid = ''; return c; });
+  return x.delves.map(d => { const c = cleanDelve(d); c.id = crypto.randomUUID(); c.cid = ''; c.storyCid = ''; c.run.crew.forEach(m => { m.cid = ''; }); c.run.arts.forEach(a => { a.cid = ''; }); return c; });
 }

@@ -11,8 +11,8 @@ It sits beside the Voyage Chart Table (`/tools/ctgd-voyage/`) and the Great Dark
 Not affiliated with, sponsored or endorsed by Free League Publishing (Fria Ligan AB).
 *Coriolis: The Great Dark* and its names are theirs.
 
-This is the first stage of the tool: **Ruin**, **Map** and **Data**. Running the descent
-(supply, hazards, the log) and camp and finds come later, on further tabs.
+One page, six tabs: **Ruin** and **Map** make the delve; **Descent**, **Camp & Finds** and
+**Log** run it; **Data** holds your data file and backups.
 
 ## What's in the page, and what isn't
 
@@ -64,6 +64,34 @@ back to ids and numbers.
   the passages joined to an entrance by open cells, with Blight levels, cores and oases
   only where you have marked cells read (a dim ? marks a key location not yet read).
   The map saves with the delve. Maps from the first, zone-graph version are not carried over.
+- **Descent.** Play the delve on the map. Add the Explorers (name, role, Heart, supply; link
+  one to an Explorer sheet to pull its name, supply and Heart, or push them back). Place the
+  crew at an entrance, click where to go, enter the delving roll's **successes** (the tool does
+  not roll your dice) and **Move**: one marker deeper per success, one stretch each; a failed
+  roll still moves one marker for two supply; blind adds a point of supply per marker; each crew
+  member over five adds one per stretch. Going back up needs no roll. Supply comes off whoever
+  has the most, so the cost alternates, and an Explorer at three or fewer who loses a point
+  rolls a supply incident (D6 + what is left; 7+ is none); a point owed with none left rolls the
+  out-of-supply table. Arriving anywhere but a key location fires a **hazard**: a D6 picks the
+  role (a 5 is rerolled if no Archaeologist; a 6 is everyone), a second D6 plus the distance
+  to the nearest known exit (0 / +1 / +2 / +3 by 1–5 / 6–10 / 11–15 / 16+) and one for a failed
+  roll picks the row, capped at the last, never repeating a cell. Only **supply and clock**
+  effects are applied; the Blight on the way (highest level passed or entered, not the cell the
+  move started in), cores (one attack per stretch), damage, conditions and item loss appear as
+  prompts for you to apply and tick. Scans: deep scan (failure needs a blind marker before a
+  retry), Bird scan (reads Blight within four markers; after a failure another Explorer may try
+  at once, the same one only after moving deeper), the environmental scanner, exploring a
+  stretch, strenuous activity or reloading, and sharing supply (free at a camp). A stretch
+  is 15 minutes and a shift 24 stretches; the clock shows both.
+- **Camp & Finds.** Set a camp (only on a Blight-free passage cell: one stretch and a point of
+  supply, retry costs again), rest a shift there (a point of supply per shift, not per
+  stretch), keep stored supply and equipment at it. Tick the shards collected at each key
+  location (four make one point of encumbrance; 50–250 rukh each by quality). Roll lesser and
+  major artefacts from the four D66 columns (description, form, power, oddity; a major one has a
+  power, a lesser one does not), give each an understanding modifier, say who holds it, tick it
+  handed over to the Explorers Guild, and send it to the campaign as an artifact.
+- **Log.** Every move, cost, scan, hazard and find is written here with its shift and stretch.
+  Add notes, filter by kind, download as text, or send it to the campaign as a story.
 - **Data.** Import or remove the data file, download a template, see which tables the
   file covers, and back up or restore all your delves.
 
@@ -98,8 +126,11 @@ are capped; wrong formats are refused with a message. A sample with invented wor
 | `party.kind` | 6 | `n` |
 | `delve.class` | 4 | `n`, `d` |
 
-The file may also carry `hazards`, `supplyIncidents`, `outOfSupply` and `artifacts`; the
-page keeps them for the Descent and Camp tabs but does not use them yet.
+The file may also carry `hazards` (per role, nine entries in row order, each `n`, `d`, `attr` and
+an optional `fx` such as `{ "supply": 1 }` or `{ "stretch": 1 }`, the only parts applied
+automatically), `supplyIncidents` (five, by row), `outOfSupply` (three) and `artifacts` (a `rows` list
+of eighteen with `description`, `form`, `power`, `oddity`). Descent and Camp & Finds use them;
+without them they show table ids and row numbers.
 
 **Real data files must not be committed.** `*.private.json` and `/private/` are
 git-ignored, and a test fails if any tracked JSON under `tools/` other than a file called
@@ -115,5 +146,5 @@ git-ignored, and a test fails if any tracked JSON under `tools/` other than a fi
 
 ## Storage keys
 
-`ctgd-delve-v1` (delves and the open tab), `ctgd-delve-data-v1` (your data file),
+`ctgd-delve-v1` (delves, including their maps, runs and logs, and the open tab), `ctgd-delve-data-v1` (your data file),
 `ctgd-campaign-v1`. The voyage tool's `gd-*` keys are not touched.

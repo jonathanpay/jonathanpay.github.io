@@ -4,7 +4,9 @@ import {
   chainsFate, combinesType, describe, describeIndexed, textOf, eraColumn, rowFor, classEstimate, classShown, levelRange, HELD_KEYS,
   pickItem, tableOf, locText
 } from './model.js';
+import { ROLES, STRETCHES_PER_SHIFT, HAZARD_ROWS, BIRD_RANGE, emptyRun, addLog, addPrompt, addCrew, clockText, poolOf, stretchSupply, spendSupply, rollHazard, hazardEntry, hazardEffects, planMove, exitDistance, readAround, readHere, canCamp, campAt, encumbrance, addArtefact, artLabel, fromSheet, toSheetPatch } from './run.js';
 import { MAP_LIMITS, DEFAULT_W, generateMap, emptyMap, resizeMap, cloneMap, paint, line, addPoint, movePoint, removePoint, pointAt, pointById, nearestExit, scanReach, blightAt, isRead, setRead } from './map.js';
+import { pathBetween } from './run.js';
 
 const $ = s => document.querySelector(s);
 const KEY = 'ctgd-delve-v1', DATAKEY = 'ctgd-delve-data-v1';
@@ -25,7 +27,7 @@ const sv = (tag, attrs = {}, text) => { const n = document.createElementNS(NS, t
 
 let delves = [], active, tab = 'ruin', data = null, startupError = '', loadFailed = false, saveWarning = '';
 let view = 'gm', dataMsg = '';
-const TABS = ['ruin', 'map', 'data'];
+const TABS = ['ruin', 'map', 'descent', 'camp', 'log', 'data'];
 
 /* ---------- storage ---------- */
 try {
@@ -198,8 +200,8 @@ function palette() {
   return { scan: false, bg: v('--ground'), rock: v('--ground'), fill: v('--sheet'), edge: v('--line'), edge2: v('--ink'), ink: v('--ink'), dim: v('--muted'), grid: 'rgba(128,128,128,.16)', accent: v('--accent'), ok: v('--ok'), text: v('--muted') };
 }
 const hexPath = (c, x, y, r) => { c.beginPath(); for (let i = 0; i < 6; i++) { const a = Math.PI / 3 * i + Math.PI / 6; const px = x + r * Math.cos(a), py = y + r * Math.sin(a); i ? c.lineTo(px, py) : c.moveTo(px, py); } c.closePath(); };
-function drawCanvas() {
-  const cv = mapCanvas; if (!cv || !cur().map) return;
+function drawCanvas(target) {
+  const cv = target || mapCanvas; if (!cv || !cur().map) return;
   const m = cur().map, P = palette(), scan = P.scan, RM = scan ? 190 : 12;
   const W = ML + m.w * CS + RM, H = Math.max(MT + m.h * CS + BM, scan ? MT + 330 : 0), dpr = Math.min(2, window.devicePixelRatio || 1);
   cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); cv.style.aspectRatio = `${W} / ${H}`;
@@ -263,6 +265,8 @@ function drawCanvas() {
     else if (p.t === 'n') { c.fillStyle = P.ink; c.beginPath(); c.moveTo(cx, cy - 7); c.lineTo(cx + 6, cy); c.lineTo(cx, cy + 7); c.lineTo(cx - 6, cy); c.closePath(); c.fill(); if (sel) { c.stroke(); } }
     if (p.n) { c.fillStyle = scan ? BRIGHT : P.ink; c.font = '11px "IBM Plex Mono", monospace'; c.textAlign = 'left'; c.fillText(p.n, cx + 13, cy - 8); c.textAlign = 'center'; }
   }
+  /* the crew and the chosen target (Descent tab) */
+  if (cv === descentCanvas && cur().run.pos) { const cp = cur().run.pos, cx = X(cp.x) + CS / 2, cy = Y(cp.y) + CS / 2; if (playTarget && inBoundsCell(m, playTarget.x, playTarget.y)) { const pth = pathBetween(m, cp, playTarget); if (pth) { c.strokeStyle = P.scan ? BRIGHT : P.accent; c.lineWidth = 2; c.setLineDash([4, 3]); c.beginPath(); pth.forEach((q, i) => (i ? c.lineTo(X(q.x) + CS / 2, Y(q.y) + CS / 2) : c.moveTo(X(q.x) + CS / 2, Y(q.y) + CS / 2))); c.stroke(); c.setLineDash([]); } c.strokeStyle = P.scan ? BRIGHT : P.accent; c.lineWidth = 2; c.strokeRect(X(playTarget.x) + 1, Y(playTarget.y) + 1, CS - 2, CS - 2); } c.fillStyle = P.scan ? BRIGHT : P.ink; c.strokeStyle = P.scan ? BLACK : P.bg; c.lineWidth = 2; c.beginPath(); c.moveTo(cx, cy - 9); c.lineTo(cx + 8, cy); c.lineTo(cx, cy + 9); c.lineTo(cx - 8, cy); c.closePath(); c.fill(); c.stroke(); }
   /* brush preview */
   if (!scan && hover && POINT_TOOLS.every(([k]) => k !== tool) && inBoundsCell(m, hover.x, hover.y)) {
     const r0 = -Math.floor((brush - 1) / 2); c.strokeStyle = P.accent; c.lineWidth = 1.5; c.setLineDash([3, 2]);
@@ -382,6 +386,196 @@ function pointPanel(p, refresh) {
     el('div', { class: 'row actions' }, el('button', { class: 'mini', text: 'Remove point', onclick: () => { snapshot(); removePoint(m, p.id); selPoint = null; refresh(); } }), el('button', { class: 'mini', text: 'Deselect', onclick: () => { selPoint = null; drawCanvas(); drawSide($('#mapside')); } })));
 }
 
+/* ---------- the Descent, Camp & Finds and Log tabs ---------- */
+let playTarget = null, descentCanvas = null, lastHazard = '';
+const roleName = id => (ROLES.find(r => r[0] === id) || [id, id])[1];
+const heldRow = (key, i) => { const a = data && data.held && data.held[key]; return Array.isArray(a) ? a[i] || null : null; };
+function logEvents(run, events) {
+  for (const ev of events) {
+    const who = (run.crew.find(c => c.id === ev.who) || {}).name || 'An Explorer';
+    if (ev.kind === 'nocrew') { addLog(run, 'supply', 'No crew to take supply from. Add the Explorers first.'); continue; }
+    if (ev.kind === 'incident') {
+      if (ev.idx < 0) { addLog(run, 'supply', `${who} was low on supply: D6 ${ev.roll} + remaining = ${ev.total}, no incident.`); continue; }
+      const row = heldRow('supplyIncidents', ev.idx), label = row && row.n ? `${row.n}${row.d ? ' — ' + row.d : ''}` : `table supplyIncidents, row ${ev.idx + 1}`;
+      addLog(run, 'supply', `Supply incident for ${who}: D6 ${ev.roll} + remaining = ${ev.total}. ${label}`); addPrompt(run, `Supply incident for ${who}: ${label}. Apply it yourself, then tick.`);
+    } else if (ev.kind === 'out') {
+      const row = heldRow('outOfSupply', ev.idx), label = row && row.n ? row.n : `table outOfSupply, row ${ev.idx + 1}`;
+      addLog(run, 'supply', `${who} owes supply with none left: D6 ${ev.roll}. ${label}`); addPrompt(run, `${who} is out of supply: ${label}. Armour and Blight protection do not apply. Apply it yourself, then tick.`);
+    }
+  }
+}
+/* Spend stretches and supply together, log it, and report. */
+function spendAct(run, { stretches = 0, supply = 0, label }) {
+  run.stretches += stretches; const events = spendSupply(run, supply); addLog(run, 'cost', `${label}: ${stretches} stretch${stretches === 1 ? '' : 'es'}, ${supply} supply.`); logEvents(run, events);
+}
+const oneStretch = run => ({ stretches: 1, supply: stretchSupply(1, run.crew.length || 4) });
+
+function renderDescent() {
+  const d = cur(), box = $('#view-descent'), run = d.run;
+  if (!d.map) { box.replaceChildren(el('div', { class: 'stage' }, el('h3', { text: 'Descent' }), el('p', { text: 'Place a map first (Map tab). The descent is played on it.' }))); return; }
+  const holder = el('div', { class: 'mapbox' + (view === 'scan' ? ' scan' : '') });
+  descentCanvas = el('canvas', { id: 'descentcanvas', role: 'img', 'aria-label': 'Delve map with the crew' }); holder.append(descentCanvas);
+  const side = el('div', { class: 'mapside', id: 'descentside' });
+  box.replaceChildren(el('div', { class: 'mapview' }, holder, side));
+  descentCanvas.addEventListener('pointerdown', e => { const c = cellFrom(e, descentCanvas), m = d.map; if (!inBoundsCell(m, c.x, c.y)) return; playTarget = c; drawCanvas(descentCanvas); drawDescentSide(side); });
+  drawCanvas(descentCanvas); drawDescentSide(side);
+}
+function afterRun(side) { touch(); drawCanvas(descentCanvas); drawDescentSide(side); }
+function drawDescentSide(side) {
+  const d = cur(), run = d.run, m = d.map, redo = () => afterRun(side);
+  const parts = [];
+  /* the clock and the crew */
+  const crewCard = el('section', { class: 'card' }, el('h2', { text: 'Crew' }), el('p', { class: 'data', text: `${clockText(run)} · supply pool ${poolOf(run)}` }));
+  const links = CAMPAIGN ? CAMPAIGN.all('npc').filter(e => e.data && e.data.sheet === 'explorer') : [];
+  run.crew.forEach(c => {
+    const nm = el('input', { type: 'text', 'aria-label': 'Name', style: 'min-width:90px' }); nm.value = c.name; nm.addEventListener('change', () => { c.name = nm.value; redo(); });
+    const role = el('select', { 'aria-label': 'Role' }, ...ROLES.map(([k, l]) => el('option', { value: k, text: l }))); role.value = c.role; role.addEventListener('change', () => { c.role = role.value; redo(); });
+    const n = (v, key, label) => { const i = el('input', { type: 'number', min: 0, 'aria-label': label, style: 'width:60px' }); i.value = v; i.addEventListener('change', () => { c[key] = Math.max(0, Math.min(99, Math.trunc(Number(i.value) || 0))); redo(); }); return el('label', { class: 'field', style: 'flex:0 0 auto' }, el('span', { text: label }), i); };
+    const link = el('select', { 'aria-label': 'Explorer sheet' }, el('option', { value: '', text: 'No sheet linked' }), ...links.map(e => el('option', { value: e.id, text: e.name || 'Unnamed' }))); link.value = c.cid || ''; link.addEventListener('change', () => { c.cid = link.value; redo(); });
+    const sheet = c.cid && CAMPAIGN ? CAMPAIGN.get('npc', c.cid) : null;
+    crewCard.append(el('div', { class: 'crewrow' }, el('div', { class: 'row' }, nm, role), el('div', { class: 'row' }, n(c.heart, 'heart', 'Heart'), n(c.supply, 'supply', 'Supply'), el('button', { class: 'mini', text: '×', 'aria-label': `Remove ${c.name || 'explorer'}`, onclick: () => { run.crew = run.crew.filter(x => x.id !== c.id); redo(); } })),
+      links.length || c.cid ? el('div', { class: 'row' }, link, el('button', { class: 'mini', text: 'Pull', disabled: !sheet, onclick: () => { const f = fromSheet(sheet.data); c.name = f.name || c.name; c.supply = f.supply; if (f.heart != null) c.heart = f.heart; addLog(run, 'sheet', `Read ${c.name} from the sheet.`); redo(); } }), el('button', { class: 'mini', text: 'Push', disabled: !sheet, onclick: () => { CAMPAIGN.patch('npc', c.cid, { data: toSheetPatch(c, sheet.data) }); addLog(run, 'sheet', `Wrote ${c.name}'s supply and Heart to the sheet.`); redo(); } })) : null));
+  });
+  crewCard.append(el('div', { class: 'row actions' }, el('button', { class: 'mini', text: 'Add Explorer', onclick: () => { if (!addCrew(run, { supply: 6, heart: 8 })) return status('A delve crew is at most eight.'); redo(); } })),
+    el('p', { class: 'note', text: `The Delver is always a player character. Four or five is the normal crew; each member over five adds a point of supply per stretch.${run.crew.length < 4 ? ' Fewer than four also changes supply use.' : ''}` }));
+  parts.push(crewCard);
+  /* where the crew is */
+  if (!run.pos) {
+    const ents = m.points.filter(p => p.t === 'e'), sel = el('select', { 'aria-label': 'Entrance' }, ...ents.map(p => el('option', { value: p.id, text: `${p.n || 'Entrance'} · ${cellName(p.x, p.y)}${p.u ? ' (known)' : ''}` })));
+    parts.push(el('section', { class: 'card' }, el('h2', { text: 'Begin' }), ents.length ? [sel, el('div', { class: 'row actions' }, el('button', { class: 'btn primary', text: 'Place the crew at the entrance', onclick: () => { const p = pointById(m, sel.value); run.pos = { x: p.x, y: p.y }; addLog(run, 'move', `The crew enters at ${cellName(p.x, p.y)}.`); redo(); } }))] : el('p', { class: 'hint', text: 'This map has no entrance. Place one on the Map tab.' })));
+    side.replaceChildren(...parts); return;
+  }
+  /* the move */
+  const mode = playTarget && playTarget.mode || 'delve';
+  const info = playTarget ? `Target ${cellName(playTarget.x, playTarget.y)}` : 'Click the map to choose where to go.';
+  const modeSel = el('select', { 'aria-label': 'Kind of move' }, el('option', { value: 'delve', text: 'Delve deeper (delving roll)' }), el('option', { value: 'return', text: 'Go back up (no roll)' })); modeSel.value = mode;
+  const succ = el('input', { type: 'number', min: 0, max: 20, value: 1, 'aria-label': 'Successes or markers', style: 'width:70px' });
+  const blind = el('input', { type: 'checkbox' }); blind.checked = run.blind; blind.addEventListener('change', () => { run.blind = blind.checked; redo(); });
+  const plan = () => { if (!playTarget) return { error: 'Click the map to choose where to go.' }; const mm = modeSel.value; return planMove(m, run, playTarget, { mode: mm, successes: Number(succ.value) || 0, markers: Number(succ.value) || 1, blind: run.blind }); };
+  const preview = el('p', { class: 'data', 'aria-live': 'polite' });
+  const refreshPreview = () => { const p = plan(); preview.textContent = p.error ? p.error : `${p.failed ? 'Failed roll: ' : ''}${p.steps} marker${p.steps === 1 ? '' : 's'} ${p.deeper ? 'deeper' : 'up'} to ${cellName(p.dest.x, p.dest.y)}. Cost ${p.cost.stretches} stretch${p.cost.stretches === 1 ? '' : 'es'}, ${p.cost.supply} supply.${p.maxBlight ? ` Blight ${p.maxBlight} on the way.` : ''}${p.key ? ` Key location ${p.key.k + 1}: the procedure pauses.` : ''}`; };
+  modeSel.addEventListener('change', () => { playTarget = { ...(playTarget || run.pos), mode: modeSel.value }; refreshPreview(); }); succ.addEventListener('input', refreshPreview);
+  parts.push(el('section', { class: 'card' }, el('h2', { text: 'Move' }), el('p', { class: 'hint', text: info }), modeSel,
+    el('div', { class: 'row', style: 'margin-top:6px' }, el('label', { class: 'field', style: 'flex:0 0 auto' }, el('span', { text: modeSel.value === 'delve' ? 'Successes' : 'Markers' }), succ), el('label', { class: 'check' }, blind, 'Blind (no deep scan): +1 supply per marker')),
+    preview,
+    el('div', { class: 'row actions' }, el('button', { class: 'btn primary', text: 'Move', onclick: () => executeMove(plan(), side) }), el('button', { class: 'mini', text: 'Clear target', onclick: () => { playTarget = null; drawCanvas(descentCanvas); drawDescentSide(side); } })),
+    lastHazard ? el('p', { class: 'note', text: lastHazard }) : null,
+    (() => { const n = nearestExit(m, run.pos.x, run.pos.y); return el('p', { class: 'hint', text: `The crew is at ${cellName(run.pos.x, run.pos.y)}, ${run.pos.y} markers deep. ${n ? `Nearest known exit: ${n.dist} markers.` : 'No known exit by open passage.'}` }); })()));
+  refreshPreview();
+  /* scans and other stretches */
+  const act = (label, fn) => el('button', { class: 'mini', text: label, onclick: () => { fn(); afterRun(side); } });
+  const birdSel = el('select', { 'aria-label': 'Who sends the Bird' }, ...run.crew.map(c => el('option', { value: c.id, text: c.name || 'Explorer' })));
+  parts.push(el('section', { class: 'card' }, el('h2', { text: 'Scans and stretches' }),
+    el('p', { class: 'hint', text: `Deep scan: ${run.scanned ? 'done' : 'not done'}${run.scanLock ? ' (failed: delve at least one marker blind before retrying)' : ''}.${run.bird ? ' Bird scan failed: another Explorer may try now; the same one only after moving deeper.' : ''}` }),
+    el('div', { class: 'row actions' }, act('Deep scan: success', () => { if (run.scanLock) return status('A failed deep scan needs a blind marker before retrying.'); spendAct(run, { ...oneStretch(run), label: 'Deep scan' }); run.scanned = true; addLog(run, 'scan', 'Deep scan succeeded.'); }), act('Deep scan: failed', () => { if (run.scanLock) return status('A failed deep scan needs a blind marker before retrying.'); spendAct(run, { ...oneStretch(run), label: 'Deep scan' }); run.scanLock = true; addLog(run, 'scan', 'Deep scan failed.'); })),
+    el('div', { class: 'row actions' }, birdSel, act('Bird scan: success', () => { const w = birdSel.value; if (run.bird && run.bird.who === w && run.pos.y <= run.bird.y) return status('That Explorer can retry only after moving deeper.'); spendAct(run, { ...oneStretch(run), label: 'Bird scan' }); const n = readAround(m, run.pos); run.bird = null; addLog(run, 'scan', `Bird scan read ${n} cells within ${BIRD_RANGE} markers.`); }), act('Bird scan: failed', () => { const w = birdSel.value; if (run.bird && run.bird.who === w && run.pos.y <= run.bird.y) return status('That Explorer can retry only after moving deeper.'); spendAct(run, { ...oneStretch(run), label: 'Bird scan' }); run.bird = { who: w, y: run.pos.y }; addLog(run, 'scan', 'Bird scan failed.'); })),
+    el('div', { class: 'row actions' }, act('Scanner: read here', () => { spendAct(run, { ...oneStretch(run), label: 'Environmental scanner' }); readHere(m, run.pos); addLog(run, 'scan', 'The scanner read this cell’s Blight.'); }), act('Explore a stretch', () => spendAct(run, { ...oneStretch(run), label: 'Exploring' })), act('Strenuous / reload (1 supply)', () => spendAct(run, { stretches: 0, supply: 1, label: 'Strenuous activity or reload' })), act('Share supply', () => spendAct(run, campAt(run, run.pos) ? { stretches: 0, supply: 0, label: 'Sharing supply at the camp (free)' } : { ...oneStretch(run), label: 'Sharing supply' })))));
+  /* prompts */
+  const open = run.prompts.filter(p => !p.done), done = run.prompts.filter(p => p.done);
+  parts.push(el('section', { class: 'card' }, el('h2', { text: `To apply (${open.length})` }), el('p', { class: 'hint', text: 'Only supply and the clock are applied for you. Everything else is yours to record: tick each when done.' }),
+    ...open.map(p => el('label', { class: 'check promptrow' }, (() => { const c = el('input', { type: 'checkbox' }); c.addEventListener('change', () => { p.done = c.checked; redo(); }); return c; })(), el('span', { text: p.t }))),
+    done.length ? el('details', {}, el('summary', { text: `Applied (${done.length})` }), ...done.slice(-20).map(p => el('p', { class: 'hint', text: p.t }))) : null));
+  side.replaceChildren(...parts);
+}
+function executeMove(plan, side) {
+  const d = cur(), run = d.run, m = d.map;
+  if (plan.error) return status(plan.error);
+  const from = run.pos; run.pos = { x: plan.dest.x, y: plan.dest.y }; if (playTarget && playTarget.x === plan.dest.x && playTarget.y === plan.dest.y) playTarget = null;
+  run.stretches += plan.cost.stretches;
+  addLog(run, 'move', `${plan.failed ? 'Failed delving roll: ' : ''}${plan.mode === 'return' ? 'Back up' : 'Down'} ${plan.steps} marker${plan.steps === 1 ? '' : 's'} from ${cellName(from.x, from.y)} to ${cellName(plan.dest.x, plan.dest.y)}${run.blind ? ' (blind)' : ''}. ${plan.cost.stretches} stretch${plan.cost.stretches === 1 ? '' : 'es'}, ${plan.cost.supply} supply.`);
+  logEvents(run, spendSupply(run, plan.cost.supply));
+  if (run.blind && plan.steps >= 1) run.scanLock = false;
+  if (run.bird && plan.dest.y > run.bird.y) run.bird = null;
+  if (plan.maxBlight > 0) addPrompt(run, `Blight ${plan.maxBlight} (the highest passed or entered): each Explorer rolls their suit’s protection; each success lowers it by one and the rest comes off Heart.`);
+  if (plan.coreCells > 0) addPrompt(run, `${plan.coreCells} stretch${plan.coreCells === 1 ? '' : 'es'} in a Blight core: one Blight attack per stretch. Record the result; it cannot be blocked or dodged.`);
+  lastHazard = '';
+  if (plan.key) addLog(run, 'key', `Reached key location ${plan.key.k + 1}${plan.key.n ? ` (${plan.key.n})` : ''}. The delve procedure pauses; exploring costs 1 supply per stretch.`);
+  else if (plan.mode === 'delve') {
+    const dist = exitDistance(m, plan.dest), h = rollHazard(run, dist, plan.failed), entry = hazardEntry(data, h.role, h.row), fx = hazardEffects(entry);
+    const label = entry && entry.n ? `${entry.n}${entry.d ? ' — ' + entry.d : ''}${entry.attr ? ` (${entry.attr} roll)` : ''}` : `table hazards.${h.role}, row ${h.row}`;
+    lastHazard = `Hazard: ${h.role === 'all' ? 'All Explorers' : roleName(h.role)}, row ${h.row} (D6 + ${h.band}${plan.failed ? ' + 1 for the failed roll' : ''} = ${h.total}${h.total > HAZARD_ROWS ? ', capped' : ''}). ${label}`;
+    addLog(run, 'hazard', `${lastHazard}${h.repeat ? ' (every cell was used; this is a repeat)' : ''}`);
+    if (fx.supply || fx.stretches) { addLog(run, 'cost', `Hazard effect applied: ${fx.stretches} stretch${fx.stretches === 1 ? '' : 'es'}, ${fx.supply} supply.`); run.stretches += fx.stretches; logEvents(run, spendSupply(run, fx.supply)); }
+    addPrompt(run, `${lastHazard}${h.role === 'all' ? ' Everyone rolls; extra successes can be donated to those who failed.' : ''} Apply the rest of its effect yourself (supply and stretches were already applied).`);
+  }
+  afterRun(side);
+}
+
+function renderCamp() {
+  const d = cur(), box = $('#view-camp'), run = d.run, m = d.map;
+  const side = []; const redo = () => { touch(); renderCamp(); };
+  /* camps */
+  const camps = el('section', { class: 'card' }, el('h2', { text: 'Camps' }));
+  if (!m || !run.pos) camps.append(el('p', { class: 'hint', text: 'Place the crew on the map (Descent tab) first.' }));
+  else {
+    const here = campAt(run, run.pos), ok = canCamp(m, run.pos);
+    camps.append(el('p', { class: 'data', text: `The crew is at ${cellName(run.pos.x, run.pos.y)}. ${here ? 'There is a camp here.' : ok ? 'This cell is Blight-free: a camp can be set.' : 'A camp needs a Blight-free passage cell.'}` }),
+      el('div', { class: 'row actions' },
+        el('button', { class: 'mini', text: 'Set camp: success', disabled: !ok || !!here, onclick: () => { spendAct(run, { ...oneStretch(run), label: 'Setting a camp' }); run.camps.push({ x: run.pos.x, y: run.pos.y, store: 0, notes: '' }); addLog(run, 'camp', `Camp set at ${cellName(run.pos.x, run.pos.y)}.`); redo(); } }),
+        el('button', { class: 'mini', text: 'Set camp: failed (retry costs again)', disabled: !ok || !!here, onclick: () => { spendAct(run, { ...oneStretch(run), label: 'Failed to set a camp' }); redo(); } }),
+        el('button', { class: 'mini', text: 'Rest a shift at the camp', disabled: !here, onclick: () => { run.stretches += STRETCHES_PER_SHIFT; addLog(run, 'camp', `Rested a shift at the camp: 1 supply (not per stretch).`); logEvents(run, spendSupply(run, 1)); addPrompt(run, 'A shift of rest: one condition heals for each Explorer. Record it.'); redo(); } })));
+  }
+  run.camps.forEach((c, i) => {
+    const store = el('input', { type: 'number', min: 0, style: 'width:70px', 'aria-label': 'Stored supply' }); store.value = c.store; store.addEventListener('change', () => { c.store = Math.max(0, Math.trunc(Number(store.value) || 0)); touch(); });
+    const notes = el('input', { type: 'text', 'aria-label': 'Equipment kept at the camp', placeholder: 'Equipment kept here' }); notes.value = c.notes; notes.addEventListener('change', () => { c.notes = notes.value; touch(); });
+    camps.append(el('div', { class: 'row', style: 'margin-top:6px' }, el('b', { class: 'data', text: cellName(c.x, c.y) }), el('label', { class: 'field', style: 'flex:0 0 auto' }, el('span', { text: 'Stored supply' }), store), notes, el('button', { class: 'mini', text: '×', 'aria-label': 'Remove camp', onclick: () => { run.camps.splice(i, 1); redo(); } })));
+  });
+  camps.append(el('p', { class: 'note', text: 'A camp can hold stored supply and equipment, and stays when the crew leaves. Sharing supply at a camp is free.' }));
+  /* shards */
+  const shards = el('section', { class: 'card' }, el('h2', { text: 'Shards' }));
+  if (!d.locs.length) shards.append(el('p', { class: 'hint', text: 'Roll the ruin to get key locations and their shards.' }));
+  let have = 0, total = 0;
+  d.locs.forEach((l, i) => { total += l.shards.v; const c = el('input', { type: 'checkbox', 'aria-label': `Collected at key location ${i + 1}` }); c.checked = !!run.found[i]; if (run.found[i]) have += l.shards.v; c.addEventListener('change', () => { run.found[i] = c.checked; if (c.checked) addLog(run, 'find', `Collected ${l.shards.v} shards at key location ${i + 1}.`); redo(); }); shards.append(el('label', { class: 'check', style: 'display:flex;margin:3px 0' }, c, `Key location ${i + 1} · ${l.shards.v} shards · ${locText(data, l)}`)); });
+  shards.append(el('p', { class: 'data', text: `Collected ${have} of ${total} · ${encumbrance(have)} encumbrance (4 shards make 1) · worth 50–250 rukh each by quality.` }));
+  /* artefacts */
+  const lesserHave = run.arts.filter(a => a.kind === 'lesser').length, majorHave = run.arts.filter(a => a.kind === 'major').length;
+  const arts = el('section', { class: 'card wide-card' }, el('h2', { text: 'Artefacts' }), el('p', { class: 'hint', text: `The ruin holds ${d.nums.lesser ? d.nums.lesser.v : 0} lesser and ${d.nums.major ? d.nums.major.v : 0} major artefacts; you have rolled ${lesserHave} and ${majorHave}. A major one has a power and an oddity; a lesser one has an oddity (shown with its description and form). Artefacts are not owned by individuals: they go to the Explorers Guild.` }),
+    el('div', { class: 'row actions' }, el('button', { class: 'mini', text: 'Roll a lesser artefact', onclick: () => { const a = addArtefact(run, 'lesser'); if (a) addLog(run, 'find', 'Found a lesser artefact.'); redo(); } }), el('button', { class: 'mini', text: 'Roll a major artefact', onclick: () => { const a = addArtefact(run, 'major'); if (a) addLog(run, 'find', 'Found a major artefact.'); redo(); } })));
+  run.arts.forEach((a, i) => {
+    const cols = ['description', 'form', 'power', 'oddity'].filter(k => a.rolls[k] != null);
+    const txt = cols.map(k => { const lab = artLabel(data, k, a.rolls[k]); return `${k}: ${lab || `find.${k} · ${a.rolls[k]}`}`; });
+    const nm = el('input', { type: 'text', 'aria-label': 'Artefact name', placeholder: 'Your name for it' }); nm.value = a.name; nm.addEventListener('change', () => { a.name = nm.value; touch(); });
+    const mod = el('input', { type: 'number', min: -9, max: 9, style: 'width:64px', 'aria-label': 'Understanding modifier' }); mod.value = a.mod; mod.addEventListener('change', () => { a.mod = Math.max(-9, Math.min(9, Math.trunc(Number(mod.value) || 0))); touch(); });
+    const holder = el('input', { type: 'text', 'aria-label': 'Held by', placeholder: 'Held by' }); holder.value = a.holder; holder.addEventListener('change', () => { a.holder = holder.value; touch(); });
+    const handed = el('input', { type: 'checkbox' }); handed.checked = a.handed; handed.addEventListener('change', () => { a.handed = handed.checked; if (a.handed) addLog(run, 'find', `${a.name || 'An artefact'} was handed over to the Guild.`); redo(); });
+    arts.append(el('div', { class: 'artrow' }, el('div', { class: 'row' }, el('span', { class: 'chip ' + (a.kind === 'major' ? 'hot' : ''), text: a.kind }), nm, el('label', { class: 'field', style: 'flex:0 0 auto' }, el('span', { text: 'Understanding' }), mod)),
+      el('ul', { class: 'artlist' }, txt.map(t => el('li', { text: t }))),
+      el('div', { class: 'row' }, holder, el('label', { class: 'check' }, handed, 'Handed over to the Guild'), CAMPAIGN ? el('button', { class: 'mini', text: a.cid ? 'Update in campaign' : 'Send to campaign', onclick: () => { sendArtefact(a); redo(); } }) : null, el('button', { class: 'mini', text: '×', 'aria-label': 'Remove artefact', onclick: () => { run.arts.splice(i, 1); redo(); } }))));
+  });
+  box.replaceChildren(el('div', { class: 'datagrid' }, camps, shards), el('div', { style: 'margin-top:14px' }, arts));
+}
+function sendArtefact(a) {
+  if (!CAMPAIGN) return;
+  if (!a.cid) a.cid = CAMPAIGN.makeId('artifact');
+  const lab = k => (a.rolls[k] != null ? artLabel(data, k, a.rolls[k]) || `find.${k} · ${a.rolls[k]}` : '');
+  const e = CAMPAIGN.upsert('artifact', { id: a.cid, name: a.name || `Artefact from ${cur().name || 'a delve'}`, source: 'delve', data: { delveId: cur().id, kind: a.kind, description: lab('description'), form: lab('form'), power: lab('power'), oddity: lab('oddity'), understanding: a.mod, holder: a.holder, handed: a.handed ? 1 : 0 }, refs: { delveId: cur().id } });
+  status(e ? 'Artefact sent to the campaign.' : 'The campaign could not save it.');
+}
+
+function renderLog() {
+  const d = cur(), box = $('#view-log'), run = d.run;
+  const kinds = [...new Set(run.log.map(l => l.k))];
+  let filter = '';
+  const list = el('div', { class: 'loglist' });
+  const draw = () => list.replaceChildren(...(run.log.length ? run.log.filter(l => !filter || l.k === filter).map(l => el('div', { class: 'logrow' }, el('span', { class: 'tag', text: `S${Math.floor(l.s / STRETCHES_PER_SHIFT) + 1}·${(l.s % STRETCHES_PER_SHIFT) + 1}` }), el('span', { class: 'chip', text: l.k }), el('span', { text: l.t }))) : [el('p', { class: 'hint', text: 'Nothing logged yet. Moves, scans, hazards, supply and finds are recorded here as you play.' })]));
+  const fsel = el('select', { 'aria-label': 'Filter the log' }, el('option', { value: '', text: 'Everything' }), ...kinds.map(k => el('option', { value: k, text: k }))); fsel.addEventListener('change', () => { filter = fsel.value; draw(); });
+  const note = el('input', { type: 'text', 'aria-label': 'Add a note to the log', placeholder: 'Add a note' });
+  const add = () => { if (!note.value.trim()) return; addLog(run, 'note', note.value.trim()); note.value = ''; touch(); renderLog(); };
+  note.addEventListener('keydown', e => { if (e.key === 'Enter') add(); });
+  draw();
+  box.replaceChildren(el('section', { class: 'card' }, el('h2', { text: 'Log' }), el('p', { class: 'data', text: `${clockText(run)} · ${run.log.length} entries` }),
+    el('div', { class: 'row' }, el('label', { class: 'field', style: 'flex:0 1 200px' }, el('span', { text: 'Show' }), fsel), el('div', { class: 'field' }, el('span', { text: 'Note' }), note), el('button', { class: 'mini', text: 'Add', onclick: add })),
+    list, el('div', { class: 'row actions' }, el('button', { class: 'mini', text: 'Download as text', onclick: () => downloadText(`ctgd-delve-log.txt`, logText(d)) }), CAMPAIGN ? el('button', { class: 'mini', text: 'Send to the campaign as a story', onclick: () => { sendLog(d); renderLog(); } }) : null)));
+}
+const logText = d => `${title(d)}\n\n` + d.run.log.map(l => `[Shift ${Math.floor(l.s / STRETCHES_PER_SHIFT) + 1}, stretch ${(l.s % STRETCHES_PER_SHIFT) + 1}] ${l.k}: ${l.t}`).join('\n');
+function downloadText(name, text) { const url = URL.createObjectURL(new Blob([text], { type: 'text/plain' })), a = el('a', { href: url, download: name }); document.body.append(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 1000); }
+function sendLog(d) {
+  if (!CAMPAIGN) return;
+  const id = d.storyCid || (d.storyCid = CAMPAIGN.makeId('story'));
+  const e = CAMPAIGN.upsert('story', { id, name: `${title(d)} log`, source: 'delve', data: { delveId: d.id, clock: clockText(d.run), lines: d.run.log.slice(-190).map(l => `S${Math.floor(l.s / STRETCHES_PER_SHIFT) + 1}.${(l.s % STRETCHES_PER_SHIFT) + 1} ${l.k}: ${l.t}`.slice(0, 400)) }, refs: { delveId: d.id } });
+  touch(); status(e ? 'Log sent to the campaign as a story.' : 'The campaign could not save the log.');
+}
+
 /* ---------- the Data tab ---------- */
 function renderData() {
   const box = $('#view-data');
@@ -477,13 +671,13 @@ function renderAll() { updateLibrary(); showTab(tab, true); }
 function showTab(t, quiet) {
   tab = t;
   TABS.forEach(x => { $('#view-' + x).hidden = x !== t; $('#tab-' + x).setAttribute('aria-selected', String(x === t)); });
-  if (t === 'ruin') renderRuin(); if (t === 'map') renderMap(); if (t === 'data') renderData();
+  if (t === 'ruin') renderRuin(); if (t === 'map') renderMap(); if (t === 'descent') renderDescent(); if (t === 'camp') renderCamp(); if (t === 'log') renderLog(); if (t === 'data') renderData();
   if (!quiet) persist();
 }
 TABS.forEach(t => { $('#tab-' + t).addEventListener('click', () => showTab(t)); });
 $('#tabs').addEventListener('keydown', e => { const i = TABS.indexOf(tab); if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') { const n = TABS[(i + (e.key === 'ArrowRight' ? 1 : TABS.length - 1)) % TABS.length]; showTab(n); $('#tab-' + n).focus(); } });
 $('#new').onclick = () => { const d = newDelve(); delves.push(d); active = d.id; selPoint = null; undo = []; persist(); renderAll(); };
-$('#duplicate').onclick = () => { const d = cleanDelve(JSON.parse(JSON.stringify(cur()))); d.id = crypto.randomUUID(); d.cid = ''; d.name = title(cur()) + ' (copy)'; delves.push(d); active = d.id; selPoint = null; undo = []; persist(); renderAll(); };
+$('#duplicate').onclick = () => { const d = cleanDelve(JSON.parse(JSON.stringify(cur()))); d.id = crypto.randomUUID(); d.cid = ''; d.storyCid = ''; d.run.arts.forEach(a => { a.cid = ''; }); d.name = title(cur()) + ' (copy)'; delves.push(d); active = d.id; selPoint = null; undo = []; persist(); renderAll(); };
 $('#library').onchange = e => { active = e.target.value; selPoint = null; undo = []; persist(); renderAll(); };
 $('#delve-name').oninput = e => { cur().name = e.target.value; touch(); const o = $('#library').selectedOptions[0]; if (o) o.textContent = title(cur()); };
 $('#export').onclick = () => download('ctgd-delve.json', backup([cur()]));
