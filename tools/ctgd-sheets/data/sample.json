@@ -1,0 +1,23 @@
+{
+  "format": "ctgd-sheets-tables/1",
+  "name": "Sample tables (invented words)",
+  "talents": [
+    { "n": "Alpha knack", "levels": "0-3", "type": "general" },
+    { "n": "Beta trick", "levels": "0-3", "type": "general" },
+    { "n": "Gamma gift", "levels": "0-3", "type": "profession" }
+  ],
+  "archetypes": [
+    {
+      "n": "Sample Wanderer", "key": "log",
+      "keyTalents": ["Alpha knack", "Gamma gift"],
+      "equipment": ["Sample satchel", "Sample lantern"],
+      "specialties": [{ "n": "Sample specialty", "talent": "Beta trick" }]
+    },
+    { "n": "Sample Watcher", "key": "per", "keyTalents": ["Beta trick"], "equipment": ["Sample spyglass"], "specialties": [] }
+  ],
+  "gear": { "Sample group one": ["Sample rope", "Sample tin"], "Sample group two": [{ "n": "Sample lamp" }] },
+  "weapons": { "Sample ranged": [{ "n": "Sample sling" }], "Sample close": [{ "n": "Sample staff" }] },
+  "armor": [{ "n": "Sample jacket" }],
+  "birds": [{ "n": "Sample finch" }],
+  "roles": ["Sample role one", "Sample role two"]
+}

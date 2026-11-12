@@ -1,0 +1,534 @@
+{
+ "format": "ctgd-delve-data/1",
+ "name": "Sample data (invented words)",
+ "note": "Invented placeholder words for testing and demos. Not from any book.",
+ "tables": {
+  "ruin.era": {
+   "dice": "D66",
+   "rows": [
+    {
+     "n": "Alpha row",
+     "d": "Sample detail Alpha"
+    },
+    {
+     "n": "Beta row",
+     "d": "Sample detail Beta"
+    },
+    {
+     "n": "Gamma row",
+     "d": "Sample detail Gamma"
+    }
+   ]
+  },
+  "ruin.purpose": {
+   "dice": "D66",
+   "rows": [
+    {
+     "v": {
+      "early": "Sample early purpose Alpha",
+      "middle": "Sample middle purpose Alpha",
+      "late": "Sample late purpose Alpha"
+     }
+    },
+    {
+     "v": {
+      "early": "Sample early purpose Beta",
+      "middle": "Sample middle purpose Beta",
+      "late": "Sample late purpose Beta"
+     }
+    },
+    {
+     "v": {
+      "early": "Sample early purpose Gamma",
+      "middle": "Sample middle purpose Gamma",
+      "late": "Sample late purpose Gamma"
+     }
+    },
+    {
+     "v": {
+      "early": "Sample early purpose Delta",
+      "middle": "Sample middle purpose Delta",
+      "late": "Sample late purpose Delta"
+     }
+    },
+    {
+     "v": {
+      "early": "Sample early purpose Epsilon",
+      "middle": "Sample middle purpose Epsilon",
+      "late": "Sample late purpose Epsilon"
+     }
+    },
+    {
+     "v": {
+      "early": "Sample early purpose Zeta",
+      "middle": "Sample middle purpose Zeta",
+      "late": "Sample late purpose Zeta"
+     }
+    },
+    {
+     "v": {
+      "early": "Sample early purpose Eta",
+      "middle": "Sample middle purpose Eta",
+      "late": "Sample late purpose Eta"
+     }
+    },
+    {
+     "v": {
+      "early": "Sample early purpose Theta",
+      "middle": "Sample middle purpose Theta",
+      "late": "Sample late purpose Theta"
+     }
+    },
+    {
+     "v": {
+      "early": "Sample early purpose Iota",
+      "middle": "Sample middle purpose Iota",
+      "late": "Sample late purpose Iota"
+     }
+    }
+   ]
+  },
+  "ruin.fate": {
+   "dice": "D66",
+   "rows": [
+    {
+     "n": "Alpha row"
+    },
+    {
+     "n": "Beta row"
+    },
+    {
+     "n": "Gamma row"
+    },
+    {
+     "n": "Delta row"
+    },
+    {
+     "n": "Epsilon row"
+    },
+    {
+     "n": "Zeta row"
+    },
+    {
+     "n": "Eta row"
+    },
+    {
+     "n": "Theta row"
+    },
+    {
+     "n": "Iota row"
+    }
+   ]
+  },
+  "ruin.type": {
+   "dice": "D66",
+   "rows": [
+    {
+     "n": "Alpha row"
+    },
+    {
+     "n": "Beta row"
+    },
+    {
+     "n": "Gamma row"
+    },
+    {
+     "n": "Delta row"
+    },
+    {
+     "n": "Epsilon row"
+    }
+   ]
+  },
+  "ruin.depth": {
+   "dice": "D66",
+   "rows": [
+    {
+     "n": "Alpha row",
+     "d": "Sample detail Alpha"
+    },
+    {
+     "n": "Beta row",
+     "d": "Sample detail Beta"
+    },
+    {
+     "n": "Gamma row",
+     "d": "Sample detail Gamma"
+    },
+    {
+     "n": "Delta row",
+     "d": "Sample detail Delta"
+    }
+   ]
+  },
+  "theme.glyph": {
+   "dice": "D66",
+   "rows": [
+    {
+     "n": "Alpha row",
+     "d": "Sample detail Alpha"
+    },
+    {
+     "n": "Beta row",
+     "d": "Sample detail Beta"
+    },
+    {
+     "n": "Gamma row",
+     "d": "Sample detail Gamma"
+    },
+    {
+     "n": "Delta row",
+     "d": "Sample detail Delta"
+    },
+    {
+     "n": "Epsilon row",
+     "d": "Sample detail Epsilon"
+    },
+    {
+     "n": "Zeta row",
+     "d": "Sample detail Zeta"
+    },
+    {
+     "n": "Eta row",
+     "d": "Sample detail Eta"
+    },
+    {
+     "n": "Theta row",
+     "d": "Sample detail Theta"
+    },
+    {
+     "n": "Iota row",
+     "d": "Sample detail Iota"
+    },
+    {
+     "n": "Kappa row",
+     "d": "Sample detail Kappa"
+    },
+    {
+     "n": "Lambda row",
+     "d": "Sample detail Lambda"
+    },
+    {
+     "n": "Mu row",
+     "d": "Sample detail Mu"
+    }
+   ]
+  },
+  "theme.quirk": {
+   "dice": "D66",
+   "rows": [
+    {
+     "n": "Sample quirk Alpha"
+    },
+    {
+     "n": "Sample quirk Beta"
+    },
+    {
+     "n": "Sample quirk Gamma"
+    },
+    {
+     "n": "Sample quirk Delta"
+    },
+    {
+     "n": "Sample quirk Epsilon"
+    },
+    {
+     "n": "Sample quirk Zeta"
+    },
+    {
+     "n": "Sample quirk Eta"
+    },
+    {
+     "n": "Sample quirk Theta"
+    },
+    {
+     "n": "Sample quirk Iota"
+    },
+    {
+     "n": "Sample quirk Kappa"
+    },
+    {
+     "n": "Sample quirk Lambda"
+    },
+    {
+     "n": "Sample quirk Mu"
+    },
+    {
+     "n": "Sample quirk Nu"
+    },
+    {
+     "n": "Sample quirk Xi"
+    },
+    {
+     "n": "Sample quirk Omicron"
+    },
+    {
+     "n": "Sample quirk Pi"
+    },
+    {
+     "n": "Sample quirk Rho"
+    },
+    {
+     "n": "Sample quirk Sigma"
+    },
+    {
+     "n": "Sample quirk Tau"
+    },
+    {
+     "n": "Sample quirk Upsilon"
+    },
+    {
+     "n": "Sample quirk Phi"
+    },
+    {
+     "n": "Sample quirk Chi"
+    },
+    {
+     "n": "Sample quirk Psi"
+    },
+    {
+     "n": "Sample quirk Omega"
+    },
+    {
+     "n": "Sample quirk Alpha2"
+    },
+    {
+     "n": "Sample quirk Beta2"
+    },
+    {
+     "n": "Sample quirk Gamma2"
+    },
+    {
+     "n": "Sample quirk Delta2"
+    },
+    {
+     "n": "Sample quirk Epsilon2"
+    },
+    {
+     "n": "Sample quirk Zeta2"
+    },
+    {
+     "n": "Sample quirk Eta2"
+    },
+    {
+     "n": "Sample quirk Theta2"
+    },
+    {
+     "n": "Sample quirk Iota2"
+    },
+    {
+     "n": "Sample quirk Kappa2"
+    },
+    {
+     "n": "Sample quirk Lambda2"
+    },
+    {
+     "n": "Sample quirk Mu2"
+    }
+   ]
+  },
+  "loc.shape": {
+   "dice": "D66",
+   "rows": [
+    {
+     "n": "Sample shape Alpha",
+     "f": "Sample function Alpha"
+    },
+    {
+     "n": "Sample shape Beta",
+     "f": "Sample function Beta"
+    },
+    {
+     "n": "Sample shape Gamma",
+     "f": "Sample function Gamma"
+    },
+    {
+     "n": "Sample shape Delta",
+     "f": "Sample function Delta"
+    },
+    {
+     "n": "Sample shape Epsilon",
+     "f": "Sample function Epsilon"
+    },
+    {
+     "n": "Sample shape Zeta",
+     "f": "Sample function Zeta"
+    },
+    {
+     "n": "Sample shape Eta",
+     "f": "Sample function Eta"
+    },
+    {
+     "n": "Sample shape Theta",
+     "f": "Sample function Theta"
+    },
+    {
+     "n": "Sample shape Iota",
+     "f": "Sample function Iota"
+    },
+    {
+     "n": "Sample shape Kappa",
+     "f": "Sample function Kappa"
+    },
+    {
+     "n": "Sample shape Lambda",
+     "f": "Sample function Lambda"
+    },
+    {
+     "n": "Sample shape Mu",
+     "f": "Sample function Mu"
+    }
+   ]
+  },
+  "find.band": {
+   "dice": "D66",
+   "rows": [
+    {
+     "n": "Alpha row",
+     "d": "Sample detail Alpha"
+    },
+    {
+     "n": "Beta row",
+     "d": "Sample detail Beta"
+    },
+    {
+     "n": "Gamma row",
+     "d": "Sample detail Gamma"
+    },
+    {
+     "n": "Delta row",
+     "d": "Sample detail Delta"
+    }
+   ]
+  },
+  "blight.band": {
+   "dice": "D66",
+   "rows": [
+    {
+     "n": "Alpha row",
+     "d": "Sample detail Alpha"
+    },
+    {
+     "n": "Beta row",
+     "d": "Sample detail Beta"
+    },
+    {
+     "n": "Gamma row",
+     "d": "Sample detail Gamma"
+    },
+    {
+     "n": "Delta row",
+     "d": "Sample detail Delta"
+    }
+   ]
+  },
+  "threat.kind": {
+   "dice": "D66",
+   "rows": [
+    {
+     "n": "Alpha row"
+    },
+    {
+     "n": "Beta row"
+    },
+    {
+     "n": "Gamma row"
+    },
+    {
+     "n": "Delta row"
+    },
+    {
+     "n": "Epsilon row"
+    }
+   ]
+  },
+  "party.kind": {
+   "dice": "D6",
+   "rows": [
+    {
+     "n": "Alpha row"
+    },
+    {
+     "n": "Beta row"
+    },
+    {
+     "n": "Gamma row"
+    },
+    {
+     "n": "Delta row"
+    },
+    {
+     "n": "Epsilon row"
+    },
+    {
+     "n": "Zeta row"
+    }
+   ]
+  },
+  "delve.class": {
+   "rows": [
+    {
+     "n": "Alpha row",
+     "d": "Sample detail Alpha"
+    },
+    {
+     "n": "Beta row",
+     "d": "Sample detail Beta"
+    },
+    {
+     "n": "Gamma row",
+     "d": "Sample detail Gamma"
+    },
+    {
+     "n": "Delta row",
+     "d": "Sample detail Delta"
+    }
+   ]
+  }
+ },
+ "hazards": {
+  "delver": [
+   {
+    "n": "Sample hazard",
+    "d": "Sample detail",
+    "attr": "agility",
+    "fx": {
+     "supply": 1
+    }
+   }
+  ]
+ },
+ "supplyIncidents": [
+  {
+   "total": 6,
+   "n": "Sample incident",
+   "d": "Sample detail"
+  }
+ ],
+ "outOfSupply": [
+  {
+   "lo": 1,
+   "hi": 3,
+   "n": "Sample result"
+  }
+ ],
+ "artifacts": {
+  "columns": [
+   "description",
+   "form",
+   "power",
+   "oddity"
+  ],
+  "rows": [
+   {
+    "lo": 11,
+    "hi": 12,
+    "description": "Alpha row",
+    "form": "Beta row",
+    "power": "Gamma row",
+    "oddity": "Delta row"
+   }
+  ],
+  "samples": []
+ }
+}
