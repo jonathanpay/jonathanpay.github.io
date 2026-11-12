@@ -76,3 +76,10 @@ An effect (`fx`) is `{ hull, morale, weeks, feature }`. Numbers are fixed; strin
 like `"D6"`, `"-D3"`, `"+D6"` or `"D6+1"` are rolled when the slot is planned.
 `hull: "D6"` means Hull −D6. `feature: true` knocks out a random entry from the
 ship's upgrades list.
+
+## Ships from your Sheets
+
+When the Great Dark Sheets (`/tools/ctgd-sheets/`) have shared a Ship sheet to the campaign,
+the New voyage form offers it under "Ships from your sheets". Choosing one fills the name,
+Hull, Morale, Slipstream speed and upgrades from the sheet (Hull and Morale are the sheet's
+maxima). The voyage tool only reads the campaign; it never writes to it.

@@ -273,6 +273,7 @@ textarea{resize:vertical;min-height:70px}
 </footer>
 
 <script src="/tools/ctgd-sphere.js"></script>
+<script src="/tools/ctgd-campaign.js"></script>
 <script>
 (() => {
 const NS = "http://www.w3.org/2000/svg";
@@ -693,9 +694,15 @@ function renderNew(box, p) {
   const sel = h("select",{id:"nv-fleet"}); sel.append(h("option",{value:"",text:"Custom ship"}));
   const groups = [["GSV","Greatships"],["SSC","Slipstream Cruisers"]];
   groups.forEach(([c, t]) => { const og = h("optgroup",{label:t}); fleet().filter(f => f.cls === c && (f.status === "active")).forEach(f => og.append(h("option",{value:f.id,text:`${f.n}${f.hull ? "" : " (no stats)"}`}))); sel.append(og); });
+  /* Ship sheets shared through the Great Dark campaign (the Sheets tool). Only offered when there are some. */
+  const CC = window.CtgdCampaign, sheetShips = CC ? CC.all("ship") : [];
+  const sheetShip = id => { const e = CC && CC.get("ship", id); if (!e) return null; const d = e.data || {}, n = k => (d[k] !== undefined && d[k] !== "" && Number.isFinite(+d[k]) ? +d[k] : null);
+    return { n: e.name || d.name || "Ship sheet", cls: /cruiser/i.test(d.classType || "") ? "SSC" : "GSV", hull: n("hullMax") || n("hull"), morale: n("moraleMax") || n("morale"), slip: n("slip"), upg: String(d.upgrades || "").split("\n").map(x => x.trim()).filter(Boolean), src: "your Ship sheet" }; };
+  const pickShip = v => (v && v.startsWith("sheet:") ? sheetShip(v.slice(6)) : v ? ship(v) : null);
+  if (sheetShips.length) { const og = h("optgroup",{label:"Ships from your sheets"}); sheetShips.forEach(e => og.append(h("option",{value:"sheet:" + e.id,text:e.name || "Unnamed ship"}))); sel.append(og); }
   const f = h("form",{});
   const fields = h("div",{});
-  const fill = () => { const s = sel.value ? ship(sel.value) : null; const cls = s ? s.cls : "GSV"; const d = CLASS_DEFAULT[cls];
+  const fill = () => { const s = pickShip(sel.value); const cls = s ? s.cls : "GSV"; const d = CLASS_DEFAULT[cls];
     $("#nv-ship").value = s ? s.n : "Unnamed"; $("#nv-speed").value = s && s.slip ? s.slip : p.speed; $("#nv-hull").value = s && s.hull ? s.hull : (cls === "GSV" ? 22 : 12);
     $("#nv-morale").value = s && s.morale ? s.morale : 11; $("#nv-upg").value = s && s.upg ? s.upg.join("\n") : "";
     $("#nv-hint").textContent = s ? (s.hull ? `Stats from ${s.src}.` : `${s.src} gives no stats for the ${s.n}, so these are ${cls} defaults (Hull ${d.hullRange}). Set them in the Fleet tab to keep them.`) : "Greatships have Hull 16–30, cruisers 10–15. Morale is the crew rating (Exploration 10, Navy 8, Merchant 6, Pirate 4) plus the captain's Greatship Pilot level."; };
@@ -708,7 +715,7 @@ function renderNew(box, p) {
   f.append(fields, h("div",{class:"row",style:"margin-top:8px"}, h("button",{class:"btn primary",type:"submit",text:"Create and plan"}), h("button",{class:"btn quiet",type:"button",text:"Cancel",onclick:() => { mode = "list"; renderVoyagesTab(); }})));
   sel.addEventListener("change", fill);
   f.addEventListener("submit", e => { e.preventDefault(); const speed = Math.max(1, +$("#nv-speed").value || p.speed); const hull = +$("#nv-hull").value || 20; const morale = +$("#nv-morale").value || 10;
-    const v = { id: "v" + Date.now().toString(36), ship: $("#nv-ship").value.trim() || "Unnamed", shipId: sel.value || null, speed, hullMax: hull, hull, moraleMax: morale, morale, upg: $("#nv-upg").value.split("\n").map(x => x.trim()).filter(Boolean), evTable: $("#nv-ev").value || null,
+    const v = { id: "v" + Date.now().toString(36), ship: $("#nv-ship").value.trim() || "Unnamed", shipId: sel.value && !sel.value.startsWith("sheet:") ? sel.value : null, speed, hullMax: hull, hull, moraleMax: morale, morale, upg: $("#nv-upg").value.split("\n").map(x => x.trim()).filter(Boolean), evTable: $("#nv-ev").value || null,
       legs: buildLegs(p.path, p.legs.map(l => l.ei), speed), legIndex: 0, weekInLeg: 0, phase: "planning", plan: {}, log: [], created: Date.now() };
     v.log.push({ kind:"start", t:Date.now(), text:`${v.ship} made ready for departure at ${SYS[p.from].n}. Hull ${hull}, Morale ${morale}.` });
     mode = "list"; pendingNew = null; selectedId = v.id; store.set("gd-selected-voyage", v.id); save(v); });
