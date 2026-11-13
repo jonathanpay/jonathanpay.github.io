@@ -1,0 +1,96 @@
+---
+layout: default
+title: "Table data for the Third Horizon tools"
+description: "How to fill in a JSON template with the tables from your own Coriolis: The Third Horizon books, and load it into the Mission Board, System and Coriolis Sheets tools."
+permalink: "/tools/ctth-data/"
+---
+
+<div class="jp-blog-head">
+  <h1 class="jp-blog-title"><span class="jp-section-h-text">Table data</span><span class="jp-section-slash"> /</span></h1>
+  <p class="jp-blog-dek">The Third Horizon tools roll the dice and chain the modifiers. The text on the tables comes from you.</p>
+</div>
+
+<article class="page-content" style="max-width:46rem">
+
+<p>The Mission Board, System and Coriolis Sheets tools carry dice, table numbers, place names and the numbers that drive the mechanics. They don't carry the books' table entries, because those belong to Free League. So that a roll can say "Judicator" instead of "Read Table 19, result 31", you give each tool a data file with the entries from <em>your own copy</em> of the books.</p>
+
+<p>This page explains the file and gives you a template to fill in. Nothing you load is uploaded anywhere. It sits in your browser's storage and nobody else can see it.</p>
+
+<p><a class="jp-btn" href="{{ '/tools/ctth-data/ctth-data-template.json' | relative_url }}" download>Download the template (JSON)</a></p>
+
+<h2>What's in the template</h2>
+
+<p>Fifty tables, each with its dice and its roll ranges already set out, and every result left blank. You fill in the names. Roll ranges (<code>lo</code> and <code>hi</code>) are the structure, so leave them as they are unless your book's ranges differ.</p>
+
+<pre><code>"w.size": {
+  "dice": "2D6",
+  "rows": [
+    { "lo": 2, "hi": 2, "n": "", "d": "" },
+    { "lo": 3, "hi": 3, "n": "", "d": "" }
+  ]
+}</code></pre>
+
+<ul>
+<li><code>n</code> is the result as the table names it: the line that appears when you roll.</li>
+<li><code>d</code> is optional. Use it for a longer note you want to see under the result. Leave it out, or leave it empty, if you don't want one.</li>
+<li>A roll that falls outside the table reads as the first or last row, so modified rolls need no extra rows.</li>
+</ul>
+
+<h2>Filling it in</h2>
+
+<ol>
+<li>Open the template in any text editor. A plain editor is safest. Word processors swap in curly quotes, which break JSON.</li>
+<li>Find a table by its id, such as <code>employer.agents</code> or <code>w.atmosphere</code>, and type each result between the quotes after <code>"n":</code>.</li>
+<li>Keep the quotes, commas and braces. If a result contains a quotation mark, write it as <code>\"</code>.</li>
+<li>Save the file. Check it in a JSON checker if you like. The tool will tell you if it can't read it.</li>
+</ol>
+
+<p><strong>Do a table at a time.</strong> A table whose results are all blank is ignored, and the tool falls back to telling you which table and result to read. Once a table has any entries, though, every row in it is used as written, so fill in all of its rows or none. Empty rows in a half-done table show up as empty results.</p>
+
+<p>Two tables arrive pre-filled. <code>mission.type</code> holds the numbers that drive the mission generator (destination, complications, reward dice and difficulty), and <code>w.spaceport</code> holds the modifiers for each port. Those aren't table text, so leave them alone.</p>
+
+<h2>The tables</h2>
+
+<table>
+<thead><tr><th>Id</th><th>What it is</th><th>Dice</th></tr></thead>
+<tbody>
+<tr><td><code>employer.&lt;concept&gt;</code></td><td>Who is offering the job</td><td>D66</td></tr>
+<tr><td><code>task.&lt;concept&gt;</code></td><td>What the job is</td><td>D66</td></tr>
+<tr><td><code>location.&lt;concept&gt;</code></td><td>Where it takes place (for traders, the destination)</td><td>D66</td></tr>
+<tr><td><code>complication.&lt;concept&gt;</code></td><td>What goes wrong</td><td>D66</td></tr>
+<tr><td><code>reward.&lt;concept&gt;</code></td><td>What the job pays besides birr</td><td>D66</td></tr>
+<tr><td><code>w.size</code>, <code>w.atmosphere</code>, <code>w.temperature</code>, <code>w.geosphere</code>, <code>w.population</code>, <code>w.spaceport</code>, <code>w.orbit</code></td><td>Planet generation</td><td>2D6</td></tr>
+<tr><td><code>w.gasSize</code>, <code>w.gasColour</code>, <code>w.gasTemp</code>, <code>w.gasChar</code></td><td>Gas giants</td><td>2D6</td></tr>
+<tr><td><code>w.beltSize</code>, <code>w.beltComp</code>, <code>w.beltChar</code></td><td>Asteroid belts</td><td>D6, D6, 2D6</td></tr>
+<tr><td><code>w.hook</code></td><td>A reason to visit a body</td><td>D66</td></tr>
+<tr><td><code>w.factionCount</code>, <code>w.faction</code></td><td>Factions on a world</td><td>D6, 2D6</td></tr>
+<tr><td><code>mission.type</code></td><td>Mission difficulty and numbers (pre-filled)</td><td>D66</td></tr>
+</tbody>
+</table>
+
+<p>The seven concepts are <code>agents</code>, <code>mercenaries</code>, <code>explorers</code>, <code>pilgrims</code>, <code>entertainers</code>, <code>nomads</code> and <code>traders</code>. Pilgrims, entertainers and nomads have no <code>location</code> table. Traders' <code>task</code> table is the goods.</p>
+
+<p><code>w.factionCount</code> rows already carry a <code>count</code>: a number, or dice such as <code>"D6"</code>. Leave those in place and fill in <code>n</code>.</p>
+
+<h2>Loading it</h2>
+
+<table>
+<thead><tr><th>Tool</th><th>Where</th></tr></thead>
+<tbody>
+<tr><td><a href="{{ '/tools/ctth-mission/' | relative_url }}">Mission Board</a></td><td>Data tab, <strong>Import a data file</strong></td></tr>
+<tr><td><a href="{{ '/tools/ctth-system/' | relative_url }}">System</a></td><td>Data tab, <strong>Import a data file</strong></td></tr>
+<tr><td><a href="{{ '/tools/ctth-sheets/' | relative_url }}">Coriolis Sheets</a></td><td>Generation tables, <strong>Manage table data</strong>, <strong>Import tables</strong></td></tr>
+</tbody>
+</table>
+
+<p>The template uses the Mission Board format, which all three read. The Mission Board and System share one stored file. Coriolis Sheets keeps its own copy, so import the file there too if you want generation on the sheets. An import replaces what you had before, so keep your filled-in file somewhere safe.</p>
+
+<h2>Where it lives</h2>
+
+<p>Each tool stores the file in <code>localStorage</code> in your browser. It stays across visits and restarts. It's gone if you clear site data, use a private window, or switch browser or device. Keep your JSON file as the master copy and import it again whenever you need to.</p>
+
+<h2>A note on the books</h2>
+
+<p>These are unofficial fan tools, not affiliated with, sponsored or endorsed by Free League Publishing (Fria Ligan AB). <em>Coriolis: The Third Horizon</em> and its names are theirs. Type in the tables from a copy you own, for your own table. Please don't publish a filled-in file or share one around.</p>
+
+</article>
