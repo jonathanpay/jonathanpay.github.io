@@ -8,6 +8,7 @@ window.HEA_DASHBOARD={
   collectorUrl:'https://script.google.com/a/macros/holisticemail.academy/s/AKfycby3D4ySsDNcr1P8rwnYNFROsAC8KB-6k-ZJgPuvltIcbj96BQ-oxVUtDQcYpzObsa3WdA/exec',
   sessions:[
     {id:'lf-rehearsal',label:'London Forum workshop (rehearsal)'},
-    {id:'lf-live-1',label:'London Forum workshop'}
+    {id:'lf-live-1',label:'London Forum workshop · Monday group'},
+    {id:'lf-live-2',label:'London Forum workshop · Tuesday group'}
   ]
 };

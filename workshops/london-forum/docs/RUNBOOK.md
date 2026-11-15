@@ -5,7 +5,9 @@ Fits the one-hour script (`aggregate dashboard` at minutes 35–45). Times are t
 ## Before the event
 
 - [ ] Setup steps 1–6 in `SETUP.md` done; the smoke test passed on the **rehearsal** session.
-- [ ] Participant link and QR made for the **live** session only (`…/email-maturity-assessment/?session=lf-live-1`). Test the QR on a phone. The link is unlisted, not private.
+- [ ] Participant link and QR made for each **live** session only: Monday `…/email-maturity-assessment/?session=lf-live-1`, Tuesday `…?session=lf-live-2`. Each group gets its own QR so the two rooms never mix. Test both QRs on a phone. The links are unlisted, not private.
+- [ ] `lf-live-2` row added to the Sessions tab (Event ID `london-forum-2026`, Environment `live`, Status `closed`).
+- [ ] Monday: open `lf-live-1`, close it after the session. Tuesday: open `lf-live-2`. Only one live session open at a time, so a Monday QR scanned on Tuesday is refused rather than counted in the wrong room.
 - [ ] Live session `Status` is `closed` until you are ready, then `open`. Rehearsal rows never appear in the live session (separate session ID and environment).
 - [ ] Facilitator key in a password manager. Paste it just before projecting, not on screen. It is never in the address.
 - [ ] Participant notice wording confirmed (`PRIVACY-NOTICE-DRAFT.md`); `privacyUrl` and `retentionNotice` set if you want them shown.

@@ -50,6 +50,10 @@ Open the sheet's `Sessions` tab. `initialise` seeds two placeholder rows:
 | london-forum-2026 | lf-rehearsal | London Forum workshop (rehearsal) | rehearsal | open | |
 | london-forum-2026 | lf-live-1 | London Forum workshop | live | closed | |
 
+For the two London Forum groups, add a second live row by hand (`initialise` does not seed it):
+
+| london-forum-2026 | lf-live-2 | London Forum workshop · Tuesday group | live | closed | |
+
 - Session IDs: lower-case letters, digits and hyphens, 2–40 characters. They identify a session; they are not secret.
 - `Environment` is `rehearsal` or `live`. It is stored on every response and used to keep the two apart.
 - `Status` `open` accepts submissions; `closed` rejects them (the participant is told). Closing does not affect dashboard reads.
