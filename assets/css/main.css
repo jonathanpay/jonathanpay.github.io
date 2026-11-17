@@ -659,7 +659,10 @@ figcaption, .wp-element-caption {
 /* ============================================================
    Find me list
    ============================================================ */
-.jp-find-list { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 1.4rem; }
+.jp-find-list { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; align-items: baseline; gap: 1.4rem; }
+/* Cancel the global `li + li` top margin, which otherwise drops every item
+   after the first below the baseline of the row. */
+.jp-find-list li + li { margin-top: 0; }
 .jp-find-list a {
   font-family: var(--font-sans);
   font-style: italic;
