@@ -789,6 +789,13 @@ figcaption, .wp-element-caption {
   .jp-copy { flex-basis: 100%; }
 }
 
+/* Below 336px the links no longer fit beside the mark and drop to their own
+   row, so centre both rather than leaving them hanging off opposite edges. */
+@media (max-width: 336px) {
+  .jp-footer-mark { margin-inline: auto; }
+  .jp-social-row { margin-right: auto; justify-content: center; }
+}
+
 /* ============================================================
    Writing archive list
    ============================================================ */
