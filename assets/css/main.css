@@ -780,6 +780,13 @@ figcaption, .wp-element-caption {
   .jp-hero { margin-top: -2.5rem; }
   .jp-main, .jp-home { padding: 2.5rem 1.25rem 3.5rem; }
   .jp-article-title { font-size: 1.7rem; }
+  /* Drop the tagline and flatten the two footer columns into one flow, so the
+     mark and the social links share a row and the copyright sits below. */
+  .jp-footer-inner { padding: 2rem 1.25rem; }
+  .jp-footer-tagline { display: none; }
+  .jp-footer-left, .jp-footer-right { display: contents; }
+  .jp-social-row { margin-left: auto; }
+  .jp-copy { flex-basis: 100%; }
 }
 
 /* ============================================================
