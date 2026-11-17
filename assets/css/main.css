@@ -659,7 +659,10 @@ figcaption, .wp-element-caption {
 /* ============================================================
    Find me list
    ============================================================ */
-.jp-find-list { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 1.4rem; }
+.jp-find-list { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; align-items: baseline; gap: 1.4rem; }
+/* Cancel the global `li + li` top margin, which otherwise drops every item
+   after the first below the baseline of the row. */
+.jp-find-list li + li { margin-top: 0; }
 .jp-find-list a {
   font-family: var(--font-sans);
   font-style: italic;
@@ -777,6 +780,20 @@ figcaption, .wp-element-caption {
   .jp-hero { margin-top: -2.5rem; }
   .jp-main, .jp-home { padding: 2.5rem 1.25rem 3.5rem; }
   .jp-article-title { font-size: 1.7rem; }
+  /* Drop the tagline and flatten the two footer columns into one flow, so the
+     mark and the social links share a row and the copyright sits below. */
+  .jp-footer-inner { padding: 2rem 1.25rem; }
+  .jp-footer-tagline { display: none; }
+  .jp-footer-left, .jp-footer-right { display: contents; }
+  .jp-social-row { margin-left: auto; }
+  .jp-copy { flex-basis: 100%; }
+}
+
+/* Below 336px the links no longer fit beside the mark and drop to their own
+   row, so centre both rather than leaving them hanging off opposite edges. */
+@media (max-width: 336px) {
+  .jp-footer-mark { margin-inline: auto; }
+  .jp-social-row { margin-right: auto; justify-content: center; }
 }
 
 /* ============================================================
