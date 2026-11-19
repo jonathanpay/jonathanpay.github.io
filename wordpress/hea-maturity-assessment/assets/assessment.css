@@ -1,0 +1,240 @@
+/* Holistic Email Academy email maturity assessment, WordPress edition.
+
+   Every rule starts with #hea-ma, so the site theme cannot restyle the
+   assessment and the assessment cannot restyle the site. The ID also makes
+   these rules win over the theme's element and class rules.
+
+   The layout responds to the width of the assessment itself (container
+   queries), not the browser window, so it works in a normal content column
+   as well as on a full-width page. */
+
+@font-face{font-family:"CMG Sans";src:url(fonts/CMGSans-Regular.ttf) format("truetype");font-weight:400;font-style:normal;font-display:swap}
+@font-face{font-family:"CMG Sans";src:url(fonts/CMGSans-SemiBold.ttf) format("truetype");font-weight:600 900;font-style:normal;font-display:swap}
+
+#hea-ma{
+  --plum:#3D2A35;
+  --plum-soft:#5C4651;
+  --plum-muted:#897680;
+  --purple:#9E41BF;
+  --purple-deep:#7A2E96;
+  --purple-soft:#AF81BF;
+  --purple-tint:#F4E9F9;
+  --cyan:#22CEF2;
+  --cyan-deep:#0A7A8F;
+  --cyan-tint:#E3F8FD;
+  --green:#21BF3D;
+  --green-deep:#127A24;
+  --green-tint:#E6F7E9;
+  --danger:#C53A4B;
+  --warn:#C98A1B;
+  --bg:#FFFFFF;
+  --bg-alt:#FBF7FB;
+  --divider:#ECE3EA;
+  --ring:0 0 0 3px rgba(158,65,191,.3);
+  --shadow-sm:0 1px 2px rgba(61,42,53,.06),0 1px 1px rgba(61,42,53,.04);
+  --shadow-purple:0 12px 32px rgba(158,65,191,.28);
+  --sans:"CMG Sans","Montserrat",system-ui,-apple-system,"Segoe UI",sans-serif;
+  container-type:inline-size;
+  position:relative;
+  background:var(--bg);color:var(--plum-soft);font:16px/1.7 var(--sans);text-align:left;
+}
+
+/* ---- Neutralise theme styles inside the assessment ---- */
+#hea-ma *,#hea-ma *::before,#hea-ma *::after{box-sizing:border-box}
+#hea-ma p{margin:1em 0;font-size:inherit;line-height:inherit}
+#hea-ma ul{list-style:disc;margin:1em 0;padding-left:40px}
+#hea-ma ol{list-style:decimal;margin:1em 0;padding-left:40px}
+#hea-ma li{margin:0}
+#hea-ma h1,#hea-ma h2,#hea-ma h3{color:var(--plum);font-family:var(--sans);font-weight:700;font-style:normal;letter-spacing:-.01em;text-transform:none;text-align:left;padding:0;border:0;background:none}
+#hea-ma a{color:var(--purple);background:none;border:0;box-shadow:none;text-decoration:underline;text-underline-offset:2px}
+#hea-ma a:hover{color:var(--purple-deep)}
+#hea-ma button,#hea-ma input,#hea-ma select,#hea-ma textarea{font:inherit;letter-spacing:normal;text-transform:none;text-shadow:none}
+#hea-ma button,#hea-ma a,#hea-ma input,#hea-ma label,#hea-ma select{touch-action:manipulation}
+#hea-ma button{cursor:pointer;border:0;margin:0;width:auto;height:auto;box-shadow:none;text-decoration:none;font-size:16px}
+#hea-ma input[type=radio],#hea-ma input[type=checkbox]{appearance:auto;-webkit-appearance:auto;position:static;opacity:1;box-shadow:none;border:0;background:none;padding:0}
+#hea-ma fieldset{border:0;margin:0;padding:0;min-width:0;background:none}
+#hea-ma label{text-transform:none;letter-spacing:normal;font-size:inherit}
+#hea-ma strong{font-weight:700}
+#hea-ma .eyebrow{font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--purple)}
+
+/* ---- Frame ---- */
+/* Own side padding: on this theme the gutter comes from a Group block, so a
+   Shortcode block placed straight on the page would otherwise touch the edge. */
+#hea-ma .hea-ma-app{max-width:1180px;margin:0 auto;padding:40px clamp(16px,3cqi,48px) 64px;scroll-margin-top:calc(var(--wp-admin--admin-bar--height,0px) + 16px)}
+
+/* ---- Intro ---- */
+#hea-ma .hero{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(240px,.7fr);gap:64px}
+#hea-ma .hero h1{font-size:clamp(34px,4.6cqi,56px);line-height:1.1;margin:16px 0 24px;max-width:690px}
+#hea-ma h2{font-size:clamp(22px,2.2cqi,30px);line-height:1.25;margin:16px 0 24px}
+#hea-ma h3{font-size:18px;line-height:1.3;margin:0 0 12px}
+#hea-ma .lead{font-size:20px;line-height:1.55;max-width:680px;color:var(--plum)}
+#hea-ma .intro-note{font-size:15px;margin-top:32px;max-width:720px;background:var(--bg-alt);border:1px solid var(--divider);border-left:4px solid var(--green);border-radius:16px;padding:24px 32px}
+#hea-ma .intro-note h3{margin-top:0}
+#hea-ma .side{background:var(--bg-alt);border:1px solid var(--divider);border-radius:16px;padding:24px;align-self:start;margin-top:32px}
+#hea-ma .side ol{list-style:none;padding:0;margin:16px 0 24px}
+#hea-ma .side li{display:flex;gap:14px;align-items:center;padding:12px 0;border-bottom:1px solid var(--divider);font-size:15px;color:var(--plum)}
+#hea-ma .side li:last-child{border-bottom:0}
+#hea-ma .side li span{font-size:12px;font-weight:700;color:var(--dim-deep);background:var(--dim-tint);border-radius:999px;padding:2px 9px}
+#hea-ma .side .eyebrow{color:var(--cyan-deep)}
+
+/* ---- Dimension colours: cyan, green, purple in turn ---- */
+#hea-ma .dim-0,#hea-ma .dim-3{--dim:var(--cyan);--dim-deep:var(--cyan-deep);--dim-tint:var(--cyan-tint)}
+#hea-ma .dim-1,#hea-ma .dim-4{--dim:var(--green);--dim-deep:var(--green-deep);--dim-tint:var(--green-tint)}
+#hea-ma .dim-2{--dim:var(--purple);--dim-deep:var(--purple-deep);--dim-tint:var(--purple-tint)}
+
+/* ---- Buttons ---- */
+#hea-ma .primary,#hea-ma .secondary,#hea-ma .link-button{border-radius:999px;min-height:48px;padding:14px 26px;font-size:16px;font-weight:600;line-height:1.2;text-decoration:none;transition:background .22s,box-shadow .22s,transform .14s}
+#hea-ma .primary{background:var(--purple);color:#fff;border:0}
+#hea-ma .primary:hover{background:var(--purple-deep);color:#fff;box-shadow:var(--shadow-purple)}
+#hea-ma .primary:active{transform:translateY(1px)}
+#hea-ma .primary:disabled{opacity:.45;cursor:not-allowed;box-shadow:none;background:var(--purple)}
+#hea-ma .secondary{color:var(--purple);background:transparent;border:2px solid var(--purple-tint)}
+#hea-ma .secondary:hover{background:var(--purple-tint);color:var(--purple)}
+#hea-ma .link-button{background:transparent;color:var(--purple);padding-left:0;padding-right:0;text-decoration:underline;text-underline-offset:4px;border-radius:4px}
+#hea-ma .link-button:hover{color:var(--purple-deep);background:transparent}
+#hea-ma .actions{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-top:24px}
+#hea-ma .privacy{font-size:14px;color:var(--plum-muted);margin:24px 0 12px}
+
+/* ---- Questions ---- */
+#hea-ma .progress{height:6px;background:var(--divider);border-radius:999px;margin-top:14px;overflow:hidden}
+#hea-ma .progress>span{display:block;height:100%;background:linear-gradient(90deg,var(--green),var(--cyan) 50%,var(--purple));background-size:810px 100%;border-radius:999px;transition:width .22s}
+#hea-ma .progress-label{display:flex;justify-content:space-between;gap:10px;color:var(--plum-muted);font-size:13px;font-weight:600}
+#hea-ma .progress-label span:first-child{color:var(--cyan-deep)}
+#hea-ma .question-head .eyebrow{color:var(--green-deep)}
+#hea-ma .form-shell{max-width:810px;margin:0 auto}
+#hea-ma .question-head{margin:32px 0 24px}
+#hea-ma .question-head h1{font-size:clamp(24px,2.8cqi,32px);line-height:1.25;margin:10px 0 14px}
+#hea-ma .helper{margin:0}
+#hea-ma .options{border:0;margin:0;padding:0;min-width:0}
+#hea-ma .option{display:flex;gap:16px;align-items:flex-start;padding:18px 20px;border:1px solid var(--divider);margin:10px 0;border-radius:10px;background:#fff;cursor:pointer;position:relative;color:var(--plum);font-weight:400;line-height:1.6;box-shadow:var(--shadow-sm);transition:border-color .14s,background .14s}
+#hea-ma .option:hover{border-color:var(--purple-soft)}
+#hea-ma .option:has(input:checked){border-color:var(--purple);background:var(--purple-tint);box-shadow:inset 4px 0 var(--purple)}
+#hea-ma .option input{accent-color:var(--purple);flex-shrink:0;width:19px;height:19px;margin:4px 0 0}
+#hea-ma .letter{color:var(--plum-muted);font-size:12px;font-weight:700;padding-top:3px;min-width:12px}
+#hea-ma .option .wording{flex:1}
+#hea-ma .nav{display:flex;align-items:center;justify-content:space-between;margin-top:24px;gap:14px}
+#hea-ma .error{color:var(--danger);font-size:15px;min-height:24px}
+
+/* ---- Results ---- */
+#hea-ma .result-head{max-width:770px}
+#hea-ma .result-head h1{font-size:clamp(32px,4cqi,48px);line-height:1.1;margin:16px 0}
+#hea-ma .result-grid{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(280px,.85fr);gap:48px;margin-top:40px}
+#hea-ma .profile{border-top:1px solid var(--divider)}
+#hea-ma .dimension{padding:20px 0;border-bottom:1px solid var(--divider)}
+#hea-ma .dim-top{display:flex;justify-content:space-between;gap:15px;font-size:15px;margin-bottom:11px;color:var(--plum)}
+#hea-ma .dim-top strong{text-align:right;color:var(--plum-muted)}
+#hea-ma .bar{display:grid;grid-template-columns:repeat(5,1fr);gap:5px}
+#hea-ma .bar i{display:block;height:12px;background:var(--divider);border-radius:999px}
+/* Bar segments follow the HEA course levels: Ad Hoc and Foundational in
+   Foundation green, Strategic and Optimised in Intermediate cyan,
+   Innovative in Advanced purple. */
+#hea-ma .bar i.filled{background:var(--green)}
+#hea-ma .bar i.filled:nth-child(n+3){background:var(--cyan)}
+#hea-ma .bar i.filled:nth-child(5){background:var(--purple)}
+#hea-ma .lvl-1,#hea-ma .lvl-2{color:var(--green-deep)}
+#hea-ma .lvl-3,#hea-ma .lvl-4{color:var(--cyan-deep)}
+#hea-ma .lvl-5{color:var(--purple-deep)}
+#hea-ma .dim-top strong.lvl-1,#hea-ma .dim-top strong.lvl-2{color:var(--green-deep)}
+#hea-ma .dim-top strong.lvl-3,#hea-ma .dim-top strong.lvl-4{color:var(--cyan-deep)}
+#hea-ma .dim-top strong.lvl-5{color:var(--purple-deep)}
+#hea-ma .bar.partial i{background:transparent;border:1px dashed var(--plum-muted)}
+#hea-ma .dim-note{font-size:13px;color:var(--plum-muted);margin:8px 0 0;line-height:1.5}
+#hea-ma .axis{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;font-size:11px;font-weight:600;text-align:center;margin-top:12px}
+#hea-ma .box{padding:24px;border:1px solid var(--divider);margin-bottom:18px;background:#fff;border-radius:16px;box-shadow:var(--shadow-sm)}
+#hea-ma .box h2{font-size:22px;margin:0 0 14px}
+#hea-ma .box p:last-child{margin-bottom:0}
+#hea-ma .box ul{padding-left:20px;margin-bottom:0}
+#hea-ma .box li{padding:4px 0}
+#hea-ma .caution{border-left:4px solid var(--warn)}
+#hea-ma .strengths{border-left:4px solid var(--green)}
+#hea-ma .strengths h3{color:var(--green-deep)}
+#hea-ma .check{border-left:4px solid var(--cyan)}
+#hea-ma .check h3{color:var(--cyan-deep)}
+#hea-ma .gaps{border-left:4px solid var(--purple)}
+#hea-ma .muted{color:var(--plum-muted);font-size:14px}
+#hea-ma .next-action{margin-bottom:22px}
+#hea-ma .next-action .eyebrow,#hea-ma .get-support{display:block;margin-bottom:6px}
+#hea-ma .do-now{color:var(--green-deep)}
+#hea-ma .build-next{color:var(--cyan-deep)}
+#hea-ma .get-support{color:var(--purple-deep)}
+#hea-ma .results-bottom{margin-top:40px;border-top:3px solid var(--cyan-tint);padding-top:32px;display:grid;grid-template-columns:1fr 1fr;gap:32px}
+#hea-ma select,#hea-ma textarea,#hea-ma input[type=text],#hea-ma input[type=email]{display:block;width:100%;max-width:100%;height:auto;background:#fff;color:var(--plum);border:1px solid var(--divider);border-radius:10px;padding:12px;margin:8px 0 20px;line-height:1.5;box-shadow:none}
+#hea-ma select{appearance:auto;-webkit-appearance:menulist}
+#hea-ma select:focus,#hea-ma textarea:focus,#hea-ma input[type=text]:focus,#hea-ma input[type=email]:focus{outline:none;border-color:var(--purple);box-shadow:var(--ring)}
+#hea-ma textarea{resize:vertical;min-height:110px}
+#hea-ma label.field-label{font-size:15px;display:block;color:var(--plum);font-weight:600}
+
+#hea-ma :focus-visible{outline:3px solid var(--purple);outline-offset:3px}
+#hea-ma .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+#hea-ma h1[tabindex]:focus{outline:none}
+#hea-ma .file-input{position:absolute;width:1px;height:1px;opacity:0}
+#hea-ma .print-only{display:none}
+
+/* ---- Accent variety ---- */
+#hea-ma .hero section>.eyebrow{color:var(--green-deep)}
+#hea-ma .results-bottom section:first-child>.eyebrow{color:var(--cyan-deep)}
+#hea-ma .results-bottom section:last-child>.eyebrow{color:var(--green-deep)}
+#hea-ma .consent{display:flex;gap:10px;align-items:flex-start;font-size:15px;font-weight:400;color:var(--plum);margin:12px 0 16px;cursor:pointer}
+#hea-ma .consent input{accent-color:var(--purple);width:18px;height:18px;margin-top:3px;flex-shrink:0}
+
+/* ---- Course suggestions ---- */
+#hea-ma .courses{margin-top:40px;padding-top:32px;border-top:1px solid var(--divider)}
+#hea-ma .courses>h2{margin:8px 0 8px}
+#hea-ma .courses>p{margin:0 0 20px;max-width:62ch}
+#hea-ma .course-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px}
+#hea-ma .course-card{--lv:var(--purple);--lv-ink:var(--purple-deep);--lv-tint:var(--purple-tint);display:flex;flex-direction:column;align-items:flex-start;gap:10px;padding:20px;background:var(--lv-tint);border:1px solid color-mix(in srgb,var(--lv) 40%,transparent);border-top:4px solid var(--lv);border-radius:10px}
+#hea-ma .course-card.is-foundation{--lv:var(--green);--lv-ink:var(--green-deep);--lv-tint:var(--green-tint)}
+#hea-ma .course-card.is-intermediate{--lv:var(--cyan);--lv-ink:var(--cyan-deep);--lv-tint:var(--cyan-tint)}
+#hea-ma .course-tags{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+#hea-ma .course-level{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--lv-ink)}
+#hea-ma .course-level::before{content:"\25CF  ";color:var(--lv)}
+#hea-ma .course-status{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:3px 10px;border-radius:999px}
+#hea-ma .course-status.is-live{background:var(--plum);color:#fff}
+#hea-ma .course-status.is-waitlist{color:var(--plum-soft);border:1px solid var(--plum-muted)}
+#hea-ma .course-title{color:var(--plum);font-size:17px;line-height:1.3}
+#hea-ma .course-card p{margin:0}
+#hea-ma .course-offer{font-weight:600;color:var(--purple-deep)}
+#hea-ma .course-link{margin-top:auto;display:inline-flex;align-items:center;text-decoration:none;min-height:44px;padding:11px 20px}
+#hea-ma .course-link.primary:hover{color:#fff}
+#hea-ma .courses-optional>h2{font-size:22px}
+#hea-ma .courses-later p{margin:0}
+
+/* ---- Email copy form ---- */
+#hea-ma .email-copy{border-top:4px solid var(--purple)}
+#hea-ma .email-copy h2{margin-bottom:8px}
+#hea-ma .email-copy input[type=text],#hea-ma .email-copy input[type=email]{margin:6px 0 14px}
+#hea-ma .email-copy .optional{font-weight:400;color:var(--plum-muted)}
+#hea-ma .email-copy .consent{font-size:14px}
+#hea-ma .email-copy .form-notice{margin:12px 0 0;font-size:13px}
+#hea-ma .email-copy .error{min-height:0;margin:8px 0 0}
+
+/* ---- Narrow: phones, or a narrow content column ---- */
+@container (max-width:760px){
+  #hea-ma .hea-ma-app{padding:24px 16px 40px}
+  #hea-ma .hero,#hea-ma .result-grid,#hea-ma .results-bottom{grid-template-columns:1fr;gap:24px}
+  #hea-ma .side{margin-top:0}
+  #hea-ma .intro-note{padding:20px}
+  #hea-ma .hero h1{font-size:34px}
+  #hea-ma .option{padding:15px 13px;gap:12px;font-size:15px}
+  #hea-ma .letter{display:none}
+  #hea-ma .dim-top{font-size:14px}
+  #hea-ma .axis{font-size:10px}
+  #hea-ma .lead{font-size:18px}
+}
+@media(prefers-reduced-motion:reduce){#hea-ma *{scroll-behavior:auto!important;transition:none!important}}
+
+/* ---- Print: app.js hides the rest of the page while printing ---- */
+@media print{
+  .hea-ma-print-hide{display:none!important}
+  #hea-ma{font-size:14px}
+  #hea-ma .hea-ma-app{padding:0;max-width:none}
+  #hea-ma .actions,#hea-ma .results-bottom,#hea-ma .nav,#hea-ma .save-status,#hea-ma .privacy,#hea-ma .email-copy{display:none!important}
+  #hea-ma .result-grid{grid-template-columns:1fr;gap:16px;margin-top:24px}
+  #hea-ma .print-only{display:block}
+  #hea-ma .print-date{margin:4px 0 0;font-size:13px;color:var(--plum-muted)}
+  #hea-ma *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  #hea-ma .box{box-shadow:none}
+  #hea-ma .course-card,#hea-ma .dimension,#hea-ma .next-action,#hea-ma .box.strengths,#hea-ma .box.caution,#hea-ma .box.gaps,#hea-ma .box.check{break-inside:avoid}
+  #hea-ma h2,#hea-ma h3{break-after:avoid}
+  #hea-ma .courses{margin-top:16px;padding-top:16px;break-inside:avoid}
+}
