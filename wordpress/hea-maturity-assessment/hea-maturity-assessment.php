@@ -2,7 +2,7 @@
 /**
  * Plugin Name:       HEA Email Maturity Assessment
  * Description:       The Holistic Email Academy email maturity assessment. Add the shortcode [hea_maturity_assessment] to any page. Settings → Maturity assessment connects the response sheet.
- * Version:           1.0.0
+ * Version:           1.0.1
  * Requires at least: 6.3
  * Requires PHP:      7.4
  * Author:            Holistic Email Academy
@@ -13,7 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-const HEA_MA_VERSION = '1.0.0';
+const HEA_MA_VERSION = '1.0.1';
 const HEA_MA_OPTION  = 'hea_ma_settings';
 
 /**
