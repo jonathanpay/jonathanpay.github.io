@@ -4,7 +4,8 @@ The 13 free email tools, moved from jonathanpay.github.io/email-tools/ to holist
 
 | Path | What it is |
 |---|---|
-| `email-tools/` | The source: one HTML page per tool plus `assets/`. Edit here. |
+| `email-tools-pages/` | The source pages: one HTML page per tool. Edit here. (They lived in `email-tools/` until the redirects went in.) |
+| `../email-tools/assets/` | The tools' scripts and styles. Edit here. `../email-tools/*.html` are now redirects to the Academy. |
 | `build-email-tools.mjs` | Generates the plugin's `assets/`, `templates/` and `tools.json` from the source. |
 | `build-email-tools-plugin.sh` | Runs the tests, regenerates, and makes `dist/hea-email-tools.zip`. |
 | `hea-email-tools/` | The plugin. Only `hea-email-tools.php` and `uninstall.php` are hand-written. |
@@ -92,12 +93,12 @@ The generated pages were tested in a browser inside a stand-in theme, but the pl
 
 ### 7. Point the old addresses at the new pages (once you're happy)
 
-The redirects are ready on the branch `email-tools/redirects` (see its commit for details). Merge it only after step 6, because it replaces each GitHub tool page with a redirect to its Academy page. It keeps `email-tools/assets/`: the London Forum assessment, its dashboard, the slides and the pilot load fonts and course data from there.
+This is done (you're reading the version from the redirects branch): each GitHub tool page now sends visitors, with any `?…` query, to its Academy page. It keeps `email-tools/assets/`: the London Forum assessment, its dashboard, the slides and the pilot load fonts and course data from there.
 
 Also update links you control elsewhere: the jonathanpay.github.io homepage card and `/tools/` list (the redirect branch does this), LinkedIn posts, the newsletter footer, and anything in the Academy that already links to jonathanpay.github.io/email-tools/.
 
 ## Afterwards
 
-- **Changing a tool.** Edit `email-tools/` (the HTML page or `assets/`), run `sh wordpress/build-email-tools-plugin.sh`, then upload the new zip (WordPress offers to replace the installed version). The test `tests/email-tools-plugin.test.mjs` fails if the plugin is out of date with the source, so you can't commit a stale build.
+- **Changing a tool.** Edit the page in `wordpress/email-tools-pages/` or the script in `email-tools/assets/`, run `sh wordpress/build-email-tools-plugin.sh`, then upload the new zip (WordPress offers to replace the installed version). The test `tests/email-tools-plugin.test.mjs` fails if the plugin is out of date with the source, so you can't commit a stale build.
 - **A course launches or changes.** Edit `COURSES` in `email-tools/assets/course-ctas.js`, rebuild, upload. The maturity assessment has its own copy of the course list (`hea-maturity-assessment/assets/js/courses.js`), so update both.
 - **How it's protected from the theme.** Every style is scoped to `#hea-et`, with a small reset for theme styles that would leak in (buttons, headings, links). Scripts are ES modules with content-hashed URLs, so a new upload is picked up straight away.
