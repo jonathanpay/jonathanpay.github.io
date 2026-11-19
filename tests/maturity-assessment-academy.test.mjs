@@ -67,7 +67,11 @@ test('the plugin prints the containers app.js and the stylesheet expect', () => 
   assert.match(php, /<div id="hea-ma" class="hea-ma"><div id="hea-ma-app" class="hea-ma-app">/);
   assert.match(app, /getElementById\('hea-ma-app'\)/);
   assert.match(app, /getElementById\('hea-ma'\)/);
-  for (const f of ['assets/assessment.css', 'assets/fonts/CMGSans-Regular.ttf', 'assets/fonts/CMGSans-SemiBold.ttf',
+  // The WordPress page title is the page's only H1; the assessment's headings are H2s.
+  assert.doesNotMatch(app, /<h1/);
+  assert.equal((app.match(/class="hea-ma-title"/g) || []).length, 3);
+  assert.ok(!fs.existsSync(new URL('assets/fonts/CMGSans-Regular.ttf', plugin)), 'only the compressed web fonts ship');
+  for (const f of ['assets/assessment.css', 'assets/fonts/CMGSans-Regular.woff2', 'assets/fonts/CMGSans-SemiBold.woff2',
     'assets/js/data.js', 'assets/js/engine.js', 'assets/js/advice.js', 'assets/js/courses.js', 'assets/js/app.js']) {
     assert.ok(fs.existsSync(new URL(f, plugin)), f);
     if (f.endsWith('.js') || f.endsWith('.css')) assert.ok(php.includes(f.replace('assets/', '')), `${f} is loaded by the plugin`);

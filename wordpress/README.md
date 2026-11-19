@@ -11,6 +11,8 @@ This folder holds the Academy edition of the email maturity assessment, built as
 | `hea-maturity-assessment/` | The plugin. `build-plugin.sh` zips it for upload. |
 | `apps-script/Code.gs` | The response collector and result emailer, for the Academy Google account. |
 | `build-plugin.sh` | Makes `dist/hea-maturity-assessment.zip`. |
+| `page-seo.md` | SEO settings for the page: title, Yoast fields, internal links. |
+| `page-content.md` | Text to paste below the assessment so search engines have something to read. |
 
 This whole folder is excluded from the GitHub Pages build (`_config.yml`), so nothing here is published on jonathanpay.github.io.
 
@@ -95,7 +97,8 @@ Nothing below has been changed yet. These are your decisions:
 - **Indexable.** There's no `noindex` tag.
 - **Course links stay on the Academy site** (`/courses/...`) and carry `?ref=maturity-assessment-dimension-N` instead of UTM tags. UTM tags on links within the same site overwrite the visitor's original traffic source in Google Analytics. The result email still uses UTM tags (`utm_medium=email`), which is correct for email.
 - **Theme-proof.** Every style is scoped to the assessment (`#hea-ma`), so the Academy theme can't restyle it and it can't restyle the theme. The layout adapts to the width it's given, not just the screen width.
-- **Self-contained.** Fonts (CMG Sans), course data and scripts ship inside the plugin. Nothing loads from jonathanpay.github.io.
+- **Self-contained.** Fonts (CMG Sans, as compressed WOFF2 with Latin characters only: 114 KB instead of 1.3 MB), course data and scripts ship inside the plugin. Nothing loads from jonathanpay.github.io.
+- **One H1.** The WordPress page title is the page's only H1; the assessment's own headings are H2s.
 - **Fixed a stylesheet bug.** A stray `}` in the pilot's `styles.css` silently dropped one rule (the intro's small green heading came out purple).
 - **No London Forum material.** The plugin is built from the general pilot, not the workshop copy, so there are no sessions, room dashboard or workshop takeaway.
 
