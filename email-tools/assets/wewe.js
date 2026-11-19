@@ -1,7 +1,7 @@
 import { getEl } from './utils.js';
+import { countPronouns } from './pronouns.js';
 
-const BRAND_WORDS = new Set(['we', 'us', 'our', 'my', 'i', 'me']);
-const CUSTOMER_WORDS = new Set(['you', 'your']);
+const TIP_BRAND_HEAVY = 'Your copy is heavily brand-focused. Try replacing "we", "us", and "our" with "you" and "your" to put your reader at the centre of the message.';
 
 function analyse() {
   const text = getEl('wewe-input').value.trim();
@@ -15,16 +15,20 @@ function analyse() {
   }
   errorEl.classList.remove('visible');
 
-  const words = text.toLowerCase().match(/\b(\w+)\b/g) ?? [];
-  let brand = 0, customer = 0;
-  for (const w of words) {
-    if (BRAND_WORDS.has(w)) brand++;
-    else if (CUSTOMER_WORDS.has(w)) customer++;
-  }
+  const { total, brandPct, customerPct } = countPronouns(text);
+  const tipText = getEl('wewe-tip-text');
 
-  const total = brand + customer;
-  const brandPct = total > 0 ? Math.round(brand / total * 100) : 0;
-  const customerPct = total > 0 ? Math.round(customer / total * 100) : 0;
+  if (total === 0) {
+    getEl('brand-pct').textContent = '—';
+    getEl('customer-pct').textContent = '—';
+    getEl('brand-bar').style.width = '0%';
+    getEl('customer-bar').style.width = '0%';
+    tipText.textContent = 'No brand or reader pronouns found (we, our, I, you, your…), so there\'s no balance to measure. Copy that never says "you" can still feel distant: try speaking to the reader directly.';
+    getEl('wewe-tip').classList.add('visible');
+    getEl('wewe-consulting-cta').style.display = 'none';
+    resultsEl.classList.add('visible');
+    return;
+  }
 
   getEl('brand-pct').textContent = brandPct + '%';
   getEl('customer-pct').textContent = customerPct + '%';
@@ -35,6 +39,7 @@ function analyse() {
     getEl('customer-bar').style.width = customerPct + '%';
   }));
 
+  tipText.textContent = TIP_BRAND_HEAVY;
   getEl('wewe-tip').classList.toggle('visible', brandPct > 60);
   getEl('wewe-consulting-cta').style.display = brandPct > 75 ? '' : 'none';
 }

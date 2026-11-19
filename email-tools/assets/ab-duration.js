@@ -37,7 +37,7 @@ function calculate() {
   const days = Math.ceil(n / dailySends);
 
   getEl('stat-sample').textContent = fmt(n);
-  getEl('stat-days').textContent   = days >= 365 ? '365+' : String(days);
+  getEl('stat-days').textContent   = days > 365 ? '365+' : String(days);
 
   const warnImpractical = getEl('warn-impractical');
   const warnLong        = getEl('warn-long');

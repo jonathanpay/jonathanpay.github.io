@@ -130,12 +130,21 @@
     <div class="tool-page">
 
       <header class="tool-header">
-        <span class="hea-pill hea-pill--intermediate">● Intermediate</span>
+        <a class="hea-pill hea-pill--intermediate" data-course-pill="accessibility" data-course-content="header">● Intermediate</a>
         <h1>Email Accessibility Checker</h1>
         <p class="lead">Paste your email's HTML and check it against common accessibility pitfalls — missing image alt text, vague link text, undersized fonts, poor colour contrast, and broken heading order.</p>
       </header>
 
       <div class="tool-card">
+
+        <p class="tool-note">
+          <strong>How it works:</strong> The checker reads the HTML you paste. Font sizes and
+          colours are checked where they're set inline (<code>style="…"</code>), as most email
+          HTML is; styles in a <code>&lt;style&gt;</code> block or an external stylesheet aren't
+          applied. Contrast is measured against WCAG AA: 4.5:1 for body text, 3:1 for large text
+          (24px, or 18.7px bold). It catches common problems, but it isn't a full audit: test with
+          a screen reader before you send.
+        </p>
 
         <div class="field-group">
           <label class="field-label" for="ax-input">Your email HTML</label>

@@ -1,4 +1,5 @@
 import { getEl } from './utils.js';
+import { contrastRatio, fontSizePx, isLargeText, isBold } from './contrast.js';
 
 const GENERIC_LINK_PHRASES = new Set([
   'click here', 'here', 'read more', 'more', 'this link', 'learn more',
@@ -32,23 +33,6 @@ function parseColor(value) {
   return [parseInt(m[1], 10), parseInt(m[2], 10), parseInt(m[3], 10)];
 }
 
-function relativeLuminance([r, g, b]) {
-  const channel = (c) => {
-    const cs = c / 255;
-    return cs <= 0.03928 ? cs / 12.92 : Math.pow((cs + 0.055) / 1.055, 2.4);
-  };
-  const [R, G, B] = [channel(r), channel(g), channel(b)];
-  return 0.2126 * R + 0.7152 * G + 0.0722 * B;
-}
-
-function contrastRatio(a, b) {
-  const La = relativeLuminance(a);
-  const Lb = relativeLuminance(b);
-  const lighter = Math.max(La, Lb);
-  const darker  = Math.min(La, Lb);
-  return (lighter + 0.05) / (darker + 0.05);
-}
-
 /** Walks up the tree to find the nearest explicit background colour, defaulting to white. */
 function findBackgroundColor(el) {
   let node = el;
@@ -66,11 +50,6 @@ function findBackgroundColor(el) {
     node = node.parentElement;
   }
   return '#ffffff';
-}
-
-function parsePx(value) {
-  const m = value.trim().match(/^([\d.]+)px$/i);
-  return m ? parseFloat(m[1]) : null;
 }
 
 function checkImages(doc) {
@@ -180,7 +159,7 @@ function checkFontSizes(doc) {
   let tooSmall = 0, borderline = 0;
   const seen = new Set();
   for (const el of candidates) {
-    const px = parsePx(el.style.fontSize);
+    const px = fontSizePx(el.style.fontSize);
     if (px === null) continue;
     if (px >= 14) continue;
 
@@ -193,14 +172,14 @@ function checkFontSizes(doc) {
       tooSmall++;
       findings.push({
         severity: 'critical',
-        message: `Text set at <strong>${px}px</strong> is below the 12px accessibility floor`,
+        message: `Text at <strong>${+px.toFixed(1)}px</strong> is below 12px, the smallest size most email guidance recommends — hard to read on a phone`,
         detail: `"${escapeHtml(snippet)}"`,
       });
     } else {
       borderline++;
       findings.push({
         severity: 'warning',
-        message: `Text set at <strong>${px}px</strong> is borderline — aim for 14px+ for body copy`,
+        message: `Text at <strong>${+px.toFixed(1)}px</strong> is borderline — aim for 14px+ for body copy`,
         detail: `"${escapeHtml(snippet)}"`,
       });
     }
@@ -236,14 +215,12 @@ function checkContrast(doc) {
     seen.add(key);
 
     const ratio = contrastRatio(fg, bg);
-    const sizePx = parsePx(el.style.fontSize) ?? 16;
-    const weight = el.style.fontWeight;
-    const isBold = weight === 'bold' || parseInt(weight || '0', 10) >= 700;
-    const isLargeText = sizePx >= 18 || (sizePx >= 14 && isBold);
-    const threshold = isLargeText ? 3 : 4.5;
+    const sizePx = fontSizePx(el.style.fontSize) ?? 16;
+    const large = isLargeText(sizePx, isBold(el.style.fontWeight));
+    const threshold = large ? 3 : 4.5;
 
     if (ratio < threshold) {
-      const severity = ratio < (isLargeText ? 2 : 3) ? 'critical' : 'warning';
+      const severity = ratio < (large ? 2 : 3) ? 'critical' : 'warning';
       if (severity === 'critical') fail++; else borderline++;
       findings.push({
         severity,

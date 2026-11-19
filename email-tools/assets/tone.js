@@ -1,5 +1,5 @@
 import { getEl as byId, animateBars } from "./utils.js";
-import { scoreCategories } from "./dominance-scorer.js";
+import { scoreCategories, declineNote } from "./dominance-scorer.js";
 
 const TONES = [
   {
@@ -100,7 +100,8 @@ function analyse() {
   }
   errorEl.classList.remove("visible");
 
-  const { scored, ranked, total, verdict, dominant, runnerUp } = scoreCategories(text, TONES);
+  const result = scoreCategories(text, TONES);
+  const { scored, ranked, total, verdict, dominant, runnerUp } = result;
   const isNeutral = verdict === "mixed";
   const topCategory = total > 0 ? ranked[0] : null;
 
@@ -109,7 +110,7 @@ function analyse() {
     : verdict === "tie" ? `${dominant.name} & ${runnerUp.name}` : dominant.name;
 
   byId("dominant-note").textContent = isNeutral
-    ? "No single tone stands out strongly. This can work for purely informational emails, but adding intentional tone signals will improve engagement."
+    ? declineNote(result, "tone") ?? "No single tone stands out strongly. This can work for purely informational emails, but adding intentional tone signals will improve engagement."
     : verdict === "tie"
       ? "Two tones are registering at similar strength. Scroll down to check whether that combination is intentional."
       : noteFor(dominant, stage);

@@ -1,0 +1,58 @@
+// Feature matching for the Feature-to-Benefit Converter. No DOM, so it can be tested.
+
+export const categoryKeywords = {
+  'time-saving':     ['automat', 'workflow', 'schedule', 'trigger', 'drip', 'sequence', 'recurring', 'bulk send', 'batch', 'streamline', 'time-sav', 'auto-'],
+  'ease-of-use':     ['simple', 'easy', 'intuitive', 'user-friendly', 'drag-and-drop', 'no-code', 'one-click', 'quick setup', 'hassle-free', 'plug-and-play', 'wizard', 'template'],
+  'performance':     ['deliverability', 'open rate', 'click rate', 'conversion', 'revenue', 'roi', 'growth', 'boost', 'optimis', 'optimiz', 'fast', 'real-time', 'high-performance', 'reliable', 'scale'],
+  'cost-saving':     ['afford', 'budget', 'cost-effect', 'save money', 'reduce cost', 'lower cost', 'saving', 'value for money', 'free plan', 'pricing', 'discount'],
+  'security':        ['secure', 'security', 'encrypt', 'protect', 'privacy', 'gdpr', 'complian', 'data protect', 'authenticat', 'audit trail', 'certif', 'safe'],
+  'analytics':       ['analytic', 'reporting', 'dashboard', 'insight', 'metric', 'tracking', 'measure', 'a/b test', 'split test', 'heatmap', 'heat map', 'statistic', 'data visuali'],
+  'personalisation': ['personaliz', 'personalis', 'dynamic content', 'segment', 'behavioural', 'behavioral', 'targeted', 'recommend', 'tailor', 'custom field', 'dynamic'],
+  'support':         ['support', 'helpdesk', 'onboarding', 'dedicated account', 'customer success', 'live chat', '24/7', 'documentation', 'training programme', 'managed service'],
+};
+
+export const buyerTypeMap = {
+  'time-saving':     'Competitive',
+  'performance':     'Competitive',
+  'ease-of-use':     'Spontaneous',
+  'cost-saving':     'Methodical',
+  'security':        'Methodical',
+  'analytics':       'Methodical',
+  'personalisation': 'Humanistic',
+  'support':         'Humanistic',
+};
+
+function escapeRe(s) {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+// Keywords are word starts ("automat" matches "automated", "automation"), so
+// each must begin a word: "roi" must not match "android".
+const MATCHERS = Object.fromEntries(
+  Object.entries(categoryKeywords).map(([cat, kws]) => [
+    cat,
+    kws.map(kw => new RegExp(`(?:^|[^a-z0-9])${escapeRe(kw)}`, 'g')),
+  ]),
+);
+
+/**
+ * The category with the most keyword hits; the earlier category wins a tie.
+ * `matched` is false when nothing matched and the ease-of-use default was used.
+ */
+export function detectCategory(feature) {
+  const text = feature.toLowerCase();
+  let best = 'ease-of-use', bestHits = 0;
+  for (const [cat, res] of Object.entries(MATCHERS)) {
+    const hits = res.reduce((n, re) => n + (text.match(re)?.length ?? 0), 0);
+    if (hits > bestHits) { best = cat; bestHits = hits; }
+  }
+  return { category: best, matched: bestHits > 0 };
+}
+
+/** Puts the feature into a template, capitalised where it starts a sentence. */
+export function fillTemplate(template, feature) {
+  const f = feature.trim().replace(/[.!]+$/, '');
+  const cap = f.charAt(0).toUpperCase() + f.slice(1);
+  return template.replace(/\{feature\}/g, (m, offset) =>
+    offset === 0 || /[.!?]\s+$/.test(template.slice(0, offset)) ? cap : f);
+}

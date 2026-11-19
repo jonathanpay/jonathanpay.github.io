@@ -1,7 +1,7 @@
 # Scorer notes — keyword matching and verdict floors
 
-Applies to the shared scoring behind the **Emotional Appeal Analyzer**, **Email
-Tone Analyzer**, **Buyer Persona Matcher** and the **CURVE Subject Line
+Applies to the shared scoring behind the **Emotional Appeal Analyser**, **Email
+Tone Analyser**, **Buyer Persona Matcher** and the **CURVE Subject Line
 Builder**.
 
 ## What was wrong
@@ -80,6 +80,6 @@ consumer through `dominance-scorer.js`.
    `assets/tone.js`, so its function words (`now`, `only`, `ends`,
    `final`, `feel`, `for you`) cannot be cleaned without editing a build
    artifact. Extract it to `tone-keywords.js` upstream; the matcher fix already
-   benefits the Tone Analyzer, the lexicon hygiene does not yet.
+   benefits the Tone Analyser, the lexicon hygiene does not yet.
 
 The proper home for both is the source project that builds the hashed bundles.

@@ -1,5 +1,5 @@
 // Single source of truth for the 6 emotional-appeal categories.
-// Consumed by the Emotional Appeal Analyzer (dominance scoring across all 6)
+// Consumed by the Emotional Appeal Analyser (dominance scoring across all 6)
 // and the CURVE Subject Line Builder (Curiosity + the other 5 as "Emotion").
 //
 // Applied 2026-09-29, previously drafted as appeal-keywords.next.js.

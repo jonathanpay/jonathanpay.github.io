@@ -189,3 +189,16 @@ html, body { margin: 0; padding: 0; }
   .tool-page { padding: var(--hea-s-6) var(--hea-s-4) var(--hea-s-8); }
   .tool-card { padding: var(--hea-s-5); }
 }
+
+/* ---- "How it works" note (shared) ---- */
+.tool-note {
+  background: var(--hea-bg);
+  border: 1px solid var(--hea-divider);
+  border-radius: var(--hea-r-md);
+  padding: var(--hea-s-4) var(--hea-s-5);
+  margin-bottom: var(--hea-s-6);
+  font-size: var(--hea-text-sm);
+  color: var(--hea-fg-2);
+  line-height: var(--hea-lh-normal);
+}
+.tool-note strong { color: var(--hea-fg-1); font-weight: var(--hea-w-semibold); }

@@ -1,5 +1,5 @@
 import { getEl as byId, animateBars } from "./utils.js";
-import { scoreCategories } from "./dominance-scorer.js";
+import { scoreCategories, declineNote } from "./dominance-scorer.js";
 
 const PERSONA_TYPES = [
   {
@@ -60,7 +60,8 @@ function analyse() {
   const wordCount = text.split(/\s+/).filter(Boolean).length;
   shortWarn.classList.toggle("visible", wordCount < 30);
 
-  const { scored, ranked, total, verdict, dominant, runnerUp } = scoreCategories(text, PERSONA_TYPES);
+  const result = scoreCategories(text, PERSONA_TYPES);
+  const { scored, ranked, total, verdict, dominant, runnerUp } = result;
   const topCategory = total > 0 ? ranked[0] : null;
 
   const badge = byId("dominant-badge");
@@ -68,9 +69,9 @@ function analyse() {
   if (verdict === "mixed") {
     badge.textContent = "Mixed / Neutral";
     badge.style.background = "#897680";
-    note.textContent = total === 0
+    note.textContent = declineNote(result, "buyer type") ?? (total === 0
       ? "No clear persona signals detected. Adding intentional language cues will help your copy speak to specific buyer types."
-      : "No single buyer type stands out. Targeted emails typically convert better when they speak to a specific persona.";
+      : "No single buyer type stands out. Targeted emails typically convert better when they speak to a specific persona.");
   } else if (verdict === "tie") {
     badge.textContent = `${dominant.name} & ${runnerUp.name}`;
     badge.style.background = dominant.color;

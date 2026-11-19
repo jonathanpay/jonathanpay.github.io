@@ -1,6 +1,6 @@
 import { getEl as byId, animateBars } from "./utils.js";
 import { EMOTIONAL_APPEALS } from "./appeal-keywords.js";
-import { scoreCategories } from "./dominance-scorer.js";
+import { scoreCategories, declineNote } from "./dominance-scorer.js";
 
 function analyse() {
   const text = byId("appeal-input").value.trim();
@@ -18,7 +18,8 @@ function analyse() {
   const wordCount = text.split(/\s+/).filter(Boolean).length;
   shortWarn.classList.toggle("visible", wordCount < 30);
 
-  const { scored, ranked, total, verdict, dominant, runnerUp } = scoreCategories(text, EMOTIONAL_APPEALS);
+  const result = scoreCategories(text, EMOTIONAL_APPEALS);
+  const { scored, ranked, total, verdict, dominant, runnerUp } = result;
   const topCategory = total > 0 ? ranked[0] : null;
 
   const badge = byId("dominant-badge");
@@ -26,9 +27,9 @@ function analyse() {
   if (verdict === "mixed") {
     badge.textContent = "Mixed / Neutral";
     badge.style.background = "#897680";
-    note.textContent = total === 0
+    note.textContent = declineNote(result, "emotional appeal") ?? (total === 0
       ? "No clear emotional triggers detected. Even subtle changes in word choice can shift the emotional register significantly."
-      : "No single appeal dominates. Spreading emotional signals too evenly can dilute impact — consider which trigger best fits your goal for this email.";
+      : "No single appeal dominates. Spreading emotional signals too evenly can dilute impact — consider which trigger best fits your goal for this email.");
   } else if (verdict === "tie") {
     badge.textContent = `${dominant.name} & ${runnerUp.name}`;
     badge.style.background = dominant.color;

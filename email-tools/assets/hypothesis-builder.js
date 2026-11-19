@@ -1,6 +1,7 @@
 import { getEl as byId } from "./utils.js";
 import { PROGRAMMES, OBJECTIVES, FACTORS, METRICS, LEVERS } from "./hypothesis-content.js";
 import { buildHypothesis, validate } from "./hypothesis.js";
+import { toolUrl } from "./site.js";
 
 const OPTION_NONE = { value: "", label: "Choose…" };
 
@@ -77,7 +78,7 @@ for (const lever of LEVERS) {
       }
       if (lever.id === "buyer-modality") {
         const link = document.createElement("a");
-        link.href = "persona-tool.html";
+        link.href = toolUrl("persona");
         link.textContent = "Buyer Persona Matcher";
         hint.append(" Not sure which your reader is? Try the ", link, ".");
       }

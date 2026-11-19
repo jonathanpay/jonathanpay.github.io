@@ -1,5 +1,6 @@
 // Pure logic for the A/B Test Hypothesis Builder: no DOM, so it can be tested.
 import { FACTORS, METRICS, OBJECTIVES, NO_BECAUSE_WARNING } from "./hypothesis-content.js";
+import { toolUrl } from "./site.js";
 
 const find = (list, id) => list.find((item) => item.id === id);
 
@@ -111,7 +112,7 @@ export function buildHypothesis(input) {
     checks,
     plannerRow,
     plannerTsv,
-    durationUrl: `ab-duration-tool.html?${params.toString()}`,
+    durationUrl: toolUrl("ab-duration", params),
     durationNote,
   };
 }
