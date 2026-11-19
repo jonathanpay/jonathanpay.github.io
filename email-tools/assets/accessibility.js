@@ -1,0 +1,407 @@
+import { getEl } from './utils.js';
+
+const GENERIC_LINK_PHRASES = new Set([
+  'click here', 'here', 'read more', 'more', 'this link', 'learn more',
+  'link', 'more info', 'more information', 'details', 'click', 'go',
+]);
+
+function escapeHtml(s) {
+  return s
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+function truncate(s, max) {
+  return s.length > max ? s.slice(0, max - 1) + '…' : s;
+}
+
+/** Resolves a CSS colour string to an [r,g,b] triple via the browser's own parser. */
+function parseColor(value) {
+  const probe = document.createElement('div');
+  probe.style.position = 'absolute';
+  probe.style.visibility = 'hidden';
+  probe.style.color = value;
+  if (!probe.style.color) return null;
+  document.body.appendChild(probe);
+  const computed = getComputedStyle(probe).color;
+  document.body.removeChild(probe);
+  const m = computed.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+  if (!m) return null;
+  return [parseInt(m[1], 10), parseInt(m[2], 10), parseInt(m[3], 10)];
+}
+
+function relativeLuminance([r, g, b]) {
+  const channel = (c) => {
+    const cs = c / 255;
+    return cs <= 0.03928 ? cs / 12.92 : Math.pow((cs + 0.055) / 1.055, 2.4);
+  };
+  const [R, G, B] = [channel(r), channel(g), channel(b)];
+  return 0.2126 * R + 0.7152 * G + 0.0722 * B;
+}
+
+function contrastRatio(a, b) {
+  const La = relativeLuminance(a);
+  const Lb = relativeLuminance(b);
+  const lighter = Math.max(La, Lb);
+  const darker  = Math.min(La, Lb);
+  return (lighter + 0.05) / (darker + 0.05);
+}
+
+/** Walks up the tree to find the nearest explicit background colour, defaulting to white. */
+function findBackgroundColor(el) {
+  let node = el;
+  while (node) {
+    const style = (node).style;
+    if (style) {
+      if (style.backgroundColor) return style.backgroundColor;
+      if (style.background) {
+        const firstToken = style.background.trim().split(/\s+/)[0];
+        if (firstToken && parseColor(firstToken)) return firstToken;
+      }
+    }
+    const bgAttr = node.getAttribute('bgcolor');
+    if (bgAttr) return bgAttr;
+    node = node.parentElement;
+  }
+  return '#ffffff';
+}
+
+function parsePx(value) {
+  const m = value.trim().match(/^([\d.]+)px$/i);
+  return m ? parseFloat(m[1]) : null;
+}
+
+function checkImages(doc) {
+  const findings = [];
+  const imgs = Array.from(doc.querySelectorAll('img'));
+  if (imgs.length === 0) return findings;
+
+  let missing = 0, filenameAlt = 0, decorative = 0, good = 0;
+  for (const img of imgs) {
+    const src = img.getAttribute('src') ?? '';
+    const shortSrc = truncate(src.split('/').pop() || src, 40);
+    if (!img.hasAttribute('alt')) {
+      missing++;
+      findings.push({
+        severity: 'critical',
+        message: `Image missing <code>alt</code> attribute`,
+        detail: escapeHtml(shortSrc),
+      });
+      continue;
+    }
+    const alt = img.getAttribute('alt').trim();
+    if (alt === '') { decorative++; continue; }
+    if (/\.(jpe?g|png|gif|webp|svg|bmp)$/i.test(alt)) {
+      filenameAlt++;
+      findings.push({
+        severity: 'warning',
+        message: `Image alt text looks like a filename, not a description`,
+        detail: `alt="${escapeHtml(truncate(alt, 60))}"`,
+      });
+      continue;
+    }
+    good++;
+  }
+
+  if (missing === 0 && filenameAlt === 0) {
+    findings.unshift({
+      severity: 'pass',
+      message: `${good + decorative} image${imgs.length !== 1 ? 's' : ''} checked — all have appropriate <code>alt</code> attributes${decorative ? ` (${decorative} marked decorative with <code>alt=""</code>)` : ''}.`,
+    });
+  }
+
+  return findings;
+}
+
+function checkLinks(doc) {
+  const findings = [];
+  const links = Array.from(doc.querySelectorAll('a'));
+  if (links.length === 0) return findings;
+
+  let empty = 0, generic = 0, rawUrl = 0, good = 0;
+  for (const a of links) {
+    const ariaLabel = a.getAttribute('aria-label')?.trim();
+    const text = a.textContent?.trim() ?? '';
+    const innerImgAlt = a.querySelector('img')?.getAttribute('alt')?.trim();
+    const accessibleText = ariaLabel || text || innerImgAlt || '';
+    const href = a.getAttribute('href') ?? '';
+
+    if (accessibleText === '') {
+      empty++;
+      findings.push({
+        severity: 'critical',
+        message: `Link has no accessible text (no link text, <code>aria-label</code>, or image <code>alt</code>)`,
+        detail: href ? `href="${escapeHtml(truncate(href, 60))}"` : undefined,
+      });
+      continue;
+    }
+
+    const normalized = accessibleText.toLowerCase().replace(/[.!→»]+$/, '').trim();
+    if (GENERIC_LINK_PHRASES.has(normalized)) {
+      generic++;
+      findings.push({
+        severity: 'warning',
+        message: `Generic link text "${escapeHtml(accessibleText)}" doesn't describe the destination out of context`,
+        detail: 'Use descriptive text or add an aria-label, e.g. "Read the full case study →"',
+      });
+      continue;
+    }
+
+    if (/^https?:\/\//i.test(accessibleText)) {
+      rawUrl++;
+      findings.push({
+        severity: 'warning',
+        message: `Link text is a raw URL — screen readers will read it out character by character`,
+        detail: escapeHtml(truncate(accessibleText, 60)),
+      });
+      continue;
+    }
+
+    good++;
+  }
+
+  if (empty === 0 && generic === 0 && rawUrl === 0) {
+    findings.unshift({
+      severity: 'pass',
+      message: `${good} link${links.length !== 1 ? 's' : ''} checked — all have clear, descriptive accessible text.`,
+    });
+  }
+
+  return findings;
+}
+
+function checkFontSizes(doc) {
+  const findings = [];
+  const candidates = Array.from(doc.querySelectorAll('[style]'))
+    .filter(el => el.style.fontSize && (el.textContent ?? '').trim().length > 0);
+
+  let tooSmall = 0, borderline = 0;
+  const seen = new Set();
+  for (const el of candidates) {
+    const px = parsePx(el.style.fontSize);
+    if (px === null) continue;
+    if (px >= 14) continue;
+
+    const snippet = truncate((el.textContent ?? '').trim(), 50);
+    const key = `${px}|${snippet}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+
+    if (px < 12) {
+      tooSmall++;
+      findings.push({
+        severity: 'critical',
+        message: `Text set at <strong>${px}px</strong> is below the 12px accessibility floor`,
+        detail: `"${escapeHtml(snippet)}"`,
+      });
+    } else {
+      borderline++;
+      findings.push({
+        severity: 'warning',
+        message: `Text set at <strong>${px}px</strong> is borderline — aim for 14px+ for body copy`,
+        detail: `"${escapeHtml(snippet)}"`,
+      });
+    }
+  }
+
+  if (tooSmall === 0 && borderline === 0 && candidates.length > 0) {
+    findings.unshift({
+      severity: 'pass',
+      message: `All explicitly-sized text is 14px or larger.`,
+    });
+  }
+
+  return findings;
+}
+
+function checkContrast(doc) {
+  const findings = [];
+  const candidates = Array.from(doc.querySelectorAll('[style]'))
+    .filter(el => el.style.color && (el.textContent ?? '').trim().length > 0);
+
+  let fail = 0, borderline = 0;
+  const seen = new Set();
+  for (const el of candidates) {
+    const fgRaw = el.style.color;
+    const bgRaw = findBackgroundColor(el);
+    const fg = parseColor(fgRaw);
+    const bg = parseColor(bgRaw);
+    if (!fg || !bg) continue;
+
+    const snippet = truncate((el.textContent ?? '').trim(), 40);
+    const key = `${fgRaw}|${bgRaw}|${snippet}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+
+    const ratio = contrastRatio(fg, bg);
+    const sizePx = parsePx(el.style.fontSize) ?? 16;
+    const weight = el.style.fontWeight;
+    const isBold = weight === 'bold' || parseInt(weight || '0', 10) >= 700;
+    const isLargeText = sizePx >= 18 || (sizePx >= 14 && isBold);
+    const threshold = isLargeText ? 3 : 4.5;
+
+    if (ratio < threshold) {
+      const severity = ratio < (isLargeText ? 2 : 3) ? 'critical' : 'warning';
+      if (severity === 'critical') fail++; else borderline++;
+      findings.push({
+        severity,
+        message: `Contrast ratio <strong>${ratio.toFixed(2)}:1</strong> fails WCAG AA (needs ${threshold}:1) for "${escapeHtml(snippet)}"`,
+        detail: `Text ${escapeHtml(fgRaw)} on background ${escapeHtml(bgRaw)}`,
+      });
+    }
+  }
+
+  if (fail === 0 && borderline === 0 && candidates.length > 0) {
+    findings.unshift({
+      severity: 'pass',
+      message: `${candidates.length} styled text block${candidates.length !== 1 ? 's' : ''} checked — all meet WCAG AA contrast requirements against their nearest background.`,
+    });
+  }
+
+  return findings;
+}
+
+function checkHeadings(doc) {
+  const findings = [];
+  const headings = Array.from(doc.querySelectorAll('h1, h2, h3, h4, h5, h6'));
+  if (headings.length === 0) return findings;
+
+  let highestSeen = 0;
+  let skips = 0;
+  let h1Count = 0;
+  for (const h of headings) {
+    const level = parseInt(h.tagName[1], 10);
+    if (level === 1) h1Count++;
+    if (highestSeen > 0 && level > highestSeen + 1) {
+      skips++;
+      findings.push({
+        severity: 'warning',
+        message: `Heading level skips from H${highestSeen} to H${level} — "${escapeHtml(truncate((h.textContent ?? '').trim(), 50))}"`,
+      });
+    }
+    highestSeen = Math.max(highestSeen, level);
+  }
+
+  if (h1Count > 1) {
+    findings.push({
+      severity: 'info',
+      message: `${h1Count} H1 tags found — most guidance recommends a single H1 per email.`,
+    });
+  }
+
+  if (skips === 0 && h1Count <= 1) {
+    findings.unshift({
+      severity: 'pass',
+      message: `${headings.length} heading${headings.length !== 1 ? 's' : ''} found with a logical, unbroken order.`,
+    });
+  }
+
+  return findings;
+}
+
+function checkLanguage(rawHtml, doc) {
+  if (!/<html[^>]*>/i.test(rawHtml)) return [];
+  const htmlEl = doc.querySelector('html');
+  const lang = htmlEl?.getAttribute('lang')?.trim();
+  if (!lang) {
+    return [{
+      severity: 'warning',
+      message: `<code>&lt;html&gt;</code> tag has no <code>lang</code> attribute`,
+      detail: 'Screen readers use this to pick the right pronunciation and voice, e.g. <code>&lt;html lang="en"&gt;</code>',
+    }];
+  }
+  return [{ severity: 'pass', message: `Document language is set to <strong>${escapeHtml(lang)}</strong>.` }];
+}
+
+function severityRank(s) {
+  return { critical: 0, warning: 1, info: 2, pass: 3 }[s];
+}
+
+function renderCategory(cat) {
+  if (cat.findings.length === 0) {
+    return `
+      <div class="ax-category">
+        <p class="ax-category-title">${escapeHtml(cat.label)}</p>
+        <p class="ax-category-empty">No relevant elements found in this markup.</p>
+      </div>`;
+  }
+
+  const sorted = [...cat.findings].sort((a, b) => severityRank(a.severity) - severityRank(b.severity));
+  const items = sorted.map(f => `
+    <div class="ax-finding ax-finding--${f.severity}">
+      <span class="ax-finding-dot ax-finding-dot--${f.severity}"></span>
+      <div>
+        <p class="ax-finding-msg">${f.message}</p>
+        ${f.detail ? `<p class="ax-finding-detail">${f.detail}</p>` : ''}
+      </div>
+    </div>`).join('');
+
+  return `
+    <div class="ax-category">
+      <p class="ax-category-title">${escapeHtml(cat.label)}</p>
+      <div class="ax-finding-list">${items}</div>
+    </div>`;
+}
+
+function analyse() {
+  const text    = getEl('ax-input').value.trim();
+  const errorEl = getEl('ax-error');
+  const results = getEl('ax-results');
+
+  if (!text) {
+    errorEl.textContent = 'Please paste some email HTML before checking.';
+    errorEl.classList.add('visible');
+    results.classList.remove('visible');
+    return;
+  }
+  errorEl.classList.remove('visible');
+
+  const doc = new DOMParser().parseFromString(text, 'text/html');
+
+  const categories = [
+    { id: 'images',   label: 'Image alt text',         findings: checkImages(doc) },
+    { id: 'links',    label: 'Link text',              findings: checkLinks(doc) },
+    { id: 'fontsize', label: 'Font size',              findings: checkFontSizes(doc) },
+    { id: 'contrast', label: 'Colour contrast',        findings: checkContrast(doc) },
+    { id: 'headings', label: 'Heading structure',      findings: checkHeadings(doc) },
+    { id: 'lang',     label: 'Document language',      findings: checkLanguage(text, doc) },
+  ];
+
+  const allFindings = categories.flatMap(c => c.findings);
+  const criticalCount = allFindings.filter(f => f.severity === 'critical').length;
+  const warningCount  = allFindings.filter(f => f.severity === 'warning').length;
+
+  renderSummary(criticalCount, warningCount);
+  getEl('ax-categories').innerHTML = categories.map(renderCategory).join('');
+
+  results.classList.add('visible');
+}
+
+function renderSummary(criticalCount, warningCount) {
+  const el = getEl('ax-summary');
+  if (criticalCount === 0 && warningCount === 0) {
+    el.innerHTML = `
+      <div class="ax-summary-box ax-summary-box--ok">
+        <span class="ax-summary-icon">✓</span>
+        <div><p>No accessibility issues found across the checks below.</p></div>
+      </div>`;
+    return;
+  }
+
+  const parts = [];
+  if (criticalCount > 0) parts.push(`<strong>${criticalCount} critical issue${criticalCount !== 1 ? 's' : ''}</strong>`);
+  if (warningCount > 0)  parts.push(`<strong>${warningCount} warning${warningCount !== 1 ? 's' : ''}</strong>`);
+
+  el.innerHTML = `
+    <div class="ax-summary-box ax-summary-box--warn">
+      <span class="ax-summary-icon">⚠</span>
+      <div><p>Found ${parts.join(' and ')}. See the breakdown below for details and fixes.</p></div>
+    </div>`;
+}
+
+getEl('ax-btn').addEventListener('click', analyse);
+getEl('ax-input').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' && e.ctrlKey) analyse();
+});

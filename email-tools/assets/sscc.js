@@ -1,4 +1,4 @@
-import { g as byId } from "./utils-jnLFB3bE.js";
+import { getEl as byId } from "./utils.js";
 import { twoSidedConfidence, zScoreEqualSamples } from "./stats.js";
 import { bandFor } from "./sscc-verdicts.js";
 

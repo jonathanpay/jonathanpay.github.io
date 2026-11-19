@@ -1,4 +1,4 @@
-import { g as byId } from "./utils-jnLFB3bE.js";
+import { getEl as byId } from "./utils.js";
 
 const DOH_ENDPOINT = "https://dns.google/resolve";
 const COMMON_DKIM_SELECTORS = ["google", "selector1", "selector2", "k1", "k2", "s1", "s2", "dkim", "mail", "default"];

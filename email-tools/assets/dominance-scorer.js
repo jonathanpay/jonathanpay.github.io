@@ -5,15 +5,14 @@
 // Rationale, measurements and open follow-ups: ../scorer-notes.md
 //
 // What changed, and why (three defects, all in this file's dependency on the
-// substring counter in utils-jnLFB3bE.js):
+// substring counter in utils.js):
 //
 //   1. MATCHING. The old matcher counted raw substring occurrences with
 //      `indexOf` and no word boundaries, so `know` hit "now", `they` hit "hey",
 //      `against` hit "gain", `contested` hit "tested", `defending` hit
 //      "ending", `closely` hit "lose". Every one of those was a scored hit.
 //      This file now owns a boundary-aware matcher and no longer imports
-//      countHits, which also means the fix survives a rebuild of the minified
-//      utils bundle.
+//      countHits. (The old counter has since been removed from utils.js.)
 //
 //   2. RECALL, deliberately preserved. Word boundaries alone would drop
 //      legitimate inflections (`trust` no longer matching "trusted"). A
