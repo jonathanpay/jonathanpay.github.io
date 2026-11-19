@@ -1,0 +1,343 @@
+/* ============================================================
+   jonathanpay.com: Twenty Twenty restyled to match the GitHub site
+   Paste into Appearance → Customize → Additional CSS.
+   Tokens copied from assets/css/main.css.
+   Sizes are in px: Twenty Twenty sets 1rem = 10px, so rem values
+   from the GitHub CSS would come out too small.
+   ============================================================ */
+
+:root {
+  --jp-navy: #2c3d50;
+  --jp-mid-navy: #39536f;
+  --jp-muted-navy: #aab3bf;
+  --jp-highlight-gold: #dfb81f;
+  --jp-link-gold: #8b7417;
+  --jp-mid-grey: #6d6d6d;
+  --jp-light-grey: #dbdbdb;
+  --jp-column: 696px; /* GitHub: 760px frame minus 32px padding each side */
+}
+
+/* ---------- Type ---------- */
+body,
+.entry-content,
+.entry-content p,
+.entry-content li {
+  font-family: "Open Sans", system-ui, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
+}
+
+h1, h2, h3, h4, h5, h6,
+.heading-size-1, .heading-size-2, .heading-size-3, .heading-size-4 {
+  font-family: "Open Sans", system-ui, sans-serif;
+  font-style: italic;
+  font-weight: 700;
+  line-height: 1.25;
+  letter-spacing: normal;
+  color: #000;
+}
+
+h1.entry-title,
+.singular .entry-title {
+  font-size: clamp(27.2px, 4vw, 38.4px);
+  font-weight: 800;
+  line-height: 1.15;
+}
+
+.entry-content {
+  font-size: 16.8px;
+  line-height: 1.75;
+  color: #000;
+}
+.entry-content h2 { font-size: clamp(22.4px, 3.5vw, 26px); margin: 1.6em auto 0.6em; }
+.entry-content h3 { font-size: 20.8px; margin: 1.6em auto 0.5em; }
+.entry-content h4 { font-size: 17px; }
+.entry-content h5 { font-size: 15px; }
+.entry-content p,
+.entry-content ul,
+.entry-content ol { margin-bottom: 1.1em; }
+
+a { color: var(--jp-link-gold); text-decoration: none; }
+a:hover, a:focus { text-decoration: underline; }
+.entry-content a { color: var(--jp-link-gold); text-decoration: none; }
+.entry-content a:hover,
+.entry-content a:focus { text-decoration: underline; }
+
+/* ---------- Reading column: 580px → GitHub's width ---------- */
+.entry-content > *:not(.alignwide):not(.alignfull):not(.alignleft):not(.alignright):not(.is-style-wide),
+.section-inner.medium,
+.section-inner.thin,
+.post-meta-wrapper,
+.featured-media-inner,
+.author-bio,
+.pagination-single-inner,
+.comments-wrapper {
+  max-width: var(--jp-column);
+}
+
+/* ---------- Header: solid navy bar, gold italic nav ---------- */
+#site-header {
+  background: var(--jp-navy);
+  border-bottom: 1px solid var(--jp-mid-navy);
+}
+.overlay-header #site-header {
+  background: transparent;
+  border-bottom: 0;
+}
+.header-inner { padding: 28.8px 0; max-width: 1080px; }
+.site-logo img,
+.custom-logo { max-height: 56px; width: auto; }
+
+#site-header .primary-menu > li > a,
+#site-header .primary-menu li a,
+body.overlay-header #site-header .primary-menu > li > a,
+.menu-modal .modal-menu a {
+  color: var(--jp-highlight-gold);
+  font-family: "Open Sans", system-ui, sans-serif;
+  font-style: italic;
+  font-weight: 700;
+  font-size: 14.4px;
+  letter-spacing: 0.02em;
+  text-decoration: none;
+}
+#site-header .primary-menu a:hover,
+#site-header .primary-menu a:focus { text-decoration: underline; }
+#site-header .primary-menu .current-menu-item > a,
+#site-header .primary-menu .current_page_item > a,
+body.overlay-header #site-header .primary-menu .current_page_item > a {
+  color: #fff;
+  text-decoration: none;
+}
+.header-inner .toggle,
+.header-inner .toggle-text,
+.overlay-header .header-inner .toggle { color: var(--jp-highlight-gold); }
+.header-inner .toggle svg { fill: var(--jp-highlight-gold); }
+.header-inner .toggle-text { font-style: italic; font-weight: 700; letter-spacing: 0.02em; }
+
+/* Mobile menu panel */
+.menu-modal,
+.menu-modal-inner { background: var(--jp-navy); }
+.menu-modal .modal-menu li { border-color: var(--jp-mid-navy); }
+.menu-modal .close-nav-toggle,
+.menu-modal .close-nav-toggle svg { color: var(--jp-highlight-gold); fill: var(--jp-highlight-gold); }
+
+/* ---------- Single post / page header: left-aligned, compact ---------- */
+.singular:not(.template-cover) .entry-header {
+  padding: 64px 0 0;
+  background: transparent;
+}
+body:not(.template-cover) .entry-header.has-text-align-center,
+body:not(.template-cover) .entry-header .entry-header-inner,
+body:not(.template-cover) .entry-header .entry-title,
+body:not(.template-cover) .intro-text {
+  text-align: left;
+}
+body:not(.template-cover) .entry-header .entry-categories-inner { margin-left: 0; }
+.singular:not(.template-cover) .entry-header-inner { margin: 0 auto; }
+.singular:not(.template-cover) .intro-text {
+  margin: 9.6px 0 0;
+  max-width: none;
+  font-size: 16.8px;
+  line-height: 1.6;
+  color: var(--jp-mid-grey);
+}
+
+/* Category label: small gold, like the GitHub meta line */
+.entry-categories { margin-bottom: 9.6px; }
+body:not(.template-cover) .entry-categories-inner { justify-content: flex-start; }
+.singular:not(.template-cover) .entry-categories-inner { margin: 0; }
+.entry-categories a {
+  color: var(--jp-link-gold);
+  border-bottom: 0;
+  font-size: 13px;
+  font-weight: 700;
+  font-style: italic;
+  letter-spacing: 0.04em;
+  text-transform: none;
+}
+.cover-header .entry-categories a { color: var(--jp-highlight-gold); }
+
+/* Date / author line */
+.post-meta { margin: 0; }
+body:not(.template-cover) .post-meta { justify-content: flex-start; }
+.post-meta-wrapper.post-meta-single-top { margin: 9.6px auto 0; }
+.post-meta,
+.post-meta li,
+.post-meta a {
+  color: var(--jp-mid-grey);
+  font-size: 13px;
+  letter-spacing: 0.04em;
+  font-weight: 400;
+}
+.post-meta .meta-icon svg { fill: var(--jp-mid-grey); width: 12px; }
+
+/* Featured image under the title, 16:9 with soft corners */
+.singular:not(.template-cover) .featured-media {
+  margin-top: 24px;
+}
+.singular:not(.template-cover) .featured-media::before { display: none; } /* drop the grey band behind it */
+.singular:not(.template-cover) .featured-media-inner img {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  border-radius: 6px;
+}
+.featured-media figcaption { text-align: center; }
+
+.post-inner { padding-top: 40px; }
+
+/* ---------- Cover template (homepage, and posts still on it) ---------- */
+.cover-color-overlay { opacity: 0.75 !important; color: var(--jp-navy) !important; background: var(--jp-navy) !important; }
+.cover-header .entry-title {
+  font-size: clamp(28px, 4.5vw, 44px);
+  font-weight: 800;
+  color: #fff;
+}
+.cover-header .intro-text { color: #fff; }
+.cover-header .post-meta,
+.cover-header .post-meta a,
+.cover-header .post-meta li { color: var(--jp-muted-navy); }
+.cover-header .post-meta .meta-icon svg { fill: var(--jp-muted-navy); }
+
+/* ---------- Blocks ---------- */
+.entry-content blockquote,
+.wp-block-quote,
+.wp-block-quote.is-style-large,
+.wp-block-pullquote blockquote {
+  border-left: 3px solid var(--jp-highlight-gold);
+  border-right: 0;
+  border-top: 0;
+  border-bottom: 0;
+  margin-top: 24px;
+  margin-bottom: 24px;
+  padding: 8px 24px;
+  font-style: italic;
+  text-align: left;
+}
+.entry-content blockquote p { font-family: "Open Sans", system-ui, sans-serif; font-size: inherit; }
+.entry-content blockquote cite,
+.wp-block-quote cite {
+  display: block;
+  margin-top: 11.2px;
+  color: var(--jp-mid-grey);
+  font-size: 13.6px;
+  font-style: normal;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.wp-block-button__link,
+.wp-block-file .wp-block-file__button,
+input[type="submit"],
+button.button,
+.button {
+  border-radius: 0;
+  background: var(--jp-link-gold);
+  color: #fff;
+  font-family: "Open Sans", system-ui, sans-serif;
+  font-style: italic;
+  font-weight: 700;
+  font-size: 16px;
+  letter-spacing: 0.02em;
+  text-transform: none;
+  padding: 12px 20px;
+}
+.wp-block-button__link:hover,
+.wp-block-button__link:focus,
+input[type="submit"]:hover,
+.button:hover {
+  background: var(--jp-highlight-gold);
+  color: var(--jp-navy);
+  text-decoration: none;
+}
+.is-style-outline .wp-block-button__link {
+  background: transparent;
+  border: 2px solid var(--jp-link-gold);
+  color: var(--jp-link-gold);
+}
+
+hr,
+.wp-block-separator,
+.entry-content hr {
+  border: 0;
+  border-top: 1px solid var(--jp-light-grey);
+  margin: 35.2px auto;
+  background: none;
+}
+hr::before, hr::after,
+.wp-block-separator::before,
+.wp-block-separator::after { display: none; } /* Twenty Twenty's diagonal-line ornament */
+
+figcaption,
+.wp-caption-text,
+.wp-element-caption {
+  color: var(--jp-mid-grey);
+  font-size: 14.1px;
+  line-height: 1.45;
+  text-align: center;
+}
+.is-style-rounded img { border-radius: 6px; }
+
+/* ---------- Blog / archive listings ---------- */
+.archive-header,
+.blog .archive-header { padding: 64px 0 32px; background: transparent; }
+.archive-title { font-style: italic; font-weight: 800; color: var(--jp-navy); }
+body:not(.singular) main > article + article,
+body:not(.singular) .post-separator {
+  margin-top: 40px;
+}
+body:not(.singular) .post-separator { border-top: 1px solid var(--jp-light-grey); max-width: var(--jp-column); }
+body:not(.singular) .post-separator::before,
+body:not(.singular) .post-separator::after { display: none; }
+body:not(.singular) .entry-header { padding: 40px 0 0; }
+body:not(.singular) .entry-title { font-size: 27.2px; font-weight: 700; line-height: 1.2; }
+body:not(.singular) .entry-title a { color: #000; text-decoration: none; }
+body:not(.singular) .entry-title a:hover { color: var(--jp-link-gold); }
+
+.pagination .nav-links a,
+.pagination .nav-links span { font-style: italic; font-weight: 700; }
+
+/* ---------- Previous / next, author box, comments ---------- */
+.pagination-single { margin-top: 48px; }
+.pagination-single hr { display: none; }
+.pagination-single-inner a {
+  color: var(--jp-link-gold);
+  font-style: italic;
+  font-weight: 700;
+  font-size: 16px;
+  text-decoration: none;
+}
+.pagination-single-inner a:hover .title { text-decoration: underline; }
+.comments-wrapper .comment-reply-title,
+.comments-wrapper .comments-title { font-size: 22.4px; }
+
+/* ---------- Footer ---------- */
+.footer-nav-widgets-wrapper,
+#site-footer {
+  background: var(--jp-navy);
+  color: #fff;
+  border-color: var(--jp-mid-navy);
+}
+.footer-nav-widgets-wrapper a,
+#site-footer a { color: var(--jp-highlight-gold); text-decoration: none; }
+.footer-nav-widgets-wrapper a:hover,
+#site-footer a:hover { text-decoration: underline; }
+.footer-widgets .widget-title,
+.footer-nav-widgets-wrapper h2 {
+  color: #fff;
+  font-style: italic;
+  font-weight: 700;
+  font-size: 14.4px;
+  text-transform: none;
+  letter-spacing: 0.02em;
+}
+.footer-inner.section-inner,
+#site-footer .section-inner { max-width: 1080px; }
+#site-footer { font-size: 13px; letter-spacing: 0.02em; }
+.footer-credits { color: var(--jp-muted-navy); }
+.to-the-top { color: var(--jp-highlight-gold); font-style: italic; font-weight: 700; }
+
+/* ---------- Small screens ---------- */
+@media (max-width: 699px) {
+  .singular:not(.template-cover) .entry-header { padding-top: 40px; }
+  .header-inner { padding: 19.2px 0; }
+  .site-logo img, .custom-logo { max-height: 44px; }
+}
