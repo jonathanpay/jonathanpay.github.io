@@ -108,6 +108,11 @@
     .sensitivity-table tr:last-child td { border-bottom: none; }
     .sensitivity-table tr.is-target td { color: var(--hea-purple); font-weight: var(--hea-w-semibold); }
     .sensitivity-table tr.is-target td:last-child { color: var(--hea-purple); }
+    @media (max-width: 480px) {
+      .sensitivity-table th { letter-spacing: 0.04em; padding: var(--hea-s-2) var(--hea-s-2) var(--hea-s-3) 0; }
+      .sensitivity-table td { padding: var(--hea-s-3) var(--hea-s-2) var(--hea-s-3) 0; }
+      .sensitivity-table th:last-child, .sensitivity-table td:last-child { padding-right: 0; }
+    }
 
     /* ---- Validation note ---- */
     .validation-note {

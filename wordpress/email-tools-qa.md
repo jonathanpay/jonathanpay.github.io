@@ -70,3 +70,14 @@ Every "Wrong" and "Misleading" finding below is fixed and has a test in `tests/`
 | D3 | DMARC | `+all` (lets anyone send as you) is reported as "no all mechanism"; `?all` passes as valid. | Wrong | fixed |
 | D4 | DMARC | Two SPF or two DMARC records (an automatic failure) aren't flagged; the first is reported. | Wrong | fixed |
 | D5 | DMARC | A revoked DKIM key (`p=` empty) is reported as found and valid. | Misleading | fixed |
+
+## Functional testing (browser)
+
+Every tool was run in a browser with the same inputs before and after the changes, then again as the WordPress plugin would render it, inside a deliberately hostile stand-in theme (serif fonts, uppercase buttons, dashed inputs, bordered tables): no theme styles leaked in and no console errors. Links between tools, course links (`?ref=`), the Hypothesis → Duration handoff and the DMARC live lookup were all checked. Not yet checked: the plugin PHP inside a real WordPress (the local test WordPress couldn't be started here). Step 6 of `email-tools-setup.md` covers it.
+
+| # | Finding | Severity | Status |
+|---|---|---|---|
+| F1 | Duration Calculator: on a phone the timeframe table is wider than its card. | Polish | fixed |
+| F2 | Significance Calculator: the "Planning a new test?" link doesn't wrap, so the page scrolls sideways on a phone. | Polish | fixed |
+| F3 | Renaming the hash-named files broke the CMG Sans font on the London Forum slides, dashboard and assessment, and the pilot assessment, which load it from `email-tools/assets/`. | Wrong | fixed |
+| F4 | `tests/workshop-browser.test.mjs` fails because Playwright isn't installed. Unrelated to the email tools. | — | open (not this work) |

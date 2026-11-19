@@ -1,0 +1,219 @@
+{
+  "version": "c53b8bedd4",
+  "scripts": {
+    "utils.js": "dd8d2a00f3",
+    "ab-duration.js": "04e033d98a",
+    "contrast.js": "f88b2b0779",
+    "accessibility.js": "fd4c95fd67",
+    "appeal-keywords.js": "56f8bf1fc4",
+    "site.js": "9bf299cdcf",
+    "course-ctas.js": "2b1f0471f8",
+    "course-context.js": "6930925850",
+    "dominance-scorer.js": "7f11076d76",
+    "curve-score.js": "d40c3aeea2",
+    "curve-tool.js": "e795a91466",
+    "dmarc-rules.js": "7d831095d7",
+    "dmarc-checker.js": "1b2226201d",
+    "emotional-appeal.js": "2bd731b9b4",
+    "readability.js": "4dfbba59e6",
+    "ers.js": "dbc65bbab6",
+    "f2b-match.js": "4b932c85b0",
+    "f2b-templates.js": "4d1e4d4d68",
+    "f2b.js": "75e7be2442",
+    "hypothesis-content.js": "742a0dd7bf",
+    "hypothesis.js": "50a683398d",
+    "hypothesis-builder.js": "b60c7d2d87",
+    "persona.js": "67db003093",
+    "personalisation-rules.js": "483be52873",
+    "personalisation.js": "17abfcd51a",
+    "pronouns.js": "1aa52ea3d1",
+    "sscc-verdicts.js": "378a64a89b",
+    "stats.js": "1014034bcc",
+    "sscc.js": "82e82098d9",
+    "tone.js": "24c218be88",
+    "wewe.js": "1098bcb75f",
+    "ab-duration-inline.js": "096208ce95",
+    "dmarc-checker-inline.js": "676fc1668e"
+  },
+  "styles": {
+    "email-tools.css": "e1683f7a7f",
+    "index.css": "c4bef777c3",
+    "hypothesis.css": "dba5404793",
+    "ab-duration.css": "0d21377a68",
+    "sscc.css": "1c36be4800",
+    "wewe.css": "0cae953d1a",
+    "ers.css": "f62590bb26",
+    "f2b.css": "bcc775f727",
+    "tone.css": "cdfca9e9b8",
+    "persona.css": "077b4c0ba9",
+    "emotional-appeal.css": "c02110ef92",
+    "personalisation.css": "0f923b54fa",
+    "accessibility.css": "ef4f42b71d",
+    "curve.css": "21ac3b2798",
+    "dmarc-checker.css": "03aa222765"
+  },
+  "tools": {
+    "index": {
+      "title": "Free Email Optimisation Tools",
+      "description": "Free email marketing tools by Jonathan Pay — analyse copy, check readability, test A/B results, and more.",
+      "modules": [
+        "course-ctas.js"
+      ],
+      "css": "index.css",
+      "classic": null,
+      "ldjson": []
+    },
+    "hypothesis": {
+      "title": "A/B Test Hypothesis Builder",
+      "description": "Turn a vague test idea into a hypothesis you can actually prove wrong. A guided set of questions, then hand it on to the Duration Calculator. No sign-up needed.",
+      "modules": [
+        "course-ctas.js",
+        "hypothesis-builder.js"
+      ],
+      "css": "hypothesis.css",
+      "classic": null,
+      "ldjson": []
+    },
+    "ab-duration": {
+      "title": "A/B Test Duration Calculator",
+      "description": "Know how long to run your A/B test before you start. Calculate required sample size and test duration with a two-proportion z-test. No sign-up needed.",
+      "modules": [
+        "course-ctas.js",
+        "ab-duration.js"
+      ],
+      "css": "ab-duration.css",
+      "classic": "ab-duration-inline.js",
+      "ldjson": []
+    },
+    "sscc": {
+      "title": "Statistical Significance Calculator",
+      "description": "Check whether your email A/B test result is statistically significant before you act on it. Enter sample sizes and conversion rates — no sign-up needed.",
+      "modules": [
+        "course-ctas.js",
+        "sscc.js"
+      ],
+      "css": "sscc.css",
+      "classic": null,
+      "ldjson": []
+    },
+    "wewe": {
+      "title": "We-We Calculator",
+      "description": "Check if your email copy talks about you or to your reader. Count brand-focused vs. customer-focused pronouns instantly — no sign-up needed.",
+      "modules": [
+        "course-ctas.js",
+        "wewe.js"
+      ],
+      "css": "wewe.css",
+      "classic": null,
+      "ldjson": []
+    },
+    "ers": {
+      "title": "Email Readability Score",
+      "description": "Score your email copy's readability with Flesch Reading Ease, Gunning Fog, and SMOG — with per-word syllable counting and actionable suggestions. No sign-up needed.",
+      "modules": [
+        "course-ctas.js",
+        "ers.js"
+      ],
+      "css": "ers.css",
+      "classic": null,
+      "ldjson": []
+    },
+    "f2b": {
+      "title": "Feature-to-Benefit Converter",
+      "description": "Turn product features into customer benefits. Pick your industry, enter a feature, and get a benefit statement from 384 templates across 8 verticals. No sign-up needed.",
+      "modules": [
+        "course-ctas.js",
+        "course-context.js",
+        "f2b.js"
+      ],
+      "css": "f2b.css",
+      "classic": null,
+      "ldjson": []
+    },
+    "tone": {
+      "title": "Email Tone Analyser",
+      "description": "Detect the tone of your email copy across five dimensions — Friendly, Persuasive, Professional, Urgent, and Empathetic — with phrase suggestions for shifting tone. No sign-up needed.",
+      "modules": [
+        "course-ctas.js",
+        "tone.js"
+      ],
+      "css": "tone.css",
+      "classic": null,
+      "ldjson": []
+    },
+    "persona": {
+      "title": "Buyer Persona Matcher",
+      "description": "Find out who your email copy is really speaking to. Detects Competitive, Spontaneous, Humanistic, and Methodical buyer modalities, with phrase suggestions — no sign-up needed.",
+      "modules": [
+        "course-ctas.js",
+        "course-context.js",
+        "persona.js"
+      ],
+      "css": "persona.css",
+      "classic": null,
+      "ldjson": []
+    },
+    "emotional-appeal": {
+      "title": "Emotional Appeal Analyser",
+      "description": "Detect the emotional triggers in your email copy — Fear, Hope, Curiosity, Pride, Trust, and Belonging — with guidance on when each appeal works best. No sign-up needed.",
+      "modules": [
+        "course-ctas.js",
+        "course-context.js",
+        "emotional-appeal.js"
+      ],
+      "css": "emotional-appeal.css",
+      "classic": null,
+      "ldjson": []
+    },
+    "personalisation": {
+      "title": "Personalisation &amp; Dynamic Content Checker",
+      "description": "Check your email's personalisation tokens and dynamic content blocks for missing fallbacks and unbalanced conditionals, across 16 ESP syntaxes. No sign-up needed.",
+      "modules": [
+        "course-ctas.js",
+        "course-context.js",
+        "personalisation.js"
+      ],
+      "css": "personalisation.css",
+      "classic": null,
+      "ldjson": []
+    },
+    "accessibility": {
+      "title": "Email Accessibility Checker",
+      "description": "Check your email HTML against common accessibility pitfalls — missing alt text, vague link text, undersized fonts, poor colour contrast, and broken heading order. No sign-up needed.",
+      "modules": [
+        "course-ctas.js",
+        "course-context.js",
+        "accessibility.js"
+      ],
+      "css": "accessibility.css",
+      "classic": null,
+      "ldjson": []
+    },
+    "curve": {
+      "title": "CURVE Subject Line Builder",
+      "description": "Score your subject line against HEA's CURVE framework — Curiosity, Urgency, Relevance, Value, Emotion — and see exactly which element is missing. No sign-up needed.",
+      "modules": [
+        "course-ctas.js",
+        "course-context.js",
+        "curve-tool.js"
+      ],
+      "css": "curve.css",
+      "classic": null,
+      "ldjson": []
+    },
+    "dmarc-checker": {
+      "title": "Free DMARC, SPF & DKIM Checker",
+      "description": "",
+      "modules": [
+        "dmarc-checker.js",
+        "course-ctas.js",
+        "course-context.js"
+      ],
+      "css": "dmarc-checker.css",
+      "classic": "dmarc-checker-inline.js",
+      "ldjson": [
+        "{\n        \"@context\": \"https://schema.org\",\n        \"@type\": \"FAQPage\",\n        \"mainEntity\": [\n          {\n            \"@type\": \"Question\",\n            \"name\": \"What is SPF?\",\n            \"acceptedAnswer\": {\n              \"@type\": \"Answer\",\n              \"text\": \"Sender Policy Framework: a DNS TXT record listing which mail servers are authorised to send email on behalf of your domain. Receiving servers check the sending server against that list before your message gets anywhere near the inbox.\"\n            }\n          },\n          {\n            \"@type\": \"Question\",\n            \"name\": \"What is DKIM?\",\n            \"acceptedAnswer\": {\n              \"@type\": \"Answer\",\n              \"text\": \"DomainKeys Identified Mail: a cryptographic signature added to every outgoing message. Your platform signs with a private key, and receiving servers verify it against the public key published in your DNS — proving the message really came from your domain and wasn't altered in transit.\"\n            }\n          },\n          {\n            \"@type\": \"Question\",\n            \"name\": \"What is DMARC?\",\n            \"acceptedAnswer\": {\n              \"@type\": \"Answer\",\n              \"text\": \"Domain-based Message Authentication, Reporting and Conformance: the policy that ties SPF and DKIM together. It tells receiving servers what to do with mail that fails both checks — nothing (p=none), send it to spam (p=quarantine), or refuse it (p=reject) — and where to send reports about who is sending as your domain.\"\n            }\n          },\n          {\n            \"@type\": \"Question\",\n            \"name\": \"Why do I need all three?\",\n            \"acceptedAnswer\": {\n              \"@type\": \"Answer\",\n              \"text\": \"They solve different problems: SPF authorises servers, DKIM proves message integrity, and DMARC adds enforcement and visibility. Without DMARC, failing the first two carries no consequence for a spoofer. It's also no longer optional at scale: since 2024, Gmail and Yahoo have required bulk senders to authenticate with SPF, DKIM, and DMARC, and Microsoft introduced matching requirements for Outlook in 2025.\"\n            }\n          },\n          {\n            \"@type\": \"Question\",\n            \"name\": \"What's a DKIM selector, and why can't you always find mine?\",\n            \"acceptedAnswer\": {\n              \"@type\": \"Answer\",\n              \"text\": \"The selector is the name your DKIM key is published under — selector._domainkey.yourdomain.com. There's no public registry of selectors, so any checker can only try common ones. If none of the ten we try resolve, that's inconclusive rather than a failure: check your email platform's authentication settings for the selector it uses.\"\n            }\n          },\n          {\n            \"@type\": \"Question\",\n            \"name\": \"What is DMARC alignment?\",\n            \"acceptedAnswer\": {\n              \"@type\": \"Answer\",\n              \"text\": \"DMARC doesn't just ask whether SPF or DKIM passed — it asks whether the domain that passed matches the From address your reader actually sees. An SPF pass on your platform's bounce domain does nothing for DMARC if your From address is your own domain.\"\n            }\n          },\n          {\n            \"@type\": \"Question\",\n            \"name\": \"Does passing all three guarantee inbox placement?\",\n            \"acceptedAnswer\": {\n              \"@type\": \"Answer\",\n              \"text\": \"No. Authentication is the entry ticket, not the ranking — placement still depends on your sending reputation, list quality, engagement, and content. But the reverse is increasingly true: failing authentication does guarantee trouble, from spam-foldering to outright rejection.\"\n            }\n          },\n          {\n            \"@type\": \"Question\",\n            \"name\": \"Which DMARC policy should I use?\",\n            \"acceptedAnswer\": {\n              \"@type\": \"Answer\",\n              \"text\": \"Follow the progression: start at p=none with a rua reporting address and watch the reports; move to p=quarantine once legitimate mail is passing cleanly; finish at p=reject when you're confident. Don't skip the monitoring stage, or you risk quarantining your own mail.\"\n            }\n          }\n        ]\n      }"
+      ]
+    }
+  }
+}

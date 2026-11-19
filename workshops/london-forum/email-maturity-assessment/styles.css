@@ -3,8 +3,8 @@
    CMG Sans loads from the site's email-tools assets; opened from disk it
    falls back to the system sans. */
 
-@font-face{font-family:"CMG Sans";src:url(/email-tools/assets/CMGSans-Regular-CRmW4BDo.ttf) format("truetype");font-weight:400;font-style:normal;font-display:swap}
-@font-face{font-family:"CMG Sans";src:url(/email-tools/assets/CMGSans-SemiBold-iJviOi56.ttf) format("truetype");font-weight:600 900;font-style:normal;font-display:swap}
+@font-face{font-family:"CMG Sans";src:url(/email-tools/assets/CMGSans-Regular.ttf) format("truetype");font-weight:400;font-style:normal;font-display:swap}
+@font-face{font-family:"CMG Sans";src:url(/email-tools/assets/CMGSans-SemiBold.ttf) format("truetype");font-weight:600 900;font-style:normal;font-display:swap}
 
 :root{
   --plum:#3D2A35;

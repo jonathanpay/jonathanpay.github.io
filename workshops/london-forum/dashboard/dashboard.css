@@ -1,6 +1,6 @@
 /* Facilitator dashboard. Tokens follow the HEA email tools (same values as the assessment). */
-@font-face{font-family:"CMG Sans";src:url(/email-tools/assets/CMGSans-Regular-CRmW4BDo.ttf) format("truetype");font-weight:400;font-display:swap}
-@font-face{font-family:"CMG Sans";src:url(/email-tools/assets/CMGSans-SemiBold-iJviOi56.ttf) format("truetype");font-weight:600 900;font-display:swap}
+@font-face{font-family:"CMG Sans";src:url(/email-tools/assets/CMGSans-Regular.ttf) format("truetype");font-weight:400;font-display:swap}
+@font-face{font-family:"CMG Sans";src:url(/email-tools/assets/CMGSans-SemiBold.ttf) format("truetype");font-weight:600 900;font-display:swap}
 :root{--plum:#3D2A35;--plum-soft:#5C4651;--plum-muted:#6F5C67;--purple:#9E41BF;--purple-deep:#7A2E96;--purple-tint:#F4E9F9;--cyan-deep:#0A7A8F;--cyan-tint:#E3F8FD;--green:#21BF3D;--green-deep:#127A24;--green-tint:#E6F7E9;--danger:#B3303F;--danger-tint:#FCEBED;--warn-tint:#FFF5DC;--bg:#fff;--bg-alt:#FBF7FB;--divider:#ECE3EA;--sans:"CMG Sans","Montserrat",system-ui,-apple-system,"Segoe UI",sans-serif}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg-alt);color:var(--plum-soft);font:clamp(16px,.98vw,20px)/1.4 var(--sans)}
