@@ -18,6 +18,12 @@ layout: default
   {% if page.image %}
     <img class="jp-article-image" src="{{ page.image | relative_url }}" alt="" />
   {% endif %}
+  {% if page.video %}
+    <video class="jp-article-video" controls playsinline preload="metadata"{% if page.video_poster %} poster="{{ page.video_poster | relative_url }}"{% endif %}>
+      <source src="{{ page.video | relative_url }}" type="video/mp4" />
+      <a href="{{ page.video | relative_url }}">Download the video</a>
+    </video>
+  {% endif %}
   <div class="jp-article-body">
     {{ content }}
   </div>

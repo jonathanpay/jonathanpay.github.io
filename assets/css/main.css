@@ -712,6 +712,14 @@ figcaption, .wp-element-caption {
   border-radius: var(--radius-2);
   margin: 1.5rem 0 2rem;
 }
+.jp-article-video {
+  display: block;
+  max-width: 100%;
+  max-height: 80vh;
+  margin: 1.5rem auto 2rem;
+  border-radius: var(--radius-2);
+  background: var(--jp-black);
+}
 .jp-article-body { font-size: 1.05rem; line-height: 1.75; color: var(--jp-black); }
 .jp-article-body p { margin: 0 0 1.1em; }
 .jp-article-body h3 { font-size: 1.3rem; font-style: italic; font-weight: 700; margin: 1.8em 0 0.5em; color: var(--jp-black); }
