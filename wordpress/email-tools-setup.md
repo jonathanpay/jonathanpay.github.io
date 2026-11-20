@@ -21,7 +21,7 @@ About 45 minutes, most of it creating the 14 pages.
 
 ### 2. Create the index page (5 minutes)
 
-1. **Pages → Add New Page**. Title: **Free email tools**. In the page settings, set the slug (URL) to `email-tools`.
+1. **Pages → Add New Page**. Title: **Free email tools** (Settings → Email tools lists it under its old GitHub title, Free Email Optimisation Tools; either is fine). In the page settings, set the slug (URL) to `email-tools`.
 2. Add a **Shortcode** block (type `/shortcode`) and enter `[hea_email_tools]`.
 3. Publish.
 
@@ -80,7 +80,7 @@ Every tool runs in the visitor's browser and sends nothing to the Academy. The o
 
 ### 6. Test it live (15 minutes)
 
-The generated pages were tested in a browser inside a stand-in theme, but the plugin's PHP hasn't yet run in a real WordPress, so do this on a staging copy first if you have one. Check **Settings → Email tools** shows ✓ for all 14 pages, then on each page check:
+The plugin has been tested in a clean WordPress with the default theme (see the QA log), but not yet with the Academy's own theme and plugins, so do this on a staging copy first if you have one. Check **Settings → Email tools** shows ✓ for all 14 pages, then on each page check:
 
 - [ ] The tool appears, styled, with the Academy header and footer around it.
 - [ ] Run it with real copy: one of your own sends works well. Results appear, and there are no errors in the browser console.
