@@ -1,8 +1,8 @@
 <?php
 /**
  * Plugin Name:       HEA Email Tools
- * Description:       The Holistic Email Academy's free email tools. Put [hea_email_tools] on the tools index page and [hea_email_tool name="…"] on each tool's page. Settings → Email tools lists the pages and shortcodes.
- * Version:           1.0.0
+ * Description:       The Holistic Email Academy's free email tools. Put [hea_email_tool name="…"] on each tool's page, with the tool's written content as ordinary blocks around it. Settings → Email tools lists the pages and shortcodes.
+ * Version:           1.2.0
  * Requires at least: 6.5
  * Requires PHP:      7.4
  * Author:            Holistic Email Academy
@@ -13,7 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-const HEA_ET_VERSION = '1.0.0';
+const HEA_ET_VERSION = '1.2.0';
 const HEA_ET_OPTION  = 'hea_et_settings';
 
 /*
@@ -54,8 +54,9 @@ function hea_et_settings() {
 function hea_et_page_urls() {
 	$base = trailingslashit( '/' . trim( hea_et_settings()['base_path'], '/' ) );
 	$urls = array();
-	foreach ( array_keys( hea_et_manifest()['tools'] ) as $key ) {
-		$urls[ $key ] = home_url( 'index' === $key ? $base : $base . $key . '/' );
+	foreach ( hea_et_manifest()['tools'] as $key => $tool ) {
+		$slug         = empty( $tool['slug'] ) ? $key : $tool['slug'];
+		$urls[ $key ] = home_url( 'index' === $key ? $base : $base . $slug . '/' );
 	}
 	return $urls;
 }
@@ -139,8 +140,8 @@ function hea_et_render( $key ) {
 	}
 
 	return '<div id="hea-et" class="hea-et hea-et--' . esc_attr( $key ) . '">'
-		. $back
 		. $html
+		. $back
 		. '<noscript><p>These tools need JavaScript. Please switch it on, or open this page in another browser.</p></noscript>'
 		. '</div>'
 		. $schema;
@@ -199,7 +200,7 @@ function hea_et_settings_page() {
 	?>
 	<div class="wrap">
 		<h1>Email tools</h1>
-		<p>Each tool is a page with a Shortcode block. The tools link to each other at the addresses below, so the pages must be published at exactly these addresses: create the index page first, then each tool as a child page of it with the slug shown.</p>
+		<p>Each tool is a page with a Shortcode block for the tool itself, and the tool's intro and explanations as ordinary blocks around it, so search engines read them as the page's content. The index page lists the tools with a Post Grid of its child pages. The tools link to each other at the addresses below, so the pages must be published at exactly these addresses: create the index page first, then each tool as a child page of it with the slug shown.</p>
 		<form method="post" action="options.php">
 			<?php settings_fields( 'hea_et' ); ?>
 			<table class="form-table" role="presentation">

@@ -1,0 +1,79 @@
+<!-- wp:group {"layout":{"type":"constrained"}} -->
+<div class="wp-block-group">
+<!-- wp:paragraph -->
+<p>Paste your email's HTML into this email accessibility checker to find what shuts readers out: missing alt text, vague link text, small fonts, poor colour contrast, and headings out of order.</p>
+<!-- /wp:paragraph -->
+</div>
+<!-- /wp:group -->
+
+<!-- wp:shortcode -->
+[hea_email_tool name="accessibility"]
+<!-- /wp:shortcode -->
+
+<!-- wp:group {"layout":{"type":"constrained"}} -->
+<div class="wp-block-group">
+<!-- wp:heading -->
+<h2 class="wp-block-heading">About the email accessibility checker</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Some of your subscribers read with a screen reader or zoom in to read small text. Larger text and clear contrast also help anyone reading on a phone in bright light.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>Paste your email's HTML and the checker reviews it for common problems: images without alt text, links with vague text such as "click here", text smaller than 12px, colour contrast below WCAG AA, and headings that skip levels. For a full HTML document it also checks for a language attribute. Each finding is graded, so you can fix the serious ones first.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading">How it works</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>The checker reads the HTML you paste. Font sizes and colours are checked where they're set inline (<code>style="…"</code>), as most email HTML is; styles in a <code>&lt;style&gt;</code> block or an external stylesheet aren't applied. Contrast is measured against WCAG AA: 4.5:1 for body text, 3:1 for large text (24px, or 18.7px bold). It catches common problems, but it isn't a full audit: test with a screen reader before you send.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading">Frequently asked questions</h2>
+<!-- /wp:heading -->
+
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">What contrast does an email need?</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>WCAG AA asks for a contrast ratio of at least 4.5:1 for body text and 3:1 for large text, which is 24px, or about 18.7px if it's bold. The checker measures each styled block of text against its nearest background colour.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">Do decorative images need alt text?</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>They need an empty alt attribute, <code>alt=""</code>, so screen readers skip them. Leaving alt out entirely often makes a screen reader read out the image's file name instead.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">Why doesn't it pick up my stylesheet?</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Most email HTML sets styles inline, and that's what the checker reads. Styles in a style block or an external stylesheet aren't applied, so check text sizes and colours set there separately.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">Does passing mean my email is fully accessible?</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>No. Automated checks catch common problems, but they can't judge whether alt text is helpful or whether the email makes sense read aloud. Test with a screen reader too, if you can.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">Is my HTML stored anywhere?</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>No. The checker runs in your browser and nothing you paste is saved.</p>
+<!-- /wp:paragraph -->
+</div>
+<!-- /wp:group -->

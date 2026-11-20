@@ -5,9 +5,12 @@ The 13 free email tools, moved from jonathanpay.github.io/email-tools/ to holist
 | Path | What it is |
 |---|---|
 | `email-tools/` | The source: one HTML page per tool plus `assets/`. Edit here. |
-| `build-email-tools.mjs` | Generates the plugin's `assets/`, `templates/` and `tools.json` from the source. |
+| `build-email-tools.mjs` | Generates the plugin's `assets/`, `templates/` and `tools.json`, and the block markup in `email-tools-page-content/`, from the source, the copy and the SEO file. |
 | `build-email-tools-plugin.sh` | Runs the tests, regenerates, and makes `dist/hea-email-tools.zip`. |
-| `hea-email-tools/` | The plugin. Only `hea-email-tools.php` and `uninstall.php` are hand-written. |
+| `hea-email-tools/` | The plugin (version 1.2.0 is live). Only `hea-email-tools.php` and `uninstall.php` are hand-written. |
+| `email-tools-page-copy.md` | Each page's written content: the About text and FAQ that sit around the tool as ordinary WordPress blocks. |
+| `email-tools-seo.json` | Each page's slug, intro paragraph and Yoast fields (keyphrase, related keyphrases, SEO title, meta description, social title). |
+| `email-tools-page-content/` | Generated: one file of block markup per page, ready to paste into the WordPress code editor. |
 | `email-tools-qa.md` | The QA log: what was checked, what was fixed, what's still your call. |
 
 ## Setting it up: the walkthrough
@@ -22,61 +25,82 @@ About 45 minutes, most of it creating the 14 pages.
 ### 2. Create the index page (5 minutes)
 
 1. **Pages → Add New Page**. Title: **Free email tools** (Settings → Email tools lists it under its old GitHub title, Free Email Optimisation Tools; either is fine). In the page settings, set the slug (URL) to `email-tools`.
-2. Add a **Shortcode** block (type `/shortcode`) and enter `[hea_email_tools]`.
-3. Publish.
+2. Open the **Code editor** (⋮ top right) and paste the contents of `wordpress/email-tools-page-content/index.html`: the intro paragraph in a Group. The index has no shortcode.
+3. Underneath, add the site's usual **Post Grid** block, set to pages that are children of *Free email tools*. The grid's excerpt is each tool page's intro paragraph.
+4. Publish.
 
 If you'd rather the tools lived somewhere else, change **Settings → Email tools → Tools index address** first. Every link between the tools follows that setting.
 
 ### 3. Create the 13 tool pages (30 minutes)
 
-For each row: **Pages → Add New Page**, enter the title, set **Parent page** to *Free email tools* and the slug as shown, add a Shortcode block with the shortcode, publish. **Settings → Email tools** lists the same table and ticks each page off once it's published at the right address.
+For each row: **Pages → Add New Page**, enter the title, set **Parent page** to *Free email tools* and the slug as shown. Open the **Code editor** and paste the page's file from `wordpress/email-tools-page-content/` (named by the tool's internal name, e.g. `sscc.html`). That gives an intro paragraph in a Group, the Shortcode block with the tool, then the About text, any "How it works" text and the FAQ as ordinary headings and paragraphs, all editable and indexed as page content. Publish. **Settings → Email tools** lists the same table and ticks each page off once it's published at the right address.
 
 | Page title (the H1) | Slug | Shortcode |
 |---|---|---|
-| A/B Test Hypothesis Builder | `hypothesis` | `[hea_email_tool name="hypothesis"]` |
+| A/B Test Hypothesis Builder | `ab-test-hypothesis` | `[hea_email_tool name="hypothesis"]` |
 | A/B Test Duration Calculator | `ab-duration` | `[hea_email_tool name="ab-duration"]` |
-| Statistical Significance Calculator | `sscc` | `[hea_email_tool name="sscc"]` |
-| We-We Calculator | `wewe` | `[hea_email_tool name="wewe"]` |
-| Email Readability Score | `ers` | `[hea_email_tool name="ers"]` |
-| Feature-to-Benefit Converter | `f2b` | `[hea_email_tool name="f2b"]` |
+| Statistical Significance Calculator | `significance-calculator` | `[hea_email_tool name="sscc"]` |
+| We-We Calculator | `we-we-calculator` | `[hea_email_tool name="wewe"]` |
+| Email Readability Score | `readability-checker` | `[hea_email_tool name="ers"]` |
+| Feature-to-Benefit Converter | `feature-to-benefit` | `[hea_email_tool name="f2b"]` |
 | Email Tone Analyser | `tone` | `[hea_email_tool name="tone"]` |
 | Buyer Persona Matcher | `persona` | `[hea_email_tool name="persona"]` |
 | Emotional Appeal Analyser | `emotional-appeal` | `[hea_email_tool name="emotional-appeal"]` |
 | Personalisation & Dynamic Content Checker | `personalisation` | `[hea_email_tool name="personalisation"]` |
 | Email Accessibility Checker | `accessibility` | `[hea_email_tool name="accessibility"]` |
-| CURVE Subject Line Builder | `curve` | `[hea_email_tool name="curve"]` |
+| CURVE Subject Line Builder | `subject-line-tester` | `[hea_email_tool name="curve"]` |
 | DMARC, SPF & DKIM Checker | `dmarc-checker` | `[hea_email_tool name="dmarc-checker"]` |
 
-The slugs are short on purpose: they match the tools' internal names, so links between tools work without any extra setup. If you want longer, keyword-rich slugs, say so and they can be mapped in the plugin.
+The shortcode still takes the tool's internal name; the slug comes from `email-tools-seo.json`, and the plugin links between tools at those slugs.
+
+**Renamed in 1.2.0.** Six pages started on slugs made from internal shorthand and were renamed to addresses people search for:
+
+| Old address | New address |
+|---|---|
+| `/email-tools/hypothesis/` | `/email-tools/ab-test-hypothesis/` |
+| `/email-tools/sscc/` | `/email-tools/significance-calculator/` |
+| `/email-tools/wewe/` | `/email-tools/we-we-calculator/` |
+| `/email-tools/ers/` | `/email-tools/readability-checker/` |
+| `/email-tools/f2b/` | `/email-tools/feature-to-benefit/` |
+| `/email-tools/curve/` | `/email-tools/subject-line-tester/` |
+
+Each old address has a 301 redirect to the new one in **Yoast SEO → Redirects** (Yoast Premium adds it when the slug changes), so old links and Google's index carry over. If a slug changes again, check the redirect appears there and add it by hand if not.
 
 ### 4. SEO fields (Yoast, 10 minutes)
 
-The page title is the only H1: each tool's own headline was removed, and the index hero is an H2. For each page, set the Yoast **meta description** from the table below (copied from the GitHub pages, rebranded). Delete the `%%sep%% %%sitename%%` variables from the SEO title only if you want the title exactly as written.
+The page title is the only H1: each tool's own headline was removed. Every page's Yoast fields come from `wordpress/email-tools-seo.json`, which is the source of truth: if you change one in WordPress, change it there too. For each page set the **focus keyphrase**, the **related keyphrases** (Premium, one per box), the **SEO title** and **meta description** below, and the **social title** in Yoast's Social tab. Delete the `%%sep%% %%sitename%%` variables from the SEO title so it's exactly as written; Google shows the site name separately.
 
 | Page | SEO title | Meta description |
 |---|---|---|
-| Free email tools | Free Email Marketing Tools (No Sign-Up) | Thirteen free email marketing tools from the Holistic Email Academy: plan and read A/B tests, check readability, tone and personalisation, and test your DMARC, SPF and DKIM. |
-| Hypothesis Builder | Free A/B Test Hypothesis Builder | Turn a vague test idea into a hypothesis you can actually prove wrong. A guided set of questions, then hand it on to the Duration Calculator. No sign-up needed. |
-| Duration Calculator | Free A/B Test Duration Calculator | Know how long to run your A/B test before you start. Calculate required sample size and test duration with a two-proportion z-test. No sign-up needed. |
-| Significance Calculator | Free Email A/B Test Significance Calculator | Check whether your email A/B test result is statistically significant before you act on it. Enter sample sizes and conversion rates — no sign-up needed. |
-| We-We Calculator | We-We Calculator: Is Your Email About You or Your Reader? | Check if your email copy talks about you or to your reader. Count brand-focused vs. customer-focused pronouns instantly — no sign-up needed. |
-| Readability Score | Free Email Readability Checker | Score your email copy's readability with Flesch Reading Ease, Gunning Fog, and SMOG — with UK reading ages and practical suggestions. No sign-up needed. |
-| Feature-to-Benefit | Feature-to-Benefit Converter for Email Copy | Turn product features into customer benefits. Pick your industry, enter a feature, and get a benefit statement from 384 templates across 8 industries. No sign-up needed. |
-| Tone Analyser | Free Email Tone Analyser | Detect the tone of your email copy across five dimensions — Friendly, Persuasive, Professional, Urgent, and Empathetic — with phrase suggestions for shifting tone. No sign-up needed. |
-| Persona Matcher | Buyer Persona Matcher for Email Copy | Find out who your email copy is really speaking to. Detects Competitive, Spontaneous, Humanistic, and Methodical buyer modalities, with phrase suggestions — no sign-up needed. |
-| Emotional Appeal | Emotional Appeal Analyser for Email Copy | Detect the emotional triggers in your email copy — Fear, Hope, Curiosity, Pride, Trust, and Belonging — with guidance on when each appeal works best. No sign-up needed. |
-| Personalisation | Email Personalisation & Fallback Checker | Check your email's personalisation tokens and dynamic content blocks for missing fallbacks and unbalanced conditionals, across 16 email platforms. No sign-up needed. |
-| Accessibility | Free Email Accessibility Checker | Check your email HTML against common accessibility pitfalls — missing alt text, vague link text, small fonts, poor colour contrast, and broken heading order. No sign-up needed. |
-| CURVE | CURVE Subject Line Builder | Score your subject line against the Academy's CURVE framework — Curiosity, Urgency, Relevance, Value, Emotion — and see exactly which element is missing. No sign-up needed. |
-| DMARC Checker | Free DMARC, SPF & DKIM Checker | Check your domain's SPF, DKIM and DMARC records in plain English: what's set up, what's missing and what to fix. No sign-up needed. |
+| Free email tools | Free Email Marketing Tools: Copy, Testing, and DMARC | Thirteen free email marketing tools: check your copy before you send, read your A/B tests after, and test your domain's DMARC. No sign-up needed. |
+| Hypothesis Builder | A/B Test Hypothesis Builder for Email (Free) | Build an A/B test hypothesis you can prove wrong. Answer five questions, then plan the test's length with the Duration Calculator. Free, no sign-up. |
+| Duration Calculator | A/B Test Duration Calculator: Sample Size and Days (Free) | A free A/B test duration calculator for email: the sample size each variant needs, and how many days that takes at your volume. Plan it before you start. |
+| Significance Calculator | A/B Test Significance Calculator for Email (Free) | A free A/B test significance calculator for email. Enter the sample size and each variant's rate to see if the result is significant or could be chance. |
+| We-We Calculator | We-We Calculator: Check for Customer-Focused Copy (Free) | Paste your email and see how much of it talks about your brand and how much about your reader. A free pronoun count for customer-focused copy. No sign-up. |
+| Readability Score | Email Readability Checker: Flesch, Fog, and SMOG (Free) | A free email readability checker: Flesch Reading Ease, Gunning Fog, and SMOG scores for your copy, with UK reading ages and suggestions. No sign-up. |
+| Feature-to-Benefit | Features vs Benefits: Free Feature-to-Benefit Converter | Features vs benefits, sorted: enter a product feature, pick your industry, and get a benefit statement your reader cares about. Free, no sign-up. |
+| Tone Analyser | Email Tone Checker: Free Tone Analyser for Email Copy | Paste your copy into this free email tone checker to see which tones it gives off, from friendly to urgent, with phrases to strengthen each. No sign-up. |
+| Persona Matcher | Buyer Persona Matcher for the Four Buyer Types (Free) | Paste your email to see which of four buyer types it reaches (Competitive, Spontaneous, Humanistic, and Methodical) and which it misses. Free, no sign-up. |
+| Emotional Appeal | Emotional Appeal Analyser for Email Copy (Free) | See which emotional appeals your email copy uses, from fear and hope to trust and belonging, and learn when each one works best. Free, no sign-up. |
+| Personalisation | Email Personalisation Checker: Fallbacks and Merge Tags | A free email personalisation checker: find every token in your email and whether it has a fallback value, in the syntax of 16 email platforms. No sign-up. |
+| Accessibility | Email Accessibility Checker: Alt Text and Contrast (Free) | A free email accessibility checker: missing alt text, vague link text, small fonts, poor colour contrast, and broken heading order. No sign-up. |
+| CURVE | Email Subject Line Tester: Score It With CURVE (Free) | A free subject line tester built on CURVE: Curiosity, Urgency, Relevance, Value, and Emotion. See which it covers and how to add the first one missing. |
+| DMARC Checker | Free DMARC Checker: Test SPF, DKIM, and DMARC Records | A free DMARC checker for your domain's DMARC, SPF, and DKIM setup, in plain English: what's in place, what's missing, and what to fix. No sign-up. |
+
+**Social images.** Each of the 14 pages has its own 1200×630 social image, set in Yoast's Social tab (used for Facebook, LinkedIn and X shares). Give a new tool page one too, at the same size, or shares fall back to the site default.
 
 The DMARC page also outputs its FAQ as structured data (FAQPage), as it did on GitHub.
 
 ### 5. Privacy policy (5 minutes)
 
-Every tool runs in the visitor's browser and sends nothing to the Academy. The one exception: the **DMARC checker** looks up the domain the visitor types using Google's public DNS service (dns.google). Add a line to the privacy policy, for example:
+Every tool runs in the visitor's browser, and the tools don't store what you paste. Two things do leave the browser:
 
-> Our DMARC, SPF & DKIM Checker looks up the domain you enter using Google Public DNS (dns.google). Only the domain name is sent, and Google's privacy policy applies to that lookup. The other email tools run entirely in your browser and don't send what you paste anywhere.
+- The **DMARC checker** looks up the domain the visitor types using Google's public DNS service (dns.google).
+- The **Hypothesis Builder** carries the hypothesis to the Duration Calculator in the page address when the visitor presses Next, so that text reaches the site's server logs like any page visit.
+
+So the privacy line shouldn't claim the tools send nothing anywhere. For example:
+
+> Our DMARC, SPF & DKIM Checker looks up the domain you enter using Google Public DNS (dns.google). Only the domain name is sent, and Google's privacy policy applies to that lookup. The other email tools run in your browser and don't store what you paste.
 
 ### 6. Test it live (15 minutes)
 
@@ -99,5 +123,6 @@ Also update links you control elsewhere: the jonathanpay.github.io homepage card
 ## Afterwards
 
 - **Changing a tool.** Edit `email-tools/` (the HTML page or `assets/`), run `sh wordpress/build-email-tools-plugin.sh`, then upload the new zip (WordPress offers to replace the installed version). The test `tests/email-tools-plugin.test.mjs` fails if the plugin is out of date with the source, so you can't commit a stale build.
+- **Changing a page's words or SEO.** Edit `email-tools-page-copy.md` or `email-tools-seo.json`, rebuild, then paste the regenerated file from `email-tools-page-content/` into that page's code editor and update its Yoast fields. The words live in WordPress, not in the plugin, so uploading a new zip doesn't change them.
 - **A course launches or changes.** Edit `COURSES` in `email-tools/assets/course-ctas.js`, rebuild, upload. The maturity assessment has its own copy of the course list (`hea-maturity-assessment/assets/js/courses.js`), so update both.
 - **How it's protected from the theme.** Every style is scoped to `#hea-et`, with a small reset for theme styles that would leak in (buttons, headings, links). Scripts are ES modules with content-hashed URLs, so a new upload is picked up straight away.

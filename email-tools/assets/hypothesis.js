@@ -48,8 +48,8 @@ export function buildHypothesis(input) {
     !MULTIPLE_CHANGES.test(change),
     MULTIPLE_CHANGES.test(change) ? "This may be more than one change" : "One change",
     MULTIPLE_CHANGES.test(change)
-      ? "If you change two things at once, you can't tell which one moved the result. If this is genuinely one change, carry on."
-      : "A single change means any difference can be traced back to it."
+      ? "That's fine if every change serves the same hypothesis, such as loss-aversion wording in both the subject line and the call to action. If the changes test different ideas, split them into separate tests, or you won't know why the result happened."
+      : "Any difference can be traced back to this change and the reason behind it."
   );
 
   if (objective) {

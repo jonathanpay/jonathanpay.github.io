@@ -102,6 +102,36 @@ ${SCOPE} .hea-et-back{max-width:720px;margin:0 auto var(--hea-s-4);font-size:var
 ${SCOPE} .hea-et-back a{color:var(--hea-purple);text-decoration:none}
 `;
 
+// The Academy site's look, so the tools sit in its pages rather than on a
+// panel of their own: white (the page's own background), the theme's font and
+// text colour, and type sized to its 18-19px body text. "#hea-et.hea-et"
+// outranks the "#hea-et" rules in every tool stylesheet, whatever the order
+// they load in. Purple stays the accent.
+const SITE_LOOK = `
+${SCOPE}.hea-et{
+  background:transparent;
+  --hea-font-sans:var(--wp--preset--font-family--montserrat,Montserrat),system-ui,-apple-system,'Segoe UI',sans-serif;
+  --hea-plum:#353C59;
+  --hea-fg-1:#353C59;
+  --hea-fg-2:#4F5570;
+  --hea-fg-3:#666B84;
+  --hea-bg-alt:#F7F7F9;
+}
+${SCOPE}.hea-et .tool-page{padding-top:var(--hea-s-4);max-width:calc(var(--wp--style--global--content-size,720px) + 2 * var(--hea-s-6))}
+${SCOPE}.hea-et .hea-et-back{max-width:calc(var(--wp--style--global--content-size,720px) + 2 * var(--hea-s-6));margin:0 auto var(--hea-s-8);padding:0 var(--hea-s-6)}
+`;
+
+// Every font size in px goes up by an eighth (16px body text becomes 18px),
+// and nothing ends up smaller than 13px.
+const SCALE = 1.125;
+const MIN_PX = 13;
+export function enlargeType(css) {
+  const px = (n) => `${Math.max(MIN_PX, Math.round(parseFloat(n) * SCALE))}px`;
+  return css
+    .replace(/(font-size\s*:\s*)(\d+(?:\.\d+)?)px/g, (m, pre, n) => pre + px(n))
+    .replace(/(--hea-(?:text-[a-z]+|h3|h4)\s*:\s*)(\d+(?:\.\d+)?)px/g, (m, pre, n) => pre + px(n));
+}
+
 // ---- HTML -----------------------------------------------------------------------
 
 const read = (p) => readFileSync(p, "utf8");
@@ -155,6 +185,126 @@ function toTemplate(key, main) {
   return rewriteLinks(body).trim() + "\n";
 }
 
+// ---- Written content goes on the page, not in the shortcode ----------------------
+//
+// A tool's intro, its "How it works" note and any explainer sections (the
+// DMARC checker's steps, common failures and FAQ) are taken out of the
+// template and written as WordPress block markup instead, to paste into the
+// page. Search engines then read them as the page's own content, editors can
+// change them in WordPress, and the page excerpt (what a Post Grid shows) is
+// the tool's intro. The shortcode keeps only the working tool.
+
+const squash = (s) => s.replace(/<code\s*>/g, "<code>").replace(/<\/code\s*>/g, "</code>").replace(/\s+/g, " ").trim();
+const block = {
+  p: (html) => `<!-- wp:paragraph -->\n<p>${squash(html)}</p>\n<!-- /wp:paragraph -->`,
+  h: (level, html) =>
+    `<!-- wp:heading${level === 2 ? "" : ` {"level":${level}}`} -->\n<h${level} class="wp-block-heading">${squash(html)}</h${level}>\n<!-- /wp:heading -->`,
+  code: (text) => `<!-- wp:code -->\n<pre class="wp-block-code"><code>${squash(text)}</code></pre>\n<!-- /wp:code -->`,
+  details: (summary, inner) =>
+    `<!-- wp:details -->\n<details class="wp-block-details"><summary>${squash(summary)}</summary>${inner}</details>\n<!-- /wp:details -->`,
+  shortcode: (code) => `<!-- wp:shortcode -->\n${code}\n<!-- /wp:shortcode -->`,
+  // A constrained Group, as on the site's other pages, keeps text in the content column.
+  group: (blocks) =>
+    blocks.length ? `<!-- wp:group {"layout":{"type":"constrained"}} -->\n<div class="wp-block-group">\n${blocks.join("\n\n")}\n</div>\n<!-- /wp:group -->` : "",
+};
+
+// Converts the explainer markup the tool pages use (h2, h3, p, step lists,
+// record boxes, details) into blocks, in document order.
+export function toBlocks(html) {
+  const out = [];
+  const RE = /<details>\s*<summary>([\s\S]*?)<\/summary>([\s\S]*?)<\/details>|<div class="record-box">\s*<code\s*>([\s\S]*?)<\/code\s*>[\s\S]*?<\/div>|<h([23])>([\s\S]*?)<\/h\4>|<p( class="issue-fix-label")?[^>]*>([\s\S]*?)<\/p>/g;
+  for (const m of html.matchAll(RE)) {
+    if (m[1] !== undefined) out.push(block.details(m[1], toBlocks(m[2]).map((b) => `\n${b}\n`).join("")));
+    else if (m[3] !== undefined) out.push(block.code(m[3]));
+    else if (m[4]) out.push(block.h(Number(m[4]), m[5]));
+    else out.push(block.p(m[6] ? `<strong>${squash(m[7])}</strong>` : m[7]));
+  }
+  return out;
+}
+
+// Extra written content per page ("About" and FAQ), kept in one Markdown
+// file: "# key" starts a page, then "##"/"###" headings and paragraphs, with
+// [links](/path/) and `code`. Appended below the tool.
+const COPY = resolve(here, "email-tools-page-copy.md");
+export function parseCopy(md) {
+  const pages = {};
+  let key = null;
+  for (const chunk of md.split(/\n{2,}/)) {
+    const text = chunk.trim();
+    if (!text) continue;
+    const page = text.match(/^# ([a-z0-9-]+)$/);
+    if (page) { key = page[1]; pages[key] = []; continue; }
+    if (!key) throw new Error(`email-tools-page-copy.md: text before the first "# key": ${text.slice(0, 40)}`);
+    const inline = (t) =>
+      t.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+        .replace(/`([^`]+)`/g, "<code>$1</code>")
+        .replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, (m, label, href) => {
+          // Links to a tool use its key (/email-tools/sscc/) and follow its slug.
+          const tool = href.match(/^\/email-tools\/([a-z0-9-]+)\/$/)?.[1];
+          return `<a href="${tool && TOOL_FILES[tool] ? pageUrl(tool) : href}">${label}</a>`;
+        });
+    const h = text.match(/^(#{2,3}) (.+)$/);
+    pages[key].push(h ? block.h(h[1].length, inline(h[2])) : block.p(inline(text)));
+  }
+  return pages;
+}
+const extraCopy = () => (existsSync(COPY) ? parseCopy(read(COPY)) : {});
+
+// Search settings per page: the slug (page address), the intro shown above the
+// tool, and the Yoast fields listed in the update guide.
+const SEO_FILE = resolve(here, "email-tools-seo.json");
+export const SEO = existsSync(SEO_FILE) ? JSON.parse(readFileSync(SEO_FILE, "utf8")) : {};
+export const slugOf = (key) => SEO[key]?.slug ?? key;
+export const pageUrl = (key) => (key === "index" ? "/email-tools/" : `/email-tools/${slugOf(key)}/`);
+const fillPages = (html) => html.replace(/\{\{page:([a-z0-9-]+)\}\}/g, (m, key) => pageUrl(key));
+
+/** Splits a template into the tool (for the shortcode) and the page's written content (blocks). */
+export function splitContent(key, template, extra = {}, seo = SEO) {
+  let tool = template;
+  const take = (re) => {
+    const found = [];
+    tool = tool.replace(re, (...m) => {
+      found.push(m);
+      return "";
+    });
+    return found;
+  };
+
+  const leads = take(/\s*<p class="lead">([\s\S]*?)<\/p>/g);
+  const notes = take(/\s*<p class="tool-note">([\s\S]*?)<\/p>/g);
+  const sections = take(/\s*<section class="tool-section"[^>]*>([\s\S]*?)<\/section>/g);
+  // A header left holding nothing but whitespace goes too.
+  tool = tool.replace(/\s*<header class="tool-header">\s*<\/header>/g, "");
+
+  const seoIntro = seo[key]?.intro;
+  const esc = (t) => t.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  const intro = seoIntro ? [block.p(esc(seoIntro))] : leads.map((m) => block.p(fillPages(m[1])));
+  const how = notes.map((m) => fillPages(m[1]).replace(/^\s*<strong>How it works:<\/strong>\s*/, ""));
+  // Extra copy: its "About" part goes first, its FAQ after the tool's own notes.
+  const more = extra[key] ?? [];
+  const faqAt = more.findIndex((b) => />Frequently asked questions</.test(b));
+  const about = faqAt > -1 ? more.slice(0, faqAt) : more;
+  const faq = faqAt > -1 ? more.slice(faqAt) : [];
+  const below = sections.length ? [] : [...about];
+  if (sections.length) {
+    // The DMARC checker: its note belongs with its own "How it works" steps.
+    sections.forEach((m, i) => {
+      below.push(...toBlocks(fillPages(m[1])));
+      if (i === 0) below.push(...how.map(block.p));
+    });
+  } else if (how.length) {
+    below.push(block.h(2, "How it works"), ...how.map(block.p));
+  }
+
+  below.push(...(sections.length ? more : faq));
+
+  // The index page lists the tools with the site's own Post Grid block (child
+  // pages of this one), like every other parent page, so it gets no shortcode.
+  const tools = key === "index" ? [] : [block.shortcode(`[hea_email_tool name="${key}"]`)];
+  const page = [block.group(intro), ...tools, block.group(below)].filter(Boolean).join("\n\n") + "\n";
+  return { tool: tool.trim() + "\n", page, intro: seoIntro ?? leads.map((m) => squash(m[1].replace(/<[^>]+>/g, ""))).join(" ") };
+}
+
 // ---- Build ------------------------------------------------------------------------
 
 export function build(out = OUT) {
@@ -171,7 +321,7 @@ export function build(out = OUT) {
     css.replace(/url\((['"]?)CMGSans-(Regular|SemiBold)\.ttf\1\)\s*format\((['"])truetype\3\)/g, 'url("../fonts/CMGSans-$2.woff2") format("woff2")');
   const sharedSheets = ["style.css", "tool-page.css", "course-cta.css"];
   const shared = sharedSheets.map((f) => scopeCss(fontCss(read(join(SRC, "assets", f))))).join("\n");
-  const sharedOut = `/* ${GENERATED} */\n${RESET}\n${shared}`;
+  const sharedOut = `/* ${GENERATED} */\n${RESET}\n${enlargeType(shared)}\n${SITE_LOOK}`;
   writeFileSync(join(out, "assets/css/email-tools.css"), sharedOut);
 
   // Every script module, with versioned relative imports.
@@ -202,14 +352,22 @@ export function build(out = OUT) {
   const css = { "email-tools.css": hash(sharedOut) };
   // Every file's content hash: the PHP loads entry scripts at exactly the URL
   // other modules import them by (./x.js?v=hash), so no module runs twice.
+  const pages = {};
+  const copy = extraCopy();
+  for (const k of Object.keys(copy)) if (!TOOL_FILES[k]) throw new Error(`email-tools-page-copy.md: no tool called ${k}`);
+  for (const k of Object.keys(SEO)) if (!TOOL_FILES[k]) throw new Error(`email-tools-seo.json: no tool called ${k}`);
+  const slugs = Object.keys(TOOL_FILES).filter((k) => k !== "index").map(slugOf);
+  if (new Set(slugs).size !== slugs.length) throw new Error("email-tools-seo.json: two tools share a slug");
   const manifest = { version: hash(JSON.stringify(versions) + sharedOut), scripts: versions, styles: css, tools: {} };
   for (const [key, file] of Object.entries(TOOL_FILES)) {
     const page = extractPage(file);
-    writeFileSync(join(out, "templates", `${key}.html`), `<!-- ${GENERATED} -->\n${toTemplate(key, page.main)}`);
+    const { tool, page: content, intro } = splitContent(key, toTemplate(key, page.main), copy);
+    writeFileSync(join(out, "templates", `${key}.html`), `<!-- ${GENERATED} -->\n${tool}`);
+    pages[key] = { title: page.title, content, intro };
 
     const extraSheets = page.sheets.filter((s) => !sharedSheets.includes(s));
-    let pageCss = page.styles ? scopeCss(page.styles) : "";
-    for (const s of extraSheets) pageCss += scopeCss(read(join(SRC, "assets", s)));
+    let pageCss = page.styles ? enlargeType(scopeCss(page.styles)) : "";
+    for (const s of extraSheets) pageCss += enlargeType(scopeCss(read(join(SRC, "assets", s))));
     if (pageCss) {
       writeFileSync(join(out, "assets/css", `${key}.css`), `/* ${GENERATED} */\n${pageCss}`);
       manifest.styles[`${key}.css`] = hash(pageCss);
@@ -225,7 +383,8 @@ export function build(out = OUT) {
     for (const m of page.modules) if (!versions[m]) throw new Error(`${file} loads ${m}, which isn't in email-tools/assets`);
     manifest.tools[key] = {
       title: page.title,
-      description: page.description,
+      slug: key === "index" ? "" : slugOf(key),
+      description: SEO[key]?.description ?? page.description,
       modules: page.modules,
       css: pageCss ? `${key}.css` : null,
       classic,
@@ -233,10 +392,21 @@ export function build(out = OUT) {
     };
   }
   writeFileSync(join(out, "tools.json"), JSON.stringify(manifest, null, 2) + "\n");
-  return manifest;
+  return Object.defineProperty(manifest, "pages", { value: pages });
+}
+
+// The written content for each page, as block markup to paste into the
+// WordPress code editor. Not part of the plugin.
+export function writePageContent(pages, dir = resolve(here, "email-tools-page-content")) {
+  rmSync(dir, { recursive: true, force: true });
+  mkdirSync(dir, { recursive: true });
+  for (const [key, p] of Object.entries(pages)) {
+    writeFileSync(join(dir, `${key}.html`), p.content);
+  }
 }
 
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   const m = build();
+  writePageContent(m.pages);
   console.log(`Built ${Object.keys(m.tools).length} pages into ${OUT} (version ${m.version})`);
 }

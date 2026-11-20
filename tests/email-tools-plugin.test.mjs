@@ -3,9 +3,10 @@ import assert from "node:assert/strict";
 import { mkdtempSync, readFileSync, readdirSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { build, scopeCss, scopeSelector, rewriteLinks } from "../wordpress/build-email-tools.mjs";
+import { fileURLToPath } from "node:url";
+import { build, scopeCss, scopeSelector, rewriteLinks, enlargeType, parseCopy, SEO, slugOf, pageUrl } from "../wordpress/build-email-tools.mjs";
 
-const PLUGIN = new URL("../wordpress/hea-email-tools/", import.meta.url).pathname;
+const PLUGIN = fileURLToPath(new URL("../wordpress/hea-email-tools/", import.meta.url));
 
 test("selectors are scoped to #hea-et", () => {
   assert.equal(scopeSelector(".tool-card"), "#hea-et .tool-card");
@@ -72,5 +73,65 @@ test("every stylesheet rule is inside #hea-et", () => {
     for (const m of css.matchAll(/(^|\})\s*([^\s@{}][^{}]*)\{/g)) {
       for (const sel of m[2].replace(/\([^()]*\)/g, "()").split(",")) assert.match(sel.trim(), /^#hea-et|^\d+%|^from|^to/, `${f}: ${sel.trim()}`);
     }
+  }
+});
+
+test("written content is on the page, not in the shortcode", () => {
+  const m = build(mkdtempSync(join(tmpdir(), "hea-et-")));
+  for (const [key, page] of Object.entries(m.pages)) {
+    const tpl = readFileSync(join(PLUGIN, "templates", `${key}.html`), "utf8");
+    assert.doesNotMatch(tpl, /class="(lead|tool-note|tool-section)"/, key);
+    assert.ok(page.intro.length > 40, `${key}: intro`);
+    assert.match(page.content, /^<!-- wp:group [^\n]*-->\n<div class="wp-block-group">\n<!-- wp:paragraph -->/, `${key}: opens with the intro`);
+    if (key === "index") assert.doesNotMatch(page.content, /wp:shortcode/);
+    else assert.match(page.content, new RegExp(`\\[hea_email_tool name="${key}"\\]`), key);
+    assert.doesNotMatch(page.content.replace(/<div class="wp-block-group">/g, ""), /\{\{page:|<(section|div|span)\b/, key);
+  }
+  assert.equal((m.pages["dmarc-checker"].content.match(/<!-- wp:details -->/g) || []).length, 8);
+});
+
+test("type is enlarged and the background is the page's own", () => {
+  assert.equal(enlargeType("a{font-size: 16px}"), "a{font-size: 18px}");
+  assert.equal(enlargeType("a{font-size:10px}"), "a{font-size:13px}");
+  assert.equal(enlargeType("--hea-text-sm: 14px;"), "--hea-text-sm: 16px;");
+  const css = readFileSync(join(PLUGIN, "assets/css/email-tools.css"), "utf8");
+  assert.match(css, /#hea-et\.hea-et\{[^}]*background:transparent/);
+});
+
+test("page copy: Markdown becomes blocks, About before the tool's notes and FAQ after", () => {
+  const p = parseCopy("# wewe\n\n## About it\n\nSee [this](/x/) and `alt=\"\"`.\n\n### Q?\n\nA <b>.");
+  assert.equal(p.wewe.length, 4);
+  assert.match(p.wewe[1], /<p>See <a href="\/x\/">this<\/a> and <code>alt=""<\/code>\.<\/p>/);
+  assert.match(p.wewe[3], /A &lt;b&gt;\./);
+  const m = build(mkdtempSync(join(tmpdir(), "hea-et-")));
+  const order = [...m.pages.wewe.content.matchAll(/<h2[^>]*>([^<]+)/g)].map((x) => x[1]);
+  assert.deepEqual(order, ["About the We-We Calculator", "How it works", "Frequently asked questions"]);
+});
+
+test("search settings: every page has Yoast fields within Google's limits", () => {
+  const m = build(mkdtempSync(join(tmpdir(), "hea-et-")));
+  for (const key of Object.keys(m.tools)) {
+    const s = SEO[key];
+    assert.ok(s, `${key}: no entry in email-tools-seo.json`);
+    assert.ok(s.title.length <= 60, `${key}: SEO title ${s.title.length} chars`);
+    assert.ok(s.description.length >= 120 && s.description.length <= 155, `${key}: meta description ${s.description.length} chars`);
+    const kp = s.keyphrase.toLowerCase();
+    for (const f of ["title", "description", "intro"]) assert.ok(s[f].toLowerCase().includes(kp), `${key}: keyphrase missing from ${f}`);
+    assert.equal(m.tools[key].description, s.description);
+  }
+});
+
+test("search settings: slugs drive every page address and the intro sits above the tool", () => {
+  const m = build(mkdtempSync(join(tmpdir(), "hea-et-")));
+  assert.equal(pageUrl("sscc"), "/email-tools/significance-calculator/");
+  assert.equal(pageUrl("index"), "/email-tools/");
+  assert.equal(m.tools.sscc.slug, slugOf("sscc"));
+  // Links written with a tool's key in the copy follow its slug.
+  assert.match(m.pages["ab-duration"].content, /href="\/email-tools\/significance-calculator\/"/);
+  assert.doesNotMatch(Object.values(m.pages).map((p) => p.content).join(""), /href="\/email-tools\/(sscc|ers|f2b|wewe|curve|hypothesis)\/"/);
+  for (const key of Object.keys(m.tools)) {
+    const c = m.pages[key].content;
+    assert.ok(c.indexOf(SEO[key].intro.replace(/&/g, "&amp;").slice(0, 30)) > -1, `${key}: intro`);
+    if (key !== "index") assert.ok(c.indexOf(SEO[key].intro.slice(0, 20).replace(/&/g, "&amp;")) < c.indexOf("wp:shortcode"), `${key}: intro above tool`);
   }
 });

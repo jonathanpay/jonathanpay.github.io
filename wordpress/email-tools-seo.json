@@ -1,0 +1,173 @@
+{
+  "index": {
+    "keyphrase": "free email marketing tools",
+    "related": [
+      "email copy checker",
+      "A/B test calculator"
+    ],
+    "title": "Free Email Marketing Tools: Copy, Testing, and DMARC",
+    "description": "Thirteen free email marketing tools: check your copy before you send, read your A/B tests after, and test your domain's DMARC. No sign-up needed.",
+    "socialTitle": "Free email marketing tools, no sign-up",
+    "intro": "Thirteen free email marketing tools for checking your copy before it goes out and your results after it lands. They run in your browser, and none of them asks you to sign up."
+  },
+  "hypothesis": {
+    "slug": "ab-test-hypothesis",
+    "keyphrase": "A/B test hypothesis",
+    "related": [
+      "hypothesis generator",
+      "email A/B testing"
+    ],
+    "title": "A/B Test Hypothesis Builder for Email (Free)",
+    "description": "Build an A/B test hypothesis you can prove wrong. Answer five questions, then plan the test's length with the Duration Calculator. Free, no sign-up.",
+    "socialTitle": "Turn a test idea into a hypothesis you can prove wrong",
+    "intro": "\"Try a different subject line\" is an idea, not an A/B test hypothesis. Answer five questions and this builder turns your idea into a hypothesis you can prove wrong, then hands it on to the Duration Calculator."
+  },
+  "ab-duration": {
+    "slug": "ab-duration",
+    "keyphrase": "A/B test duration calculator",
+    "related": [
+      "A/B test sample size calculator",
+      "how long to run an A/B test"
+    ],
+    "title": "A/B Test Duration Calculator: Sample Size and Days (Free)",
+    "description": "A free A/B test duration calculator for email: the sample size each variant needs, and how many days that takes at your volume. Plan it before you start.",
+    "socialTitle": "How long should your A/B test run?",
+    "intro": "This A/B test duration calculator tells you, before the test starts, how many emails each variant needs and how many days that takes at your sending volume. Fix the length first, and promising early numbers can't tempt you into stopping too soon."
+  },
+  "sscc": {
+    "slug": "significance-calculator",
+    "keyphrase": "A/B test significance calculator",
+    "related": [
+      "statistical significance calculator",
+      "email A/B test results"
+    ],
+    "title": "A/B Test Significance Calculator for Email (Free)",
+    "description": "A free A/B test significance calculator for email. Enter the sample size and each variant's rate to see if the result is significant or could be chance.",
+    "socialTitle": "Could your A/B test result be down to chance?",
+    "intro": "Use this A/B test significance calculator when a test has finished and one variant is ahead. It tells you whether a gap that size would be unlikely if both variants performed the same, so you can judge whether to act on it."
+  },
+  "wewe": {
+    "slug": "we-we-calculator",
+    "keyphrase": "customer-focused copy",
+    "related": [
+      "you vs we copy",
+      "brand-focused copy"
+    ],
+    "title": "We-We Calculator: Check for Customer-Focused Copy (Free)",
+    "description": "Paste your email and see how much of it talks about your brand and how much about your reader. A free pronoun count for customer-focused copy. No sign-up.",
+    "socialTitle": "Is your email about you, or your reader?",
+    "intro": "Is your email talking about you, or to your reader? Paste it below and the We-We Calculator checks for customer-focused copy, showing the split between brand pronouns and reader pronouns."
+  },
+  "ers": {
+    "slug": "readability-checker",
+    "keyphrase": "email readability checker",
+    "related": [
+      "Flesch Reading Ease",
+      "readability score",
+      "Gunning Fog"
+    ],
+    "title": "Email Readability Checker: Flesch, Fog, and SMOG (Free)",
+    "description": "A free email readability checker: Flesch Reading Ease, Gunning Fog, and SMOG scores for your copy, with UK reading ages and suggestions. No sign-up.",
+    "socialTitle": "How easy is your email to read?",
+    "intro": "Paste your copy into this email readability checker to see how easy it is to read. You get scores from three established formulas, plus suggestions when sentences run long, words get heavy, or the passive voice piles up."
+  },
+  "f2b": {
+    "slug": "feature-to-benefit",
+    "keyphrase": "features vs benefits",
+    "related": [
+      "feature to benefit converter",
+      "benefit statement"
+    ],
+    "title": "Features vs Benefits: Free Feature-to-Benefit Converter",
+    "description": "Features vs benefits, sorted: enter a product feature, pick your industry, and get a benefit statement your reader cares about. Free, no sign-up.",
+    "socialTitle": "Turn features into benefits your reader cares about",
+    "intro": "Features vs benefits, in one step: enter a product or service feature and this converter turns it into a benefit statement about what the feature means for your reader."
+  },
+  "tone": {
+    "slug": "tone",
+    "keyphrase": "email tone checker",
+    "related": [
+      "email tone analyser",
+      "tone of voice"
+    ],
+    "title": "Email Tone Checker: Free Tone Analyser for Email Copy",
+    "description": "Paste your copy into this free email tone checker to see which tones it gives off, from friendly to urgent, with phrases to strengthen each. No sign-up.",
+    "socialTitle": "What tone is your email giving off?",
+    "intro": "Paste your copy into this email tone checker to see which tones it gives off. If it isn't the tone you meant, you get phrases that strengthen the one you want."
+  },
+  "persona": {
+    "slug": "persona",
+    "keyphrase": "buyer types",
+    "related": [
+      "buyer personas",
+      "buyer persona email copy"
+    ],
+    "title": "Buyer Persona Matcher for the Four Buyer Types (Free)",
+    "description": "Paste your email to see which of four buyer types it reaches (Competitive, Spontaneous, Humanistic, and Methodical) and which it misses. Free, no sign-up.",
+    "socialTitle": "Which buyers is your email copy missing?",
+    "intro": "People buy in different ways, and each of the four buyer types looks for something different in an email. Paste your copy to see which of them it reaches, with phrase suggestions for the ones it misses."
+  },
+  "emotional-appeal": {
+    "slug": "emotional-appeal",
+    "keyphrase": "emotional appeal",
+    "related": [
+      "emotional triggers in marketing",
+      "emotional marketing"
+    ],
+    "title": "Emotional Appeal Analyser for Email Copy (Free)",
+    "description": "See which emotional appeals your email copy uses, from fear and hope to trust and belonging, and learn when each one works best. Free, no sign-up.",
+    "socialTitle": "Which emotions is your email copy appealing to?",
+    "intro": "Paste your copy to see which emotional appeal it leans on: fear, hope, curiosity, pride, trust, or belonging. Then check it's the one you intended, with guidance on when each works best."
+  },
+  "personalisation": {
+    "slug": "personalisation",
+    "keyphrase": "email personalisation checker",
+    "related": [
+      "merge tag fallback",
+      "dynamic content",
+      "personalization tokens"
+    ],
+    "title": "Email Personalisation Checker: Fallbacks and Merge Tags",
+    "description": "A free email personalisation checker: find every token in your email and whether it has a fallback value, in the syntax of 16 email platforms. No sign-up.",
+    "socialTitle": "Will your email say \"Hi ,\" to someone?",
+    "intro": "Paste your email into this email personalisation checker, choose your sending platform, and it finds every token and tells you whether each has a fallback for contacts with missing data."
+  },
+  "accessibility": {
+    "slug": "accessibility",
+    "keyphrase": "email accessibility checker",
+    "related": [
+      "accessible email",
+      "alt text",
+      "colour contrast"
+    ],
+    "title": "Email Accessibility Checker: Alt Text and Contrast (Free)",
+    "description": "A free email accessibility checker: missing alt text, vague link text, small fonts, poor colour contrast, and broken heading order. No sign-up.",
+    "socialTitle": "Can every subscriber read your email?",
+    "intro": "Paste your email's HTML into this email accessibility checker to find what shuts readers out: missing alt text, vague link text, small fonts, poor colour contrast, and headings out of order."
+  },
+  "curve": {
+    "slug": "subject-line-tester",
+    "keyphrase": "subject line tester",
+    "related": [
+      "email subject line checker",
+      "subject line builder"
+    ],
+    "title": "Email Subject Line Tester: Score It With CURVE (Free)",
+    "description": "A free subject line tester built on CURVE: Curiosity, Urgency, Relevance, Value, and Emotion. See which it covers and how to add the first one missing.",
+    "socialTitle": "Does your subject line pass the CURVE test?",
+    "intro": "Type a subject line into this subject line tester and it scores it against CURVE, the Academy's framework for subject lines. You'll see which of the five elements it covers, and how to add the first one it's missing."
+  },
+  "dmarc-checker": {
+    "slug": "dmarc-checker",
+    "keyphrase": "DMARC checker",
+    "related": [
+      "SPF checker",
+      "DKIM checker",
+      "DMARC record"
+    ],
+    "title": "Free DMARC Checker: Test SPF, DKIM, and DMARC Records",
+    "description": "A free DMARC checker for your domain's DMARC, SPF, and DKIM setup, in plain English: what's in place, what's missing, and what to fix. No sign-up.",
+    "socialTitle": "Is your domain's email authentication set up?",
+    "intro": "Enter your sending domain and this DMARC checker looks up your live SPF and DMARC records, checks DKIM at your selector or the common ones, and explains what it finds in plain English."
+  }
+}

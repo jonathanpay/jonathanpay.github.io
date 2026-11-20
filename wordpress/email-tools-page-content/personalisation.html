@@ -1,0 +1,71 @@
+<!-- wp:group {"layout":{"type":"constrained"}} -->
+<div class="wp-block-group">
+<!-- wp:paragraph -->
+<p>Paste your email into this email personalisation checker, choose your sending platform, and it finds every token and tells you whether each has a fallback for contacts with missing data.</p>
+<!-- /wp:paragraph -->
+</div>
+<!-- /wp:group -->
+
+<!-- wp:shortcode -->
+[hea_email_tool name="personalisation"]
+<!-- /wp:shortcode -->
+
+<!-- wp:group {"layout":{"type":"constrained"}} -->
+<div class="wp-block-group">
+<!-- wp:heading -->
+<h2 class="wp-block-heading">About the personalisation and dynamic content checker</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>"Hi {{ first_name }}" works well right up until it reaches a contact with no first name, and then it says "Hi ," to them. Fallback values are the fix, and they're easy to forget, especially in a long email with tokens in several places.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>Choose your email platform and paste your email code or copy. The checker finds every personalisation token and tells you whether each use has a fallback for missing data. On platforms that use conditional blocks, it also checks that they open and close in matching numbers. It knows the token syntax of 16 platforms, from Klaviyo, Mailchimp, and Kit to HubSpot, Marketo, and Salesforce Marketing Cloud.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading">Frequently asked questions</h2>
+<!-- /wp:heading -->
+
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">What is a fallback value?</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>The text that appears when a contact's field is empty. With a fallback of "there", "Hi {{ first_name }}" becomes "Hi there" for anyone without a first name, instead of "Hi ,".</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">Why does it check every use of a token?</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Because a fallback on the first use doesn't cover the others. A greeting with a fallback can hide a bare token further down the email, and that's the one that breaks.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">My platform doesn't support inline fallbacks. What then?</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Some platforms set default values in the platform itself rather than in the code of the email. The checker tells you when that's the case, so you know to check the default there.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">Does it check scripting languages such as AMPscript or Liquid logic?</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Only partly. It checks tokens and whether conditional blocks balance. Where a platform sets fallbacks in scripting, as Salesforce Marketing Cloud does, the checker says so, and you'll need to review that logic by hand.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">Is my email stored anywhere?</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>No. The checker runs in your browser and doesn't save what you paste.</p>
+<!-- /wp:paragraph -->
+</div>
+<!-- /wp:group -->

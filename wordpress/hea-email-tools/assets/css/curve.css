@@ -24,7 +24,7 @@
       grid-template-columns: 32px 1fr;
       gap: var(--hea-s-4);
       align-items: flex-start;}
-#hea-et .curve-letter{font-size: 22px;
+#hea-et .curve-letter{font-size: 25px;
       font-weight: var(--hea-w-bold);
       line-height: 1.6;
       text-align: center;}

@@ -60,19 +60,19 @@
   --hea-font-sans: 'CMG Sans', 'Montserrat', system-ui, -apple-system, 'Segoe UI', sans-serif;
 
   
-  --hea-text-xs:   12px;
-  --hea-text-sm:   14px;
-  --hea-text-base: 16px;
-  --hea-text-lg:   18px;
-  --hea-text-xl:   20px;
+  --hea-text-xs:   14px;
+  --hea-text-sm:   16px;
+  --hea-text-base: 18px;
+  --hea-text-lg:   20px;
+  --hea-text-xl:   23px;
 
   
   --hea-display-1: clamp(40px, 5.5vw, 72px);   
   --hea-display-2: clamp(32px, 4vw, 52px);     
   --hea-h1:        clamp(28px, 3vw, 40px);
   --hea-h2:        clamp(22px, 2.2vw, 30px);
-  --hea-h3:        18px;
-  --hea-h4:        16px;
+  --hea-h3:        20px;
+  --hea-h4:        18px;
 
   
   --hea-lh-tight:  1.1;
@@ -278,7 +278,7 @@
   gap: var(--hea-s-3);
   text-decoration: none;}
 #hea-et .brand-logo{height: 36px; width: auto;}
-#hea-et .brand-name{font-size: 11px;
+#hea-et .brand-name{font-size: 13px;
   font-weight: var(--hea-w-bold);
   letter-spacing: 0.14em;
   text-transform: uppercase;
@@ -290,7 +290,7 @@
   letter-spacing: 0.01em;
   text-transform: none;
   color: var(--hea-plum-soft);
-  font-size: 10px;}
+  font-size: 13px;}
 #hea-et .back-link{font-size: var(--hea-text-sm);
   font-weight: var(--hea-w-semibold);
   color: var(--hea-plum-soft);
@@ -381,7 +381,7 @@
   gap: var(--hea-s-5);}
 #hea-et .footer-brand{display: flex; align-items: center; gap: var(--hea-s-3);}
 #hea-et .footer-logo{height: 24px; width: auto;}
-#hea-et .footer-wordmark{font-size: 11px;
+#hea-et .footer-wordmark{font-size: 13px;
   font-weight: var(--hea-w-bold);
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -484,3 +484,16 @@
   text-decoration: underline;
   text-underline-offset: 2px;}
 #hea-et .course-context a:hover{color: var(--hea-fg-1);}
+
+
+#hea-et.hea-et{
+  background:transparent;
+  --hea-font-sans:var(--wp--preset--font-family--montserrat,Montserrat),system-ui,-apple-system,'Segoe UI',sans-serif;
+  --hea-plum:#353C59;
+  --hea-fg-1:#353C59;
+  --hea-fg-2:#4F5570;
+  --hea-fg-3:#666B84;
+  --hea-bg-alt:#F7F7F9;
+}
+#hea-et.hea-et .tool-page{padding-top:var(--hea-s-4);max-width:calc(var(--wp--style--global--content-size,720px) + 2 * var(--hea-s-6))}
+#hea-et.hea-et .hea-et-back{max-width:calc(var(--wp--style--global--content-size,720px) + 2 * var(--hea-s-6));margin:0 auto var(--hea-s-8);padding:0 var(--hea-s-6)}

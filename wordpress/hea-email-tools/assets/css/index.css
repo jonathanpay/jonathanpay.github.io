@@ -15,7 +15,7 @@
       gap: var(--hea-s-3);
       text-decoration: none;}
 #hea-et .brand-logo{height: 36px; width: auto;}
-#hea-et .brand-name{font-size: 11px;
+#hea-et .brand-name{font-size: 13px;
       font-weight: var(--hea-w-bold);
       letter-spacing: 0.14em;
       text-transform: uppercase;
@@ -27,7 +27,7 @@
       letter-spacing: 0.01em;
       text-transform: none;
       color: var(--hea-plum-soft);
-      font-size: 10px;}
+      font-size: 13px;}
 #hea-et .hero{max-width: 720px;
       margin: 0 auto;
       padding: var(--hea-s-9) var(--hea-s-8) var(--hea-s-8);
@@ -114,7 +114,7 @@
       gap: var(--hea-s-5);}
 #hea-et .footer-brand{display: flex; align-items: center; gap: var(--hea-s-3);}
 #hea-et .footer-logo{height: 24px; width: auto;}
-#hea-et .footer-wordmark{font-size: 11px;
+#hea-et .footer-wordmark{font-size: 13px;
       font-weight: var(--hea-w-bold);
       letter-spacing: 0.12em;
       text-transform: uppercase;

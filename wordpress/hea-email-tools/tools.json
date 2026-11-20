@@ -1,5 +1,5 @@
 {
-  "version": "c53b8bedd4",
+  "version": "7094cc02e1",
   "scripts": {
     "utils.js": "dd8d2a00f3",
     "ab-duration.js": "04e033d98a",
@@ -21,8 +21,8 @@
     "f2b-templates.js": "4d1e4d4d68",
     "f2b.js": "75e7be2442",
     "hypothesis-content.js": "742a0dd7bf",
-    "hypothesis.js": "50a683398d",
-    "hypothesis-builder.js": "b60c7d2d87",
+    "hypothesis.js": "682556881b",
+    "hypothesis-builder.js": "dee4dce3bf",
     "persona.js": "67db003093",
     "personalisation-rules.js": "483be52873",
     "personalisation.js": "17abfcd51a",
@@ -36,26 +36,27 @@
     "dmarc-checker-inline.js": "676fc1668e"
   },
   "styles": {
-    "email-tools.css": "e1683f7a7f",
-    "index.css": "c4bef777c3",
+    "email-tools.css": "616e6d1ed3",
+    "index.css": "35e958ba2f",
     "hypothesis.css": "dba5404793",
     "ab-duration.css": "0d21377a68",
     "sscc.css": "1c36be4800",
     "wewe.css": "0cae953d1a",
     "ers.css": "f62590bb26",
-    "f2b.css": "bcc775f727",
+    "f2b.css": "4795e6faca",
     "tone.css": "cdfca9e9b8",
     "persona.css": "077b4c0ba9",
     "emotional-appeal.css": "c02110ef92",
     "personalisation.css": "0f923b54fa",
     "accessibility.css": "ef4f42b71d",
-    "curve.css": "21ac3b2798",
+    "curve.css": "f67e3d8aef",
     "dmarc-checker.css": "03aa222765"
   },
   "tools": {
     "index": {
       "title": "Free Email Optimisation Tools",
-      "description": "Free email marketing tools by Jonathan Pay — analyse copy, check readability, test A/B results, and more.",
+      "slug": "",
+      "description": "Thirteen free email marketing tools: check your copy before you send, read your A/B tests after, and test your domain's DMARC. No sign-up needed.",
       "modules": [
         "course-ctas.js"
       ],
@@ -65,7 +66,8 @@
     },
     "hypothesis": {
       "title": "A/B Test Hypothesis Builder",
-      "description": "Turn a vague test idea into a hypothesis you can actually prove wrong. A guided set of questions, then hand it on to the Duration Calculator. No sign-up needed.",
+      "slug": "ab-test-hypothesis",
+      "description": "Build an A/B test hypothesis you can prove wrong. Answer five questions, then plan the test's length with the Duration Calculator. Free, no sign-up.",
       "modules": [
         "course-ctas.js",
         "hypothesis-builder.js"
@@ -76,7 +78,8 @@
     },
     "ab-duration": {
       "title": "A/B Test Duration Calculator",
-      "description": "Know how long to run your A/B test before you start. Calculate required sample size and test duration with a two-proportion z-test. No sign-up needed.",
+      "slug": "ab-duration",
+      "description": "A free A/B test duration calculator for email: the sample size each variant needs, and how many days that takes at your volume. Plan it before you start.",
       "modules": [
         "course-ctas.js",
         "ab-duration.js"
@@ -87,7 +90,8 @@
     },
     "sscc": {
       "title": "Statistical Significance Calculator",
-      "description": "Check whether your email A/B test result is statistically significant before you act on it. Enter sample sizes and conversion rates — no sign-up needed.",
+      "slug": "significance-calculator",
+      "description": "A free A/B test significance calculator for email. Enter the sample size and each variant's rate to see if the result is significant or could be chance.",
       "modules": [
         "course-ctas.js",
         "sscc.js"
@@ -98,7 +102,8 @@
     },
     "wewe": {
       "title": "We-We Calculator",
-      "description": "Check if your email copy talks about you or to your reader. Count brand-focused vs. customer-focused pronouns instantly — no sign-up needed.",
+      "slug": "we-we-calculator",
+      "description": "Paste your email and see how much of it talks about your brand and how much about your reader. A free pronoun count for customer-focused copy. No sign-up.",
       "modules": [
         "course-ctas.js",
         "wewe.js"
@@ -109,7 +114,8 @@
     },
     "ers": {
       "title": "Email Readability Score",
-      "description": "Score your email copy's readability with Flesch Reading Ease, Gunning Fog, and SMOG — with per-word syllable counting and actionable suggestions. No sign-up needed.",
+      "slug": "readability-checker",
+      "description": "A free email readability checker: Flesch Reading Ease, Gunning Fog, and SMOG scores for your copy, with UK reading ages and suggestions. No sign-up.",
       "modules": [
         "course-ctas.js",
         "ers.js"
@@ -120,7 +126,8 @@
     },
     "f2b": {
       "title": "Feature-to-Benefit Converter",
-      "description": "Turn product features into customer benefits. Pick your industry, enter a feature, and get a benefit statement from 384 templates across 8 verticals. No sign-up needed.",
+      "slug": "feature-to-benefit",
+      "description": "Features vs benefits, sorted: enter a product feature, pick your industry, and get a benefit statement your reader cares about. Free, no sign-up.",
       "modules": [
         "course-ctas.js",
         "course-context.js",
@@ -132,7 +139,8 @@
     },
     "tone": {
       "title": "Email Tone Analyser",
-      "description": "Detect the tone of your email copy across five dimensions — Friendly, Persuasive, Professional, Urgent, and Empathetic — with phrase suggestions for shifting tone. No sign-up needed.",
+      "slug": "tone",
+      "description": "Paste your copy into this free email tone checker to see which tones it gives off, from friendly to urgent, with phrases to strengthen each. No sign-up.",
       "modules": [
         "course-ctas.js",
         "tone.js"
@@ -143,7 +151,8 @@
     },
     "persona": {
       "title": "Buyer Persona Matcher",
-      "description": "Find out who your email copy is really speaking to. Detects Competitive, Spontaneous, Humanistic, and Methodical buyer modalities, with phrase suggestions — no sign-up needed.",
+      "slug": "persona",
+      "description": "Paste your email to see which of four buyer types it reaches (Competitive, Spontaneous, Humanistic, and Methodical) and which it misses. Free, no sign-up.",
       "modules": [
         "course-ctas.js",
         "course-context.js",
@@ -155,7 +164,8 @@
     },
     "emotional-appeal": {
       "title": "Emotional Appeal Analyser",
-      "description": "Detect the emotional triggers in your email copy — Fear, Hope, Curiosity, Pride, Trust, and Belonging — with guidance on when each appeal works best. No sign-up needed.",
+      "slug": "emotional-appeal",
+      "description": "See which emotional appeals your email copy uses, from fear and hope to trust and belonging, and learn when each one works best. Free, no sign-up.",
       "modules": [
         "course-ctas.js",
         "course-context.js",
@@ -167,7 +177,8 @@
     },
     "personalisation": {
       "title": "Personalisation &amp; Dynamic Content Checker",
-      "description": "Check your email's personalisation tokens and dynamic content blocks for missing fallbacks and unbalanced conditionals, across 16 ESP syntaxes. No sign-up needed.",
+      "slug": "personalisation",
+      "description": "A free email personalisation checker: find every token in your email and whether it has a fallback value, in the syntax of 16 email platforms. No sign-up.",
       "modules": [
         "course-ctas.js",
         "course-context.js",
@@ -179,7 +190,8 @@
     },
     "accessibility": {
       "title": "Email Accessibility Checker",
-      "description": "Check your email HTML against common accessibility pitfalls — missing alt text, vague link text, undersized fonts, poor colour contrast, and broken heading order. No sign-up needed.",
+      "slug": "accessibility",
+      "description": "A free email accessibility checker: missing alt text, vague link text, small fonts, poor colour contrast, and broken heading order. No sign-up.",
       "modules": [
         "course-ctas.js",
         "course-context.js",
@@ -191,7 +203,8 @@
     },
     "curve": {
       "title": "CURVE Subject Line Builder",
-      "description": "Score your subject line against HEA's CURVE framework — Curiosity, Urgency, Relevance, Value, Emotion — and see exactly which element is missing. No sign-up needed.",
+      "slug": "subject-line-tester",
+      "description": "A free subject line tester built on CURVE: Curiosity, Urgency, Relevance, Value, and Emotion. See which it covers and how to add the first one missing.",
       "modules": [
         "course-ctas.js",
         "course-context.js",
@@ -203,7 +216,8 @@
     },
     "dmarc-checker": {
       "title": "Free DMARC, SPF & DKIM Checker",
-      "description": "",
+      "slug": "dmarc-checker",
+      "description": "A free DMARC checker for your domain's DMARC, SPF, and DKIM setup, in plain English: what's in place, what's missing, and what to fix. No sign-up.",
       "modules": [
         "dmarc-checker.js",
         "course-ctas.js",
