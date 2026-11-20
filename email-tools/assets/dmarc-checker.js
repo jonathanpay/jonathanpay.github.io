@@ -1,4 +1,5 @@
-import { g as byId } from "./utils-jnLFB3bE.js";
+import { getEl as byId } from "./utils.js";
+import { explainSPF, explainDMARC, explainDKIM, isDkimRecord } from "./dmarc-rules.js";
 
 const DOH_ENDPOINT = "https://dns.google/resolve";
 const COMMON_DKIM_SELECTORS = ["google", "selector1", "selector2", "k1", "k2", "s1", "s2", "dkim", "mail", "default"];
@@ -28,62 +29,6 @@ async function queryTXT(name) {
   return (data.Answer ?? []).filter((a) => a.type === 16).map((a) => cleanTXT(a.data));
 }
 
-export function explainSPF(records) {
-  const spf = records.find((r) => /^v=spf1\b/i.test(r));
-  if (!spf) {
-    return { status: "not-found", record: null, message: "No SPF record found at this domain." };
-  }
-  const lookupCount = (spf.match(/\b(include|a|mx|ptr|exists|redirect)[:=]/gi) ?? []).length;
-  if (lookupCount > 10) {
-    return {
-      status: "warn",
-      record: spf,
-      message: `Found, but this record has around ${lookupCount} DNS-lookup mechanisms (include/a/mx/ptr/exists/redirect). SPF fails validation ("permerror") above 10 — consider consolidating includes.`,
-    };
-  }
-  if (!/[-~?]all\b/i.test(spf)) {
-    return {
-      status: "warn",
-      record: spf,
-      message: `Found, but there's no "all" mechanism at the end. Most setups should end in "-all" (hard fail) or "~all" (soft fail) so receiving servers know what to do with mail that doesn't match.`,
-    };
-  }
-  return { status: "pass", record: spf, message: "A valid SPF record was found." };
-}
-
-export function explainDMARC(records) {
-  const dmarc = records.find((r) => /^v=dmarc1\b/i.test(r));
-  if (!dmarc) {
-    return {
-      status: "not-found",
-      record: null,
-      message: "No DMARC record found. Without one, receiving mail servers have no instructions for what to do with mail that fails SPF or DKIM checks.",
-    };
-  }
-  const policyMatch = dmarc.match(/p=(none|quarantine|reject)/i);
-  const policy = policyMatch ? policyMatch[1].toLowerCase() : null;
-  if (!policy || policy === "none") {
-    return {
-      status: "warn",
-      record: dmarc,
-      message: `Found, but the policy is "p=none" (monitor-only) — failing mail isn't being quarantined or rejected yet. A reasonable starting point, but most senders should move to "quarantine" or "reject" once reports look clean.`,
-    };
-  }
-  return {
-    status: "pass",
-    record: dmarc,
-    message: `Found, with a policy of "p=${policy}" — mail that fails is being ${policy === "reject" ? "rejected" : "quarantined"}.`,
-  };
-}
-
-export function explainDKIM(records, selectorTried) {
-  const dkim = records.find((r) => /p=/i.test(r));
-  if (!dkim) {
-    return { status: "not-found", record: null, message: `No DKIM record found at selector "${selectorTried}".` };
-  }
-  return { status: "pass", record: dkim, selector: selectorTried, message: `A DKIM record was found at selector "${selectorTried}".` };
-}
-
 async function checkSPF(domain) {
   const records = await queryTXT(domain);
   return explainSPF(records);
@@ -100,7 +45,7 @@ async function checkDKIM(domain, manualSelector) {
     selectors.map(async (sel) => ({ sel, records: await queryTXT(`${sel}._domainkey.${domain}`) }))
   );
   for (const attempt of attempts) {
-    if (attempt.status === "fulfilled" && attempt.value.records.some((r) => /p=/i.test(r))) {
+    if (attempt.status === "fulfilled" && attempt.value.records.some(isDkimRecord)) {
       return explainDKIM(attempt.value.records, attempt.value.sel);
     }
   }

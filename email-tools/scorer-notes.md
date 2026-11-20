@@ -1,12 +1,12 @@
 # Scorer notes — keyword matching and verdict floors
 
-Applies to the shared scoring behind the **Emotional Appeal Analyzer**, **Email
-Tone Analyzer**, **Buyer Persona Matcher** and the **CURVE Subject Line
+Applies to the shared scoring behind the **Emotional Appeal Analyser**, **Email
+Tone Analyser**, **Buyer Persona Matcher** and the **CURVE Subject Line
 Builder**.
 
 ## What was wrong
 
-`countHits` in `assets/utils-*.js` counts raw substring occurrences with
+`countHits` in `assets/utils-*.js` counted raw substring occurrences with
 `indexOf` and no word boundaries, so unrelated words scored as hits:
 
 | keyword | was matching | category |
@@ -37,9 +37,10 @@ incidental words decide the verdict.
 ## What changed
 
 **`assets/dominance-scorer.js`** now owns a boundary-aware matcher and no longer
-imports `countHits`. This matters beyond correctness: `utils-*.js` is a
-hash-named build output, so a hand-edit there is reverted by the next build.
-`dominance-scorer.js` is hand-authored and shared, so the fix survives rebuilds.
+imports `countHits`. At the time `utils-*.js` was a hash-named build output, so a
+hand-edit there would have been reverted by the next build. Since then every tool
+script is hand-authored in `assets/` with no build step, and the old `countHits`
+has been removed from `utils.js`.
 
 - Whole-word and whole-phrase matching; `\s+` allowed between the words of a
   multi-word keyword.
@@ -76,9 +77,9 @@ consumer through `dominance-scorer.js`.
    this", "This reads like long-form, not an email") needs a matching change in
    the bundles, or in the source project they are built from.
 2. **The tone lexicon has no module.** It is inlined inside the built
-   `assets/tone-CsQZ9GR2.js`, so its function words (`now`, `only`, `ends`,
+   `assets/tone.js`, so its function words (`now`, `only`, `ends`,
    `final`, `feel`, `for you`) cannot be cleaned without editing a build
    artifact. Extract it to `tone-keywords.js` upstream; the matcher fix already
-   benefits the Tone Analyzer, the lexicon hygiene does not yet.
+   benefits the Tone Analyser, the lexicon hygiene does not yet.
 
 The proper home for both is the source project that builds the hashed bundles.

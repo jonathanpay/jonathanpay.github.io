@@ -10,7 +10,10 @@ import {createRequire} from 'node:module';
 import {COURSES as SITE_COURSES} from '../email-tools/assets/course-ctas.js';
 
 const require = createRequire(import.meta.url);
-const dir = new URL('../pilots/email-maturity-assessment/', import.meta.url);
+// HEA_MA_DIR / HEA_MA_COLLECTOR point this suite at another copy of the
+// assessment (see maturity-assessment-academy-collector.test.mjs).
+const dir = new URL(process.env.HEA_MA_DIR || '../pilots/email-maturity-assessment/', import.meta.url);
+const collector = process.env.HEA_MA_COLLECTOR ? new URL(process.env.HEA_MA_COLLECTOR, import.meta.url) : new URL('apps-script/Code.gs', dir);
 const E = require(new URL('engine.js', dir).pathname);
 const D = require(new URL('data.js', dir).pathname);
 // JSON round trip: objects made inside the vm context fail deepStrictEqual.
@@ -45,7 +48,7 @@ function load() {
   };
   vm.createContext(ctx);
   // Top-level consts are not context properties, so expose the ones tested.
-  vm.runInContext(fs.readFileSync(new URL('apps-script/Code.gs', dir), 'utf8') + '\nthis.ACTIONS = ACTIONS; this.COURSES = COURSES; this.BY_DIMENSION = BY_DIMENSION;', ctx);
+  vm.runInContext(fs.readFileSync(collector, 'utf8') + '\nthis.ACTIONS = ACTIONS; this.COURSES = COURSES; this.BY_DIMENSION = BY_DIMENSION;', ctx);
   return {ctx, rows, mail, formats};
 }
 
@@ -78,7 +81,7 @@ test('writes a header and one row, and updates the row for the same pilot code',
   assert.equal(post(ctx, record(scores)).ok, true);
   assert.equal(rows.length, 2);
   const h = rows[0], r = rows[1], col = name => r[h.indexOf(name)];
-  assert.equal(col('Pilot code'), 'HEA-TEST01');
+  assert.equal(r[1], 'HEA-TEST01', 'the reference is the second column');
   assert.equal(col('Questionnaire minutes'), 12.5);
   assert.equal(col('Q4 Permission'), 1);
   assert.equal(col('Q6 Technical stewardship'), 'Unknown');
@@ -222,15 +225,20 @@ test('rejects malformed records without writing', () => {
 test('next-step text and course data match the page', () => {
   const {ctx} = load();
   assert.deepEqual(plain(ctx.ACTIONS), D.actions);
-  const src = fs.readFileSync(new URL('courses.js', dir), 'utf8')
-    .replace(/^import .*$/m, '')
-    .replace(/export /g, '')
-    .replace(/if \(typeof window[\s\S]*$/, 'this.BY_DIMENSION = BY_DIMENSION;');
-  const page = {};
-  vm.runInNewContext(src, page);
+  const src = fs.readFileSync(new URL('courses.js', dir), 'utf8');
+  let page = {};
+  if (/^import /m.test(src)) {
+    // The pilot's courses.js is an ES module that imports the email tools' course data.
+    vm.runInNewContext(src.replace(/^import .*$/m, '').replace(/export /g, '')
+      .replace(/if \(typeof window[\s\S]*$/, 'this.BY_DIMENSION = BY_DIMENSION;'), page);
+  } else {
+    // The Academy copy is a plain script with its own course data.
+    page = require(new URL('courses.js', dir).pathname);
+  }
+  const pageCourses = page.COURSES || SITE_COURSES;
   assert.deepEqual(plain(ctx.BY_DIMENSION), plain(page.BY_DIMENSION));
   for (const [slug, c] of Object.entries(plain(ctx.COURSES))) {
-    const site = SITE_COURSES[slug];
+    const site = pageCourses[slug];
     assert.ok(site, slug);
     assert.deepEqual(c, {title: site.title, level: site.level, status: site.status}, slug);
   }

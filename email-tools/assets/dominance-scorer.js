@@ -1,19 +1,18 @@
 // Shared "which category wins" algorithm used by the Emotional Appeal
-// Analyzer, Tone Analyzer, and Buyer Persona Matcher.
+// Analyser, Tone Analyser, and Buyer Persona Matcher.
 //
 // Applied 2026-09-29, previously drafted as dominance-scorer.next.js.
 // Rationale, measurements and open follow-ups: ../scorer-notes.md
 //
 // What changed, and why (three defects, all in this file's dependency on the
-// substring counter in utils-jnLFB3bE.js):
+// substring counter in utils.js):
 //
 //   1. MATCHING. The old matcher counted raw substring occurrences with
 //      `indexOf` and no word boundaries, so `know` hit "now", `they` hit "hey",
 //      `against` hit "gain", `contested` hit "tested", `defending` hit
 //      "ending", `closely` hit "lose". Every one of those was a scored hit.
 //      This file now owns a boundary-aware matcher and no longer imports
-//      countHits, which also means the fix survives a rebuild of the minified
-//      utils bundle.
+//      countHits. (The old counter has since been removed from utils.js.)
 //
 //   2. RECALL, deliberately preserved. Word boundaries alone would drop
 //      legitimate inflections (`trust` no longer matching "trusted"). A
@@ -144,4 +143,22 @@ export function scoreCategories(text, categories) {
   }
 
   return { scored, ranked, total, density, wordCount, verdict: "dominant", dominant: top, runnerUp: null, lowSignal: false, longForm: false };
+}
+
+/**
+ * When the scorer declines a verdict for a reason the tool should explain
+ * (long-form text, or too few signals for the length), the note to show.
+ * Returns null when the tool's own "nothing found" / "evenly spread" message
+ * is the right one. `noun` is the singular thing being scored ("tone").
+ */
+export function declineNote(result, noun) {
+  if (result.verdict !== "mixed") return null;
+  if (result.longForm) {
+    return `This is longer than a typical email (${result.wordCount.toLocaleString("en-GB")} words). The ${noun} word lists are written for email copy, so the tool doesn't name a winner for long-form text. Paste one email at a time.`;
+  }
+  if (result.lowSignal) {
+    const n = result.total;
+    return `Only ${n} ${noun} signal${n === 1 ? "" : "s"} in ${result.wordCount.toLocaleString("en-GB")} words, which isn't enough to name one. Plain, informational copy often reads this way.`;
+  }
+  return null;
 }

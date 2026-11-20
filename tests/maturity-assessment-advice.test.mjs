@@ -7,7 +7,10 @@ import vm from 'node:vm';
 import {createRequire} from 'node:module';
 
 const require = createRequire(import.meta.url);
-const dir = new URL('../pilots/email-maturity-assessment/', import.meta.url);
+// HEA_MA_DIR / HEA_MA_COLLECTOR point this suite at another copy of the
+// assessment (see maturity-assessment-academy-advice.test.mjs).
+const dir = new URL(process.env.HEA_MA_DIR || '../pilots/email-maturity-assessment/', import.meta.url);
+const collector = process.env.HEA_MA_COLLECTOR ? new URL(process.env.HEA_MA_COLLECTOR, import.meta.url) : new URL('apps-script/Code.gs', dir);
 const E = require(new URL('engine.js', dir).pathname);
 const A = require(new URL('advice.js', dir).pathname);
 const D = require(new URL('data.js', dir).pathname);
@@ -84,7 +87,7 @@ test('course mode and support copy follow the obstacle answer', () => {
 function loadScript() {
   const ctx = {};
   vm.createContext(ctx);
-  vm.runInContext(fs.readFileSync(new URL('apps-script/Code.gs', dir), 'utf8'), ctx);
+  vm.runInContext(fs.readFileSync(collector, 'utf8'), ctx);
   return ctx;
 }
 function record(scores, p1) {

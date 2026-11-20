@@ -1,0 +1,92 @@
+import { getEl } from './utils.js';
+
+// Required sample size per variant: two-proportion z-test
+// 95% confidence (z=1.96), 80% power (z=0.842)
+const Z = Math.pow(1.96 + 0.842, 2); // ≈ 7.851
+
+function sampleSize(p1, p2) {
+  const d = Math.abs(p2 - p1);
+  if (d === 0) return Infinity;
+  return Math.ceil(Z * (p1 * (1 - p1) + p2 * (1 - p2)) / (d * d));
+}
+
+function minDetectableDiff(p1, n) {
+  return Math.sqrt(Z * 2 * p1 * (1 - p1) / n);
+}
+
+function fmt(n) { return n.toLocaleString('en-GB'); }
+
+function calculate() {
+  const baselineRate = parseFloat(getEl('baselineRate').value);
+  const minEffect    = parseFloat(getEl('minEffect').value);
+  const dailySends   = parseFloat(getEl('dailySends').value);
+  const errorEl      = getEl('calc-error');
+  const resultsEl    = getEl('calc-results');
+
+  if (isNaN(baselineRate) || isNaN(minEffect) || isNaN(dailySends) ||
+      baselineRate <= 0 || baselineRate >= 100 || minEffect <= 0 || dailySends < 1) {
+    errorEl.classList.add('visible');
+    resultsEl.classList.remove('visible');
+    return;
+  }
+  errorEl.classList.remove('visible');
+
+  const p1   = baselineRate / 100;
+  const p2   = Math.min(p1 * (1 + minEffect / 100), 0.9999);
+  const n    = sampleSize(p1, p2);
+  const days = Math.ceil(n / dailySends);
+
+  getEl('stat-sample').textContent = fmt(n);
+  getEl('stat-days').textContent   = days > 365 ? '365+' : String(days);
+
+  const warnImpractical = getEl('warn-impractical');
+  const warnLong        = getEl('warn-long');
+  const warnLowBase     = getEl('warn-low-base');
+  const warnHighMde     = getEl('warn-high-mde');
+
+  [warnImpractical, warnLong, warnLowBase, warnHighMde].forEach(el => el.classList.remove('visible'));
+
+  if (days > 365) {
+    warnImpractical.textContent = `At ${fmt(dailySends)} sends a day, detecting a ${minEffect}% improvement would take over a year. Consider widening your minimum meaningful improvement, or increasing the proportion of your list in the test.`;
+    warnImpractical.classList.add('visible');
+  } else if (days > 90) {
+    warnLong.textContent = 'This test would run for over 90 days. Results can drift over that period due to seasonal shifts, list churn, and external events. Consider widening your minimum meaningful improvement to shorten the run time.';
+    warnLong.classList.add('visible');
+  }
+
+  if (baselineRate < 1) {
+    warnLowBase.textContent = 'Very low baseline rates (under 1%) produce high variance and require very large samples. Make sure this metric is reliable and meaningful before building a test around it.';
+    warnLowBase.classList.add('visible');
+  }
+
+  if (minEffect >= 50) {
+    warnHighMde.textContent = `You're looking for a ${minEffect}% relative improvement — a very large effect. Tests like this run quickly, but if your results show gains that large, double-check for implementation errors before acting.`;
+    warnHighMde.classList.add('visible');
+  }
+
+  const timeframes = [7, 14, 30, 60];
+  const tbody      = getEl('sensitivity-body');
+
+  tbody.innerHTML = timeframes.map(tf => {
+    const nAtTf   = Math.floor(dailySends * tf);
+    const absDiff = minDetectableDiff(p1, nAtTf);
+    const relDiff = (absDiff / p1) * 100;
+    const isTarget = tf === timeframes.reduce((prev, curr) =>
+      Math.abs(curr - days) < Math.abs(prev - days) ? curr : prev);
+    const relLabel = relDiff > 200 ? '>200%' : `±${relDiff.toFixed(1)}%`;
+    return `<tr${isTarget ? ' class="is-target"' : ''}>
+      <td>${tf} days</td>
+      <td>${fmt(nAtTf)}</td>
+      <td>${relLabel}</td>
+    </tr>`;
+  }).join('');
+
+  resultsEl.classList.add('visible');
+}
+
+getEl('calc-btn').addEventListener('click', calculate);
+(['baselineRate', 'minEffect', 'dailySends']).forEach(id => {
+  getEl(id).addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') calculate();
+  });
+});

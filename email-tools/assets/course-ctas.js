@@ -11,6 +11,8 @@
 // Waitlist courses are planned, not built: their copy promises no date and
 // no content details (title and topic only). Plan: _notes/email-tools-course-ctas-plan.md
 
+import { internalLinks } from "./site.js";
+
 const BASE = "https://holisticemailacademy.com/courses/";
 
 export const UTM = { source: "hem-tools", medium: "tool" };
@@ -177,9 +179,13 @@ export const TOOLS = {
   },
 };
 
-// Link to a course with UTM parameters. `tool` is a key of TOOLS; `content`
+// Link to a course: UTM parameters from jonathanpay.github.io, ?ref= on the
+// Academy site itself (see site.js). `tool` is a key of TOOLS; `content`
 // (optional) tells placements apart, e.g. "index" for the index-card pills.
 export function courseUrl(slug, tool, content) {
+  if (internalLinks) {
+    return `/courses/${slug}/?ref=email-tools-${tool}${content ? `-${content}` : ""}`;
+  }
   const params = new URLSearchParams({
     utm_source: UTM.source,
     utm_medium: UTM.medium,
@@ -275,8 +281,9 @@ export function renderCourseCta(host) {
   return true;
 }
 
-// Index-card pill: <a data-course-pill="tool"> becomes a link to the tool's
-// primary course, labelled with its level and status.
+// Course pill: <a data-course-pill="tool"> becomes a link to the tool's
+// primary course, labelled with its level and status. Index cards are tagged
+// "index"; add data-course-content="header" (etc.) to tag other placements.
 export function renderPill(link) {
   const tool = link.dataset.coursePill;
   const config = TOOLS[tool];
@@ -284,7 +291,7 @@ export function renderPill(link) {
   const course = COURSES[config.primary];
   link.className = pillClass(course);
   link.textContent = pillLabel(course);
-  link.href = courseUrl(config.primary, tool, "index");
+  link.href = courseUrl(config.primary, tool, link.dataset.courseContent || "index");
   return true;
 }
 

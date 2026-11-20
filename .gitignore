@@ -11,3 +11,6 @@ vendor/
 # Private Great Dark data files (book text): never commit these
 *.private.json
 /private/
+
+# Built WordPress plugin zip (wordpress/build-plugin.sh)
+/wordpress/dist/
