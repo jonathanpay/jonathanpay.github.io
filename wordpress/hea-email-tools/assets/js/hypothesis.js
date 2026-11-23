@@ -79,10 +79,10 @@ export function buildHypothesis(input) {
   add(
     "testable",
     Boolean(lift),
-    lift ? "You can tell if it failed" : "No success threshold yet",
+    lift ? "You know what result would count" : "No success threshold yet",
     lift
-      ? `If ${metric.noun} doesn't ${direction} by at least ${lift}%, the hypothesis was wrong.`
-      : "Add the smallest improvement that would matter to you. Without one, you can't say what counts as the hypothesis being wrong."
+      ? `You're looking for ${metric.noun} to ${direction} by at least ${lift}%. If the test clearly falls short of that, the hypothesis wasn't supported. If the result isn't statistically significant, the test didn't settle it either way. That's not the same as the hypothesis being wrong.`
+      : "Add the smallest improvement that would matter to you. Without one, you can't say what result would count against the hypothesis."
   );
 
   const plannerRow = {

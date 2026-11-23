@@ -2,7 +2,7 @@
 /**
  * Plugin Name:       HEA Email Tools
  * Description:       The Holistic Email Academy's free email tools. Put [hea_email_tool name="…"] on each tool's page, with the tool's written content as ordinary blocks around it. Settings → Email tools lists the pages and shortcodes.
- * Version:           1.2.0
+ * Version:           1.2.1
  * Requires at least: 6.5
  * Requires PHP:      7.4
  * Author:            Holistic Email Academy
@@ -13,7 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-const HEA_ET_VERSION = '1.2.0';
+const HEA_ET_VERSION = '1.2.1';
 const HEA_ET_OPTION  = 'hea_et_settings';
 
 /*

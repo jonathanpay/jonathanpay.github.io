@@ -7,7 +7,7 @@ The 13 free email tools, moved from jonathanpay.github.io/email-tools/ to holist
 | `email-tools/` | The source: one HTML page per tool plus `assets/`. Edit here. |
 | `build-email-tools.mjs` | Generates the plugin's `assets/`, `templates/` and `tools.json`, and the block markup in `email-tools-page-content/`, from the source, the copy and the SEO file. |
 | `build-email-tools-plugin.sh` | Runs the tests, regenerates, and makes `dist/hea-email-tools.zip`. |
-| `hea-email-tools/` | The plugin (version 1.2.0 is live). Only `hea-email-tools.php` and `uninstall.php` are hand-written. |
+| `hea-email-tools/` | The plugin (version 1.2.1 is live). Only `hea-email-tools.php` and `uninstall.php` are hand-written. |
 | `email-tools-page-copy.md` | Each page's written content: the About text and FAQ that sit around the tool as ordinary WordPress blocks. |
 | `email-tools-seo.json` | Each page's slug, intro paragraph and Yoast fields (keyphrase, related keyphrases, SEO title, meta description, social title). |
 | `email-tools-page-content/` | Generated: one file of block markup per page, ready to paste into the WordPress code editor. |
