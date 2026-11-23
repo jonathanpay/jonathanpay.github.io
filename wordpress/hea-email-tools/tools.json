@@ -1,5 +1,5 @@
 {
-  "version": "7094cc02e1",
+  "version": "5ebe3a2de4",
   "scripts": {
     "utils.js": "dd8d2a00f3",
     "ab-duration.js": "04e033d98a",
@@ -21,8 +21,8 @@
     "f2b-templates.js": "4d1e4d4d68",
     "f2b.js": "75e7be2442",
     "hypothesis-content.js": "742a0dd7bf",
-    "hypothesis.js": "682556881b",
-    "hypothesis-builder.js": "dee4dce3bf",
+    "hypothesis.js": "f0e6947637",
+    "hypothesis-builder.js": "a36191c2a1",
     "persona.js": "67db003093",
     "personalisation-rules.js": "483be52873",
     "personalisation.js": "17abfcd51a",
