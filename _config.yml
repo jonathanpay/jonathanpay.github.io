@@ -45,7 +45,6 @@ exclude:
   - Gemfile.lock
   - tests
   - wordpress
-  - email-tools/assets
 
 collections:
   now:
