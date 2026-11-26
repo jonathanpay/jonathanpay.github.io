@@ -9,8 +9,8 @@ import {serve, wire, complete, chromium, COLLECTOR_URL, PILOT_URL} from './works
 const KEY = 'z'.repeat(8) + 'a1b2c3d4e5f60718293a4b5c6d7e8f90abcdef12';
 const SHOTS = process.env.WORKSHOP_SHOTS || '';
 const shot = async (page, name, opts = {}) => { if (SHOTS) { fs.mkdirSync(SHOTS, {recursive: true}); await page.screenshot({path: `${SHOTS}/${name}.png`, ...opts}); } };
-const PARTICIPANT = '/workshops/london-forum/email-maturity-assessment/';
-const DASH = '/workshops/london-forum/dashboard/';
+const PARTICIPANT = '/_archive/workshops/london-forum/email-maturity-assessment/';
+const DASH = '/_archive/workshops/london-forum/dashboard/';
 let srv, browser;
 before(async () => { srv = await serve(); browser = await chromium.launch(); });
 after(async () => { await browser.close(); srv.server.close(); });

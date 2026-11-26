@@ -44,13 +44,8 @@ exclude:
   - vendor
   - Gemfile.lock
   - tests
-  - pilots/email-maturity-assessment/README.md
-  - pilots/email-maturity-assessment/apps-script
-  - workshops/london-forum/README.md
-  - workshops/london-forum/docs
-  - workshops/london-forum/apps-script
-  - workshops/london-forum/tools
   - wordpress
+  - email-tools/assets
 
 collections:
   now:

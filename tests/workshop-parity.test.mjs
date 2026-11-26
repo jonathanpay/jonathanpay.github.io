@@ -7,7 +7,7 @@ import path from 'node:path';
 import crypto from 'node:crypto';
 import {root} from './workshop/harness.mjs';
 
-const P = new URL('pilots/email-maturity-assessment/', root), W = new URL('workshops/london-forum/', root);
+const P = new URL('_archive/pilots/email-maturity-assessment/', root), W = new URL('_archive/workshops/london-forum/', root);
 const read = (base, f) => fs.readFileSync(new URL(f, base));
 const sha = b => crypto.createHash('sha256').update(b).digest('hex');
 // SHA-256 of the handover pack's snapshots (inspected 30 Oct 2026, repo head 57b5797123520a9bf135d7fba2af99ac25ac1c69).

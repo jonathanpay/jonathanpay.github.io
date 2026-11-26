@@ -9,7 +9,7 @@ import {createRequire} from 'node:module';
 import {COURSES as SITE_COURSES} from '../email-tools/assets/course-ctas.js';
 
 const require = createRequire(import.meta.url);
-const pilot = new URL('../pilots/email-maturity-assessment/', import.meta.url);
+const pilot = new URL('../_archive/pilots/email-maturity-assessment/', import.meta.url);
 const plugin = new URL('../wordpress/hea-maturity-assessment/', import.meta.url);
 const js = new URL('assets/js/', plugin);
 const read = url => fs.readFileSync(url, 'utf8');

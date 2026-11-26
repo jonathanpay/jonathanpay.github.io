@@ -3,7 +3,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {load} from './workshop/harness.mjs';
-import {buildRecords, expected} from '../workshops/london-forum/tools/seed-rehearsal.mjs';
+import {buildRecords, expected} from '../_archive/workshops/london-forum/tools/seed-rehearsal.mjs';
 
 const KEY = 'q'.repeat(8) + 'a1b2c3d4e5f60718293a4b5c6d7e8f90abcdef12';
 

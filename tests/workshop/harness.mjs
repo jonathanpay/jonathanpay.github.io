@@ -1,4 +1,4 @@
-// Runs workshops/london-forum/apps-script/Code.gs against an in-memory
+// Runs _archive/workshops/london-forum/apps-script/Code.gs against an in-memory
 // spreadsheet. This is a SIMULATION of Google's services, not a deployment: it
 // proves the script's logic, not Google quotas, locking latency or CORS.
 import fs from 'node:fs';
@@ -8,9 +8,9 @@ import {createRequire} from 'node:module';
 
 const require = createRequire(import.meta.url);
 export const root = new URL('../../', import.meta.url);
-export const E = require(new URL('pilots/email-maturity-assessment/engine.js', root).pathname);
-export const D = require(new URL('pilots/email-maturity-assessment/data.js', root).pathname);
-export const CODE = fs.readFileSync(new URL('workshops/london-forum/apps-script/Code.gs', root), 'utf8');
+export const E = require(new URL('_archive/pilots/email-maturity-assessment/engine.js', root).pathname);
+export const D = require(new URL('_archive/pilots/email-maturity-assessment/data.js', root).pathname);
+export const CODE = fs.readFileSync(new URL('_archive/workshops/london-forum/apps-script/Code.gs', root), 'utf8');
 export const PILOT_SHEET_ID = '1gdTLFaaORQ_Z-_rgy1Lng6NBj4jB0hHGzkOK-54tSPc';
 export const plain = v => JSON.parse(JSON.stringify(v));
 

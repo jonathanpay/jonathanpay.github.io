@@ -39,7 +39,7 @@ test('T01 Code.gs questionnaire constants match data.js', () => {
   assert.deepEqual(plain(ctx.CONTEXT_OPTION_COUNTS), D.context.map(c => c.options.length));
   assert.equal(ctx.OBSTACLES.length, D.obstacles.length);
   assert.equal(D.questions.length, 17);
-  assert.ok(fs.readFileSync(new URL('workshops/london-forum/apps-script/Code.gs', root), 'utf8').includes(`'${D.version}'`));
+  assert.ok(fs.readFileSync(new URL('_archive/workshops/london-forum/apps-script/Code.gs', root), 'utf8').includes(`'${D.version}'`));
 });
 
 test('T01/T06 collector scoring equals engine.js and the independent fixtures', () => {
@@ -95,9 +95,9 @@ test('T02 the script cannot send mail or call out, and asks for the spreadsheets
   c.post({action: 'aggregate', session: 'lf-rehearsal', key: KEY});
   assert.deepEqual(c.state.mail, []);
   assert.deepEqual(c.state.fetches, []);
-  const manifest = JSON.parse(fs.readFileSync(new URL('workshops/london-forum/apps-script/appsscript.json', root), 'utf8'));
+  const manifest = JSON.parse(fs.readFileSync(new URL('_archive/workshops/london-forum/apps-script/appsscript.json', root), 'utf8'));
   assert.deepEqual(manifest.oauthScopes, ['https://www.googleapis.com/auth/spreadsheets']);
-  const src = fs.readFileSync(new URL('workshops/london-forum/apps-script/Code.gs', root), 'utf8');
+  const src = fs.readFileSync(new URL('_archive/workshops/london-forum/apps-script/Code.gs', root), 'utf8');
   for (const bad of ['MailApp.', 'GmailApp.', 'UrlFetchApp.', 'DriveApp.', 'getActiveSpreadsheet().getSheetByName']) assert.ok(!src.includes(bad), bad);
   assert.equal([...src.matchAll(/SpreadsheetApp\.(\w+)/g)].map(m => m[1]).filter(x => !['openById', 'getActiveSpreadsheet', 'flush'].includes(x)).length, 0);
 });

@@ -83,11 +83,11 @@ Check that Section 4 lists WordPress.com/Automattic as a processor (it may alrea
 
 ### 6. Retire the old copies (once you're happy)
 
-Nothing below has been changed yet. These are your decisions:
+The two GitHub copies are archived. The rest is still yours to do:
 
-- **GitHub pilot** (`pilots/email-maturity-assessment/`, https://jonathanpay.github.io/pilots/email-maturity-assessment/). This is still live and still saves to the pilot sheet on your personal Gmail. Replace it with a redirect to the new page, or remove it.
+- **GitHub pilot.** Done: the source moved to `_archive/pilots/email-maturity-assessment/` (not published), and https://jonathanpay.github.io/pilots/email-maturity-assessment/ now redirects to the Academy assessment.
 - **Pilot QA sheet** (personal Gmail). It holds testers' names and emails. Archive or delete it as the original README planned. Undeploy its Apps Script (Deploy → Manage deployments → Archive) so nothing else can post to it.
-- **London Forum workshop copy and dashboard** (`workshops/london-forum/`). These are separate and untouched.
+- **London Forum workshop copy, dashboard and slides.** Done: archived in `_archive/workshops/london-forum/` (not published). The participant page and the `/mon/` and `/tue/` QR links redirect to the Academy assessment; the dashboard and slides are gone from the site. Undeploy the workshop collector's Apps Script too if you don't want it taking submissions.
 
 ## What changed from the GitHub pilot
 

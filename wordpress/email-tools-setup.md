@@ -117,7 +117,7 @@ The plugin has been tested in a clean WordPress with the default theme (see the 
 
 ### 7. Point the old addresses at the new pages (once you're happy)
 
-Done. Each `email-tools/*.html` on jonathanpay.github.io now sends visitors to its Academy page (by the slugs in `email-tools-seo.json`), keeping any `?…` query so Hypothesis Builder hand-offs still land pre-filled. The source pages moved to `wordpress/email-tools-pages/`, which isn't published. The `email-tools/assets/` folder stays: the London Forum assessment, its dashboard, the slides and the pilot load fonts and course data from there.
+Done. Each `email-tools/*.html` on jonathanpay.github.io now sends visitors to its Academy page (by the slugs in `email-tools-seo.json`), keeping any `?…` query so Hypothesis Builder hand-offs still land pre-filled. The source pages moved to `wordpress/email-tools-pages/`, which isn't published. The `email-tools/assets/` folder stays in the repository, because the plugin build and the tests read from it, but it's excluded from the published site.
 
 Also update links you control elsewhere: the jonathanpay.github.io homepage card and `/tools/` list (done), LinkedIn posts, the newsletter footer, and anything in the Academy that already links to jonathanpay.github.io/email-tools/.
 

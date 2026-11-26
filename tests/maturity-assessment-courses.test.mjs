@@ -6,7 +6,7 @@ import fs from 'node:fs';
 import {COURSES} from '../email-tools/assets/course-ctas.js';
 
 test('assessment course slugs exist in course-ctas.js', () => {
-  const src = fs.readFileSync(new URL('../pilots/email-maturity-assessment/courses.js', import.meta.url), 'utf8');
+  const src = fs.readFileSync(new URL('../_archive/pilots/email-maturity-assessment/courses.js', import.meta.url), 'utf8');
   const table = src.slice(src.indexOf('export const BY_DIMENSION'), src.indexOf('export const band'));
   const slugs = [...table.matchAll(/'([a-z0-9-]+)'/g)].map(m => m[1]);
   assert.ok(slugs.length > 5);

@@ -33,9 +33,9 @@ const cors = {'access-control-allow-origin': '*', 'content-type': 'application/j
  */
 export async function wire(context, c, {collectorUrl = COLLECTOR_URL, dashboard = false, sessions, hooks = {}} = {}) {
   const log = {posts: [], gets: [], external: [], bodies: []};
-  await context.route('**/workshops/london-forum/email-maturity-assessment/config.js', r => r.fulfill({contentType: 'text/javascript',
+  await context.route('**/_archive/workshops/london-forum/email-maturity-assessment/config.js', r => r.fulfill({contentType: 'text/javascript',
     body: `window.HEA_WORKSHOP=${JSON.stringify({collectorUrl, eventId: 'london-forum-2026', buildVersion: 'lf-test', privacyUrl: '', retentionNotice: ''})};`}));
-  await context.route('**/workshops/london-forum/dashboard/config.js', r => r.fulfill({contentType: 'text/javascript',
+  await context.route('**/_archive/workshops/london-forum/dashboard/config.js', r => r.fulfill({contentType: 'text/javascript',
     body: `window.HEA_DASHBOARD=${JSON.stringify({collectorUrl, sessions: sessions || [{id: 'lf-rehearsal', label: 'London Forum workshop (rehearsal)'}, {id: 'lf-live-1', label: 'London Forum workshop'}]})};`}));
   await context.route(/^https:\/\/script\.google\.com\//, async route => {
     const req = route.request();
