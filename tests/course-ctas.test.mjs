@@ -126,7 +126,7 @@ test("all three levels have a name and a pill class", () => {
 });
 
 test("index cards point at each tool's primary course", () => {
-  const html = readFileSync(new URL("../email-tools/index.html", import.meta.url), "utf8");
+  const html = readFileSync(new URL("../wordpress/email-tools-pages/index.html", import.meta.url), "utf8");
   const pills = [...html.matchAll(/<a href="([^"]+)"[^>]*data-course-pill="([^"]+)"/g)];
   assert.equal(pills.length, Object.keys(TOOLS).length);
   for (const [, href, tool] of pills) {
@@ -144,7 +144,7 @@ test("every tool page has a course block for its own key", () => {
   };
   assert.deepEqual(Object.keys(pages).sort(), Object.keys(TOOLS).sort());
   for (const [tool, page] of Object.entries(pages)) {
-    const html = readFileSync(new URL(`../email-tools/${page}.html`, import.meta.url), "utf8");
+    const html = readFileSync(new URL(`../wordpress/email-tools-pages/${page}.html`, import.meta.url), "utf8");
     assert.ok(html.includes(`data-course-cta="${tool}"`), `${page}: no course block`);
     assert.ok(html.includes("course-ctas.js") && html.includes("course-cta.css"), `${page}: block assets not loaded`);
     assert.doesNotMatch(html, /courses\/[a-z0-9-]+\/"[^>]*hea-btn/, `${page}: hard-coded course button left behind`);

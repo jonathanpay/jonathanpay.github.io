@@ -107,7 +107,7 @@ test("each of the seven pages loads the module and has the panel it watches", ()
     personalisation: "personalisation-tool", accessibility: "accessibility-tool", "dmarc-checker": "dmarc-checker-tool",
   };
   for (const [tool, page] of Object.entries(pages)) {
-    const html = readFileSync(new URL(`../email-tools/${page}.html`, import.meta.url), "utf8");
+    const html = readFileSync(new URL(`../wordpress/email-tools-pages/${page}.html`, import.meta.url), "utf8");
     assert.ok(html.includes("course-context.js"), `${page}: module not loaded`);
     const id = CONTEXT[tool].panel.slice(1);
     assert.ok(html.includes(`id="${id}"`), `${page}: no panel #${id}`);
